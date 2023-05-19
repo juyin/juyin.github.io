@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">	
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="Linux,命令," />
+  
+
+  
+    <meta name="description" content="深入解析Linux 常用命令--awk" />
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/logo.png">
+  
+  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
+  <title>深入解析Linux 常用命令--awk [ Helloeuler ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Helloeuler</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+          
+      
+  </ul>
+   
+</nav>
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        深入解析Linux 常用命令--awk
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2018-04-27T16:00:00.000Z">
+        2018-04-28
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 9 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>awk是一个功能十分强大的文本处理命令，本文主要介绍一些常用的文本处理方法。</p>
+<h2 id="2-awk命令行格式"><a href="#2-awk命令行格式" class="headerlink" title="2.awk命令行格式"></a>2.awk命令行格式</h2><p>格式1：	awk ‘{[pattern] action}’  filenames</p>
+<p>格式2：	awk -F  #指定分割字符</p>
+<p>格式1：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# cat test.log</span><br><span class="line">Apr 21 15:34:49 smart user: hello</span><br><span class="line">Apr 21 15:34:59 smart user: hello2</span><br><span class="line">Apr 22 15:45:55 smart test1.bin: test1.c main 15 </span><br><span class="line">Apr 22 15:46:08 smart test1.bin: test1.c main 15 </span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;print $5&#125;&#x27; test.log</span><br><span class="line">user:</span><br><span class="line">user:</span><br><span class="line">test1.bin:</span><br><span class="line">test1.bin:</span><br><span class="line">[root@smart Desktop]# </span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;print&#125;&#x27; test.log</span><br><span class="line">Apr 21 15:34:49 smart user: hello</span><br><span class="line">Apr 21 15:34:59 smart user: hello2</span><br><span class="line">Apr 22 15:45:55 smart test1.bin: test1.c main 15 </span><br><span class="line">Apr 22 15:46:08 smart test1.bin: test1.c main 15 </span><br></pre></td></tr></table></figure>
+
+<p>格式2：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk -F: &#x27;&#123;print $1&#125;&#x27; test.log</span><br><span class="line">Apr 21 15</span><br><span class="line">Apr 21 15</span><br><span class="line">Apr 22 15</span><br><span class="line">Apr 22 15</span><br><span class="line">[root@smart Desktop]# awk -F: &#x27;&#123;print $2&#125;&#x27; test.log</span><br><span class="line">34</span><br><span class="line">34</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">[root@smart Desktop]# awk -F: &#x27;&#123;print $3&#125;&#x27; test.log</span><br><span class="line">49 smart user</span><br><span class="line">59 smart user</span><br><span class="line">55 smart test1.bin</span><br><span class="line">08 smart test1.bin</span><br><span class="line">[root@smart Desktop]# </span><br></pre></td></tr></table></figure>
+
+<h2 id="3-awk示例"><a href="#3-awk示例" class="headerlink" title="3.awk示例"></a>3.awk示例</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# cat table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br></pre></td></tr></table></figure>
+
+<h3 id="1）打印所有文件内容"><a href="#1）打印所有文件内容" class="headerlink" title="1）打印所有文件内容"></a>1）打印所有文件内容</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;&#123;print&#125;&#x27; table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br><span class="line"></span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;print $0&#125;&#x27; table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen </span><br></pre></td></tr></table></figure>
+
+<h3 id="2）打印部分列"><a href="#2）打印部分列" class="headerlink" title="2）打印部分列"></a>2）打印部分列</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;&#123;print $1&#125;&#x27; table.txt</span><br><span class="line">Index</span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;print $2&#125;&#x27; table.txt</span><br><span class="line">Name</span><br><span class="line">Xiaohong</span><br><span class="line">Xiaoming</span><br><span class="line">Xiaogang</span><br></pre></td></tr></table></figure>
+
+<h3 id="3）模式匹配"><a href="#3）模式匹配" class="headerlink" title="3）模式匹配"></a>3）模式匹配</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;/user/&#x27; test.log</span><br><span class="line">Apr 21 15:34:49 smart user: hello</span><br><span class="line">Apr 21 15:34:59 smart user: hello2</span><br><span class="line">[root@smart Desktop]# awk &#x27;/1\/3/&#x27;  table.txt</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;/1\/3/  &#123;print $2&#125;&#x27;  table.txt</span><br><span class="line">Xiaoming</span><br><span class="line">[root@smart Desktop]# </span><br></pre></td></tr></table></figure>
+
+<h3 id="4）精确匹配"><a href="#4）精确匹配" class="headerlink" title="4）精确匹配"></a>4）精确匹配</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;$2==&quot;Xiaoming&quot; &#123;print&#125;&#x27; table.txt</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br></pre></td></tr></table></figure>
+
+<h3 id="5）不匹配"><a href="#5）不匹配" class="headerlink" title="5）不匹配"></a>5）不匹配</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;/Xiaoming/ &#123;print&#125;&#x27; table.txt</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;!/Xiaoming/ &#123;print&#125;&#x27; table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br></pre></td></tr></table></figure>
+
+<h3 id="6）条件-x2F-逻辑组合"><a href="#6）条件-x2F-逻辑组合" class="headerlink" title="6）条件&#x2F;逻辑组合"></a>6）条件&#x2F;逻辑组合</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;$1&gt;=2 &#123;print&#125;&#x27; table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;$1&gt;1 &amp;&amp; $1&lt;3  &#123;print&#125;&#x27; table.txt</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;$2==&quot;Xiaoming&quot;||$2==&quot;Xiaohong&quot;  &#123;print&#125;&#x27; table.txt</span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;/Xiaoming|Xiaohong/ &#123;print&#125;&#x27; table.txt</span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">[root@smart Desktop]# </span><br><span class="line"></span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<h3 id="7）内置变量"><a href="#7）内置变量" class="headerlink" title="7）内置变量"></a>7）内置变量</h3><p>NR：已读记录数</p>
+<p>NF：当前记录域总数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;&#123;print NF,NR,$0&#125;&#x27; table.txt</span><br><span class="line">6 1 Index  Name       Sex     Age     Date        Location  </span><br><span class="line">6 2  1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line">6 3  2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">6 4  3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;print NF,$0&#125;&#x27; table.txt</span><br><span class="line">6 Index  Name       Sex     Age     Date        Location  </span><br><span class="line">6  1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line">6  2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">6  3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;print NR,$0&#125;&#x27; table.txt</span><br><span class="line">1 Index  Name       Sex     Age     Date        Location  </span><br><span class="line">2  1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line">3  2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line">4  3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br></pre></td></tr></table></figure>
+
+<h3 id="8）计算"><a href="#8）计算" class="headerlink" title="8）计算"></a>8）计算</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;$4=$4+4 &#123;print $0&#125;&#x27; table.txt</span><br><span class="line">Index Name Sex 4 Date Location</span><br><span class="line">1 Xiaohong Man 14 1990/1/2 Shenzhen</span><br><span class="line">2 Xiaoming Woman 14 1990/1/3 Shenzhen</span><br><span class="line">3 Xiaogang Man 14 1990/1/4 Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;if($4!=&quot;Age&quot;) $4=$4+4&#125;&#123; print $0&#125;&#x27; table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line">1 Xiaohong Man 14 1990/1/2 Shenzhen</span><br><span class="line">2 Xiaoming Woman 14 1990/1/3 Shenzhen</span><br><span class="line">3 Xiaogang Man 14 1990/1/4 Shenzhen</span><br><span class="line">[root@smart Desktop]# </span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;if($4!=&quot;Age&quot;) $4=$4+4  print $0&#125;&#x27; table.txt</span><br><span class="line">awk: &#123;if($4!=&quot;Age&quot;) $4=$4+4  print $0&#125;</span><br><span class="line">awk:                         ^ syntax error</span><br><span class="line">[root@smart Desktop]# awk &#x27;&#123;if($4!=&quot;Age&quot;) $4=$4+4;  print $0&#125;&#x27; table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line">1 Xiaohong Man 14 1990/1/2 Shenzhen</span><br><span class="line">2 Xiaoming Woman 14 1990/1/3 Shenzhen</span><br><span class="line">3 Xiaogang Man 14 1990/1/4 Shenzhen</span><br><span class="line">[root@smart Desktop]# </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="9）新增输出内容"><a href="#9）新增输出内容" class="headerlink" title="9）新增输出内容"></a>9）新增输出内容</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &#x27;BEGIN&#123;print 1 2 3&#125; &#123;print $0&#125;&#x27; table.txt</span><br><span class="line">123</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br><span class="line">[root@smart Desktop]# awk &#x27;BEGIN&#123;print &quot;1 2 3&quot;&#125; &#123;print $0&#125;&#x27; table.txt</span><br><span class="line">1 2 3</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br><span class="line">[root@smart Desktop]# </span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-注意事项"><a href="#4-注意事项" class="headerlink" title="4.注意事项"></a>4.注意事项</h2><p>1）双引号与单引号</p>
+<p>特别注意awk与shell脚本中，单引号与双引号互包含的区别</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# awk &quot;&#123;print&#125;&quot; table.txt</span><br><span class="line">Index  Name       Sex     Age     Date        Location  </span><br><span class="line"> 1     Xiaohong   Man     10      1990/1/2    Shenzhen</span><br><span class="line"> 2     Xiaoming   Woman   10      1990/1/3    Shenzhen</span><br><span class="line"> 3     Xiaogang   Man     10      1990/1/4    Shenzhen</span><br><span class="line"> [root@smart Desktop]# awk &quot;$2==&quot;Xiaoming&quot; &#123;print&#125;&quot; table.txt</span><br><span class="line">awk: ==Xiaoming &#123;print&#125;</span><br><span class="line">awk: ^ syntax error</span><br><span class="line">[root@smart Desktop]# awk &quot;$2==&#x27;Xiaoming&#x27; &#123;print&#125;&quot; table.txt</span><br><span class="line">awk: ==&#x27;Xiaoming&#x27; &#123;print&#125;</span><br><span class="line">awk: ^ syntax error</span><br><span class="line">[root@smart Desktop]# </span><br><span class="line">[root@smart Desktop]# A=1</span><br><span class="line">[root@smart Desktop]# B=2</span><br><span class="line">[root@smart Desktop]# echo &quot;&#x27;$A&#x27; $B&quot;</span><br><span class="line">&#x27;1&#x27; 2</span><br><span class="line">[root@smart Desktop]# echo &#x27;&#x27;$A&#x27; $B&#x27;</span><br><span class="line">1 $B</span><br><span class="line">[root@smart Desktop]# echo &#x27;&quot;$A&quot; $B&#x27;</span><br><span class="line">&quot;$A&quot; $B</span><br><span class="line">[root@smart Desktop]# </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="toc-text">1.概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-awk%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A0%BC%E5%BC%8F"><span class="toc-text">2.awk命令行格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-awk%E7%A4%BA%E4%BE%8B"><span class="toc-text">3.awk示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89%E6%89%93%E5%8D%B0%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="toc-text">1）打印所有文件内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89%E6%89%93%E5%8D%B0%E9%83%A8%E5%88%86%E5%88%97"><span class="toc-text">2）打印部分列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D"><span class="toc-text">3）模式匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89%E7%B2%BE%E7%A1%AE%E5%8C%B9%E9%85%8D"><span class="toc-text">4）精确匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%EF%BC%89%E4%B8%8D%E5%8C%B9%E9%85%8D"><span class="toc-text">5）不匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%EF%BC%89%E6%9D%A1%E4%BB%B6-x2F-%E9%80%BB%E8%BE%91%E7%BB%84%E5%90%88"><span class="toc-text">6）条件&#x2F;逻辑组合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7%EF%BC%89%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8F"><span class="toc-text">7）内置变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8%EF%BC%89%E8%AE%A1%E7%AE%97"><span class="toc-text">8）计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9%EF%BC%89%E6%96%B0%E5%A2%9E%E8%BE%93%E5%87%BA%E5%86%85%E5%AE%B9"><span class="toc-text">9）新增输出内容</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">4.注意事项</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+<div class="share" style="width: 100%;">
+  <!-- <img src="https://kevinofneu-blog-static.oss-cn-beijing.aliyuncs.com/static/2018-12-10-qrcode_for_gh_ffacf5722095_258.jpg" alt="Running Geek" style="margin: auto; display: block;"/> -->
+
+  <!-- <div style="margin: auto; text-align: center; font-size: 0.8em; color: grey;">老铁们关注走一走，不迷路</div> -->
+  
+</div>
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/posts/edb75dcc.html" rel="next" title="深入解析Linux 常用命令--sed">
+          深入解析Linux 常用命令--sed
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/posts/67caa546.html" rel="prev" title="CVE">
+            CVE
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
+<!--        <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
+<!--         <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
+<!--         <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a>
+-->
+    </div>
+</footer>
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+
+
+
+</body>
+</html>

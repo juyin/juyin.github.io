@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">	
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="Linux,命令," />
+  
+
+  
+    <meta name="description" content="深入解析Linux 常用命令--route" />
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/logo.png">
+  
+  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
+  <title>深入解析Linux 常用命令--route [ Helloeuler ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Helloeuler</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+          
+      
+  </ul>
+   
+</nav>
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        深入解析Linux 常用命令--route
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2017-12-28T16:00:00.000Z">
+        2017-12-29
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 12 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>route用于查看路由表、增加路由、删除路由、修改路由表等操作。</p>
+<h2 id="2-路由类型"><a href="#2-路由类型" class="headerlink" title="2.路由类型"></a>2.路由类型</h2><p>a.主机路由：表示指向单个IP地址或主机名的路由</p>
+<p>b.网络路由：表示指向某个网路的路由</p>
+<p>c.默认路由：表示不能再路由表中找到的目标主机或网路的路由</p>
+<h2 id="3-命令"><a href="#3-命令" class="headerlink" title="3.命令"></a>3.命令</h2><h3 id="a-显示数字地址（不解析主机名）"><a href="#a-显示数字地址（不解析主机名）" class="headerlink" title="a.显示数字地址（不解析主机名）"></a>a.显示数字地址（不解析主机名）</h3><p>route -n,该命令经常使用，由于直接输入route主机会去接析主机名，有时候会耗用较长时间。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# route</span><br><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">192.168.1.0     *               255.255.255.0   U     1      0        0 eth0</span><br><span class="line">192.168.42.0    *               255.255.255.0   U     1      0        0 eth1</span><br><span class="line">192.168.122.0   *               255.255.255.0   U     0      0        0 virbr0</span><br><span class="line">default         192.168.1.1     0.0.0.0         UG    0      0        0 eth0</span><br><span class="line">[root@smart Desktop]# route -n</span><br><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">192.168.1.0     0.0.0.0         255.255.255.0   U     1      0        0 eth0</span><br><span class="line">192.168.42.0    0.0.0.0         255.255.255.0   U     1      0        0 eth1</span><br><span class="line">192.168.122.0   0.0.0.0         255.255.255.0   U     0      0        0 virbr0</span><br><span class="line">0.0.0.0         192.168.1.1     0.0.0.0         UG    0      0        0 eth0</span><br></pre></td></tr></table></figure>
+
+<p>输出项说明：</p>
+<table>
+<thead>
+<tr>
+<th align="left">输出项</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Destination</td>
+<td>目标网段或者主机</td>
+</tr>
+<tr>
+<td align="left">Gateway</td>
+<td>网关地址，”*” 表示目标是本主机所属的网络，不需要路由</td>
+</tr>
+<tr>
+<td align="left">Genmask</td>
+<td>网络掩码</td>
+</tr>
+<tr>
+<td align="left">Flags</td>
+<td>标记。一些可能的标记如下：</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td>U-路由是活动的</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td>H-目标是一个主机</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td>G-路由指向网关</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td>R- 恢复动态路由产生的表项</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td>D-由路由的后台程序动态地安装</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td>M-由路由的后台程序修改</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td>!-拒绝路由</td>
+</tr>
+<tr>
+<td align="left">Metric</td>
+<td>路由距离，到达指定网络所需的中转数</td>
+</tr>
+<tr>
+<td align="left">Ref</td>
+<td>路由项引用次数</td>
+</tr>
+<tr>
+<td align="left">Use</td>
+<td>此路由项被路由软件查找的次数</td>
+</tr>
+<tr>
+<td align="left">Iface</td>
+<td>该路由表项对应的输出接口</td>
+</tr>
+</tbody></table>
+<h3 id="b-查看内核路由表缓存"><a href="#b-查看内核路由表缓存" class="headerlink" title="b.查看内核路由表缓存"></a>b.查看内核路由表缓存</h3><p>-F</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# route -C</span><br><span class="line">Kernel IP routing cache</span><br><span class="line">Source          Destination     Gateway         Flags Metric Ref    Use Iface</span><br><span class="line">192.168.1.108   ns.szptt.net.cn 192.168.1.1           0      0       64 eth0</span><br><span class="line">192.168.1.108   14.215.177.39   192.168.1.1           0      0      181 eth0</span><br><span class="line">192.168.1.108   14.215.177.38   192.168.1.1           0      0        1 eth0</span><br><span class="line">192.168.1.108   14.215.177.39   192.168.1.1           0      0      181 eth0</span><br><span class="line">192.168.1.108   ns.szptt.net.cn 192.168.1.1           0      0       72 eth0</span><br><span class="line">192.168.1.1     192.168.1.108   192.168.1.108   il    0      0       20 lo</span><br><span class="line">192.168.1.108   a184-25-56-157. 192.168.1.1           0      1        0 eth0</span><br><span class="line">10.9.0.1        192.168.1.108   192.168.1.108   l     0      0        5 lo</span><br><span class="line">10.9.0.1        192.168.1.108   192.168.1.108   l     0      0        2 lo</span><br><span class="line">a184-25-56-157. 192.168.1.108   192.168.1.108   l     0      1        0 lo</span><br><span class="line">ns.szptt.net.cn 192.168.1.108   192.168.1.108   l     0      0       18 lo</span><br><span class="line">192.168.1.108   14.215.177.38   192.168.1.1           0      0        1 eth0</span><br><span class="line">[root@smart Desktop]# route -n</span><br><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">192.168.1.0     0.0.0.0         255.255.255.0   U     1      0        0 eth0</span><br><span class="line">192.168.42.0    0.0.0.0         255.255.255.0   U     1      0        0 eth1</span><br><span class="line">192.168.122.0   0.0.0.0         255.255.255.0   U     0      0        0 virbr0</span><br><span class="line">0.0.0.0         192.168.1.1     0.0.0.0         UG    0      0        0 eth0</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-路由配置"><a href="#4-路由配置" class="headerlink" title="4.路由配置"></a>4.路由配置</h2><h3 id="a-添加路由"><a href="#a-添加路由" class="headerlink" title="a.添加路由"></a>a.添加路由</h3><p>1）添加主机路由</p>
+<p>route  add -host  192.168.1.100  dev eth0</p>
+<p>route add -host  192.168.2.100 gw 192.168.1.1</p>
+<p>2）添加网络路由</p>
+<p>route add -net 172.168.1.0 netmask 255.255.255.0 eth0</p>
+<p>route add -net 172.168.2.0&#x2F;24 eth0</p>
+<p>route add -net 172.168.3.0&#x2F;24 dev eth0</p>
+<p>route add -net 172.168.4.0&#x2F;24 dev eth0 gw 192.168.1.1</p>
+<p>route add -net 172.168.5.0&#x2F;24 gw 192.168.1.1</p>
+<p>3）添加默认路由</p>
+<p>route add default gw 192.168.1.7</p>
+<p>route add 0.0.0.0 gw 172.168.1.1</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">[root@smart Desktop]# route -n</span><br><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">0.0.0.0         172.168.1.1     255.255.255.255 UGH   0      0        0 eth1</span><br><span class="line">192.168.2.100   0.0.0.0         255.255.255.255 UH    0      0        0 eth0</span><br><span class="line">192.168.2.101   192.168.1.1     255.255.255.255 UGH   0      0        0 eth0</span><br><span class="line">192.168.1.0     0.0.0.0         255.255.255.0   U     1      0        0 eth0</span><br><span class="line">172.168.1.0     192.168.1.1     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">172.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 eth1</span><br><span class="line">172.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0</span><br><span class="line">172.168.3.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0</span><br><span class="line">172.168.2.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0</span><br><span class="line">172.168.5.0     192.168.1.7     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">172.168.5.0     192.168.1.1     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">192.168.42.0    0.0.0.0         255.255.255.0   U     1      0        0 eth1</span><br><span class="line">172.168.4.0     192.168.1.1     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">192.168.122.0   0.0.0.0         255.255.255.0   U     0      0        0 virbr0</span><br><span class="line">0.0.0.0         192.168.42.1    0.0.0.0         UG    0      0        0 eth1</span><br><span class="line">0.0.0.0         192.168.42.7    0.0.0.0         UG    0      0        0 eth1</span><br><span class="line">0.0.0.0         192.168.1.7     0.0.0.0         UG    0      0        0 eth0</span><br><span class="line">0.0.0.0         192.168.1.1     0.0.0.0         UG    0      0        0 eth0</span><br><span class="line">[root@smart Desktop]# route </span><br><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">default         172.168.1.1     255.255.255.255 UGH   0      0        0 eth1</span><br><span class="line">192.168.2.100   *               255.255.255.255 UH    0      0        0 eth0</span><br><span class="line">192.168.2.101   192.168.1.1     255.255.255.255 UGH   0      0        0 eth0</span><br><span class="line">192.168.1.0     *               255.255.255.0   U     1      0        0 eth0</span><br><span class="line">172.168.1.0     192.168.1.1     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">172.168.1.0     *               255.255.255.0   U     0      0        0 eth1</span><br><span class="line">172.168.1.0     *               255.255.255.0   U     0      0        0 eth0</span><br><span class="line">172.168.3.0     *               255.255.255.0   U     0      0        0 eth0</span><br><span class="line">172.168.2.0     *               255.255.255.0   U     0      0        0 eth0</span><br><span class="line">172.168.5.0     192.168.1.7     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">172.168.5.0     192.168.1.1     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">192.168.42.0    *               255.255.255.0   U     1      0        0 eth1</span><br><span class="line">172.168.4.0     192.168.1.1     255.255.255.0   UG    0      0        0 eth0</span><br><span class="line">192.168.122.0   *               255.255.255.0   U     0      0        0 virbr0</span><br><span class="line">default         192.168.42.1    0.0.0.0         UG    0      0        0 eth1</span><br><span class="line">default         192.168.42.7    0.0.0.0         UG    0      0        0 eth1</span><br><span class="line">default         192.168.1.7     0.0.0.0         UG    0      0        0 eth0</span><br><span class="line">default         192.168.1.1     0.0.0.0         UG    0      0        0 eth0</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="b-删除路由"><a href="#b-删除路由" class="headerlink" title="b.删除路由"></a>b.删除路由</h3><p>删除与添加相反，只需将add换为del即可，另外删除路由可以不添加网关和设备标识</p>
+<p>1）删除主机路由</p>
+<p>route  del -host  192.168.1.100  dev eth0</p>
+<p>route del -host  192.168.2.100 gw 192.168.1.1</p>
+<p>route  del -host  192.168.1.100  </p>
+<p>route del -host  192.168.2.100</p>
+<p>2）添加网络路由</p>
+<p>route del -net 172.168.1.0 netmask 255.255.255.0 eth0</p>
+<p>route del -net 172.168.2.0&#x2F;24 eth0</p>
+<p>route del -net 172.168.3.0&#x2F;24 dev eth0</p>
+<p>route del -net 172.168.4.0&#x2F;24 dev eth0 gw 192.168.1.1</p>
+<p>route del -net 172.168.5.0&#x2F;24 gw 192.168.1.1</p>
+<p>3）添加默认路由</p>
+<p>route del default gw 192.168.1.7</p>
+<p>route del 0.0.0.0 gw 172.168.1.1</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="toc-text">1.概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%B7%AF%E7%94%B1%E7%B1%BB%E5%9E%8B"><span class="toc-text">2.路由类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%91%BD%E4%BB%A4"><span class="toc-text">3.命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#a-%E6%98%BE%E7%A4%BA%E6%95%B0%E5%AD%97%E5%9C%B0%E5%9D%80%EF%BC%88%E4%B8%8D%E8%A7%A3%E6%9E%90%E4%B8%BB%E6%9C%BA%E5%90%8D%EF%BC%89"><span class="toc-text">a.显示数字地址（不解析主机名）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#b-%E6%9F%A5%E7%9C%8B%E5%86%85%E6%A0%B8%E8%B7%AF%E7%94%B1%E8%A1%A8%E7%BC%93%E5%AD%98"><span class="toc-text">b.查看内核路由表缓存</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%AF%E7%94%B1%E9%85%8D%E7%BD%AE"><span class="toc-text">4.路由配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#a-%E6%B7%BB%E5%8A%A0%E8%B7%AF%E7%94%B1"><span class="toc-text">a.添加路由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#b-%E5%88%A0%E9%99%A4%E8%B7%AF%E7%94%B1"><span class="toc-text">b.删除路由</span></a></li></ol></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+<div class="share" style="width: 100%;">
+  <!-- <img src="https://kevinofneu-blog-static.oss-cn-beijing.aliyuncs.com/static/2018-12-10-qrcode_for_gh_ffacf5722095_258.jpg" alt="Running Geek" style="margin: auto; display: block;"/> -->
+
+  <!-- <div style="margin: auto; text-align: center; font-size: 0.8em; color: grey;">老铁们关注走一走，不迷路</div> -->
+  
+</div>
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/posts/17c953e6.html" rel="next" title="深入解析Linux 常用命令--lsof">
+          深入解析Linux 常用命令--lsof
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/posts/df4d7a50.html" rel="prev" title="深入解析Linux 常用命令--ps">
+            深入解析Linux 常用命令--ps
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
+<!--        <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
+<!--         <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
+<!--         <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a>
+-->
+    </div>
+</footer>
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+
+
+
+</body>
+</html>

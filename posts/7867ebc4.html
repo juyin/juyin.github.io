@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">	
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="GCC,gcc插件," />
+  
+
+  
+    <meta name="description" content="GCC插件开发" />
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/logo.png">
+  
+  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
+  <title>GCC插件开发 [ Helloeuler ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Helloeuler</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+          
+      
+  </ul>
+   
+</nav>
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        GCC插件开发
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2023-05-11T15:00:00.000Z">
+        2023-05-11
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GCC/" rel="tag">GCC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gcc%E6%8F%92%E4%BB%B6/" rel="tag">gcc插件</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 6 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h2 id="1-GCC-plugins"><a href="#1-GCC-plugins" class="headerlink" title="1 GCC plugins"></a>1 GCC plugins</h2><p>引用官方说明：</p>
+<p>GCC plugins are loadable modules that provide extra features to the compiler. Like GCC itself they can be distributed in source and binary forms.</p>
+<p>GCC plugins provide developers with a rich subset of the GCC API to allow them to extend GCC as they see fit. Whether it is writing an additional optimization pass, transforming code, or analyzing information, plugins can be quite useful.</p>
+<p>GCC plugins特点：可动态加载，无需重新编译GCC，方便扩展GCC新特性。</p>
+<h2 id="2-加载plugin"><a href="#2-加载plugin" class="headerlink" title="2 加载plugin"></a>2 加载plugin</h2><p>编译时添加如下选项：</p>
+<p>-fplugin&#x3D;name  -fplugin-arg-name-key1[&#x3D;value1]</p>
+<p>name 是GCC plugin插件名称</p>
+<p>key1 是插件的第一个参数</p>
+<p>value1是插件第一个参数的值</p>
+<h2 id="3-plugin框架"><a href="#3-plugin框架" class="headerlink" title="3 plugin框架"></a>3 plugin框架</h2><p>常见的plugin至少包括plugin_is_GPL_compatible、plugin_init。代码如下：</p>
+<p>plugin.c</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;gcc-plugin.h&quot;</span><br><span class="line">#include &quot;plugin-version.h&quot;</span><br><span class="line"></span><br><span class="line">int plugin_is_GPL_compatible;   // 框架要求必须有该变量声明</span><br><span class="line"></span><br><span class="line">// 插件初始化，当指定编译插件时，首先调用该函数。</span><br><span class="line">__visible int plugin_init(struct plugin_name_args *plugin_info, struct plugin_gcc_version *version)</span><br><span class="line">&#123;</span><br><span class="line">	// 检查插件版本与当前编译器版本是否一致， 也可以不检查。</span><br><span class="line">	if (!plugin_default_version_check(version, &amp;gcc_version)) &#123;</span><br><span class="line">		error(G_(&quot;incompatible gcc/plugin versions&quot;));</span><br><span class="line">		return 1;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>test.c</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">    printf(&quot;hello\n&quot;);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">编译：</span><br><span class="line">g++ -I`gcc -print-file-name=plugin`/include -fPIC -shared -o plugin1.so plugin1.c</span><br><span class="line">g++ -O0 -g -fplugin=plugin1.so test.c -o test.exe</span><br></pre></td></tr></table></figure>
+
+
+
+<p>编译器粗略分为词法分析，语法分析，类型检查，中间代码生成，代码优化，目标代码生成，目标代码优化。</p>
+<p>GCC编译过程中分为几个部分：前端、中端、后端。</p>
+<p>前端主要做词法分析，语法分析，类型检查，中间代码生成。</p>
+<p>中端实现中间代码的优化。</p>
+<p>后端实现对各个平台的汇编代码。</p>
+<p>在gcc的实现通过pass进行上述过程的映射。 pass定义在GCC passes.def</p>
+<h3 id="3-1-注册pass"><a href="#3-1-注册pass" class="headerlink" title="3.1  注册pass"></a>3.1  注册pass</h3><p> 1）基于gcc plugin</p>
+<p>​      参考 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/49490338">https://zhuanlan.zhihu.com/p/49490338</a></p>
+<p>2）基于linux kernel</p>
+<p>​    Linux Kernel封装了一系列宏，简化了plugin的使用。<br>   代码中实现了一个打印函数名称的功能。</p>
+<h3 id="3-2-plugin事件"><a href="#3-2-plugin事件" class="headerlink" title="3.2  plugin事件"></a>3.2  plugin事件</h3><p>有了plugin框架后，我们就可以添加plugin核心内容了。GCC plugin提供了一些plugin的事件，分别对应于plugin的各个过程。</p>
+<p>通过register_callback函数注册回调钩子，当触发事件是回调相应的处理函数。</p>
+<p>附：plugin事件列表。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">enum plugin_event</span><br><span class="line">&#123;</span><br><span class="line">  PLUGIN_START_PARSE_FUNCTION,  /* Called before parsing the body of a function. */</span><br><span class="line">  PLUGIN_FINISH_PARSE_FUNCTION, /* After finishing parsing a function. */</span><br><span class="line">  PLUGIN_PASS_MANAGER_SETUP,    /* To hook into pass manager.  */</span><br><span class="line">  PLUGIN_FINISH_TYPE,           /* After finishing parsing a type.  */</span><br><span class="line">  PLUGIN_FINISH_DECL,           /* After finishing parsing a declaration. */</span><br><span class="line">  PLUGIN_FINISH_UNIT,           /* Useful for summary processing.  */</span><br><span class="line">  PLUGIN_PRE_GENERICIZE,        /* Allows to see low level AST in C and C++ frontends.  */</span><br><span class="line">  PLUGIN_FINISH,                /* Called before GCC exits.  */</span><br><span class="line">  PLUGIN_INFO,                  /* Information about the plugin. */</span><br><span class="line">  PLUGIN_GGC_START,             /* Called at start of GCC Garbage Collection. */</span><br><span class="line">  PLUGIN_GGC_MARKING,           /* Extend the GGC marking. */</span><br><span class="line">  PLUGIN_GGC_END,               /* Called at end of GGC. */</span><br><span class="line">  PLUGIN_REGISTER_GGC_ROOTS,    /* Register an extra GGC root table. */</span><br><span class="line">  PLUGIN_ATTRIBUTES,            /* Called during attribute registration */</span><br><span class="line">  PLUGIN_START_UNIT,            /* Called before processing a translation unit.  */</span><br><span class="line">  PLUGIN_PRAGMAS,               /* Called during pragma registration. */</span><br><span class="line">  /* Called before first pass from all_passes.  */</span><br><span class="line">  PLUGIN_ALL_PASSES_START,</span><br><span class="line">  /* Called after last pass from all_passes.  */</span><br><span class="line">  PLUGIN_ALL_PASSES_END,</span><br><span class="line">  /* Called before first ipa pass.  */</span><br><span class="line">  PLUGIN_ALL_IPA_PASSES_START,</span><br><span class="line">  /* Called after last ipa pass.  */</span><br><span class="line">  PLUGIN_ALL_IPA_PASSES_END,</span><br><span class="line">  /* Allows to override pass gate decision for current_pass.  */</span><br><span class="line">  PLUGIN_OVERRIDE_GATE,</span><br><span class="line">  /* Called before executing a pass.  */</span><br><span class="line">  PLUGIN_PASS_EXECUTION,</span><br><span class="line">  /* Called before executing subpasses of a GIMPLE_PASS in</span><br><span class="line">     execute_ipa_pass_list.  */</span><br><span class="line">  PLUGIN_EARLY_GIMPLE_PASSES_START,</span><br><span class="line">  /* Called after executing subpasses of a GIMPLE_PASS in</span><br><span class="line">     execute_ipa_pass_list.  */</span><br><span class="line">  PLUGIN_EARLY_GIMPLE_PASSES_END,</span><br><span class="line">  /* Called when a pass is first instantiated.  */</span><br><span class="line">  PLUGIN_NEW_PASS,</span><br><span class="line">/* Called when a file is #include-d or given via the #line directive.</span><br><span class="line">   This could happen many times.  The event data is the included file path,</span><br><span class="line">   as a const char* pointer.  */</span><br><span class="line">  PLUGIN_INCLUDE_FILE,</span><br><span class="line"></span><br><span class="line">  /* Called when -fanalyzer starts. The event data is an</span><br><span class="line">     ana::plugin_analyzer_init_iface *.  */</span><br><span class="line">  PLUGIN_ANALYZER_INIT,</span><br><span class="line"></span><br><span class="line">  PLUGIN_EVENT_FIRST_DYNAMIC    /* Dummy event used for indexing callback array.  */</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.GCC plugins官方文档：<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gccint/Plugins.html#Plugins">https://gcc.gnu.org/onlinedocs/gccint/Plugins.html#Plugins</a></p>
+<p>2.GCC-Plugin的一些笔记（一）：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/49490338">https://zhuanlan.zhihu.com/p/49490338</a></p>
+<p>3.gcc插件：<a target="_blank" rel="noopener" href="https://github.com/rofirrim/gcc-plugins.git">https://github.com/rofirrim/gcc-plugins.git</a></p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-GCC-plugins"><span class="toc-text">1 GCC plugins</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8A%A0%E8%BD%BDplugin"><span class="toc-text">2 加载plugin</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-plugin%E6%A1%86%E6%9E%B6"><span class="toc-text">3 plugin框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%B3%A8%E5%86%8Cpass"><span class="toc-text">3.1  注册pass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-plugin%E4%BA%8B%E4%BB%B6"><span class="toc-text">3.2  plugin事件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+<div class="share" style="width: 100%;">
+  <!-- <img src="https://kevinofneu-blog-static.oss-cn-beijing.aliyuncs.com/static/2018-12-10-qrcode_for_gh_ffacf5722095_258.jpg" alt="Running Geek" style="margin: auto; display: block;"/> -->
+
+  <!-- <div style="margin: auto; text-align: center; font-size: 0.8em; color: grey;">老铁们关注走一走，不迷路</div> -->
+  
+</div>
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/posts/12927.html" rel="next" title="Linux下stat查看atime问题分析">
+          Linux下stat查看atime问题分析
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/posts/3e2e1a1a.html" rel="prev" title="Linux GCC插件">
+            Linux GCC插件
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
+<!--        <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
+<!--         <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
+<!--         <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a>
+-->
+    </div>
+</footer>
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+
+
+
+</body>
+</html>

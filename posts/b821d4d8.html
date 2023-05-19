@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">	
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="TensorFlow,深度学习," />
+  
+
+  
+    <meta name="description" content="TensorFlow深度学习笔记-9" />
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/logo.png">
+  
+  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
+  <title>TensorFlow深度学习笔记-9 [ Helloeuler ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Helloeuler</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+          
+      
+  </ul>
+   
+</nav>
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        TensorFlow深度学习笔记-9
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2017-12-07T16:00:00.000Z">
+        2017-12-08
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 10 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>1.传统神经网络缺陷：权值太多，计算量太大，需要大量样本进行训练 .</p>
+<p>2.卷积神经网络，是一种前馈神经网络，人工神经元可以响应周围单元，可以大型图像处理。卷积神经网络包括卷积层和池化层。</p>
+<p>   卷积操作是利用卷积核对图像的关键信息进行提取。</p>
+<p>   卷积层：将图像与卷积核做卷积的过程。</p>
+<p>​    池化层：对不同位置的特征进行聚合的过程。</p>
+<p><img src="F:\2017Tensorflow教程\第六周\卷积.gif" alt="卷积"></p>
+<p>在深度学习中，利用多个卷积、池化操作来对图像进行分类。</p>
+<h3 id="1-卷积"><a href="#1-卷积" class="headerlink" title="1.卷积"></a>1.卷积</h3><p>卷积操作有两种模式：</p>
+<p> a.Same padding模式</p>
+<p>​     给平面补0</p>
+<p>b.valid padding </p>
+<p>   不会超出平面外部。</p>
+<h3 id="2-池化"><a href="#2-池化" class="headerlink" title="2.池化"></a>2.池化</h3><p>池化操作有两种模式，与卷积类似：</p>
+<p> a.Same padding模式</p>
+<p>​     给平面补0</p>
+<p>b.valid padding </p>
+<p>   不会超出平面外部。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&#x27;MNIST_data&#x27;</span>,one_hot=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#每个批次的大小</span></span><br><span class="line">batch_size = <span class="number">100</span></span><br><span class="line"><span class="comment">#计算一共有多少个批次</span></span><br><span class="line">n_batch = mnist.train.num_examples // batch_size</span><br><span class="line"></span><br><span class="line"><span class="comment">#参数概要</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">variable_summaries</span>(<span class="params">var</span>):</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;summaries&#x27;</span>):</span><br><span class="line">        mean = tf.reduce_mean(var)</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;mean&#x27;</span>, mean)<span class="comment">#平均值</span></span><br><span class="line">        <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;stddev&#x27;</span>):</span><br><span class="line">            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;stddev&#x27;</span>, stddev)<span class="comment">#标准差</span></span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;max&#x27;</span>, tf.reduce_max(var))<span class="comment">#最大值</span></span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;min&#x27;</span>, tf.reduce_min(var))<span class="comment">#最小值</span></span><br><span class="line">        tf.summary.histogram(<span class="string">&#x27;histogram&#x27;</span>, var)<span class="comment">#直方图</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化权值</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">weight_variable</span>(<span class="params">shape,name</span>):</span><br><span class="line">    initial = tf.truncated_normal(shape,stddev=<span class="number">0.1</span>)<span class="comment">#生成一个截断的正态分布</span></span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial,name=name)</span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化偏置</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bias_variable</span>(<span class="params">shape,name</span>):</span><br><span class="line">    initial = tf.constant(<span class="number">0.1</span>,shape=shape)</span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial,name=name)</span><br><span class="line"></span><br><span class="line"><span class="comment">#卷积层</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">conv2d</span>(<span class="params">x,W</span>):</span><br><span class="line">    <span class="comment">#x input tensor of shape `[batch, in_height, in_width, in_channels]`</span></span><br><span class="line">    <span class="comment">#W filter / kernel tensor of shape [filter_height, filter_width, in_channels, out_channels]</span></span><br><span class="line">    <span class="comment">#`strides[0] = strides[3] = 1`. strides[1]代表x方向的步长，strides[2]代表y方向的步长</span></span><br><span class="line">    <span class="comment">#padding: A `string` from: `&quot;SAME&quot;, &quot;VALID&quot;`</span></span><br><span class="line">    <span class="keyword">return</span> tf.nn.conv2d(x,W,strides=[<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>],padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#池化层</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">max_pool_2x2</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="comment">#ksize [1,x,y,1]</span></span><br><span class="line">    <span class="keyword">return</span> tf.nn.max_pool(x,ksize=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>],strides=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>],padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#命名空间</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;input&#x27;</span>):</span><br><span class="line">    <span class="comment">#定义两个placeholder</span></span><br><span class="line">    x = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">784</span>],name=<span class="string">&#x27;x-input&#x27;</span>)</span><br><span class="line">    y = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">10</span>],name=<span class="string">&#x27;y-input&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;x_image&#x27;</span>):</span><br><span class="line">        <span class="comment">#改变x的格式转为4D的向量[batch, in_height, in_width, in_channels]`</span></span><br><span class="line">        x_image = tf.reshape(x,[-<span class="number">1</span>,<span class="number">28</span>,<span class="number">28</span>,<span class="number">1</span>],name=<span class="string">&#x27;x_image&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;Conv1&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第一个卷积层的权值和偏置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_conv1&#x27;</span>):</span><br><span class="line">        W_conv1 = weight_variable([<span class="number">5</span>,<span class="number">5</span>,<span class="number">1</span>,<span class="number">32</span>],name=<span class="string">&#x27;W_conv1&#x27;</span>)<span class="comment">#5*5的采样窗口，32个卷积核从1个平面抽取特征</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_conv1&#x27;</span>):  </span><br><span class="line">        b_conv1 = bias_variable([<span class="number">32</span>],name=<span class="string">&#x27;b_conv1&#x27;</span>)<span class="comment">#每一个卷积核一个偏置值</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把x_image和权值向量进行卷积，再加上偏置值，然后应用于relu激活函数</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;conv2d_1&#x27;</span>):</span><br><span class="line">        conv2d_1 = conv2d(x_image,W_conv1) + b_conv1</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_conv1 = tf.nn.relu(conv2d_1)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool1&#x27;</span>):</span><br><span class="line">        h_pool1 = max_pool_2x2(h_conv1)<span class="comment">#进行max-pooling</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;Conv2&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第二个卷积层的权值和偏置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_conv2&#x27;</span>):</span><br><span class="line">        W_conv2 = weight_variable([<span class="number">5</span>,<span class="number">5</span>,<span class="number">32</span>,<span class="number">64</span>],name=<span class="string">&#x27;W_conv2&#x27;</span>)<span class="comment">#5*5的采样窗口，64个卷积核从32个平面抽取特征</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_conv2&#x27;</span>):  </span><br><span class="line">        b_conv2 = bias_variable([<span class="number">64</span>],name=<span class="string">&#x27;b_conv2&#x27;</span>)<span class="comment">#每一个卷积核一个偏置值</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把h_pool1和权值向量进行卷积，再加上偏置值，然后应用于relu激活函数</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;conv2d_2&#x27;</span>):</span><br><span class="line">        conv2d_2 = conv2d(h_pool1,W_conv2) + b_conv2</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_conv2 = tf.nn.relu(conv2d_2)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool2&#x27;</span>):</span><br><span class="line">        h_pool2 = max_pool_2x2(h_conv2)<span class="comment">#进行max-pooling</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#28*28的图片第一次卷积后还是28*28，第一次池化后变为14*14</span></span><br><span class="line"><span class="comment">#第二次卷积后为14*14，第二次池化后变为了7*7</span></span><br><span class="line"><span class="comment">#进过上面操作后得到64张7*7的平面</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;fc1&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第一个全连接层的权值</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_fc1&#x27;</span>):</span><br><span class="line">        W_fc1 = weight_variable([<span class="number">7</span>*<span class="number">7</span>*<span class="number">64</span>,<span class="number">1024</span>],name=<span class="string">&#x27;W_fc1&#x27;</span>)<span class="comment">#上一场有7*7*64个神经元，全连接层有1024个神经元</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_fc1&#x27;</span>):</span><br><span class="line">        b_fc1 = bias_variable([<span class="number">1024</span>],name=<span class="string">&#x27;b_fc1&#x27;</span>)<span class="comment">#1024个节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把池化层2的输出扁平化为1维</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool2_flat&#x27;</span>):</span><br><span class="line">        h_pool2_flat = tf.reshape(h_pool2,[-<span class="number">1</span>,<span class="number">7</span>*<span class="number">7</span>*<span class="number">64</span>],name=<span class="string">&#x27;h_pool2_flat&#x27;</span>)</span><br><span class="line">    <span class="comment">#求第一个全连接层的输出</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;wx_plus_b1&#x27;</span>):</span><br><span class="line">        wx_plus_b1 = tf.matmul(h_pool2_flat,W_fc1) + b_fc1</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_fc1 = tf.nn.relu(wx_plus_b1)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#keep_prob用来表示神经元的输出概率</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;keep_prob&#x27;</span>):</span><br><span class="line">        keep_prob = tf.placeholder(tf.float32,name=<span class="string">&#x27;keep_prob&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_fc1_drop&#x27;</span>):</span><br><span class="line">        h_fc1_drop = tf.nn.dropout(h_fc1,keep_prob,name=<span class="string">&#x27;h_fc1_drop&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;fc2&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第二个全连接层</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_fc2&#x27;</span>):</span><br><span class="line">        W_fc2 = weight_variable([<span class="number">1024</span>,<span class="number">10</span>],name=<span class="string">&#x27;W_fc2&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_fc2&#x27;</span>):    </span><br><span class="line">        b_fc2 = bias_variable([<span class="number">10</span>],name=<span class="string">&#x27;b_fc2&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;wx_plus_b2&#x27;</span>):</span><br><span class="line">        wx_plus_b2 = tf.matmul(h_fc1_drop,W_fc2) + b_fc2</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;softmax&#x27;</span>):</span><br><span class="line">        <span class="comment">#计算输出</span></span><br><span class="line">        prediction = tf.nn.softmax(wx_plus_b2)</span><br><span class="line"></span><br><span class="line"><span class="comment">#交叉熵代价函数</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;cross_entropy&#x27;</span>):</span><br><span class="line">    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y,logits=prediction),name=<span class="string">&#x27;cross_entropy&#x27;</span>)</span><br><span class="line">    tf.summary.scalar(<span class="string">&#x27;cross_entropy&#x27;</span>,cross_entropy)</span><br><span class="line">    </span><br><span class="line"><span class="comment">#使用AdamOptimizer进行优化</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;train&#x27;</span>):</span><br><span class="line">    train_step = tf.train.AdamOptimizer(<span class="number">1e-4</span>).minimize(cross_entropy)</span><br><span class="line"></span><br><span class="line"><span class="comment">#求准确率</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;accuracy&#x27;</span>):</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;correct_prediction&#x27;</span>):</span><br><span class="line">        <span class="comment">#结果存放在一个布尔列表中</span></span><br><span class="line">        correct_prediction = tf.equal(tf.argmax(prediction,<span class="number">1</span>),tf.argmax(y,<span class="number">1</span>))<span class="comment">#argmax返回一维张量中最大的值所在的位置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;accuracy&#x27;</span>):</span><br><span class="line">        <span class="comment">#求准确率</span></span><br><span class="line">        accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;accuracy&#x27;</span>,accuracy)</span><br><span class="line">        </span><br><span class="line"><span class="comment">#合并所有的summary</span></span><br><span class="line">merged = tf.summary.merge_all()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    sess.run(tf.global_variables_initializer())</span><br><span class="line">    train_writer = tf.summary.FileWriter(<span class="string">&#x27;logs/train&#x27;</span>,sess.graph)</span><br><span class="line">    test_writer = tf.summary.FileWriter(<span class="string">&#x27;logs/test&#x27;</span>,sess.graph)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1001</span>):</span><br><span class="line">        <span class="comment">#训练模型</span></span><br><span class="line">        batch_xs,batch_ys =  mnist.train.next_batch(batch_size)</span><br><span class="line">        sess.run(train_step,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">0.5</span>&#125;)</span><br><span class="line">        <span class="comment">#记录训练集计算的参数</span></span><br><span class="line">        summary = sess.run(merged,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">        train_writer.add_summary(summary,i)</span><br><span class="line">        <span class="comment">#记录测试集计算的参数</span></span><br><span class="line">        batch_xs,batch_ys =  mnist.test.next_batch(batch_size)</span><br><span class="line">        summary = sess.run(merged,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">        test_writer.add_summary(summary,i)</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span> i%<span class="number">100</span>==<span class="number">0</span>:</span><br><span class="line">            test_acc = sess.run(accuracy,feed_dict=&#123;x:mnist.test.images,y:mnist.test.labels,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">            train_acc = sess.run(accuracy,feed_dict=&#123;x:mnist.train.images[:<span class="number">10000</span>],y:mnist.train.labels[:<span class="number">10000</span>],keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&quot;Iter &quot;</span> + <span class="built_in">str</span>(i) + <span class="string">&quot;, Testing Accuracy= &quot;</span> + <span class="built_in">str</span>(test_acc) + <span class="string">&quot;, Training Accuracy= &quot;</span> + <span class="built_in">str</span>(train_acc))</span><br></pre></td></tr></table></figure>
+
+
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8D%B7%E7%A7%AF"><span class="toc-text">1.卷积</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B1%A0%E5%8C%96"><span class="toc-text">2.池化</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+<div class="share" style="width: 100%;">
+  <!-- <img src="https://kevinofneu-blog-static.oss-cn-beijing.aliyuncs.com/static/2018-12-10-qrcode_for_gh_ffacf5722095_258.jpg" alt="Running Geek" style="margin: auto; display: block;"/> -->
+
+  <!-- <div style="margin: auto; text-align: center; font-size: 0.8em; color: grey;">老铁们关注走一走，不迷路</div> -->
+  
+</div>
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/posts/cf26e44e.html" rel="next" title="TensorFlow深度学习笔记-8">
+          TensorFlow深度学习笔记-8
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/posts/b4b22e1b.html" rel="prev" title="TensorFlow深度学习笔记-10">
+            TensorFlow深度学习笔记-10
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
+<!--        <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
+<!--         <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
+<!--         <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a>
+-->
+    </div>
+</footer>
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+
+
+
+</body>
+</html>

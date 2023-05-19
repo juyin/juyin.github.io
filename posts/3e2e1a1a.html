@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">	
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="安全,Linux,gcc插件," />
+  
+
+  
+    <meta name="description" content="Linux GCC插件" />
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/logo.png">
+  
+  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
+  <title>Linux GCC插件 [ Helloeuler ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Helloeuler</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+          
+      
+  </ul>
+   
+</nav>
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        Linux GCC插件
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2023-05-12T14:10:00.000Z">
+        2023-05-12
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gcc%E6%8F%92%E4%BB%B6/" rel="tag">gcc插件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%89%E5%85%A8/" rel="tag">安全</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 4 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Linux gcc plugins是由Emese Revfy 2016年从grsecurity&#x2F;PaX移植而来，提供了一系列gcc插件，它是KSPP的一部分。</p>
+<h1 id="latent-entropy-plugin"><a href="#latent-entropy-plugin" class="headerlink" title="latent_entropy_plugin"></a>latent_entropy_plugin</h1><p>在启动过程收集熵，但它不是密码学安全的熵。适合嵌入式场景下，熵源较少的场景。</p>
+<p>内核配置：CONFIG_GCC_PLUGIN_LATENT_ENTROPY</p>
+<h2 id="原理概述"><a href="#原理概述" class="headerlink" title="原理概述"></a>原理概述</h2><p>在irq、init等函数前添加__latent_entropy属性，通过插件，收集有__latent_entropy属性的函数、变量，每个都有一个临时熵，各种计算后累积到全局latent_entropy。然后在start_kernel、kernel_clone函数调用add_latent_entropy-》add_device_randomness添加到随机数熵源中。</p>
+<h2 id="测试情况"><a href="#测试情况" class="headerlink" title="测试情况"></a>测试情况</h2><p>基于Linux 6.2测试，OS极简，只运行rsyslog、audit、sshd等OS必须的二进制。</p>
+<p>开启该选项后直到“random: crng init done”  6.67s。</p>
+<p>未开启该选项后直到“random: crng init done” 15.74s。</p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>该特性对启动性能有影响，会延长启动时间。</p>
+<h1 id="randomize-layout"><a href="#randomize-layout" class="headerlink" title="randomize_layout"></a>randomize_layout</h1><p>背景：当已知结构体地址及结构体成员顺序，计算偏移值，使用恶意值覆盖特定字段，从而达到攻击目的。</p>
+<p>内核配置：CONFIG_GCC_PLUGIN_RANDSTRUCT、CONFIG_GCC_PLUGIN_RANDSTRUCT_PERFORMANCE</p>
+<p>关键数据结构都添加了属性__randomize_layout</p>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://lwn.net/Articles/722293/">https://lwn.net/Articles/722293/</a></p>
+<h2 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h2><p>启用该功能会有一些性能影响，内存会有一点增加</p>
+<h1 id="arm-ssp-per-task-plugin"><a href="#arm-ssp-per-task-plugin" class="headerlink" title="arm_ssp_per_task_plugin"></a>arm_ssp_per_task_plugin</h1><p>功能：支持arm每个task 栈canaries。</p>
+<p>背景：当前仅在内核切换任务的时候更新canary，在SMP场景下，不可能实现</p>
+<p>内核配置：CONFIG_GCC_PLUGIN_ARM_SSP_PER_TASK</p>
+<p>参考地址: <a target="_blank" rel="noopener" href="https://lwn.net/Articles/770984/">https://lwn.net/Articles/770984/</a></p>
+<h1 id="stackleak-plugin"><a href="#stackleak-plugin" class="headerlink" title="stackleak_plugin"></a>stackleak_plugin</h1><p><a target="_blank" rel="noopener" href="https://a13xp0p0v.github.io/2018/11/04/stackleak.html">https://a13xp0p0v.github.io/2018/11/04/stackleak.html</a></p>
+<p>功能：通过以下方式减轻了几种类型的 Linux 内核漏洞：</p>
+<ul>
+<li>减少内核堆栈泄漏错误可以向攻击者透露的信息，</li>
+<li>阻止一些未初始化的堆栈变量攻击，</li>
+<li>在针对 Linux 内核的堆栈冲突攻击期间检测内核堆栈溢出。</li>
+</ul>
+<p><img src="https://a13xp0p0v.github.io/img/stackleak.png" alt="img"></p>
+<p>适用于对信息安全要求较高的场景。</p>
+<h1 id="structleak-plugin"><a href="#structleak-plugin" class="headerlink" title="structleak_plugin"></a>structleak_plugin</h1><p>功能：该插件主要是防止结构体未初始化导致信息泄露。</p>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://linxz.tech/post/compilers/2021-10-10-structleak/">https://linxz.tech/post/compilers/2021-10-10-structleak/</a></p>
+<h1 id="rap-plugin"><a href="#rap-plugin" class="headerlink" title="rap_plugin"></a>rap_plugin</h1><p>地址完整性检查</p>
+<h1 id="cyc-complexity-plugin"><a href="#cyc-complexity-plugin" class="headerlink" title="cyc_complexity_plugin"></a>cyc_complexity_plugin</h1><p>函数圈复杂度插件。</p>
+<p>效果如下：</p>
+<p>Cyclomatic Complexity main.c:3:5:main   1</p>
+<p>文件main.c  第3行第5列 main函数，复杂度为1</p>
+<h1 id="sancov-plugin"><a href="#sancov-plugin" class="headerlink" title="sancov_plugin"></a>sancov_plugin</h1><p>kcov辅助插件</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#latent-entropy-plugin"><span class="toc-text">latent_entropy_plugin</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0"><span class="toc-text">原理概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E6%83%85%E5%86%B5"><span class="toc-text">测试情况</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#randomize-layout"><span class="toc-text">randomize_layout</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#arm-ssp-per-task-plugin"><span class="toc-text">arm_ssp_per_task_plugin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#stackleak-plugin"><span class="toc-text">stackleak_plugin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#structleak-plugin"><span class="toc-text">structleak_plugin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rap-plugin"><span class="toc-text">rap_plugin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#cyc-complexity-plugin"><span class="toc-text">cyc_complexity_plugin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sancov-plugin"><span class="toc-text">sancov_plugin</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+<div class="share" style="width: 100%;">
+  <!-- <img src="https://kevinofneu-blog-static.oss-cn-beijing.aliyuncs.com/static/2018-12-10-qrcode_for_gh_ffacf5722095_258.jpg" alt="Running Geek" style="margin: auto; display: block;"/> -->
+
+  <!-- <div style="margin: auto; text-align: center; font-size: 0.8em; color: grey;">老铁们关注走一走，不迷路</div> -->
+  
+</div>
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/posts/7867ebc4.html" rel="next" title="GCC插件开发">
+          GCC插件开发
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/posts/6ed875c1.html" rel="prev" title="GCC相关链接">
+            GCC相关链接
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
+<!--        <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
+<!--         <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
+<!--         <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a>
+-->
+    </div>
+</footer>
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+
+
+
+</body>
+</html>

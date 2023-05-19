@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">	
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="GRE,协议," />
+  
+
+  
+    <meta name="description" content="基于LTE系统的GRE隧道配置方法" />
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/logo.png">
+  
+  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
+  <title>基于LTE系统的GRE隧道配置方法 [ Helloeuler ]</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Helloeuler</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+          
+      
+  </ul>
+   
+</nav>
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        基于LTE系统的GRE隧道配置方法
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2017-12-24T16:00:00.000Z">
+        2017-12-25
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GRE/" rel="tag">GRE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE/" rel="tag">协议</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 5 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <blockquote>
+<p>今日由于项目需求，需要搭建一个承载于LTE系统的数据隔离测试网，该方案采用GRE隧道方案，通过不同目的IP地址走不同隧道来实现数据隔离。</p>
+</blockquote>
+<h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0.前言"></a>0.前言</h2><p>​	此处GRE并非是Graduate Record Examination（美国研究生入学考试），此处为通信行业名词，Generic Routing Encapsulation，即通用路由封装。它可以对某些网络层协议的数据报进行封装，使这些被封装的数据报能够在IPv4网络中进行传输。</p>
+<p>​	此处有较多的专业术语，先列举出来，如下：</p>
+<p>LTE: Long Time Envolved，长期演进计划，即当前的4G系统</p>
+<p>EPC：Envolved  Packet  Core，演进的分组核心网</p>
+<p>CPE: Customer Premise Equipment ，一种无线接入终端设备</p>
+<p>SGi接口：EPC中PGW与外部网络接口</p>
+<p>GW：gateway，网关</p>
+<p>​	</p>
+<h2 id="1-GRE网络拓扑"><a href="#1-GRE网络拓扑" class="headerlink" title="1.GRE网络拓扑"></a>1.GRE网络拓扑</h2><p>各设备IP地址如下图所示。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/eb74a84826a2e525a83e5c6366ae091a.png" alt="这里写图片描述"><br>​	</p>
+<h2 id="2-配置步骤"><a href="#2-配置步骤" class="headerlink" title="2.配置步骤"></a>2.配置步骤</h2><h3 id="2-1-博特CPE配置"><a href="#2-1-博特CPE配置" class="headerlink" title="2.1 博特CPE配置"></a>2.1 博特CPE配置</h3><h4 id="开启GRE隧道配置"><a href="#开启GRE隧道配置" class="headerlink" title="开启GRE隧道配置"></a>开启GRE隧道配置</h4><p>进入“配置&#x2F;虚拟专网&#x2F;GRE隧道设置”，配置如下：</p>
+<p>配置隧道名称为g0。</p>
+<p><strong>隧道目的IP</strong>：为隧道对端实际IP地址，非对端配置的隧道IP地址。</p>
+<p><strong>隧道本地IP地址</strong>：此处为CPE配置的GRE隧道IP地址。特别注意需要添加掩码。</p>
+<p><strong>对端内网网段：</strong>指对端交换机下面的PC机所在的网段。特别注意需要添加掩码。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/b5dd3cbaf85acd071d05a4c4a54d968b.png" alt="这里写图片描述"></p>
+<h3 id="2-2-华为路由器AR1220配置"><a href="#2-2-华为路由器AR1220配置" class="headerlink" title="2.2    华为路由器AR1220配置"></a>2.2    华为路由器AR1220配置</h3><h4 id="1-配置RouterA"><a href="#1-配置RouterA" class="headerlink" title="1) 配置RouterA"></a>1) 配置RouterA</h4><p><Huawei>system-view</p>
+<p>[huawei]sysname RouterA</p>
+<h4 id="2-添加Sgi网关IP地址（隧道网络侧实际物理IP地址）"><a href="#2-添加Sgi网关IP地址（隧道网络侧实际物理IP地址）" class="headerlink" title="2)  添加Sgi网关IP地址（隧道网络侧实际物理IP地址）"></a>2)  添加Sgi网关IP地址（隧道网络侧实际物理IP地址）</h4><p>[RouterA]interface Gigabitethernet 0&#x2F;0&#x2F;0</p>
+<p>[RouterA-Gigabitethernet 0&#x2F;0&#x2F;0]ip address 10.10.1.111255.255.255.0</p>
+<p>[RouterA-Gigabitethernet 0&#x2F;0&#x2F;0] quit</p>
+<h4 id="3-添加子网IP，路由器侧IP地址，用于与子网通信IP地址。"><a href="#3-添加子网IP，路由器侧IP地址，用于与子网通信IP地址。" class="headerlink" title="3)  添加子网IP，路由器侧IP地址，用于与子网通信IP地址。"></a>3)  添加子网IP，路由器侧IP地址，用于与子网通信IP地址。</h4><p>[RouterA]interface Gigabitethernet 0&#x2F;0&#x2F;1</p>
+<p>[RouterA-Gigabitethernet 0&#x2F;0&#x2F;1]ip address 192.168.2.100255.255.255.0</p>
+<p>[RouterA-Gigabitethernet 0&#x2F;0&#x2F;1] quit</p>
+<h4 id="4-添加隧道IP"><a href="#4-添加隧道IP" class="headerlink" title="4)  添加隧道IP"></a>4)  添加隧道IP</h4><p>[RouterA]interface tunnel 0&#x2F;0&#x2F;0</p>
+<p>[RouterA-Tunnel 0&#x2F;0&#x2F;0] tunnel-protocol gre</p>
+<p>[RouterA-Tunnel 0&#x2F;0&#x2F;0]ip address 192.168.20.100255.255.255.0</p>
+<p>[RouterA-Tunnel 0&#x2F;0&#x2F;0]source 10.10.1.111      路由器隧道IP地址</p>
+<p>[RouterA-Tunnel 0&#x2F;0&#x2F;0]destination 10.10.2.55  CPE IP地址</p>
+<p>[RouterA-Tunnel 0&#x2F;0&#x2F;0]quit</p>
+<h4 id="5-添加两条静态路由"><a href="#5-添加两条静态路由" class="headerlink" title="5)  添加两条静态路由"></a>5)  添加两条静态路由</h4><p>[RouterA]ip route-static 10.10.2.0 255.255.255.0 10.10.1.100</p>
+<p>[RouterA]ip route-static 192.168.10.0 255.255.255.0 Tunnel 0&#x2F;0&#x2F;0</p>
+<p> <img src="https://img-blog.csdnimg.cn/img_convert/5dcadb03e49c761d24de41271e09b38f.png" alt="这里写图片描述"><br><img src="https://img-blog.csdnimg.cn/img_convert/0709f8ab84342d0b4a72a665ab39e38c.png" alt="这里写图片描述"><br>注：交换机命令：</p>
+<p>显示当前配置信息：disthis</p>
+<p>显示静态路由表：disip route-static</p>
+<h2 id="附录：带GRE的抓包"><a href="#附录：带GRE的抓包" class="headerlink" title="附录：带GRE的抓包"></a>附录：带GRE的抓包</h2><p> <a target="_blank" rel="noopener" href="http://download.csdn.net/download/juyin2015/10173050">http://download.csdn.net/download/juyin2015/10173050</a></p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E5%89%8D%E8%A8%80"><span class="toc-text">0.前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-GRE%E7%BD%91%E7%BB%9C%E6%8B%93%E6%89%91"><span class="toc-text">1.GRE网络拓扑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E6%AD%A5%E9%AA%A4"><span class="toc-text">2.配置步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%8D%9A%E7%89%B9CPE%E9%85%8D%E7%BD%AE"><span class="toc-text">2.1 博特CPE配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%80%E5%90%AFGRE%E9%9A%A7%E9%81%93%E9%85%8D%E7%BD%AE"><span class="toc-text">开启GRE隧道配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%8D%8E%E4%B8%BA%E8%B7%AF%E7%94%B1%E5%99%A8AR1220%E9%85%8D%E7%BD%AE"><span class="toc-text">2.2    华为路由器AR1220配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%85%8D%E7%BD%AERouterA"><span class="toc-text">1) 配置RouterA</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%B7%BB%E5%8A%A0Sgi%E7%BD%91%E5%85%B3IP%E5%9C%B0%E5%9D%80%EF%BC%88%E9%9A%A7%E9%81%93%E7%BD%91%E7%BB%9C%E4%BE%A7%E5%AE%9E%E9%99%85%E7%89%A9%E7%90%86IP%E5%9C%B0%E5%9D%80%EF%BC%89"><span class="toc-text">2)  添加Sgi网关IP地址（隧道网络侧实际物理IP地址）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%B7%BB%E5%8A%A0%E5%AD%90%E7%BD%91IP%EF%BC%8C%E8%B7%AF%E7%94%B1%E5%99%A8%E4%BE%A7IP%E5%9C%B0%E5%9D%80%EF%BC%8C%E7%94%A8%E4%BA%8E%E4%B8%8E%E5%AD%90%E7%BD%91%E9%80%9A%E4%BF%A1IP%E5%9C%B0%E5%9D%80%E3%80%82"><span class="toc-text">3)  添加子网IP，路由器侧IP地址，用于与子网通信IP地址。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%B7%BB%E5%8A%A0%E9%9A%A7%E9%81%93IP"><span class="toc-text">4)  添加隧道IP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E6%B7%BB%E5%8A%A0%E4%B8%A4%E6%9D%A1%E9%9D%99%E6%80%81%E8%B7%AF%E7%94%B1"><span class="toc-text">5)  添加两条静态路由</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E5%BD%95%EF%BC%9A%E5%B8%A6GRE%E7%9A%84%E6%8A%93%E5%8C%85"><span class="toc-text">附录：带GRE的抓包</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+<div class="share" style="width: 100%;">
+  <!-- <img src="https://kevinofneu-blog-static.oss-cn-beijing.aliyuncs.com/static/2018-12-10-qrcode_for_gh_ffacf5722095_258.jpg" alt="Running Geek" style="margin: auto; display: block;"/> -->
+
+  <!-- <div style="margin: auto; text-align: center; font-size: 0.8em; color: grey;">老铁们关注走一走，不迷路</div> -->
+  
+</div>
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+          <span>〈 </span>
+          <a href="/posts/18800830.html" rel="next" title="深入解析Linux 常用命令--du">
+          深入解析Linux 常用命令--du
+          </a>
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/posts/a6e4fc89.html" rel="prev" title="深入解析Linux 常用命令--cut">
+            深入解析Linux 常用命令--cut
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
+<!--        <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
+<!--         <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
+<!--         <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a>
+-->
+    </div>
+</footer>
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+
+
+
+</body>
+</html>

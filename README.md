@@ -10,6 +10,10 @@
 - 2023-04-28 [Linux下stat查看atime问题分析](http://helloeuler.cn/posts/12927.html)  
   
   
+### **2022-11** (1)  
+- 2022-11-14 [makfile变量替换方法](http://helloeuler.cn/posts/94cc1483.html)  
+  
+  
 ### **2021-09** (1)  
 - 2021-09-24 [openEuler上如何安装qemu](http://helloeuler.cn/posts/a2950cc2.html)  
   
@@ -49,8 +53,8 @@
 - 2017-12-29 [深入解析Linux 常用命令--route](http://helloeuler.cn/posts/afe63f5.html)  
 - 2017-12-28 [深入解析Linux 常用命令--lsof](http://helloeuler.cn/posts/17c953e6.html)  
 - 2017-12-26 [深入解析Linux 常用命令--cut](http://helloeuler.cn/posts/a6e4fc89.html)  
-- 2017-12-25 [深入解析Linux 常用命令--du](http://helloeuler.cn/posts/18800830.html)  
 - 2017-12-25 [基于LTE系统的GRE隧道配置方法](http://helloeuler.cn/posts/f4f6ffd3.html)  
+- 2017-12-25 [深入解析Linux 常用命令--du](http://helloeuler.cn/posts/18800830.html)  
 - 2017-12-24 [深入解析Linux 常用命令--cd](http://helloeuler.cn/posts/3d71be05.html)  
 - 2017-12-24 [深入解析Linux 常用命令--du](http://helloeuler.cn/posts/18800830.html)  
 - 2017-12-24 [深入解析Linux 常用命令--mv](http://helloeuler.cn/posts/504be2c3.html)  
@@ -65,8 +69,8 @@
 - 2017-12-08 [TensorFlow深度学习笔记-9](http://helloeuler.cn/posts/b821d4d8.html)  
 - 2017-12-05 [TensorFlow深度学习笔记-8](http://helloeuler.cn/posts/cf26e44e.html)  
 - 2017-12-04 [TensorFlow深度学习笔记-7](http://helloeuler.cn/posts/5f99f9df.html)  
-- 2017-12-01 [TensorFlow深度学习笔记-5](http://helloeuler.cn/posts/b19798f3.html)  
 - 2017-12-01 [TensorFlow深度学习笔记-6](http://helloeuler.cn/posts/289ec949.html)  
+- 2017-12-01 [TensorFlow深度学习笔记-5](http://helloeuler.cn/posts/b19798f3.html)  
   
   
 ### **2017-11** (9)  

@@ -114,6 +114,38 @@
       </tags>
   </entry>
   <entry>
+    <title>TensorFlow深度学习笔记-9</title>
+    <url>/posts/b821d4d8.html</url>
+    <content><![CDATA[<p>1.传统神经网络缺陷：权值太多，计算量太大，需要大量样本进行训练 .</p>
+<p>2.卷积神经网络，是一种前馈神经网络，人工神经元可以响应周围单元，可以大型图像处理。卷积神经网络包括卷积层和池化层。</p>
+<p>   卷积操作是利用卷积核对图像的关键信息进行提取。</p>
+<p>   卷积层：将图像与卷积核做卷积的过程。</p>
+<p>​    池化层：对不同位置的特征进行聚合的过程。</p>
+<p><img src="F:\2017Tensorflow教程\第六周\卷积.gif" alt="卷积"></p>
+<p>在深度学习中，利用多个卷积、池化操作来对图像进行分类。</p>
+<h3 id="1-卷积"><a href="#1-卷积" class="headerlink" title="1.卷积"></a>1.卷积</h3><p>卷积操作有两种模式：</p>
+<p> a.Same padding模式</p>
+<p>​     给平面补0</p>
+<p>b.valid padding </p>
+<p>   不会超出平面外部。</p>
+<h3 id="2-池化"><a href="#2-池化" class="headerlink" title="2.池化"></a>2.池化</h3><p>池化操作有两种模式，与卷积类似：</p>
+<p> a.Same padding模式</p>
+<p>​     给平面补0</p>
+<p>b.valid padding </p>
+<p>   不会超出平面外部。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&#x27;MNIST_data&#x27;</span>,one_hot=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#每个批次的大小</span></span><br><span class="line">batch_size = <span class="number">100</span></span><br><span class="line"><span class="comment">#计算一共有多少个批次</span></span><br><span class="line">n_batch = mnist.train.num_examples // batch_size</span><br><span class="line"></span><br><span class="line"><span class="comment">#参数概要</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">variable_summaries</span>(<span class="params">var</span>):</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;summaries&#x27;</span>):</span><br><span class="line">        mean = tf.reduce_mean(var)</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;mean&#x27;</span>, mean)<span class="comment">#平均值</span></span><br><span class="line">        <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;stddev&#x27;</span>):</span><br><span class="line">            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;stddev&#x27;</span>, stddev)<span class="comment">#标准差</span></span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;max&#x27;</span>, tf.reduce_max(var))<span class="comment">#最大值</span></span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;min&#x27;</span>, tf.reduce_min(var))<span class="comment">#最小值</span></span><br><span class="line">        tf.summary.histogram(<span class="string">&#x27;histogram&#x27;</span>, var)<span class="comment">#直方图</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化权值</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">weight_variable</span>(<span class="params">shape,name</span>):</span><br><span class="line">    initial = tf.truncated_normal(shape,stddev=<span class="number">0.1</span>)<span class="comment">#生成一个截断的正态分布</span></span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial,name=name)</span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化偏置</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bias_variable</span>(<span class="params">shape,name</span>):</span><br><span class="line">    initial = tf.constant(<span class="number">0.1</span>,shape=shape)</span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial,name=name)</span><br><span class="line"></span><br><span class="line"><span class="comment">#卷积层</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">conv2d</span>(<span class="params">x,W</span>):</span><br><span class="line">    <span class="comment">#x input tensor of shape `[batch, in_height, in_width, in_channels]`</span></span><br><span class="line">    <span class="comment">#W filter / kernel tensor of shape [filter_height, filter_width, in_channels, out_channels]</span></span><br><span class="line">    <span class="comment">#`strides[0] = strides[3] = 1`. strides[1]代表x方向的步长，strides[2]代表y方向的步长</span></span><br><span class="line">    <span class="comment">#padding: A `string` from: `&quot;SAME&quot;, &quot;VALID&quot;`</span></span><br><span class="line">    <span class="keyword">return</span> tf.nn.conv2d(x,W,strides=[<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>],padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#池化层</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">max_pool_2x2</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="comment">#ksize [1,x,y,1]</span></span><br><span class="line">    <span class="keyword">return</span> tf.nn.max_pool(x,ksize=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>],strides=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>],padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#命名空间</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;input&#x27;</span>):</span><br><span class="line">    <span class="comment">#定义两个placeholder</span></span><br><span class="line">    x = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">784</span>],name=<span class="string">&#x27;x-input&#x27;</span>)</span><br><span class="line">    y = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">10</span>],name=<span class="string">&#x27;y-input&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;x_image&#x27;</span>):</span><br><span class="line">        <span class="comment">#改变x的格式转为4D的向量[batch, in_height, in_width, in_channels]`</span></span><br><span class="line">        x_image = tf.reshape(x,[-<span class="number">1</span>,<span class="number">28</span>,<span class="number">28</span>,<span class="number">1</span>],name=<span class="string">&#x27;x_image&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;Conv1&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第一个卷积层的权值和偏置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_conv1&#x27;</span>):</span><br><span class="line">        W_conv1 = weight_variable([<span class="number">5</span>,<span class="number">5</span>,<span class="number">1</span>,<span class="number">32</span>],name=<span class="string">&#x27;W_conv1&#x27;</span>)<span class="comment">#5*5的采样窗口，32个卷积核从1个平面抽取特征</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_conv1&#x27;</span>):  </span><br><span class="line">        b_conv1 = bias_variable([<span class="number">32</span>],name=<span class="string">&#x27;b_conv1&#x27;</span>)<span class="comment">#每一个卷积核一个偏置值</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把x_image和权值向量进行卷积，再加上偏置值，然后应用于relu激活函数</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;conv2d_1&#x27;</span>):</span><br><span class="line">        conv2d_1 = conv2d(x_image,W_conv1) + b_conv1</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_conv1 = tf.nn.relu(conv2d_1)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool1&#x27;</span>):</span><br><span class="line">        h_pool1 = max_pool_2x2(h_conv1)<span class="comment">#进行max-pooling</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;Conv2&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第二个卷积层的权值和偏置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_conv2&#x27;</span>):</span><br><span class="line">        W_conv2 = weight_variable([<span class="number">5</span>,<span class="number">5</span>,<span class="number">32</span>,<span class="number">64</span>],name=<span class="string">&#x27;W_conv2&#x27;</span>)<span class="comment">#5*5的采样窗口，64个卷积核从32个平面抽取特征</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_conv2&#x27;</span>):  </span><br><span class="line">        b_conv2 = bias_variable([<span class="number">64</span>],name=<span class="string">&#x27;b_conv2&#x27;</span>)<span class="comment">#每一个卷积核一个偏置值</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把h_pool1和权值向量进行卷积，再加上偏置值，然后应用于relu激活函数</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;conv2d_2&#x27;</span>):</span><br><span class="line">        conv2d_2 = conv2d(h_pool1,W_conv2) + b_conv2</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_conv2 = tf.nn.relu(conv2d_2)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool2&#x27;</span>):</span><br><span class="line">        h_pool2 = max_pool_2x2(h_conv2)<span class="comment">#进行max-pooling</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#28*28的图片第一次卷积后还是28*28，第一次池化后变为14*14</span></span><br><span class="line"><span class="comment">#第二次卷积后为14*14，第二次池化后变为了7*7</span></span><br><span class="line"><span class="comment">#进过上面操作后得到64张7*7的平面</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;fc1&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第一个全连接层的权值</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_fc1&#x27;</span>):</span><br><span class="line">        W_fc1 = weight_variable([<span class="number">7</span>*<span class="number">7</span>*<span class="number">64</span>,<span class="number">1024</span>],name=<span class="string">&#x27;W_fc1&#x27;</span>)<span class="comment">#上一场有7*7*64个神经元，全连接层有1024个神经元</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_fc1&#x27;</span>):</span><br><span class="line">        b_fc1 = bias_variable([<span class="number">1024</span>],name=<span class="string">&#x27;b_fc1&#x27;</span>)<span class="comment">#1024个节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把池化层2的输出扁平化为1维</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool2_flat&#x27;</span>):</span><br><span class="line">        h_pool2_flat = tf.reshape(h_pool2,[-<span class="number">1</span>,<span class="number">7</span>*<span class="number">7</span>*<span class="number">64</span>],name=<span class="string">&#x27;h_pool2_flat&#x27;</span>)</span><br><span class="line">    <span class="comment">#求第一个全连接层的输出</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;wx_plus_b1&#x27;</span>):</span><br><span class="line">        wx_plus_b1 = tf.matmul(h_pool2_flat,W_fc1) + b_fc1</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_fc1 = tf.nn.relu(wx_plus_b1)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#keep_prob用来表示神经元的输出概率</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;keep_prob&#x27;</span>):</span><br><span class="line">        keep_prob = tf.placeholder(tf.float32,name=<span class="string">&#x27;keep_prob&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_fc1_drop&#x27;</span>):</span><br><span class="line">        h_fc1_drop = tf.nn.dropout(h_fc1,keep_prob,name=<span class="string">&#x27;h_fc1_drop&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;fc2&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第二个全连接层</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_fc2&#x27;</span>):</span><br><span class="line">        W_fc2 = weight_variable([<span class="number">1024</span>,<span class="number">10</span>],name=<span class="string">&#x27;W_fc2&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_fc2&#x27;</span>):    </span><br><span class="line">        b_fc2 = bias_variable([<span class="number">10</span>],name=<span class="string">&#x27;b_fc2&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;wx_plus_b2&#x27;</span>):</span><br><span class="line">        wx_plus_b2 = tf.matmul(h_fc1_drop,W_fc2) + b_fc2</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;softmax&#x27;</span>):</span><br><span class="line">        <span class="comment">#计算输出</span></span><br><span class="line">        prediction = tf.nn.softmax(wx_plus_b2)</span><br><span class="line"></span><br><span class="line"><span class="comment">#交叉熵代价函数</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;cross_entropy&#x27;</span>):</span><br><span class="line">    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y,logits=prediction),name=<span class="string">&#x27;cross_entropy&#x27;</span>)</span><br><span class="line">    tf.summary.scalar(<span class="string">&#x27;cross_entropy&#x27;</span>,cross_entropy)</span><br><span class="line">    </span><br><span class="line"><span class="comment">#使用AdamOptimizer进行优化</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;train&#x27;</span>):</span><br><span class="line">    train_step = tf.train.AdamOptimizer(<span class="number">1e-4</span>).minimize(cross_entropy)</span><br><span class="line"></span><br><span class="line"><span class="comment">#求准确率</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;accuracy&#x27;</span>):</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;correct_prediction&#x27;</span>):</span><br><span class="line">        <span class="comment">#结果存放在一个布尔列表中</span></span><br><span class="line">        correct_prediction = tf.equal(tf.argmax(prediction,<span class="number">1</span>),tf.argmax(y,<span class="number">1</span>))<span class="comment">#argmax返回一维张量中最大的值所在的位置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;accuracy&#x27;</span>):</span><br><span class="line">        <span class="comment">#求准确率</span></span><br><span class="line">        accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;accuracy&#x27;</span>,accuracy)</span><br><span class="line">        </span><br><span class="line"><span class="comment">#合并所有的summary</span></span><br><span class="line">merged = tf.summary.merge_all()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    sess.run(tf.global_variables_initializer())</span><br><span class="line">    train_writer = tf.summary.FileWriter(<span class="string">&#x27;logs/train&#x27;</span>,sess.graph)</span><br><span class="line">    test_writer = tf.summary.FileWriter(<span class="string">&#x27;logs/test&#x27;</span>,sess.graph)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1001</span>):</span><br><span class="line">        <span class="comment">#训练模型</span></span><br><span class="line">        batch_xs,batch_ys =  mnist.train.next_batch(batch_size)</span><br><span class="line">        sess.run(train_step,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">0.5</span>&#125;)</span><br><span class="line">        <span class="comment">#记录训练集计算的参数</span></span><br><span class="line">        summary = sess.run(merged,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">        train_writer.add_summary(summary,i)</span><br><span class="line">        <span class="comment">#记录测试集计算的参数</span></span><br><span class="line">        batch_xs,batch_ys =  mnist.test.next_batch(batch_size)</span><br><span class="line">        summary = sess.run(merged,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">        test_writer.add_summary(summary,i)</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span> i%<span class="number">100</span>==<span class="number">0</span>:</span><br><span class="line">            test_acc = sess.run(accuracy,feed_dict=&#123;x:mnist.test.images,y:mnist.test.labels,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">            train_acc = sess.run(accuracy,feed_dict=&#123;x:mnist.train.images[:<span class="number">10000</span>],y:mnist.train.labels[:<span class="number">10000</span>],keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&quot;Iter &quot;</span> + <span class="built_in">str</span>(i) + <span class="string">&quot;, Testing Accuracy= &quot;</span> + <span class="built_in">str</span>(test_acc) + <span class="string">&quot;, Training Accuracy= &quot;</span> + <span class="built_in">str</span>(train_acc))</span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>深度学习</category>
+      </categories>
+      <tags>
+        <tag>TensorFlow</tag>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TensorFlow深度学习笔记-2</title>
     <url>/posts/2ff30d50.html</url>
     <content><![CDATA[<blockquote>
@@ -242,38 +274,6 @@
 <p>b.载入模型</p>
 <p>​	 saver.restore(sess,’net&#x2F;my_net.ckpt’)</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line"><span class="comment">#载入数据集</span></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&quot;MNIST_data&quot;</span>,one_hot=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#每个批次100张照片</span></span><br><span class="line">batch_size = <span class="number">100</span></span><br><span class="line"><span class="comment">#计算一共有多少个批次</span></span><br><span class="line">n_batch = mnist.train.num_examples // batch_size</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义两个placeholder</span></span><br><span class="line">x = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">784</span>])</span><br><span class="line">y = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">10</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#创建一个简单的神经网络，输入层784个神经元，输出层10个神经元</span></span><br><span class="line">W = tf.Variable(tf.zeros([<span class="number">784</span>,<span class="number">10</span>]))</span><br><span class="line">b = tf.Variable(tf.zeros([<span class="number">10</span>]))</span><br><span class="line">prediction = tf.nn.softmax(tf.matmul(x,W)+b)</span><br><span class="line"></span><br><span class="line"><span class="comment">#二次代价函数</span></span><br><span class="line"><span class="comment"># loss = tf.reduce_mean(tf.square(y-prediction))</span></span><br><span class="line">loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y,logits=prediction))</span><br><span class="line"><span class="comment">#使用梯度下降法</span></span><br><span class="line">train_step = tf.train.GradientDescentOptimizer(<span class="number">0.2</span>).minimize(loss)</span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化变量</span></span><br><span class="line">init = tf.global_variables_initializer()</span><br><span class="line"></span><br><span class="line"><span class="comment">#结果存放在一个布尔型列表中</span></span><br><span class="line">correct_prediction = tf.equal(tf.argmax(y,<span class="number">1</span>),tf.argmax(prediction,<span class="number">1</span>))<span class="comment">#argmax返回一维张量中最大的值所在的位置</span></span><br><span class="line"><span class="comment">#求准确率</span></span><br><span class="line">accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))</span><br><span class="line"></span><br><span class="line">saver = tf.train.Saver()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    sess.run(init)</span><br><span class="line">    <span class="built_in">print</span>(sess.run(accuracy,feed_dict=&#123;x:mnist.test.images,y:mnist.test.labels&#125;))</span><br><span class="line">    saver.restore(sess,<span class="string">&#x27;net/my_net.ckpt&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(sess.run(accuracy,feed_dict=&#123;x:mnist.test.images,y:mnist.test.labels&#125;))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>深度学习</category>
-      </categories>
-      <tags>
-        <tag>TensorFlow</tag>
-        <tag>深度学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TensorFlow深度学习笔记-9</title>
-    <url>/posts/b821d4d8.html</url>
-    <content><![CDATA[<p>1.传统神经网络缺陷：权值太多，计算量太大，需要大量样本进行训练 .</p>
-<p>2.卷积神经网络，是一种前馈神经网络，人工神经元可以响应周围单元，可以大型图像处理。卷积神经网络包括卷积层和池化层。</p>
-<p>   卷积操作是利用卷积核对图像的关键信息进行提取。</p>
-<p>   卷积层：将图像与卷积核做卷积的过程。</p>
-<p>​    池化层：对不同位置的特征进行聚合的过程。</p>
-<p><img src="F:\2017Tensorflow教程\第六周\卷积.gif" alt="卷积"></p>
-<p>在深度学习中，利用多个卷积、池化操作来对图像进行分类。</p>
-<h3 id="1-卷积"><a href="#1-卷积" class="headerlink" title="1.卷积"></a>1.卷积</h3><p>卷积操作有两种模式：</p>
-<p> a.Same padding模式</p>
-<p>​     给平面补0</p>
-<p>b.valid padding </p>
-<p>   不会超出平面外部。</p>
-<h3 id="2-池化"><a href="#2-池化" class="headerlink" title="2.池化"></a>2.池化</h3><p>池化操作有两种模式，与卷积类似：</p>
-<p> a.Same padding模式</p>
-<p>​     给平面补0</p>
-<p>b.valid padding </p>
-<p>   不会超出平面外部。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&#x27;MNIST_data&#x27;</span>,one_hot=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#每个批次的大小</span></span><br><span class="line">batch_size = <span class="number">100</span></span><br><span class="line"><span class="comment">#计算一共有多少个批次</span></span><br><span class="line">n_batch = mnist.train.num_examples // batch_size</span><br><span class="line"></span><br><span class="line"><span class="comment">#参数概要</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">variable_summaries</span>(<span class="params">var</span>):</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;summaries&#x27;</span>):</span><br><span class="line">        mean = tf.reduce_mean(var)</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;mean&#x27;</span>, mean)<span class="comment">#平均值</span></span><br><span class="line">        <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;stddev&#x27;</span>):</span><br><span class="line">            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;stddev&#x27;</span>, stddev)<span class="comment">#标准差</span></span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;max&#x27;</span>, tf.reduce_max(var))<span class="comment">#最大值</span></span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;min&#x27;</span>, tf.reduce_min(var))<span class="comment">#最小值</span></span><br><span class="line">        tf.summary.histogram(<span class="string">&#x27;histogram&#x27;</span>, var)<span class="comment">#直方图</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化权值</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">weight_variable</span>(<span class="params">shape,name</span>):</span><br><span class="line">    initial = tf.truncated_normal(shape,stddev=<span class="number">0.1</span>)<span class="comment">#生成一个截断的正态分布</span></span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial,name=name)</span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化偏置</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bias_variable</span>(<span class="params">shape,name</span>):</span><br><span class="line">    initial = tf.constant(<span class="number">0.1</span>,shape=shape)</span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial,name=name)</span><br><span class="line"></span><br><span class="line"><span class="comment">#卷积层</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">conv2d</span>(<span class="params">x,W</span>):</span><br><span class="line">    <span class="comment">#x input tensor of shape `[batch, in_height, in_width, in_channels]`</span></span><br><span class="line">    <span class="comment">#W filter / kernel tensor of shape [filter_height, filter_width, in_channels, out_channels]</span></span><br><span class="line">    <span class="comment">#`strides[0] = strides[3] = 1`. strides[1]代表x方向的步长，strides[2]代表y方向的步长</span></span><br><span class="line">    <span class="comment">#padding: A `string` from: `&quot;SAME&quot;, &quot;VALID&quot;`</span></span><br><span class="line">    <span class="keyword">return</span> tf.nn.conv2d(x,W,strides=[<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>],padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#池化层</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">max_pool_2x2</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="comment">#ksize [1,x,y,1]</span></span><br><span class="line">    <span class="keyword">return</span> tf.nn.max_pool(x,ksize=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>],strides=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>],padding=<span class="string">&#x27;SAME&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#命名空间</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;input&#x27;</span>):</span><br><span class="line">    <span class="comment">#定义两个placeholder</span></span><br><span class="line">    x = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">784</span>],name=<span class="string">&#x27;x-input&#x27;</span>)</span><br><span class="line">    y = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">10</span>],name=<span class="string">&#x27;y-input&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;x_image&#x27;</span>):</span><br><span class="line">        <span class="comment">#改变x的格式转为4D的向量[batch, in_height, in_width, in_channels]`</span></span><br><span class="line">        x_image = tf.reshape(x,[-<span class="number">1</span>,<span class="number">28</span>,<span class="number">28</span>,<span class="number">1</span>],name=<span class="string">&#x27;x_image&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;Conv1&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第一个卷积层的权值和偏置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_conv1&#x27;</span>):</span><br><span class="line">        W_conv1 = weight_variable([<span class="number">5</span>,<span class="number">5</span>,<span class="number">1</span>,<span class="number">32</span>],name=<span class="string">&#x27;W_conv1&#x27;</span>)<span class="comment">#5*5的采样窗口，32个卷积核从1个平面抽取特征</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_conv1&#x27;</span>):  </span><br><span class="line">        b_conv1 = bias_variable([<span class="number">32</span>],name=<span class="string">&#x27;b_conv1&#x27;</span>)<span class="comment">#每一个卷积核一个偏置值</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把x_image和权值向量进行卷积，再加上偏置值，然后应用于relu激活函数</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;conv2d_1&#x27;</span>):</span><br><span class="line">        conv2d_1 = conv2d(x_image,W_conv1) + b_conv1</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_conv1 = tf.nn.relu(conv2d_1)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool1&#x27;</span>):</span><br><span class="line">        h_pool1 = max_pool_2x2(h_conv1)<span class="comment">#进行max-pooling</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;Conv2&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第二个卷积层的权值和偏置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_conv2&#x27;</span>):</span><br><span class="line">        W_conv2 = weight_variable([<span class="number">5</span>,<span class="number">5</span>,<span class="number">32</span>,<span class="number">64</span>],name=<span class="string">&#x27;W_conv2&#x27;</span>)<span class="comment">#5*5的采样窗口，64个卷积核从32个平面抽取特征</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_conv2&#x27;</span>):  </span><br><span class="line">        b_conv2 = bias_variable([<span class="number">64</span>],name=<span class="string">&#x27;b_conv2&#x27;</span>)<span class="comment">#每一个卷积核一个偏置值</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把h_pool1和权值向量进行卷积，再加上偏置值，然后应用于relu激活函数</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;conv2d_2&#x27;</span>):</span><br><span class="line">        conv2d_2 = conv2d(h_pool1,W_conv2) + b_conv2</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_conv2 = tf.nn.relu(conv2d_2)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool2&#x27;</span>):</span><br><span class="line">        h_pool2 = max_pool_2x2(h_conv2)<span class="comment">#进行max-pooling</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#28*28的图片第一次卷积后还是28*28，第一次池化后变为14*14</span></span><br><span class="line"><span class="comment">#第二次卷积后为14*14，第二次池化后变为了7*7</span></span><br><span class="line"><span class="comment">#进过上面操作后得到64张7*7的平面</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;fc1&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第一个全连接层的权值</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_fc1&#x27;</span>):</span><br><span class="line">        W_fc1 = weight_variable([<span class="number">7</span>*<span class="number">7</span>*<span class="number">64</span>,<span class="number">1024</span>],name=<span class="string">&#x27;W_fc1&#x27;</span>)<span class="comment">#上一场有7*7*64个神经元，全连接层有1024个神经元</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_fc1&#x27;</span>):</span><br><span class="line">        b_fc1 = bias_variable([<span class="number">1024</span>],name=<span class="string">&#x27;b_fc1&#x27;</span>)<span class="comment">#1024个节点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#把池化层2的输出扁平化为1维</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_pool2_flat&#x27;</span>):</span><br><span class="line">        h_pool2_flat = tf.reshape(h_pool2,[-<span class="number">1</span>,<span class="number">7</span>*<span class="number">7</span>*<span class="number">64</span>],name=<span class="string">&#x27;h_pool2_flat&#x27;</span>)</span><br><span class="line">    <span class="comment">#求第一个全连接层的输出</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;wx_plus_b1&#x27;</span>):</span><br><span class="line">        wx_plus_b1 = tf.matmul(h_pool2_flat,W_fc1) + b_fc1</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;relu&#x27;</span>):</span><br><span class="line">        h_fc1 = tf.nn.relu(wx_plus_b1)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#keep_prob用来表示神经元的输出概率</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;keep_prob&#x27;</span>):</span><br><span class="line">        keep_prob = tf.placeholder(tf.float32,name=<span class="string">&#x27;keep_prob&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;h_fc1_drop&#x27;</span>):</span><br><span class="line">        h_fc1_drop = tf.nn.dropout(h_fc1,keep_prob,name=<span class="string">&#x27;h_fc1_drop&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;fc2&#x27;</span>):</span><br><span class="line">    <span class="comment">#初始化第二个全连接层</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;W_fc2&#x27;</span>):</span><br><span class="line">        W_fc2 = weight_variable([<span class="number">1024</span>,<span class="number">10</span>],name=<span class="string">&#x27;W_fc2&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;b_fc2&#x27;</span>):    </span><br><span class="line">        b_fc2 = bias_variable([<span class="number">10</span>],name=<span class="string">&#x27;b_fc2&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;wx_plus_b2&#x27;</span>):</span><br><span class="line">        wx_plus_b2 = tf.matmul(h_fc1_drop,W_fc2) + b_fc2</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;softmax&#x27;</span>):</span><br><span class="line">        <span class="comment">#计算输出</span></span><br><span class="line">        prediction = tf.nn.softmax(wx_plus_b2)</span><br><span class="line"></span><br><span class="line"><span class="comment">#交叉熵代价函数</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;cross_entropy&#x27;</span>):</span><br><span class="line">    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y,logits=prediction),name=<span class="string">&#x27;cross_entropy&#x27;</span>)</span><br><span class="line">    tf.summary.scalar(<span class="string">&#x27;cross_entropy&#x27;</span>,cross_entropy)</span><br><span class="line">    </span><br><span class="line"><span class="comment">#使用AdamOptimizer进行优化</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;train&#x27;</span>):</span><br><span class="line">    train_step = tf.train.AdamOptimizer(<span class="number">1e-4</span>).minimize(cross_entropy)</span><br><span class="line"></span><br><span class="line"><span class="comment">#求准确率</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;accuracy&#x27;</span>):</span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;correct_prediction&#x27;</span>):</span><br><span class="line">        <span class="comment">#结果存放在一个布尔列表中</span></span><br><span class="line">        correct_prediction = tf.equal(tf.argmax(prediction,<span class="number">1</span>),tf.argmax(y,<span class="number">1</span>))<span class="comment">#argmax返回一维张量中最大的值所在的位置</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;accuracy&#x27;</span>):</span><br><span class="line">        <span class="comment">#求准确率</span></span><br><span class="line">        accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))</span><br><span class="line">        tf.summary.scalar(<span class="string">&#x27;accuracy&#x27;</span>,accuracy)</span><br><span class="line">        </span><br><span class="line"><span class="comment">#合并所有的summary</span></span><br><span class="line">merged = tf.summary.merge_all()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    sess.run(tf.global_variables_initializer())</span><br><span class="line">    train_writer = tf.summary.FileWriter(<span class="string">&#x27;logs/train&#x27;</span>,sess.graph)</span><br><span class="line">    test_writer = tf.summary.FileWriter(<span class="string">&#x27;logs/test&#x27;</span>,sess.graph)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1001</span>):</span><br><span class="line">        <span class="comment">#训练模型</span></span><br><span class="line">        batch_xs,batch_ys =  mnist.train.next_batch(batch_size)</span><br><span class="line">        sess.run(train_step,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">0.5</span>&#125;)</span><br><span class="line">        <span class="comment">#记录训练集计算的参数</span></span><br><span class="line">        summary = sess.run(merged,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">        train_writer.add_summary(summary,i)</span><br><span class="line">        <span class="comment">#记录测试集计算的参数</span></span><br><span class="line">        batch_xs,batch_ys =  mnist.test.next_batch(batch_size)</span><br><span class="line">        summary = sess.run(merged,feed_dict=&#123;x:batch_xs,y:batch_ys,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">        test_writer.add_summary(summary,i)</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span> i%<span class="number">100</span>==<span class="number">0</span>:</span><br><span class="line">            test_acc = sess.run(accuracy,feed_dict=&#123;x:mnist.test.images,y:mnist.test.labels,keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">            train_acc = sess.run(accuracy,feed_dict=&#123;x:mnist.train.images[:<span class="number">10000</span>],y:mnist.train.labels[:<span class="number">10000</span>],keep_prob:<span class="number">1.0</span>&#125;)</span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&quot;Iter &quot;</span> + <span class="built_in">str</span>(i) + <span class="string">&quot;, Testing Accuracy= &quot;</span> + <span class="built_in">str</span>(test_acc) + <span class="string">&quot;, Training Accuracy= &quot;</span> + <span class="built_in">str</span>(train_acc))</span><br></pre></td></tr></table></figure>
-
 
 ]]></content>
       <categories>
@@ -533,6 +533,58 @@
       </tags>
   </entry>
   <entry>
+    <title>深入解析Linux 常用命令--cat</title>
+    <url>/posts/884a2bdc.html</url>
+    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>cat常用于查看文件内容。</p>
+<h2 id="2-显示文件内容（显示字符）"><a href="#2-显示文件内容（显示字符）" class="headerlink" title="2.显示文件内容（显示字符）"></a>2.显示文件内容（显示字符）</h2><p>cat  -A  显示文件内容，包括结束符、TAB。其中结束符以$显示，TAB以^I显示，空格不显示。</p>
+<pre><code>[root@smart Desktop]# cat test.md
+AUTHOR
+       Written by Richard M. Stallman and David MacKenzie.
+[root@smart Desktop]# cat -A test.md
+AUTHOR$
+^IWritten by Richard M. Stallman and David MacKenzie.$
+$
+</code></pre>
+<h2 id="3-显示行号"><a href="#3-显示行号" class="headerlink" title="3.显示行号"></a>3.显示行号</h2><p>cat -b  显示非空行行号</p>
+<p>cat -n  显示所有行行号</p>
+<pre><code>[root@smart Desktop]# cat -b test.md
+     1	AUTHOR
+     2	       Written by Richard M. Stallman and David MacKenzie.
+
+     3	REPORTING BUGS
+     4	       Report ls bugs to bug-coreutils@gnu.org
+     5	       GNU coreutils home page: &lt;http://www.gnu.org/software/coreutils/&gt;
+     6	       General help using GNU software: &lt;http://www.gnu.org/gethelp/&gt;
+     7	       Report ls translation bugs to &lt;http://translationproject.org/team/&gt;
+[root@smart Desktop]# cat -n test.md
+     1	AUTHOR
+     2	       Written by Richard M. Stallman and David MacKenzie.
+     3	
+     4	REPORTING BUGS
+     5	       Report ls bugs to bug-coreutils@gnu.org
+     6	       GNU coreutils home page: &lt;http://www.gnu.org/software/coreutils/&gt;
+     7	       General help using GNU software: &lt;http://www.gnu.org/gethelp/&gt;
+     8	       Report ls translation bugs to &lt;http://translationproject.org/team/&gt;
+</code></pre>
+<h2 id="4-显示特殊字符"><a href="#4-显示特殊字符" class="headerlink" title="4.显示特殊字符"></a>4.显示特殊字符</h2><p>cat -E ，以$显示结束符，此时不会显示TAB字符。</p>
+<p>cat -T，以^I显示TAB字符。</p>
+<pre><code>[root@smart Desktop]# cat -E test.md
+AUTHOR$
+    Written by Richard M. Stallman and David MacKenzie.$
+[root@smart Desktop]# cat -T test.md
+AUTHOR
+^IWritten by Richard M. Stallman and David MacKenzie.	
+</code></pre>
+]]></content>
+      <categories>
+        <category>Linux命令</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入解析Linux 常用命令--cd</title>
     <url>/posts/3d71be05.html</url>
     <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>cd常用于切换目录，改变目录（change directory）</p>
@@ -552,6 +604,73 @@
 <h2 id="6-切换到当前用户主目录"><a href="#6-切换到当前用户主目录" class="headerlink" title="6.切换到当前用户主目录"></a>6.切换到当前用户主目录</h2><p>cd                    默认情况下，cd后不接任何路径，将会切换到用户主目录</p>
 <p>cd  ~                </p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart smart]# cd /</span><br><span class="line">[root@smart /]# cd </span><br><span class="line">[root@smart ~]# pwd</span><br><span class="line">/root</span><br><span class="line">[root@smart ~]# cd /</span><br><span class="line">[root@smart /]# cd ~</span><br><span class="line">[root@smart ~]# pwd</span><br><span class="line">/root</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Linux命令</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深入解析Linux 常用命令--cp</title>
+    <url>/posts/27ab6a78.html</url>
+    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>cp常用于复制文件或目录。</p>
+<h2 id="2-格式"><a href="#2-格式" class="headerlink" title="2.格式"></a>2.格式</h2><p>cp命令复制时，有如下几种组合：</p>
+<ul>
+<li>cp [OPTION]  源文件  目标文件</li>
+<li>cp [OPTION]  源文件  目标路径</li>
+<li>cp [OPTION]  源文件  目标路径&#x2F;目标文件</li>
+<li>cp [OPTION]  源路径  目标路径</li>
+<li>cp [OPTION]  源路径  目标路径</li>
+</ul>
+<h2 id="3-强制复制"><a href="#3-强制复制" class="headerlink" title="3.强制复制"></a>3.强制复制</h2><p>cp  -f   SRC  DEST，把SRC复制到DEST。当DEST文件存在时，将去先移除DEST，再把SRC复制到DEST。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# cp b.txt  k.txt</span><br><span class="line">[root@smart linux]# cp b.txt  k.txt</span><br><span class="line">cp: overwrite `k.txt&#x27;? y   </span><br><span class="line">[root@smart linux]# cp -f b.txt  k.txt</span><br><span class="line">cp: overwrite `k.txt&#x27;? y</span><br><span class="line">[root@smart linux]# \cp -f b.txt  k.txt</span><br><span class="line">[root@smart linux]# alias cp=&#x27;cp&#x27;</span><br><span class="line">[root@smart linux]# cp -r b.txt k.txt</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-替换前交互询问"><a href="#4-替换前交互询问" class="headerlink" title="4.替换前交互询问"></a>4.替换前交互询问</h2><p>cp  -i </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]# cp k.txt s.txt</span><br><span class="line">[root@smart Desktop]# cp -i k.txt s.txt</span><br><span class="line">cp: overwrite `s.txt&#x27;? y</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>此处要注意，默认情况下，Linux系统一般都会alias cp为交互模式，可以查看~&#x2F;.bashrc。</p>
+</blockquote>
+<h2 id="5-有重复文件不复制"><a href="#5-有重复文件不复制" class="headerlink" title="5.有重复文件不复制"></a>5.有重复文件不复制</h2><p>cp   -n</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]# cp  k.txt n.txt</span><br><span class="line">cp: overwrite `n.txt&#x27;? n</span><br><span class="line">[root@smart Desktop]# cp -n k.txt n.txt</span><br><span class="line">[root@smart Desktop]# </span><br></pre></td></tr></table></figure>
+
+<h2 id="6-复制文件夹及子文件"><a href="#6-复制文件夹及子文件" class="headerlink" title="6.复制文件夹及子文件"></a>6.复制文件夹及子文件</h2><p>cp  -R&#x2F;-r</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# cp  abcde/  ss</span><br><span class="line">cp: omitting directory `abcde/&#x27;</span><br><span class="line">[root@smart linux]# cp -r  abcde/  ss</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">a  abcde  a.txt  b  b.c  b.c~  b.txt  c  d  e  f  g  h  k.txt  ss</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-显示复制详细信息"><a href="#7-显示复制详细信息" class="headerlink" title="7.显示复制详细信息"></a>7.显示复制详细信息</h2><p>cp -v</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# cp -v k.txt s.txt</span><br><span class="line">`k.txt&#x27; -&gt; `s.txt&#x27;</span><br></pre></td></tr></table></figure>
+
+<h2 id="8-注意事项"><a href="#8-注意事项" class="headerlink" title="8.注意事项"></a>8.注意事项</h2><p>由于在linux下一切皆文件，因此linux命令行下无法区分目标路径or目标文件。</p>
+<p>对于命令“ cp  A   B”注意下面几个区别：</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">B不存在</th>
+<th align="left">B存在，且为文件</th>
+<th>B存在，且为目录</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">A为文件</td>
+<td align="left">结果：同目录下出现B文件，内容同A</td>
+<td align="left">结果：直接复制失败，若加-r选项，同目录下不新增文件，B的旧内容将被覆盖为A文件内容</td>
+<td>结果：A将复制到B文件夹下，文件名为A</td>
+</tr>
+<tr>
+<td align="left">A为目录</td>
+<td align="left">结果：直接复制失败，若加上-r选项，同目录下将会产生B目录，目录下内容同A</td>
+<td align="left">结果：直接复制失败，加-r选项也无法复制。</td>
+<td>结果：直接复制失败，加-r选项后，在B文件夹下会出现A文件夹，内容同A文件夹</td>
+</tr>
+</tbody></table>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">1.A为文件，B不存在，结果同目录下出现B文件，内容同A:</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A  B</span><br><span class="line"></span><br><span class="line">2.A为文件，B存在，且为文件，结果直接复制失败，若加-r选项，同目录下不新增文件，B的旧内容将被覆盖为A文件内容</span><br><span class="line">[root@smart test]# cp -n A B</span><br><span class="line">[root@smart test]# ll</span><br><span class="line">total 4</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 21:51 A</span><br><span class="line">-rw-r--r--. 1 root root 4 Nov  5 22:03 B</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">cp: overwrite `B&#x27;? y</span><br><span class="line">[root@smart test]# ll</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 21:51 A</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 22:05 B</span><br><span class="line"></span><br><span class="line">3.A为文件，B存在，B为目录。结果A将复制到B文件夹下，文件名为A</span><br><span class="line">[root@smart test]# ls -lRt</span><br><span class="line">.:</span><br><span class="line">total 4</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 22:06 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  5 21:51 A</span><br><span class="line"></span><br><span class="line">./B:</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 22:06 A</span><br><span class="line">[root@smart test]# rm -rf B/A</span><br><span class="line">[root@smart test]# ls</span><br><span class="line">A  B</span><br><span class="line">[root@smart test]# ls -lRt</span><br><span class="line">.:</span><br><span class="line">total 4</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 22:07 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  5 21:51 A</span><br><span class="line"></span><br><span class="line">./B:</span><br><span class="line">total 0</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">[root@smart test]# ls -lRt</span><br><span class="line">.:</span><br><span class="line">total 4</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 22:07 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  5 21:51 A</span><br><span class="line"></span><br><span class="line">./B:</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 22:07 A</span><br><span class="line"></span><br><span class="line">4.A为目录，B不存在。结果：直接复制失败，若加上-r选项，同目录下将会产生B目录，目录下内容同A</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">cp: omitting directory `A&#x27;</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">[root@smart test]# ls</span><br><span class="line">A  B</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A/  B/</span><br><span class="line"></span><br><span class="line">5.A为目录，B为文件，直接复制失败，加-r选项也无法复制。</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A/  B</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">cp: omitting directory `A&#x27;</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">cp: cannot overwrite non-directory `B&#x27; with directory `A&#x27;</span><br><span class="line"></span><br><span class="line">6.A、B均为目录，且B存在</span><br><span class="line">[root@smart test]# ls</span><br><span class="line">A  B</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A/  B/</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">cp: omitting directory `A&#x27;</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">[root@smart test]# ls </span><br><span class="line">A  B</span><br></pre></td></tr></table></figure>
+
+
 
 ]]></content>
       <categories>
@@ -808,48 +927,27 @@ e
       </tags>
   </entry>
   <entry>
-    <title>深入解析Linux 常用命令--cat</title>
-    <url>/posts/884a2bdc.html</url>
-    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>cat常用于查看文件内容。</p>
-<h2 id="2-显示文件内容（显示字符）"><a href="#2-显示文件内容（显示字符）" class="headerlink" title="2.显示文件内容（显示字符）"></a>2.显示文件内容（显示字符）</h2><p>cat  -A  显示文件内容，包括结束符、TAB。其中结束符以$显示，TAB以^I显示，空格不显示。</p>
-<pre><code>[root@smart Desktop]# cat test.md
-AUTHOR
-       Written by Richard M. Stallman and David MacKenzie.
-[root@smart Desktop]# cat -A test.md
-AUTHOR$
-^IWritten by Richard M. Stallman and David MacKenzie.$
-$
-</code></pre>
-<h2 id="3-显示行号"><a href="#3-显示行号" class="headerlink" title="3.显示行号"></a>3.显示行号</h2><p>cat -b  显示非空行行号</p>
-<p>cat -n  显示所有行行号</p>
-<pre><code>[root@smart Desktop]# cat -b test.md
-     1	AUTHOR
-     2	       Written by Richard M. Stallman and David MacKenzie.
+    <title>深入解析Linux 常用命令--lsof</title>
+    <url>/posts/17c953e6.html</url>
+    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>lsof用于显示打开的文件。list open files。</p>
+<h2 id="2-各参数含义"><a href="#2-各参数含义" class="headerlink" title="2.各参数含义"></a>2.各参数含义</h2><p>a.-c列出指定进程所打开的文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof -c Xorg</span></span><br><span class="line">COMMAND  PID USER   FD   TYPE     DEVICE  SIZE/OFF       NODE NAME</span><br><span class="line">Xorg    2846 root  cwd    DIR      253,0      4096     653625 /var/gdm</span><br><span class="line">Xorg    2846 root  rtd    DIR      253,0      4096          2 /</span><br><span class="line">Xorg    2846 root  txt    REG      253,0   2295880     956717 /usr/bin/Xorg</span><br><span class="line">Xorg    2846 root  mem    REG      253,0    122232     787409 /lib/libgcc_s-4.4.7-20120601.so.1</span><br><span class="line">Xorg    2846 root  mem    REG      253,0    122864     949734 /usr/lib/libEGL.so.1.0.0</span><br><span class="line">Xorg    2846 root  mem    REG      253,0    205188     949736 /usr/lib/libglamor.so.0.0.0</span><br></pre></td></tr></table></figure>
 
-     3	REPORTING BUGS
-     4	       Report ls bugs to bug-coreutils@gnu.org
-     5	       GNU coreutils home page: &lt;http://www.gnu.org/software/coreutils/&gt;
-     6	       General help using GNU software: &lt;http://www.gnu.org/gethelp/&gt;
-     7	       Report ls translation bugs to &lt;http://translationproject.org/team/&gt;
-[root@smart Desktop]# cat -n test.md
-     1	AUTHOR
-     2	       Written by Richard M. Stallman and David MacKenzie.
-     3	
-     4	REPORTING BUGS
-     5	       Report ls bugs to bug-coreutils@gnu.org
-     6	       GNU coreutils home page: &lt;http://www.gnu.org/software/coreutils/&gt;
-     7	       General help using GNU software: &lt;http://www.gnu.org/gethelp/&gt;
-     8	       Report ls translation bugs to &lt;http://translationproject.org/team/&gt;
-</code></pre>
-<h2 id="4-显示特殊字符"><a href="#4-显示特殊字符" class="headerlink" title="4.显示特殊字符"></a>4.显示特殊字符</h2><p>cat -E ，以$显示结束符，此时不会显示TAB字符。</p>
-<p>cat -T，以^I显示TAB字符。</p>
-<pre><code>[root@smart Desktop]# cat -E test.md
-AUTHOR$
-    Written by Richard M. Stallman and David MacKenzie.$
-[root@smart Desktop]# cat -T test.md
-AUTHOR
-^IWritten by Richard M. Stallman and David MacKenzie.	
-</code></pre>
+<p>b.+d 列出目录下被打开的文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof +d /root</span></span><br><span class="line">COMMAND     PID USER   FD   TYPE DEVICE SIZE/OFF   NODE NAME</span><br><span class="line">gnome-ses  3056 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">metacity   3162 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">gnome-pan  3168 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">nautilus   3174 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">vmtoolsd   3200 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">gpk-updat  3201 root  cwd    DIR  253,0     4096 260610 /root</span><br></pre></td></tr></table></figure>
+
+<p>c. +D 递归列出目录下被打开的文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof +D /root</span></span><br><span class="line">COMMAND     PID USER   FD   TYPE DEVICE SIZE/OFF   NODE NAME</span><br><span class="line">gnome-ses  3056 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">metacity   3162 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">metacity   3162 root   20w   REG  253,0    16384 279738 /root/.cache/event-sound-cache.tdb.e321b5cbc96c34226a8725e100000034.i386-redhat-linux-gnu</span><br><span class="line">gnome-pan  3168 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">nautilus   3174 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">nautilus   3174 root  mem    REG  253,0    32768 281492 /root/.local/share/gvfs-metadata/root-ecaddb60.<span class="built_in">log</span></span><br><span class="line">nautilus   3174 root  mem    REG  253,0     1308 279766 /root/.local/share/gvfs-metadata/root</span><br><span class="line">nautilus   3174 root  mem    REG  253,0    32768 279730 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final-0d9eaed7.<span class="built_in">log</span></span><br><span class="line">nautilus   3174 root  mem    REG  253,0      184 279705 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final</span><br><span class="line">nautilus   3174 root   31r   REG  253,0      184 279705 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final</span><br><span class="line">nautilus   3174 root   32r   REG  253,0    32768 279730 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final-0d9eaed7.<span class="built_in">log</span></span><br><span class="line">nautilus   3174 root   33r   REG  253,0     1308 279766 /root/.local/share/gvfs-metadata/root</span><br><span class="line">nautilus   3174 root   34r   REG  253,0    32768 281492 /root/.local/share/gvfs-metadata/root-ecaddb60.<span class="built_in">log</span></span><br><span class="line">vmtoolsd   3200 root  cwd    DIR  253,0     4096 260610 /root</span><br></pre></td></tr></table></figure>
+
+<p>d. -i &lt;条件&gt; 列出符合条件的进程。</p>
+<p>  条件包括：4&#x2F;6、协议、：端口、@ip</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof -i tcp</span></span><br><span class="line">COMMAND    PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">rpcbind   2027     rpc    8u  IPv4  12996      0t0  TCP *:sunrpc (LISTEN)</span><br><span class="line">rpcbind   2027     rpc   11u  IPv6  13001      0t0  TCP *:sunrpc (LISTEN)</span><br><span class="line">rpc.statd 2176 rpcuser    9u  IPv4  13442      0t0  TCP *:35471 (LISTEN)</span><br><span class="line">rpc.statd 2176 rpcuser   11u  IPv6  13450      0t0  TCP *:41171 (LISTEN)</span><br><span class="line">cupsd     2207    root    7u  IPv6  13632      0t0  TCP localhost:ipp (LISTEN)</span><br><span class="line">cupsd     2207    root    8u  IPv4  13633      0t0  TCP localhost:ipp (LISTEN)</span><br><span class="line">sshd      2378    root    3u  IPv4  14309      0t0  TCP *:ssh (LISTEN)</span><br><span class="line">sshd      2378    root    4u  IPv6  14313      0t0  TCP *:ssh (LISTEN)</span><br><span class="line">master    2612    root   12u  IPv4  14799      0t0  TCP localhost:smtp (LISTEN)</span><br><span class="line">master    2612    root   13u  IPv6  14801      0t0  TCP localhost:smtp (LISTEN)</span><br><span class="line">dnsmasq   2836  nobody    6u  IPv4  16052      0t0  TCP 192.168.122.1:domain (LISTEN)</span><br><span class="line">[root@smart Desktop]<span class="comment"># lsof -i 4</span></span><br><span class="line">COMMAND    PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">rpcbind   2027     rpc    6u  IPv4  12993      0t0  UDP *:sunrpc </span><br><span class="line">rpcbind   2027     rpc    7u  IPv4  12995      0t0  UDP *:930 </span><br><span class="line">rpcbind   2027     rpc    8u  IPv4  12996      0t0  TCP *:sunrpc (LISTEN)</span><br><span class="line">rpc.statd 2176 rpcuser    5r  IPv4  13434      0t0  UDP *:spmp </span><br><span class="line">rpc.statd 2176 rpcuser    8u  IPv4  13438      0t0  UDP *:60627 </span><br><span class="line">rpc.statd 2176 rpcuser    9u  IPv4  13442      0t0  TCP *:35471 (LISTEN)</span><br><span class="line">cupsd     2207    root    8u  IPv4  13633      0t0  TCP localhost:ipp (LISTEN)</span><br><span class="line">cupsd     2207    root   10u  IPv4  13636      0t0  UDP *:ipp </span><br><span class="line">sshd      2378    root    3u  IPv4  14309      0t0  TCP *:ssh (LISTEN)</span><br><span class="line">master    2612    root   12u  IPv4  14799      0t0  TCP localhost:smtp (LISTEN)</span><br><span class="line">dnsmasq   2836  nobody    5u  IPv4  16048      0t0  UDP *:bootps </span><br><span class="line">dnsmasq   2836  nobody    6u  IPv4  16052      0t0  TCP 192.168.122.1:domain (LISTEN)</span><br><span class="line">dnsmasq   2836  nobody    7u  IPv4  16053      0t0  UDP 192.168.122.1:domain </span><br><span class="line">[root@smart Desktop]<span class="comment"># lsof -i :930</span></span><br><span class="line">COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">rpcbind 2027  rpc    7u  IPv4  12995      0t0  UDP *:930 </span><br><span class="line">rpcbind 2027  rpc   10u  IPv6  13000      0t0  UDP *:930 </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>e.-p  列出进程所打开文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof -p 1</span></span><br><span class="line">COMMAND PID USER   FD   TYPE     DEVICE SIZE/OFF   NODE NAME</span><br><span class="line">init      1 root  cwd    DIR      253,0     4096      2 /</span><br><span class="line">init      1 root  rtd    DIR      253,0     4096      2 /</span><br><span class="line">init      1 root  txt    REG      253,0   149284   9657 /sbin/init</span><br><span class="line">init      1 root  mem    REG      253,0   122232 787409 /lib/libgcc_s-4.4.7-20120601.so.1</span><br><span class="line">init      1 root  mem    REG      253,0  1910572 787370 /lib/libc-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   133312 787374 /lib/libpthread-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   286396 787407 /lib/libdbus-1.so.3.4.0</span><br><span class="line">init      1 root  mem    REG      253,0    58704 782877 /lib/libnss_files-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   142536 785996 /lib/ld-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   100500 783114 /lib/libnih.so.1.0.0</span><br><span class="line">init      1 root  mem    REG      253,0    38768 783112 /lib/libnih-dbus.so.1.0.0</span><br><span class="line">init      1 root  mem    REG      253,0    41724 787390 /lib/librt-2.12.so</span><br><span class="line">init      1 root    0u   CHR        1,3      0t0   3908 /dev/null</span><br><span class="line">init      1 root    1u   CHR        1,3      0t0   3908 /dev/null</span><br><span class="line">init      1 root    2u   CHR        1,3      0t0   3908 /dev/null</span><br><span class="line">init      1 root    3r  FIFO        0,8      0t0   8720 pipe</span><br><span class="line">init      1 root    4w  FIFO        0,8      0t0   8720 pipe</span><br><span class="line">init      1 root    5r   DIR       0,10        0      1 inotify</span><br><span class="line">init      1 root    6r   DIR       0,10        0      1 inotify</span><br><span class="line">init      1 root    7u  unix 0xc16facc0      0t0   8721 socket</span><br><span class="line">init      1 root    9u  unix 0xf4abd980      0t0  13185 socket</span><br></pre></td></tr></table></figure>
+
+
+
 ]]></content>
       <categories>
         <category>Linux命令</category>
@@ -946,73 +1044,6 @@ AUTHOR
 
 <h3 id="5）–preserve-root"><a href="#5）–preserve-root" class="headerlink" title="5）–preserve-root"></a>5）–preserve-root</h3><p>–preserve-root表示：保护根目录（&#x2F;）路径。此选项可以避免误操作删除根目录，导致整个系统崩溃的风险，推荐使用。</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm --preserve-root /</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">[root@smart linux]# rm --preserve-root / b</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">rm: remove regular file `b&#x27;? y</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">A  abcde  B  b.c  b.c~  c  d  f  h  kl.txt  rm.txt  ss  test</span><br><span class="line">[root@smart linux]# ls /</span><br><span class="line">bin   cgroup  etc   lib         media  mnt  opt   root  selinux  sys  usr</span><br><span class="line">boot  dev     home  lost+found  misc   net  proc  sbin  srv      tmp  var</span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <categories>
-        <category>Linux命令</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>命令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>深入解析Linux 常用命令--cp</title>
-    <url>/posts/27ab6a78.html</url>
-    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>cp常用于复制文件或目录。</p>
-<h2 id="2-格式"><a href="#2-格式" class="headerlink" title="2.格式"></a>2.格式</h2><p>cp命令复制时，有如下几种组合：</p>
-<ul>
-<li>cp [OPTION]  源文件  目标文件</li>
-<li>cp [OPTION]  源文件  目标路径</li>
-<li>cp [OPTION]  源文件  目标路径&#x2F;目标文件</li>
-<li>cp [OPTION]  源路径  目标路径</li>
-<li>cp [OPTION]  源路径  目标路径</li>
-</ul>
-<h2 id="3-强制复制"><a href="#3-强制复制" class="headerlink" title="3.强制复制"></a>3.强制复制</h2><p>cp  -f   SRC  DEST，把SRC复制到DEST。当DEST文件存在时，将去先移除DEST，再把SRC复制到DEST。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# cp b.txt  k.txt</span><br><span class="line">[root@smart linux]# cp b.txt  k.txt</span><br><span class="line">cp: overwrite `k.txt&#x27;? y   </span><br><span class="line">[root@smart linux]# cp -f b.txt  k.txt</span><br><span class="line">cp: overwrite `k.txt&#x27;? y</span><br><span class="line">[root@smart linux]# \cp -f b.txt  k.txt</span><br><span class="line">[root@smart linux]# alias cp=&#x27;cp&#x27;</span><br><span class="line">[root@smart linux]# cp -r b.txt k.txt</span><br></pre></td></tr></table></figure>
-
-<h2 id="4-替换前交互询问"><a href="#4-替换前交互询问" class="headerlink" title="4.替换前交互询问"></a>4.替换前交互询问</h2><p>cp  -i </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]# cp k.txt s.txt</span><br><span class="line">[root@smart Desktop]# cp -i k.txt s.txt</span><br><span class="line">cp: overwrite `s.txt&#x27;? y</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>此处要注意，默认情况下，Linux系统一般都会alias cp为交互模式，可以查看~&#x2F;.bashrc。</p>
-</blockquote>
-<h2 id="5-有重复文件不复制"><a href="#5-有重复文件不复制" class="headerlink" title="5.有重复文件不复制"></a>5.有重复文件不复制</h2><p>cp   -n</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]# cp  k.txt n.txt</span><br><span class="line">cp: overwrite `n.txt&#x27;? n</span><br><span class="line">[root@smart Desktop]# cp -n k.txt n.txt</span><br><span class="line">[root@smart Desktop]# </span><br></pre></td></tr></table></figure>
-
-<h2 id="6-复制文件夹及子文件"><a href="#6-复制文件夹及子文件" class="headerlink" title="6.复制文件夹及子文件"></a>6.复制文件夹及子文件</h2><p>cp  -R&#x2F;-r</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# cp  abcde/  ss</span><br><span class="line">cp: omitting directory `abcde/&#x27;</span><br><span class="line">[root@smart linux]# cp -r  abcde/  ss</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">a  abcde  a.txt  b  b.c  b.c~  b.txt  c  d  e  f  g  h  k.txt  ss</span><br></pre></td></tr></table></figure>
-
-<h2 id="7-显示复制详细信息"><a href="#7-显示复制详细信息" class="headerlink" title="7.显示复制详细信息"></a>7.显示复制详细信息</h2><p>cp -v</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# cp -v k.txt s.txt</span><br><span class="line">`k.txt&#x27; -&gt; `s.txt&#x27;</span><br></pre></td></tr></table></figure>
-
-<h2 id="8-注意事项"><a href="#8-注意事项" class="headerlink" title="8.注意事项"></a>8.注意事项</h2><p>由于在linux下一切皆文件，因此linux命令行下无法区分目标路径or目标文件。</p>
-<p>对于命令“ cp  A   B”注意下面几个区别：</p>
-<table>
-<thead>
-<tr>
-<th align="left"></th>
-<th align="left">B不存在</th>
-<th align="left">B存在，且为文件</th>
-<th>B存在，且为目录</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">A为文件</td>
-<td align="left">结果：同目录下出现B文件，内容同A</td>
-<td align="left">结果：直接复制失败，若加-r选项，同目录下不新增文件，B的旧内容将被覆盖为A文件内容</td>
-<td>结果：A将复制到B文件夹下，文件名为A</td>
-</tr>
-<tr>
-<td align="left">A为目录</td>
-<td align="left">结果：直接复制失败，若加上-r选项，同目录下将会产生B目录，目录下内容同A</td>
-<td align="left">结果：直接复制失败，加-r选项也无法复制。</td>
-<td>结果：直接复制失败，加-r选项后，在B文件夹下会出现A文件夹，内容同A文件夹</td>
-</tr>
-</tbody></table>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">1.A为文件，B不存在，结果同目录下出现B文件，内容同A:</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A  B</span><br><span class="line"></span><br><span class="line">2.A为文件，B存在，且为文件，结果直接复制失败，若加-r选项，同目录下不新增文件，B的旧内容将被覆盖为A文件内容</span><br><span class="line">[root@smart test]# cp -n A B</span><br><span class="line">[root@smart test]# ll</span><br><span class="line">total 4</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 21:51 A</span><br><span class="line">-rw-r--r--. 1 root root 4 Nov  5 22:03 B</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">cp: overwrite `B&#x27;? y</span><br><span class="line">[root@smart test]# ll</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 21:51 A</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 22:05 B</span><br><span class="line"></span><br><span class="line">3.A为文件，B存在，B为目录。结果A将复制到B文件夹下，文件名为A</span><br><span class="line">[root@smart test]# ls -lRt</span><br><span class="line">.:</span><br><span class="line">total 4</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 22:06 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  5 21:51 A</span><br><span class="line"></span><br><span class="line">./B:</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 22:06 A</span><br><span class="line">[root@smart test]# rm -rf B/A</span><br><span class="line">[root@smart test]# ls</span><br><span class="line">A  B</span><br><span class="line">[root@smart test]# ls -lRt</span><br><span class="line">.:</span><br><span class="line">total 4</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 22:07 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  5 21:51 A</span><br><span class="line"></span><br><span class="line">./B:</span><br><span class="line">total 0</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">[root@smart test]# ls -lRt</span><br><span class="line">.:</span><br><span class="line">total 4</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 22:07 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  5 21:51 A</span><br><span class="line"></span><br><span class="line">./B:</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r--. 1 root root 0 Nov  5 22:07 A</span><br><span class="line"></span><br><span class="line">4.A为目录，B不存在。结果：直接复制失败，若加上-r选项，同目录下将会产生B目录，目录下内容同A</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">cp: omitting directory `A&#x27;</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">[root@smart test]# ls</span><br><span class="line">A  B</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A/  B/</span><br><span class="line"></span><br><span class="line">5.A为目录，B为文件，直接复制失败，加-r选项也无法复制。</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A/  B</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">cp: omitting directory `A&#x27;</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">cp: cannot overwrite non-directory `B&#x27; with directory `A&#x27;</span><br><span class="line"></span><br><span class="line">6.A、B均为目录，且B存在</span><br><span class="line">[root@smart test]# ls</span><br><span class="line">A  B</span><br><span class="line">[root@smart test]# ls -p</span><br><span class="line">A/  B/</span><br><span class="line">[root@smart test]# cp A B</span><br><span class="line">cp: omitting directory `A&#x27;</span><br><span class="line">[root@smart test]# cp -r A B</span><br><span class="line">[root@smart test]# ls </span><br><span class="line">A  B</span><br></pre></td></tr></table></figure>
-
 
 
 ]]></content>
@@ -1274,97 +1305,6 @@ AUTHOR
       </tags>
   </entry>
   <entry>
-    <title>CentOS OOM问题分析</title>
-    <url>/posts/ae24cd1e.html</url>
-    <content><![CDATA[<p><img src="https://img-blog.csdn.net/20180711105839499?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>近日，部署应用程序的CentOS操作系统频繁kill应用进程，感到非常意外。通过对系统日志进行分析，发现syslog中输出out of memery，LowMem不足。</p>
-<p>经过查阅大量的资料，分析发现是由于32位系统寻址空间的限制。32位linux将内存空间分为三部分：DMA、Normal（LowMem）、HighMem。其范围如下：<br> Zone PFN ranges:<br> DMA           0x00000000 -&gt; 0x00FFFFFF       16M<br> Normal       0x01000000 -&gt; 0x37FFFFFF        880M<br> HighMem   0x38000000 -&gt; </p>
-<p>其中，DMA为系统直接存储器空间，LowMem为系统低端内存，主要为Linux内核使用，HighMem为通用内存。（注：64位系统基本都是LowMem）</p>
-<p>一般情况下，16G内存的IBM服务器LowMem约700M，系统启动后剩余约600M。</p>
-<p>经过对各个进程进行分析后发现，有一个进程会对内核协议栈参数进行优化，使得socket缓冲过大，从而导致LowMem耗尽，从而触发了OOM问题。</p>
-<p>OOM（Out Of Memery）是Linux下一种保护机制，保证机器能够正常运转的机制。该机制在内存耗尽时会通过kill一些进程来释放LowMem。同时会在系统日志中输出相应的Log。</p>
-<p>Linux下内核各参数意义</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/proc/sys/net/core/wmem_max        最大的socket写socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/core/wmem_default    默认的socket写socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/core/rmem_max        最大的socket读socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/core/rmem_default    默认的socket读socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/ipv4/tcp_wmem        TCP socket写socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/ipv4/tcp_rmem        TCP socket读socket缓存大小（Byte） </span><br><span class="line">/proc/sys/net/ipv4/tcp_mem         TCP socket缓存大小（单位：页，每页4k大小） </span><br><span class="line">/proc/sys/net/ipv4/udp_mem         UDP socket缓存大小（单位：页，每页4k大小） </span><br><span class="line">/proc/sys/net/ipv4/udp_rmem_min    UDP socket接收缓冲去最小值</span><br><span class="line">/proc/sys/net/ipv4/udp_wmem_min    UDP socket发送缓冲区最小值</span><br></pre></td></tr></table></figure>
-
-<p>特别注意：tcp_mem及udp_mem两者单位均为页内存。</p>
-<p>最后通过调整上述参数，使得系统得到优化，同时不影响用户面性能。</p>
-<p>其他解决方案：</p>
-<p>1，升级系统至64位，64位系统基本都是LowMem，不存在LowMem不足问题。</p>
-<p>2，其他方案均没有成功得到验证。</p>
-<p>附：</p>
-<p>1.查看socket占用内存情况：</p>
-<p>cat  &#x2F;proc&#x2F;net&#x2F;socket</p>
-<p>2.查看socket buff情况</p>
-<p>slabtop:  </p>
-<p>skbuff_head_cache</p>
-]]></content>
-      <categories>
-        <category>经验总结</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>深入解析Linux 常用命令--lsof</title>
-    <url>/posts/17c953e6.html</url>
-    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>lsof用于显示打开的文件。list open files。</p>
-<h2 id="2-各参数含义"><a href="#2-各参数含义" class="headerlink" title="2.各参数含义"></a>2.各参数含义</h2><p>a.-c列出指定进程所打开的文件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof -c Xorg</span></span><br><span class="line">COMMAND  PID USER   FD   TYPE     DEVICE  SIZE/OFF       NODE NAME</span><br><span class="line">Xorg    2846 root  cwd    DIR      253,0      4096     653625 /var/gdm</span><br><span class="line">Xorg    2846 root  rtd    DIR      253,0      4096          2 /</span><br><span class="line">Xorg    2846 root  txt    REG      253,0   2295880     956717 /usr/bin/Xorg</span><br><span class="line">Xorg    2846 root  mem    REG      253,0    122232     787409 /lib/libgcc_s-4.4.7-20120601.so.1</span><br><span class="line">Xorg    2846 root  mem    REG      253,0    122864     949734 /usr/lib/libEGL.so.1.0.0</span><br><span class="line">Xorg    2846 root  mem    REG      253,0    205188     949736 /usr/lib/libglamor.so.0.0.0</span><br></pre></td></tr></table></figure>
-
-<p>b.+d 列出目录下被打开的文件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof +d /root</span></span><br><span class="line">COMMAND     PID USER   FD   TYPE DEVICE SIZE/OFF   NODE NAME</span><br><span class="line">gnome-ses  3056 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">metacity   3162 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">gnome-pan  3168 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">nautilus   3174 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">vmtoolsd   3200 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">gpk-updat  3201 root  cwd    DIR  253,0     4096 260610 /root</span><br></pre></td></tr></table></figure>
-
-<p>c. +D 递归列出目录下被打开的文件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof +D /root</span></span><br><span class="line">COMMAND     PID USER   FD   TYPE DEVICE SIZE/OFF   NODE NAME</span><br><span class="line">gnome-ses  3056 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">metacity   3162 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">metacity   3162 root   20w   REG  253,0    16384 279738 /root/.cache/event-sound-cache.tdb.e321b5cbc96c34226a8725e100000034.i386-redhat-linux-gnu</span><br><span class="line">gnome-pan  3168 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">nautilus   3174 root  cwd    DIR  253,0     4096 260610 /root</span><br><span class="line">nautilus   3174 root  mem    REG  253,0    32768 281492 /root/.local/share/gvfs-metadata/root-ecaddb60.<span class="built_in">log</span></span><br><span class="line">nautilus   3174 root  mem    REG  253,0     1308 279766 /root/.local/share/gvfs-metadata/root</span><br><span class="line">nautilus   3174 root  mem    REG  253,0    32768 279730 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final-0d9eaed7.<span class="built_in">log</span></span><br><span class="line">nautilus   3174 root  mem    REG  253,0      184 279705 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final</span><br><span class="line">nautilus   3174 root   31r   REG  253,0      184 279705 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final</span><br><span class="line">nautilus   3174 root   32r   REG  253,0    32768 279730 /root/.local/share/gvfs-metadata/label-CentOS_6.5_Final-0d9eaed7.<span class="built_in">log</span></span><br><span class="line">nautilus   3174 root   33r   REG  253,0     1308 279766 /root/.local/share/gvfs-metadata/root</span><br><span class="line">nautilus   3174 root   34r   REG  253,0    32768 281492 /root/.local/share/gvfs-metadata/root-ecaddb60.<span class="built_in">log</span></span><br><span class="line">vmtoolsd   3200 root  cwd    DIR  253,0     4096 260610 /root</span><br></pre></td></tr></table></figure>
-
-<p>d. -i &lt;条件&gt; 列出符合条件的进程。</p>
-<p>  条件包括：4&#x2F;6、协议、：端口、@ip</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof -i tcp</span></span><br><span class="line">COMMAND    PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">rpcbind   2027     rpc    8u  IPv4  12996      0t0  TCP *:sunrpc (LISTEN)</span><br><span class="line">rpcbind   2027     rpc   11u  IPv6  13001      0t0  TCP *:sunrpc (LISTEN)</span><br><span class="line">rpc.statd 2176 rpcuser    9u  IPv4  13442      0t0  TCP *:35471 (LISTEN)</span><br><span class="line">rpc.statd 2176 rpcuser   11u  IPv6  13450      0t0  TCP *:41171 (LISTEN)</span><br><span class="line">cupsd     2207    root    7u  IPv6  13632      0t0  TCP localhost:ipp (LISTEN)</span><br><span class="line">cupsd     2207    root    8u  IPv4  13633      0t0  TCP localhost:ipp (LISTEN)</span><br><span class="line">sshd      2378    root    3u  IPv4  14309      0t0  TCP *:ssh (LISTEN)</span><br><span class="line">sshd      2378    root    4u  IPv6  14313      0t0  TCP *:ssh (LISTEN)</span><br><span class="line">master    2612    root   12u  IPv4  14799      0t0  TCP localhost:smtp (LISTEN)</span><br><span class="line">master    2612    root   13u  IPv6  14801      0t0  TCP localhost:smtp (LISTEN)</span><br><span class="line">dnsmasq   2836  nobody    6u  IPv4  16052      0t0  TCP 192.168.122.1:domain (LISTEN)</span><br><span class="line">[root@smart Desktop]<span class="comment"># lsof -i 4</span></span><br><span class="line">COMMAND    PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">rpcbind   2027     rpc    6u  IPv4  12993      0t0  UDP *:sunrpc </span><br><span class="line">rpcbind   2027     rpc    7u  IPv4  12995      0t0  UDP *:930 </span><br><span class="line">rpcbind   2027     rpc    8u  IPv4  12996      0t0  TCP *:sunrpc (LISTEN)</span><br><span class="line">rpc.statd 2176 rpcuser    5r  IPv4  13434      0t0  UDP *:spmp </span><br><span class="line">rpc.statd 2176 rpcuser    8u  IPv4  13438      0t0  UDP *:60627 </span><br><span class="line">rpc.statd 2176 rpcuser    9u  IPv4  13442      0t0  TCP *:35471 (LISTEN)</span><br><span class="line">cupsd     2207    root    8u  IPv4  13633      0t0  TCP localhost:ipp (LISTEN)</span><br><span class="line">cupsd     2207    root   10u  IPv4  13636      0t0  UDP *:ipp </span><br><span class="line">sshd      2378    root    3u  IPv4  14309      0t0  TCP *:ssh (LISTEN)</span><br><span class="line">master    2612    root   12u  IPv4  14799      0t0  TCP localhost:smtp (LISTEN)</span><br><span class="line">dnsmasq   2836  nobody    5u  IPv4  16048      0t0  UDP *:bootps </span><br><span class="line">dnsmasq   2836  nobody    6u  IPv4  16052      0t0  TCP 192.168.122.1:domain (LISTEN)</span><br><span class="line">dnsmasq   2836  nobody    7u  IPv4  16053      0t0  UDP 192.168.122.1:domain </span><br><span class="line">[root@smart Desktop]<span class="comment"># lsof -i :930</span></span><br><span class="line">COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span><br><span class="line">rpcbind 2027  rpc    7u  IPv4  12995      0t0  UDP *:930 </span><br><span class="line">rpcbind 2027  rpc   10u  IPv6  13000      0t0  UDP *:930 </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>e.-p  列出进程所打开文件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]<span class="comment"># lsof -p 1</span></span><br><span class="line">COMMAND PID USER   FD   TYPE     DEVICE SIZE/OFF   NODE NAME</span><br><span class="line">init      1 root  cwd    DIR      253,0     4096      2 /</span><br><span class="line">init      1 root  rtd    DIR      253,0     4096      2 /</span><br><span class="line">init      1 root  txt    REG      253,0   149284   9657 /sbin/init</span><br><span class="line">init      1 root  mem    REG      253,0   122232 787409 /lib/libgcc_s-4.4.7-20120601.so.1</span><br><span class="line">init      1 root  mem    REG      253,0  1910572 787370 /lib/libc-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   133312 787374 /lib/libpthread-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   286396 787407 /lib/libdbus-1.so.3.4.0</span><br><span class="line">init      1 root  mem    REG      253,0    58704 782877 /lib/libnss_files-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   142536 785996 /lib/ld-2.12.so</span><br><span class="line">init      1 root  mem    REG      253,0   100500 783114 /lib/libnih.so.1.0.0</span><br><span class="line">init      1 root  mem    REG      253,0    38768 783112 /lib/libnih-dbus.so.1.0.0</span><br><span class="line">init      1 root  mem    REG      253,0    41724 787390 /lib/librt-2.12.so</span><br><span class="line">init      1 root    0u   CHR        1,3      0t0   3908 /dev/null</span><br><span class="line">init      1 root    1u   CHR        1,3      0t0   3908 /dev/null</span><br><span class="line">init      1 root    2u   CHR        1,3      0t0   3908 /dev/null</span><br><span class="line">init      1 root    3r  FIFO        0,8      0t0   8720 pipe</span><br><span class="line">init      1 root    4w  FIFO        0,8      0t0   8720 pipe</span><br><span class="line">init      1 root    5r   DIR       0,10        0      1 inotify</span><br><span class="line">init      1 root    6r   DIR       0,10        0      1 inotify</span><br><span class="line">init      1 root    7u  unix 0xc16facc0      0t0   8721 socket</span><br><span class="line">init      1 root    9u  unix 0xf4abd980      0t0  13185 socket</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <categories>
-        <category>Linux命令</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>命令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux下stat查看atime问题分析</title>
-    <url>/posts/12927.html</url>
-    <content><![CDATA[<p>在分析Linux参与编译代码时，想利用文件的访问时间来判断文件是否参与编译，实际执行情况很意外，识别很多makefile文件没有参与到编译，实际它们如果没有参与编译是不可能的。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hostname@linux:~&gt; stat log.txt</span><br><span class="line">  File: &#x27;log.txt&#x27;</span><br><span class="line">  Size: 260             Blocks: 8          IO Block: 4096   regular file</span><br><span class="line">Device: ca40h/51776d    Inode: 20971597    Links: 1</span><br><span class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2022-07-16 14:55:41.573257894 +0800</span><br><span class="line">Modify: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line">Change: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line"> Birth: -</span><br><span class="line">hostname@linux:~&gt; cat log.txt</span><br><span class="line">[2022-07-08T02:05:32.283Z] info  code-server 4.2.0 4fe3b11638da5138648f3c3d8c8b1dd696de76c5</span><br><span class="line">[2022-07-08T02:05:32.284Z] info  Using user-data-dir ~/.local/share/code-server</span><br><span class="line">[2022-07-08T02:05:32.315Z] error listen EADDRINUSE: address already in use 0.0.0.0:8888</span><br><span class="line">hostname@linux:~&gt; stat log.txt</span><br><span class="line">  File: &#x27;log.txt&#x27;</span><br><span class="line">  Size: 260             Blocks: 8          IO Block: 4096   regular file</span><br><span class="line">Device: ca40h/51776d    Inode: 20971597    Links: 1</span><br><span class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2022-07-16 14:55:41.573257894 +0800</span><br><span class="line">Modify: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line">Change: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line"> Birth: -</span><br><span class="line">hostname@linux:~&gt;</span><br></pre></td></tr></table></figure>
-
-<p>经过资料搜索，发现文件访问时间的刷新与实际挂载的文件系统类型有关系。</p>
-<p>通过man查询mount手册显示如下：</p>
-<pre><code>strictatime
-   Allows to explicitly request full atime updates.  This makes it possible for the kernel to default to relatime or noatime but still allow userspace to override it.  For more details about the default system  mount options see /proc/mounts.
-   
-relatime
-   Update inode access times relative to modify or change time.  Access time is only updated if the previous access time was earlier than the current modify or change time.  (Similar to noatime, but it doesn&#39;t  break mutt or other applications that need to know if a file has been read since the last time it was modified.)
-   Since  Linux  2.6.30,  the  kernel defaults to the behavior provided by this option (unless noatime was specified), and the strictatime option is required to obtain traditional semantics.  In addition, since Linux 2.6.30, the file&#39;s last access time is always updated if it is more than 1 day old.
-</code></pre>
-<p>从上面的描述可以看出，当没有修改文件内容时，使用relatime属性，访问文件后不会刷新访问时间。从下面可以看出，当前我们机器挂载的属性一般都是relatime。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hostname@linux:~&gt; mount</span><br><span class="line">sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)</span><br><span class="line">proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)</span><br><span class="line">devtmpfs on /dev type devtmpfs (rw,nosuid,size=32954592k,nr_inodes=8238648,mode=755)</span><br><span class="line">securityfs on /sys/kernel/security type securityfs (rw,nosuid,nodev,noexec,relatime)</span><br><span class="line">tmpfs on /dev/shm type tmpfs (rw,nosuid,nodev)</span><br><span class="line">devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000)</span><br><span class="line">tmpfs on /run type tmpfs (rw,nosuid,nodev,mode=755)</span><br><span class="line">tmpfs on /sys/fs/cgroup type tmpfs (ro,nosuid,nodev,noexec,mode=755)</span><br><span class="line">debugfs on /sys/kernel/debug type debugfs (rw,relatime)</span><br><span class="line">mqueue on /dev/mqueue type mqueue (rw,relatime)</span><br><span class="line">hugetlbfs on /dev/hugepages type hugetlbfs (rw,relatime)</span><br><span class="line">/dev/xvda1 on /boot type ext4 (rw,relatime,data=ordered)</span><br><span class="line">/dev/xvde on /usr1 type ext4 (rw,relatime,data=ordered)</span><br><span class="line">tmpfs on /run/user/1001 type tmpfs (rw,nosuid,nodev,relatime,size=6592996k,mode=700,uid=1001,gid=100)</span><br><span class="line">tracefs on /sys/kernel/debug/tracing type tracefs (rw,relatime)</span><br><span class="line">tmpfs on /mnt type tmpfs (rw)</span><br><span class="line">hostname@linux:~&gt;</span><br></pre></td></tr></table></figure>
-
-<p>因此，我们可以重新挂载通过使用strictatime属性挂载即可。</p>
-<p>如：mount -t tmpfs -o strictatime tmpfs &#x2F;mnt</p>
-]]></content>
-      <categories>
-        <category>经验总结</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深入解析Linux 常用命令--top</title>
     <url>/posts/8cd77be.html</url>
     <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>当我们在Linux环境下运行我们的程序时，我们经常会使用top命令来查看程序的运行状态，CPU、内存使用情况，类似我们在Windows下的任务管理器，可以查看内存的使用情况，剩余情况等。</p>
@@ -1408,6 +1348,93 @@ relatime
       <tags>
         <tag>Linux</tag>
         <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CentOS OOM问题分析</title>
+    <url>/posts/ae24cd1e.html</url>
+    <content><![CDATA[<p><img src="https://img-blog.csdn.net/20180711105839499?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>近日，部署应用程序的CentOS操作系统频繁kill应用进程，感到非常意外。通过对系统日志进行分析，发现syslog中输出out of memery，LowMem不足。</p>
+<p>经过查阅大量的资料，分析发现是由于32位系统寻址空间的限制。32位linux将内存空间分为三部分：DMA、Normal（LowMem）、HighMem。其范围如下：<br> Zone PFN ranges:<br> DMA           0x00000000 -&gt; 0x00FFFFFF       16M<br> Normal       0x01000000 -&gt; 0x37FFFFFF        880M<br> HighMem   0x38000000 -&gt; </p>
+<p>其中，DMA为系统直接存储器空间，LowMem为系统低端内存，主要为Linux内核使用，HighMem为通用内存。（注：64位系统基本都是LowMem）</p>
+<p>一般情况下，16G内存的IBM服务器LowMem约700M，系统启动后剩余约600M。</p>
+<p>经过对各个进程进行分析后发现，有一个进程会对内核协议栈参数进行优化，使得socket缓冲过大，从而导致LowMem耗尽，从而触发了OOM问题。</p>
+<p>OOM（Out Of Memery）是Linux下一种保护机制，保证机器能够正常运转的机制。该机制在内存耗尽时会通过kill一些进程来释放LowMem。同时会在系统日志中输出相应的Log。</p>
+<p>Linux下内核各参数意义</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/proc/sys/net/core/wmem_max        最大的socket写socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/core/wmem_default    默认的socket写socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/core/rmem_max        最大的socket读socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/core/rmem_default    默认的socket读socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/ipv4/tcp_wmem        TCP socket写socket缓存大小（Byte）</span><br><span class="line">/proc/sys/net/ipv4/tcp_rmem        TCP socket读socket缓存大小（Byte） </span><br><span class="line">/proc/sys/net/ipv4/tcp_mem         TCP socket缓存大小（单位：页，每页4k大小） </span><br><span class="line">/proc/sys/net/ipv4/udp_mem         UDP socket缓存大小（单位：页，每页4k大小） </span><br><span class="line">/proc/sys/net/ipv4/udp_rmem_min    UDP socket接收缓冲去最小值</span><br><span class="line">/proc/sys/net/ipv4/udp_wmem_min    UDP socket发送缓冲区最小值</span><br></pre></td></tr></table></figure>
+
+<p>特别注意：tcp_mem及udp_mem两者单位均为页内存。</p>
+<p>最后通过调整上述参数，使得系统得到优化，同时不影响用户面性能。</p>
+<p>其他解决方案：</p>
+<p>1，升级系统至64位，64位系统基本都是LowMem，不存在LowMem不足问题。</p>
+<p>2，其他方案均没有成功得到验证。</p>
+<p>附：</p>
+<p>1.查看socket占用内存情况：</p>
+<p>cat  &#x2F;proc&#x2F;net&#x2F;socket</p>
+<p>2.查看socket buff情况</p>
+<p>slabtop:  </p>
+<p>skbuff_head_cache</p>
+]]></content>
+      <categories>
+        <category>经验总结</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux SSH登录权限控制</title>
+    <url>/posts/3e9b8cfc.html</url>
+    <content><![CDATA[<p>近日在云端开发过程中，莫名其妙的程序被重启了，现象非常奇怪。采用history命令看到有执行重启程序指令，但是我很清楚自己没有执行。使用who命令查看后，发现除了我还有其他人登录我的服务器。遂想到通过SSH配置文件控制，方法非常简单，只需在&#x2F;etc&#x2F;ssh&#x2F;sshd_config文件添加即可。如下：</p>
+<h2 id="1-禁止root用户登录"><a href="#1-禁止root用户登录" class="headerlink" title="1.禁止root用户登录"></a>1.禁止root用户登录</h2><p>​      DenyUsers  root</p>
+<p>  在此情况下，root无法登录，其他用户可登陆</p>
+<h2 id="2-允许root用户登录"><a href="#2-允许root用户登录" class="headerlink" title="2.允许root用户登录"></a>2.允许root用户登录</h2><p>AllowUsers  root</p>
+<p>在此情况下，root用户可以登录，其他用户无法登陆</p>
+<p>AllowUsers  root,smart</p>
+<p>在此情况下，root，smart用户可以登录，其他用户无法登陆</p>
+<h2 id="3-禁止指定IP登录"><a href="#3-禁止指定IP登录" class="headerlink" title="3.禁止指定IP登录"></a>3.禁止指定IP登录</h2><p>DenyUsers  *@192.168.1.101</p>
+<p>在此情况下，该IP192.168.1.101将无法登录</p>
+<h2 id="4-允许指定IP登录"><a href="#4-允许指定IP登录" class="headerlink" title="4.允许指定IP登录"></a>4.允许指定IP登录</h2><p>AllowUsers  *@192.168.1.101</p>
+<p>在此情况下，该IP192.168.1.101将可以登录</p>
+<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#49;&#x39;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#x2e;&#x31;&#x30;&#49;">&#x72;&#x6f;&#111;&#116;&#x40;&#49;&#x39;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#x2e;&#x31;&#x30;&#49;</a></p>
+<p>在此情况下，该IP192.168.1.101将无法登录root用户</p>
+<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#114;&#x6f;&#111;&#116;&#64;&#x31;&#57;&#50;&#x2e;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#x31;&#48;&#x31;">&#114;&#x6f;&#111;&#116;&#64;&#x31;&#57;&#50;&#x2e;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#x31;&#48;&#x31;</a></p>
+<p>在此情况下，该IP192.168.1.101将可以登录root用户</p>
+]]></content>
+      <categories>
+        <category>经验总结</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>SSH</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux下stat查看atime问题分析</title>
+    <url>/posts/12927.html</url>
+    <content><![CDATA[<p>在分析Linux参与编译代码时，想利用文件的访问时间来判断文件是否参与编译，实际执行情况很意外，识别很多makefile文件没有参与到编译，实际它们如果没有参与编译是不可能的。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hostname@linux:~&gt; stat log.txt</span><br><span class="line">  File: &#x27;log.txt&#x27;</span><br><span class="line">  Size: 260             Blocks: 8          IO Block: 4096   regular file</span><br><span class="line">Device: ca40h/51776d    Inode: 20971597    Links: 1</span><br><span class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2022-07-16 14:55:41.573257894 +0800</span><br><span class="line">Modify: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line">Change: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line"> Birth: -</span><br><span class="line">hostname@linux:~&gt; cat log.txt</span><br><span class="line">[2022-07-08T02:05:32.283Z] info  code-server 4.2.0 4fe3b11638da5138648f3c3d8c8b1dd696de76c5</span><br><span class="line">[2022-07-08T02:05:32.284Z] info  Using user-data-dir ~/.local/share/code-server</span><br><span class="line">[2022-07-08T02:05:32.315Z] error listen EADDRINUSE: address already in use 0.0.0.0:8888</span><br><span class="line">hostname@linux:~&gt; stat log.txt</span><br><span class="line">  File: &#x27;log.txt&#x27;</span><br><span class="line">  Size: 260             Blocks: 8          IO Block: 4096   regular file</span><br><span class="line">Device: ca40h/51776d    Inode: 20971597    Links: 1</span><br><span class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2022-07-16 14:55:41.573257894 +0800</span><br><span class="line">Modify: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line">Change: 2022-07-08 10:05:32.314052290 +0800</span><br><span class="line"> Birth: -</span><br><span class="line">hostname@linux:~&gt;</span><br></pre></td></tr></table></figure>
+
+<p>经过资料搜索，发现文件访问时间的刷新与实际挂载的文件系统类型有关系。</p>
+<p>通过man查询mount手册显示如下：</p>
+<pre><code>strictatime
+   Allows to explicitly request full atime updates.  This makes it possible for the kernel to default to relatime or noatime but still allow userspace to override it.  For more details about the default system  mount options see /proc/mounts.
+   
+relatime
+   Update inode access times relative to modify or change time.  Access time is only updated if the previous access time was earlier than the current modify or change time.  (Similar to noatime, but it doesn&#39;t  break mutt or other applications that need to know if a file has been read since the last time it was modified.)
+   Since  Linux  2.6.30,  the  kernel defaults to the behavior provided by this option (unless noatime was specified), and the strictatime option is required to obtain traditional semantics.  In addition, since Linux 2.6.30, the file&#39;s last access time is always updated if it is more than 1 day old.
+</code></pre>
+<p>从上面的描述可以看出，当没有修改文件内容时，使用relatime属性，访问文件后不会刷新访问时间。从下面可以看出，当前我们机器挂载的属性一般都是relatime。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hostname@linux:~&gt; mount</span><br><span class="line">sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)</span><br><span class="line">proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)</span><br><span class="line">devtmpfs on /dev type devtmpfs (rw,nosuid,size=32954592k,nr_inodes=8238648,mode=755)</span><br><span class="line">securityfs on /sys/kernel/security type securityfs (rw,nosuid,nodev,noexec,relatime)</span><br><span class="line">tmpfs on /dev/shm type tmpfs (rw,nosuid,nodev)</span><br><span class="line">devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000)</span><br><span class="line">tmpfs on /run type tmpfs (rw,nosuid,nodev,mode=755)</span><br><span class="line">tmpfs on /sys/fs/cgroup type tmpfs (ro,nosuid,nodev,noexec,mode=755)</span><br><span class="line">debugfs on /sys/kernel/debug type debugfs (rw,relatime)</span><br><span class="line">mqueue on /dev/mqueue type mqueue (rw,relatime)</span><br><span class="line">hugetlbfs on /dev/hugepages type hugetlbfs (rw,relatime)</span><br><span class="line">/dev/xvda1 on /boot type ext4 (rw,relatime,data=ordered)</span><br><span class="line">/dev/xvde on /usr1 type ext4 (rw,relatime,data=ordered)</span><br><span class="line">tmpfs on /run/user/1001 type tmpfs (rw,nosuid,nodev,relatime,size=6592996k,mode=700,uid=1001,gid=100)</span><br><span class="line">tracefs on /sys/kernel/debug/tracing type tracefs (rw,relatime)</span><br><span class="line">tmpfs on /mnt type tmpfs (rw)</span><br><span class="line">hostname@linux:~&gt;</span><br></pre></td></tr></table></figure>
+
+<p>因此，我们可以重新挂载通过使用strictatime属性挂载即可。</p>
+<p>如：mount -t tmpfs -o strictatime tmpfs &#x2F;mnt</p>
+]]></content>
+      <categories>
+        <category>经验总结</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -1573,33 +1600,6 @@ relatime
       </tags>
   </entry>
   <entry>
-    <title>Linux SSH登录权限控制</title>
-    <url>/posts/3e9b8cfc.html</url>
-    <content><![CDATA[<p>近日在云端开发过程中，莫名其妙的程序被重启了，现象非常奇怪。采用history命令看到有执行重启程序指令，但是我很清楚自己没有执行。使用who命令查看后，发现除了我还有其他人登录我的服务器。遂想到通过SSH配置文件控制，方法非常简单，只需在&#x2F;etc&#x2F;ssh&#x2F;sshd_config文件添加即可。如下：</p>
-<h2 id="1-禁止root用户登录"><a href="#1-禁止root用户登录" class="headerlink" title="1.禁止root用户登录"></a>1.禁止root用户登录</h2><p>​      DenyUsers  root</p>
-<p>  在此情况下，root无法登录，其他用户可登陆</p>
-<h2 id="2-允许root用户登录"><a href="#2-允许root用户登录" class="headerlink" title="2.允许root用户登录"></a>2.允许root用户登录</h2><p>AllowUsers  root</p>
-<p>在此情况下，root用户可以登录，其他用户无法登陆</p>
-<p>AllowUsers  root,smart</p>
-<p>在此情况下，root，smart用户可以登录，其他用户无法登陆</p>
-<h2 id="3-禁止指定IP登录"><a href="#3-禁止指定IP登录" class="headerlink" title="3.禁止指定IP登录"></a>3.禁止指定IP登录</h2><p>DenyUsers  *@192.168.1.101</p>
-<p>在此情况下，该IP192.168.1.101将无法登录</p>
-<h2 id="4-允许指定IP登录"><a href="#4-允许指定IP登录" class="headerlink" title="4.允许指定IP登录"></a>4.允许指定IP登录</h2><p>AllowUsers  *@192.168.1.101</p>
-<p>在此情况下，该IP192.168.1.101将可以登录</p>
-<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#114;&#111;&#111;&#x74;&#64;&#x31;&#57;&#x32;&#x2e;&#x31;&#x36;&#x38;&#46;&#x31;&#x2e;&#x31;&#x30;&#49;">&#114;&#111;&#111;&#x74;&#64;&#x31;&#57;&#x32;&#x2e;&#x31;&#x36;&#x38;&#46;&#x31;&#x2e;&#x31;&#x30;&#49;</a></p>
-<p>在此情况下，该IP192.168.1.101将无法登录root用户</p>
-<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#x72;&#x6f;&#111;&#x74;&#64;&#x31;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#46;&#49;&#46;&#x31;&#48;&#x31;">&#x72;&#x6f;&#111;&#x74;&#64;&#x31;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#46;&#49;&#46;&#x31;&#48;&#x31;</a></p>
-<p>在此情况下，该IP192.168.1.101将可以登录root用户</p>
-]]></content>
-      <categories>
-        <category>经验总结</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>SSH</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>如何得到程序中6字节的结构体</title>
     <url>/posts/cb70c7b7.html</url>
     <content><![CDATA[<p>在工作中我们可能会遇到这样的情况，我们知道有个大小为100字节的变量存在内存未释放的情况，但是很难从数量庞大的代码中寻找该结构体。那我们有什么方法可以快速找到么？</p>
@@ -1609,6 +1609,28 @@ relatime
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">[root@smart <span class="number">29</span>_switch]<span class="meta"># gcc -o temp temp.c -Wlarger-than=5</span></span><br><span class="line">temp.c: In function ‘main’:</span><br><span class="line">temp.c:<span class="number">25</span>: warning: size of ‘a’ is <span class="number">12</span> bytes</span><br><span class="line">temp.c:<span class="number">26</span>: warning: size of ‘b’ is <span class="number">8</span> bytes</span><br><span class="line">temp.c:<span class="number">27</span>: warning: size of ‘c’ is <span class="number">6</span> bytes</span><br><span class="line">[root@smart <span class="number">29</span>_switch]# </span><br></pre></td></tr></table></figure>
 
 <p>从上述编译过程我们可以看出，变量c的大小为6字节，从而我们可以得到相应的结构体是哪一个。</p>
+]]></content>
+      <categories>
+        <category>经验总结</category>
+      </categories>
+      <tags>
+        <tag>C</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>字节对齐</title>
+    <url>/posts/3d32bc8a.html</url>
+    <content><![CDATA[<p>近日在工作中遇到一个奇怪问题，A程序发送一个结构给B程序，在B程序接收后，B程序按照A程序的结构进行解析，但始终不对。看过结构定义后，虽然知道有可能会出现字节对齐问题，一直怀疑是他们消息传输构造不对。经过GDB确认A程序发出的结构是正确的，在B程序接收处也同样没问题。当调试到转化处时才发现确实是字节对齐导致的。下面举例说明（32bit Linux  Gcc）。</p>
+<p>server.c</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack(1)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> a;</span><br><span class="line">    <span class="type">short</span> <span class="type">int</span> b;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> <span class="type">int</span> c;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> d;</span><br><span class="line">&#125; type1;</span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack()</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PORT  8888</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span>    fd = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>    len = <span class="number">0</span>;    </span><br><span class="line">    <span class="type">int</span>    err = <span class="number">0</span>; </span><br><span class="line">    <span class="type">char</span>  *buff = <span class="literal">NULL</span>;    </span><br><span class="line">    <span class="type">char</span>   recvbuf[<span class="number">1024</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">server_addr</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_addr</span>;</span></span><br><span class="line">    type1 *C = <span class="literal">NULL</span>;</span><br><span class="line">    </span><br><span class="line">    fd = socket(AF_INET, SOCK_DGRAM, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Socket create failure&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</span><br><span class="line">    server_addr.sin_family = AF_INET;</span><br><span class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line">    server_addr.sin_port = htons(PORT);</span><br><span class="line">    len = <span class="keyword">sizeof</span>(<span class="keyword">struct</span> sockaddr_in);</span><br><span class="line"></span><br><span class="line">    err = bind(fd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == err)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;bind error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        recvfrom(fd, recvbuf, <span class="keyword">sizeof</span>(recvbuf), <span class="number">0</span>, (<span class="keyword">struct</span> sockaddr *)&amp;client_addr, &amp;len);</span><br><span class="line">        C = (type1 *)recvbuf;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;C=&#123;0x%x,0x%x,0x%llx,0x%x&#125;\n&quot;</span>, C-&gt;a, C-&gt;b, C-&gt;c, C-&gt;d);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">[root@smart Desktop]# ./server</span><br><span class="line">C=&#123;<span class="number">0x11223344</span>,<span class="number">0x5566</span>,<span class="number">0x5678901234560019</span>,<span class="number">0x43211234</span>&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>client.c</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack(4)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> a;</span><br><span class="line">    <span class="type">short</span> <span class="type">int</span> b;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> <span class="type">int</span> c;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> d;</span><br><span class="line">&#125; type1;</span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack()</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PORT  8888</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span>    fd = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>    len = <span class="number">0</span>;    </span><br><span class="line">    <span class="type">int</span>    err = <span class="number">0</span>; </span><br><span class="line">    <span class="type">char</span>  *buff = <span class="literal">NULL</span>;    </span><br><span class="line">    <span class="type">char</span>   recvbuf[<span class="number">1024</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">server_addr</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_addr</span>;</span></span><br><span class="line">    type1  A = &#123;<span class="number">0x11223344</span>, <span class="number">0x5566</span>, <span class="number">0x1234567890123456</span>LL, <span class="number">0x87654321</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;sizeof(A)=%d,A=&#123;0x%x,0x%x,0x%llx,0x%x&#125;\n&quot;</span>, <span class="keyword">sizeof</span>(A), A.a, A.b, A.c, A.d);</span><br><span class="line"></span><br><span class="line">    fd = socket(AF_INET, SOCK_DGRAM, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Socket create failure&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    buff = (<span class="type">char</span> *)&amp;A;</span><br><span class="line"></span><br><span class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</span><br><span class="line">    server_addr.sin_family = AF_INET;</span><br><span class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line">    server_addr.sin_port = htons(PORT);</span><br><span class="line">    len = <span class="keyword">sizeof</span>(<span class="keyword">struct</span> sockaddr_in);</span><br><span class="line">    </span><br><span class="line">    sendto(fd, buff, <span class="keyword">sizeof</span>(type1), <span class="number">0</span>, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, len);</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">[root@smart Desktop]# ./client</span><br><span class="line"><span class="title function_">sizeof</span><span class="params">(A)</span>=<span class="number">20</span>,A=&#123;<span class="number">0x11223344</span>,<span class="number">0x5566</span>,<span class="number">0x1234567890123456</span>,<span class="number">0x87654321</span>&#125;</span><br><span class="line">[root@smart Desktop]# </span><br></pre></td></tr></table></figure>
+
+<p>从上面这个示例可以看出，输出的结果与我们预期的不一样。这是因为在32位系统下，数据存储将按结构体成员的最大字节数对齐，并且最大字节数为4。 上面的用例采用了手工设置对齐方式来测试该问题。从上述的运行结果看，我们需要在两个程序间保持一致，最好手动设置一样的字节对齐方式。</p>
+<p>pragma pack(1)表示按一字节对齐，#pragma pack()表示取消前面的字节对齐，按默认方式对齐。</p>
+<p>另外在编码时我们就应该考虑结构设计，尽量避免会引入需要考虑字节对齐的问题，如将short int 改为int，就无需考虑该问题。</p>
+<p>–质量高的代码会将问题消灭在编码阶段，修复bug将会让你效率更低。</p>
 ]]></content>
       <categories>
         <category>经验总结</category>
@@ -1656,28 +1678,6 @@ relatime
       </tags>
   </entry>
   <entry>
-    <title>联想服务器磁盘阵列划分</title>
-    <url>/posts/acd8d70f.html</url>
-    <content><![CDATA[<p>1.F1进入配置界面<br><img src="https://img-blog.csdn.net/20180328232558859?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>2.进入系统设置，选择storage<br><img src="https://img-blog.csdn.net/20180328232620927?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>3.进入Main Manu</p>
-<p><img src="https://img-blog.csdn.net/201803282326349?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>4.进入配置管理，先清除配置再创建虚拟驱动<br>   <img src="https://img-blog.csdn.net/20180328233003885?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>5.返回，选择控制器管理<br>  选择boot device，勾上刚刚创建的Raid<br>   <img src="https://img-blog.csdn.net/20180328233031184?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>6.返回选择虚拟设备管理<br>查看驱动器是否已初始化<br>待初始化完成<br>进行快速初始化</p>
-<p>  <img src="https://img-blog.csdn.net/2018032823331430?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>7.返回至系统配置和boot管理页面,选择boot mange<br> <img src="https://img-blog.csdn.net/20180328233614849?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p> <img src="https://img-blog.csdn.net/2018032823370019?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-<p>8.然后选择boot mode为legacy mode<br>   <img src="https://img-blog.csdn.net/20180328233834480?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
-]]></content>
-      <categories>
-        <category>经验总结</category>
-      </categories>
-      <tags>
-        <tag>磁盘阵列</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>栈溢出问题分析</title>
     <url>/posts/f7ea96c3.html</url>
     <content><![CDATA[<p>近日，程序总是莫名其妙的coredump，而且还是在变量定义的时候（如  int  a&#x3D;1），百思不得其解。在这种情况下，只有几种情况可能出现：内存踩踏、栈溢出。</p>
@@ -1709,6 +1709,43 @@ relatime
       </categories>
       <tags>
         <tag>栈溢出</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>联想服务器磁盘阵列划分</title>
+    <url>/posts/acd8d70f.html</url>
+    <content><![CDATA[<p>1.F1进入配置界面<br><img src="https://img-blog.csdn.net/20180328232558859?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>2.进入系统设置，选择storage<br><img src="https://img-blog.csdn.net/20180328232620927?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>3.进入Main Manu</p>
+<p><img src="https://img-blog.csdn.net/201803282326349?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>4.进入配置管理，先清除配置再创建虚拟驱动<br>   <img src="https://img-blog.csdn.net/20180328233003885?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>5.返回，选择控制器管理<br>  选择boot device，勾上刚刚创建的Raid<br>   <img src="https://img-blog.csdn.net/20180328233031184?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>6.返回选择虚拟设备管理<br>查看驱动器是否已初始化<br>待初始化完成<br>进行快速初始化</p>
+<p>  <img src="https://img-blog.csdn.net/2018032823331430?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>7.返回至系统配置和boot管理页面,选择boot mange<br> <img src="https://img-blog.csdn.net/20180328233614849?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p> <img src="https://img-blog.csdn.net/2018032823370019?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p>8.然后选择boot mode为legacy mode<br>   <img src="https://img-blog.csdn.net/20180328233834480?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1eWluMjAxNQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+]]></content>
+      <categories>
+        <category>经验总结</category>
+      </categories>
+      <tags>
+        <tag>磁盘阵列</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GCC相关链接</title>
+    <url>/posts/6ed875c1.html</url>
+    <content><![CDATA[<p>gcc官方文档翻译：</p>
+<p><a href="https://code.google.com/archive/p/gccint-zh/downloads">https://code.google.com/archive/p/gccint-zh/downloads</a></p>
+<p><a href="https://book.aikaiyuan.com/gcc/">https://book.aikaiyuan.com/gcc/</a></p>
+<p>GNU arm汇编伪指令：<a href="https://blog.csdn.net/Roland_Sun/article/details/107705952">https://blog.csdn.net/Roland_Sun/article/details/107705952</a></p>
+]]></content>
+      <categories>
+        <category>编译器</category>
+      </categories>
+      <tags>
+        <tag>GCC</tag>
       </tags>
   </entry>
   <entry>
@@ -1758,8 +1795,8 @@ relatime
         <category>编译器</category>
       </categories>
       <tags>
-        <tag>gcc插件</tag>
         <tag>GCC</tag>
+        <tag>gcc插件</tag>
       </tags>
   </entry>
   <entry>
@@ -1807,43 +1844,6 @@ relatime
         <tag>安全</tag>
         <tag>Linux</tag>
         <tag>gcc插件</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>字节对齐</title>
-    <url>/posts/3d32bc8a.html</url>
-    <content><![CDATA[<p>近日在工作中遇到一个奇怪问题，A程序发送一个结构给B程序，在B程序接收后，B程序按照A程序的结构进行解析，但始终不对。看过结构定义后，虽然知道有可能会出现字节对齐问题，一直怀疑是他们消息传输构造不对。经过GDB确认A程序发出的结构是正确的，在B程序接收处也同样没问题。当调试到转化处时才发现确实是字节对齐导致的。下面举例说明（32bit Linux  Gcc）。</p>
-<p>server.c</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack(1)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> a;</span><br><span class="line">    <span class="type">short</span> <span class="type">int</span> b;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> <span class="type">int</span> c;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> d;</span><br><span class="line">&#125; type1;</span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack()</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PORT  8888</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span>    fd = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>    len = <span class="number">0</span>;    </span><br><span class="line">    <span class="type">int</span>    err = <span class="number">0</span>; </span><br><span class="line">    <span class="type">char</span>  *buff = <span class="literal">NULL</span>;    </span><br><span class="line">    <span class="type">char</span>   recvbuf[<span class="number">1024</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">server_addr</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_addr</span>;</span></span><br><span class="line">    type1 *C = <span class="literal">NULL</span>;</span><br><span class="line">    </span><br><span class="line">    fd = socket(AF_INET, SOCK_DGRAM, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Socket create failure&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</span><br><span class="line">    server_addr.sin_family = AF_INET;</span><br><span class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line">    server_addr.sin_port = htons(PORT);</span><br><span class="line">    len = <span class="keyword">sizeof</span>(<span class="keyword">struct</span> sockaddr_in);</span><br><span class="line"></span><br><span class="line">    err = bind(fd, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == err)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;bind error\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        recvfrom(fd, recvbuf, <span class="keyword">sizeof</span>(recvbuf), <span class="number">0</span>, (<span class="keyword">struct</span> sockaddr *)&amp;client_addr, &amp;len);</span><br><span class="line">        C = (type1 *)recvbuf;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;C=&#123;0x%x,0x%x,0x%llx,0x%x&#125;\n&quot;</span>, C-&gt;a, C-&gt;b, C-&gt;c, C-&gt;d);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">[root@smart Desktop]# ./server</span><br><span class="line">C=&#123;<span class="number">0x11223344</span>,<span class="number">0x5566</span>,<span class="number">0x5678901234560019</span>,<span class="number">0x43211234</span>&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>client.c</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack(4)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> a;</span><br><span class="line">    <span class="type">short</span> <span class="type">int</span> b;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> <span class="type">int</span> c;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> d;</span><br><span class="line">&#125; type1;</span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> pack()</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PORT  8888</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span>    fd = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>    len = <span class="number">0</span>;    </span><br><span class="line">    <span class="type">int</span>    err = <span class="number">0</span>; </span><br><span class="line">    <span class="type">char</span>  *buff = <span class="literal">NULL</span>;    </span><br><span class="line">    <span class="type">char</span>   recvbuf[<span class="number">1024</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">server_addr</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_addr</span>;</span></span><br><span class="line">    type1  A = &#123;<span class="number">0x11223344</span>, <span class="number">0x5566</span>, <span class="number">0x1234567890123456</span>LL, <span class="number">0x87654321</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;sizeof(A)=%d,A=&#123;0x%x,0x%x,0x%llx,0x%x&#125;\n&quot;</span>, <span class="keyword">sizeof</span>(A), A.a, A.b, A.c, A.d);</span><br><span class="line"></span><br><span class="line">    fd = socket(AF_INET, SOCK_DGRAM, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Socket create failure&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    buff = (<span class="type">char</span> *)&amp;A;</span><br><span class="line"></span><br><span class="line">    bzero(&amp;server_addr, <span class="keyword">sizeof</span>(server_addr));</span><br><span class="line">    server_addr.sin_family = AF_INET;</span><br><span class="line">    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line">    server_addr.sin_port = htons(PORT);</span><br><span class="line">    len = <span class="keyword">sizeof</span>(<span class="keyword">struct</span> sockaddr_in);</span><br><span class="line">    </span><br><span class="line">    sendto(fd, buff, <span class="keyword">sizeof</span>(type1), <span class="number">0</span>, (<span class="keyword">struct</span> sockaddr *)&amp;server_addr, len);</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">[root@smart Desktop]# ./client</span><br><span class="line"><span class="title function_">sizeof</span><span class="params">(A)</span>=<span class="number">20</span>,A=&#123;<span class="number">0x11223344</span>,<span class="number">0x5566</span>,<span class="number">0x1234567890123456</span>,<span class="number">0x87654321</span>&#125;</span><br><span class="line">[root@smart Desktop]# </span><br></pre></td></tr></table></figure>
-
-<p>从上面这个示例可以看出，输出的结果与我们预期的不一样。这是因为在32位系统下，数据存储将按结构体成员的最大字节数对齐，并且最大字节数为4。 上面的用例采用了手工设置对齐方式来测试该问题。从上述的运行结果看，我们需要在两个程序间保持一致，最好手动设置一样的字节对齐方式。</p>
-<p>pragma pack(1)表示按一字节对齐，#pragma pack()表示取消前面的字节对齐，按默认方式对齐。</p>
-<p>另外在编码时我们就应该考虑结构设计，尽量避免会引入需要考虑字节对齐的问题，如将short int 改为int，就无需考虑该问题。</p>
-<p>–质量高的代码会将问题消灭在编码阶段，修复bug将会让你效率更低。</p>
-]]></content>
-      <categories>
-        <category>经验总结</category>
-      </categories>
-      <tags>
-        <tag>C</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GCC相关链接</title>
-    <url>/posts/6ed875c1.html</url>
-    <content><![CDATA[<p>gcc官方文档翻译：</p>
-<p><a href="https://code.google.com/archive/p/gccint-zh/downloads">https://code.google.com/archive/p/gccint-zh/downloads</a></p>
-<p><a href="https://book.aikaiyuan.com/gcc/">https://book.aikaiyuan.com/gcc/</a></p>
-<p>GNU arm汇编伪指令：<a href="https://blog.csdn.net/Roland_Sun/article/details/107705952">https://blog.csdn.net/Roland_Sun/article/details/107705952</a></p>
-]]></content>
-      <categories>
-        <category>编译器</category>
-      </categories>
-      <tags>
-        <tag>GCC</tag>
       </tags>
   </entry>
   <entry>
@@ -2653,7 +2653,7 @@ Where: NAME := STRING
 <p>sar –u 2 5  报告cpu使用情况，2s每次，统计5次</p>
 <p>sar –r 2 5  报告内存使用情况，2s每次，统计5次</p>
 <h3 id="1-1-77-scp"><a href="#1-1-77-scp" class="headerlink" title="1.1.77 scp"></a>1.1.77 scp</h3><p>复制本地文件到远程：</p>
-<p>scp localfile <a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#x31;&#46;&#49;&#x2e;&#49;&#46;&#x31;">&#x72;&#111;&#x6f;&#x74;&#64;&#x31;&#46;&#49;&#x2e;&#49;&#46;&#x31;</a>:&#x2F;remotefile</p>
+<p>scp localfile <a href="mailto:&#x72;&#111;&#111;&#x74;&#64;&#x31;&#46;&#x31;&#46;&#x31;&#46;&#49;">&#x72;&#111;&#111;&#x74;&#64;&#x31;&#46;&#x31;&#46;&#x31;&#46;&#49;</a>:&#x2F;remotefile</p>
 <p>得到远程文件：</p>
 <p>scp <a href="mailto:root@192.168.210.1:/remotefile">root@192.168.210.1:/remotefile</a> localfile</p>
 <h3 id="1-1-78-sed"><a href="#1-1-78-sed" class="headerlink" title="1.1.78 sed"></a>1.1.78 sed</h3><p>cat &#x2F;tmp&#x2F;im_sys_log_temp | sed ‘s|($SystemLogRateLimitInterval)(.*)|\1 0 1’ &gt;&#x2F;tmp&#x2F;im_sys_log.conf</p>
@@ -3140,7 +3140,7 @@ Where: NAME := STRING
 <p>第二步：播放所录制的session内容</p>
 <p>[lhd@hongdi ~]$ scriptreplay example1.time example1.txt</p>
 <p>[lhd@hongdi ~]$ ls</p>
-<p>1.gtkrc-2.0 c.tar <a href="mailto:&#106;&#x65;&#102;&#102;&#114;&#97;&#121;&#x5f;&#108;&#x65;&#101;&#64;&#104;&#x6f;&#116;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;">&#106;&#x65;&#102;&#102;&#114;&#97;&#121;&#x5f;&#108;&#x65;&#101;&#64;&#104;&#x6f;&#116;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;</a> pass</p>
+<p>1.gtkrc-2.0 c.tar <a href="mailto:&#106;&#x65;&#x66;&#102;&#114;&#x61;&#x79;&#x5f;&#108;&#101;&#x65;&#x40;&#x68;&#111;&#x74;&#x6d;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#x6d;">&#106;&#x65;&#x66;&#102;&#114;&#x61;&#x79;&#x5f;&#108;&#101;&#x65;&#x40;&#x68;&#111;&#x74;&#x6d;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#x6d;</a> pass</p>
 <p>[lhd@hongdi ~]$ abcd</p>
 <p>bash: abcd: command not found</p>
 <p>[lhd@hongdi ~]$ exit</p>
@@ -10179,9 +10179,9 @@ Where: NAME := STRING
 <p>Symbol table ‘.dynsym’ contains 4 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#x6e;&#116;&#x66;&#64;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#x32;&#46;&#50;&#46;&#53;">&#x70;&#x72;&#105;&#x6e;&#116;&#x66;&#64;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#x32;&#46;&#50;&#46;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#110;&#x74;&#102;&#64;&#71;&#76;&#73;&#x42;&#x43;&#95;&#x32;&#46;&#50;&#46;&#x35;">&#112;&#114;&#105;&#110;&#x74;&#102;&#64;&#71;&#76;&#73;&#x42;&#x43;&#95;&#x32;&#46;&#50;&#46;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
-<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#108;&#x69;&#x62;&#x63;&#x5f;&#x73;&#x74;&#97;&#x72;&#x74;&#x5f;&#x6d;&#97;&#105;&#x6e;&#64;&#71;&#76;&#x49;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#x35;">&#x5f;&#95;&#108;&#x69;&#x62;&#x63;&#x5f;&#x73;&#x74;&#97;&#x72;&#x74;&#x5f;&#x6d;&#97;&#105;&#x6e;&#64;&#71;&#76;&#x49;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#x35;</a> (2)</p>
+<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#x6c;&#105;&#x62;&#x63;&#x5f;&#115;&#x74;&#x61;&#x72;&#116;&#95;&#x6d;&#97;&#105;&#x6e;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#x32;&#x2e;&#x32;&#46;&#x35;">&#95;&#x5f;&#x6c;&#105;&#x62;&#x63;&#x5f;&#115;&#x74;&#x61;&#x72;&#116;&#95;&#x6d;&#97;&#105;&#x6e;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#x32;&#x2e;&#x32;&#46;&#x35;</a> (2)</p>
 <p>Symbol table ‘.symtab’ contains 67 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>…</p>
@@ -10202,10 +10202,10 @@ Where: NAME := STRING
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#x72;&#x69;&#110;&#x74;&#102;&#x40;&#x47;&#76;&#x49;&#x42;&#x43;&#95;&#x32;&#x2e;&#x32;&#x2e;&#53;">&#112;&#x72;&#x69;&#110;&#x74;&#102;&#x40;&#x47;&#76;&#x49;&#x42;&#x43;&#95;&#x32;&#x2e;&#x32;&#x2e;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#x72;&#x69;&#110;&#x74;&#102;&#64;&#71;&#76;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#x35;">&#112;&#x72;&#x69;&#110;&#x74;&#102;&#64;&#71;&#76;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#x5f;&#108;&#105;&#x62;&#x63;&#x5f;&#x73;&#x74;&#97;&#114;&#x74;&#95;&#x6d;&#x61;&#105;&#110;&#x40;&#x47;&#x4c;&#x49;&#66;&#x43;&#95;&#x32;&#x2e;&#x32;&#46;&#x35;">&#x5f;&#x5f;&#108;&#105;&#x62;&#x63;&#x5f;&#x73;&#x74;&#97;&#114;&#x74;&#95;&#x6d;&#x61;&#105;&#110;&#x40;&#x47;&#x4c;&#x49;&#66;&#x43;&#95;&#x32;&#x2e;&#x32;&#46;&#x35;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#x5f;&#108;&#x69;&#98;&#x63;&#95;&#115;&#x74;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#110;&#64;&#x47;&#x4c;&#73;&#x42;&#67;&#x5f;&#50;&#x2e;&#x32;&#46;&#53;">&#x5f;&#x5f;&#108;&#x69;&#98;&#x63;&#95;&#115;&#x74;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#110;&#64;&#x47;&#x4c;&#73;&#x42;&#67;&#x5f;&#50;&#x2e;&#x32;&#46;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -10242,10 +10242,10 @@ Where: NAME := STRING
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#x6e;&#x74;&#102;&#64;&#x47;&#76;&#73;&#x42;&#67;&#95;&#x32;&#x2e;&#50;&#x2e;&#x35;">&#x70;&#x72;&#105;&#x6e;&#x74;&#102;&#64;&#x47;&#76;&#73;&#x42;&#67;&#95;&#x32;&#x2e;&#50;&#x2e;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#110;&#116;&#x66;&#64;&#71;&#76;&#73;&#x42;&#x43;&#x5f;&#x32;&#x2e;&#x32;&#x2e;&#x35;">&#x70;&#x72;&#x69;&#110;&#116;&#x66;&#64;&#71;&#76;&#73;&#x42;&#x43;&#x5f;&#x32;&#x2e;&#x32;&#x2e;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#x6c;&#x69;&#98;&#x63;&#95;&#115;&#116;&#97;&#114;&#x74;&#95;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#76;&#x49;&#66;&#67;&#95;&#50;&#x2e;&#x32;&#x2e;&#53;">&#95;&#x5f;&#x6c;&#x69;&#98;&#x63;&#95;&#115;&#116;&#97;&#114;&#x74;&#95;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#76;&#x49;&#66;&#67;&#95;&#50;&#x2e;&#x32;&#x2e;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#114;&#x74;&#x5f;&#109;&#x61;&#105;&#110;&#x40;&#71;&#x4c;&#x49;&#x42;&#x43;&#95;&#x32;&#x2e;&#50;&#x2e;&#53;">&#95;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#114;&#x74;&#x5f;&#109;&#x61;&#105;&#110;&#x40;&#71;&#x4c;&#x49;&#x42;&#x43;&#95;&#x32;&#x2e;&#50;&#x2e;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>

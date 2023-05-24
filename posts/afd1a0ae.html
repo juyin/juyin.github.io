@@ -1,0 +1,404 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202020"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge">	
+  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+  
+  
+    <meta name="keywords" content="Linux," />
+  
+
+  
+    <meta name="description" content="Linux协程分析" />
+  
+  
+  
+  <link rel="icon" type="image/x-icon" href="/images/logo.png">
+  
+  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
+  <title>Linux协程分析</title>
+  
+    <!-- stylesheets list from config.yml -->
+    
+      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
+    
+      <link rel="stylesheet" href="/css/xoxo.css">
+    
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  <div class="nav-container">
+    <nav class="home-menu pure-menu pure-menu-horizontal">
+  <a class="pure-menu-heading" href="/">
+    
+    <span class="title" style="text-transform:none">Helloeuler</span>
+  </a>
+
+  <ul class="pure-menu-list clearfix">
+      
+          
+            <li class="pure-menu-item"><a href="/" class="pure-menu-link">首页</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
+          
+      
+          
+            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
+          
+      
+  </ul>
+   
+</nav>
+  </div>
+
+  <div class="container" id="content-outer">
+    <div class="inner" id="content-inner">
+      <div class="post-container">
+  <article class="post" id="post">
+    <header class="post-header text-center">
+      <h1 class="title">
+        Linux协程分析
+      </h1>
+      <span>
+        
+        <time class="time" datetime="2016-05-02T16:00:00.000Z">
+        2016-05-03
+      </time>
+        
+      </span>
+      <span class="slash">/</span>
+      <span class="post-meta">
+      <span class="post-tags">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
+      </span>
+    </span>
+      <span class="slash">/</span>
+      <span class="read">
+      <span id="busuanzi_value_page_pv"></span> 点击
+    </span>
+      <span class="slash">/</span>
+      <span class="read">阅读耗时 14 分钟</span>
+    </header>
+
+    <div class="post-content">
+      <p>协程是一种用户态的轻量级线程。</p>
+<p>实际上，每个运行上下文（ucontext_t）就直接对应于“协程”概念，对于协程的“创建”（Create）、“启动” （Spawn）、“挂起” （Suspend）、“切换” （Swap）等操作，很容易通过上面的4个API及其组合加以实现，需要的工作仅在于设计一组数据结构保存暂不运行的context结构，提供一些调度的策略即可。</p>
+<h2 id="1-1-ucontext-t结构体"><a href="#1-1-ucontext-t结构体" class="headerlink" title="1.1 ucontext_t结构体"></a>1.1 ucontext_t结构体</h2><p>typedef struct ucontext         &#x2F;&#x2F;用户级线程上下文 </p>
+<p>{ </p>
+<p>unsigned long int uc_flags; </p>
+<p>struct ucontext *uc_link; &#x2F;&#x2F;保存当前context结束后继续执行的context记录 </p>
+<p>stack_t uc_stack;     &#x2F;&#x2F;该context运行的栈信息</p>
+<p>mcontext_t uc_mcontext; &#x2F;&#x2F;保存具体的程序执行上下文——如PC值、堆栈指针、寄存器值等信息</p>
+<p>__sigset_t uc_sigmask; &#x2F;&#x2F;记录该context运行阶段需要屏蔽的信号</p>
+<p>struct _libc_fpstate __fpregs_mem; </p>
+<p>} ucontext_t; </p>
+<p>typedef struct sigaltstack { </p>
+<p>void *ss_sp;               &#x2F;&#x2F;栈顶指针 </p>
+<p>int ss_flags; </p>
+<p>size_t ss_size;              &#x2F;&#x2F;栈大小 </p>
+<p>} stack_t;</p>
+<h2 id="1-2-函数定义"><a href="#1-2-函数定义" class="headerlink" title="1.2 函数定义"></a>1.2 函数定义</h2><p><img src="/images/Linux/Linux%E5%8D%8F%E7%A8%8B.png" alt="img"></p>
+<p>下面具体来看每个函数的功能：</p>
+<p>• int makecontext(ucontext_t *ucp, void (*func)(), int argc, …) 该函数用以初始化一个ucontext_t类型的结构，也就是我们所说的用户执行上下文。函数指针func指明了该context的入口函数，argc指明入口参数个数，该值是可变的，但每个参数类型都是int型，这些参数紧随argc传入。 另外，在调用makecontext之前，一般还需要显式的指明其初始栈信息（栈指针SP及栈大小）和运行时的信号屏蔽掩码（signal mask）。 同时也可以指定uc_link字段，这样在func函数返回后，就会切换到uc_link指向的context继续执行。</p>
+<p>makecontext修改通过getcontext取得的上下文ucp(这意味着调用makecontext前必须先调用getcontext)。然后给该上下文指定一个栈空间ucp-&gt;stack，设置后继的上下文ucp-&gt;uc_link.</p>
+<p>当上下文通过setcontext或者swapcontext激活后，执行func函数，argc为func的参数个数，后面是func的参数序列。当func执行返回后，继承的上下文被激活，如果继承上下文为NULL时，线程退出。</p>
+<p>• int setcontext(const ucontext_t *ucp) 该函数用来将当前程序执行线索切换到参数ucp所指向的上下文状态，在执行正确的情况下，该函数直接切入到新的执行状态，不再会返回。比如我们用上面介绍的makecontext初始化了一个新的上下文，并将入口指向某函数entry()，那么setcontext成功后就会马上运行entry()函数。</p>
+<p>设置当前的上下文为ucp，setcontext的上下文ucp应该通过getcontext或者makecontext取得，如果调用成功则不返回。如果上下文是通过调用getcontext()取得,程序会继续执行这个调用。如果上下文是通过调用makecontext取得,程序会调用makecontext函数的第二个参数指向的函数，如果func函数返回,则恢复makecontext第一个参数指向的上下文第一个参数指向的上下文context_t中指向的uc_link.如果uc_link为NULL,则线程退出。</p>
+<p>• int getcontext(ucontext_t *ucp) 该函数用来将当前执行状态上下文保存到一个ucontext_t结构中，若后续调用setcontext或swapcontext恢复该状态，则程序会沿着getcontext调用点之后继续执行，看起来好像刚从getcontext函数返回一样。 这个操作的功能和setjmp所起的作用类似，都是保存执行状态以便后续恢复执行，但需要重点指出的是：getcontext函数的返回值仅能表示本次操作是否执行正确，而不能用来区分是直接从getcontext操作返回，还是由于setcontext&#x2F;swapcontex恢复状态导致的返回，这点与setjmp是不一样的。</p>
+<p>• int swapcontext(ucontext_t *oucp, ucontext_t *ucp) 理论上，有了上面的3个函数，就可以满足需要了（后面讲的libgo就只用了这3个函数，而实际只需setcontext&#x2F;getcontext就足矣了），但由于getcontext不能区分返回状态，因此编写上下文切换的代码时就需要保存额外的信息来进行判断，显得比较麻烦。 为了简化切换操作的实现，ucontext 机制里提供了swapcontext这个函数，用来“原子”地完成旧状态的保存和切换到新状态的工作（当然，这并非真正的原子操作，在多线程情况下也会引入一些调度方面的问题，后面会详细介绍）。</p>
+<p>int swapcontext(ucontext_t *oucp, ucontext_t *ucp);</p>
+<p>保存当前上下文到oucp结构体中，然后激活upc上下文。 </p>
+<p>如果执行成功，getcontext返回0，setcontext和swapcontext不返回；如果执行失败，getcontext,setcontext,swapcontext返回-1，并设置对于的errno.</p>
+<p>简单说来， getcontext获取当前上下文，setcontext设置当前上下文，swapcontext切换上下文，makecontext创建一个新的上下文。</p>
+<h2 id="1-3-示例"><a href="#1-3-示例" class="headerlink" title="1.3 示例"></a>1.3 示例</h2><h3 id="1-3-1-示例1"><a href="#1-3-1-示例1" class="headerlink" title="1.3.1 示例1"></a>1.3.1 示例1</h3><p>#include &lt;stdio.h&gt;</p>
+<p>#include &lt;ucontext.h&gt;</p>
+<p>#include &lt;unistd.h&gt;</p>
+<p>int main(int argc, char *argv[]) {</p>
+<p>  ucontext_t context;</p>
+<p>   puts(“Hello”);</p>
+<p>  getcontext(&amp;context);</p>
+<p>  puts(“Hello world”);</p>
+<p>  sleep(1);</p>
+<p>  setcontext(&amp;context);</p>
+<p>   puts(“Hello2”);</p>
+<p> return 0;</p>
+<p>}</p>
+<p>输出：</p>
+<p>.&#x2F;ucontext1 </p>
+<p>Hello</p>
+<p>Hello world</p>
+<p>Hello world</p>
+<p>…</p>
+<h3 id="1-3-2-示例2"><a href="#1-3-2-示例2" class="headerlink" title="1.3.2 示例2"></a>1.3.2 示例2</h3><p>#include &lt;ucontext.h&gt; </p>
+<p>#include &lt;stdio.h&gt; </p>
+<p>void func1(void * arg) </p>
+<p>{ </p>
+<p>  puts(“1”); </p>
+<p>  puts(“11”); </p>
+<p>  puts(“111”); </p>
+<p>  puts(“1111”); </p>
+<p>} </p>
+<p>void context_test() </p>
+<p>{ </p>
+<p>  char stack[1024*128]; </p>
+<p>  ucontext_t child,main; </p>
+<p>  getcontext(&amp;child); &#x2F;&#x2F;获取当前上下文 </p>
+<p>  child.uc_stack.ss_sp &#x3D; stack;&#x2F;&#x2F;指定栈空间 </p>
+<p>  child.uc_stack.ss_size &#x3D; sizeof(stack);&#x2F;&#x2F;指定栈空间大小 </p>
+<p>  child.uc_stack.ss_flags &#x3D; 0; </p>
+<p>  child.uc_link &#x3D; &amp;main;&#x2F;&#x2F;设置后继上下文 </p>
+<p>  makecontext(&amp;child,(void (*)(void))func1,0);&#x2F;&#x2F;修改上下文指向func1函数 </p>
+<p>  swapcontext(&amp;main,&amp;child);&#x2F;&#x2F;切换到child上下文，保存当前上下文到main </p>
+<p>  puts(“main”);&#x2F;&#x2F;如果设置了后继上下文，func1函数指向完后会返回此处 </p>
+<p>} </p>
+<p>int main() </p>
+<p>{ </p>
+<p>  context_test(); </p>
+<p>  return 0; </p>
+<p>} </p>
+<h2 id="1-4-虚拟线程总结"><a href="#1-4-虚拟线程总结" class="headerlink" title="1.4 虚拟线程总结"></a>1.4 虚拟线程总结</h2><p>\1.   create初始化栈等分配内存，指定线程执行完后的下一个协程，若没有则结束协程。保存初始化位置</p>
+<p>\2.   delete：释放分配的内存</p>
+<p>\3.   sleep&#x2F;weakup，唤醒后接着从sleep后执行</p>
+<h2 id="1-5-优点"><a href="#1-5-优点" class="headerlink" title="1.5 优点"></a>1.5 优点</h2><p>l 运行在用户空间 首先是在用户空间，避免内核态和用户态的切换导致的成本。</p>
+<p>l 由语言或者框架层调度</p>
+<p>l 更小的栈空间允许创建大量实例（百万级别），</p>
+<p>协程的切换开销远远小于内核对于线程的切换开销，</p>
+<h2 id="1-6-缺点"><a href="#1-6-缺点" class="headerlink" title="1.6 缺点"></a>1.6 缺点</h2><p>但遇到其他的瓶颈资源如何处理？比如带锁的共享资源，比如数据库连接等。互联网在线应用场景下，如果每个请求都扔到一个Goroutine里，当资源出现瓶颈的时候，会导致大量的Goroutine阻塞，最后用户请求超时。这时候就需要用Goroutine池来进行控流，同时问题又来了：池子里设置多少个Goroutine合适？</p>
+<p>协同式多线程（collaborative multithreading）</p>
+<p>一般来说coroutine用在异步的场景比较好，异步执行一般需要维护一个状态机，状态的维护需要保存在全局里或者你传进来的参数来，因为每一个状态回调都会重新被调用。</p>
+<p>协程就是用户态线程，比内核线程低廉，切换阻塞成本低; 单调度器下，访问共享资源无需上锁，用于提高cpu单核的并发能力<br> 缺点是 无法利用多核资源，只能开多进程才行，不过现在使用协程的语言都用到了多调度器的架构，单进程下的协程也能用多核了</p>
+<p>1、我们在把一个由于协程可以在用户空间内切换上下文，不再需要陷入内核来做线程切换，避免了大量的用户空间和内核空间之间的数据拷贝，降低了CPU的消耗，从而避免了追求高并发时CPU早早到达瓶颈的窘境。<br> 2、不再需要像异步编程时写那么一堆callback函数，代码结构不再支离破碎，整个代码逻辑上看上去和同步代码没什么区别，简单，易理解，优雅。</p>
+
+    </div>
+
+  </article>
+  <div class="toc-container">
+    
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-ucontext-t%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">1.1 ucontext_t结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E5%87%BD%E6%95%B0%E5%AE%9A%E4%B9%89"><span class="toc-text">1.2 函数定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E7%A4%BA%E4%BE%8B"><span class="toc-text">1.3 示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-1-%E7%A4%BA%E4%BE%8B1"><span class="toc-text">1.3.1 示例1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-2-%E7%A4%BA%E4%BE%8B2"><span class="toc-text">1.3.2 示例2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B%E6%80%BB%E7%BB%93"><span class="toc-text">1.4 虚拟线程总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-%E4%BC%98%E7%82%B9"><span class="toc-text">1.5 优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-%E7%BC%BA%E7%82%B9"><span class="toc-text">1.6 缺点</span></a></li></ol>
+  </div>
+
+
+  </div>
+</div>
+<div class="copyright">
+    <span>本作品采用</span>
+    <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>
+    <span>进行许可。 转载时请注明原文链接。</span>
+</div>
+<div class="share" style="width: 100%;">
+  <!-- <img src="https://kevinofneu-blog-static.oss-cn-beijing.aliyuncs.com/static/2018-12-10-qrcode_for_gh_ffacf5722095_258.jpg" alt="Running Geek" style="margin: auto; display: block;"/> -->
+
+  <!-- <div style="margin: auto; text-align: center; font-size: 0.8em; color: grey;">老铁们关注走一走，不迷路</div> -->
+  
+</div>
+
+  
+    <div class="post-nav">
+      <div class="post-nav-item post-nav-next">
+        
+      </div>
+  
+      <div class="post-nav-item post-nav-prev">
+          
+          <a href="/posts/3d32bc8a.html" rel="prev" title="字节对齐">
+            字节对齐
+          </a>
+          <span>〉</span>
+        
+      </div>
+    </div>
+  
+<script src="https://giscus.app/client.js"
+        data-repo="juyin/giscus"
+        data-repo-id="R_kgDOJlIAiA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOJlIAiM4CWmzd"
+        data-mapping="title"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="https://cdn.jsdelivr.net/gh/fooying/hexo-theme-xoxo-plus@master/source/css/light_tritanopia_xoxo.min.css"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+    </div>
+
+    
+
+  </div>
+  <footer class="footer text-center">
+    <div id="bottom-inner">
+        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
+<!--    <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
+<!--    <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
+        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
+<!--    <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a> -->
+		
+			</br>
+			<!-- 不蒜子统计 -->
+<!--		<span class="post-meta-divider">&nbsp;|&nbsp;</span> -->
+			<span id="busuanzi_container_site_pv"> 总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+			<span class="post-meta-divider"> &nbsp;|&nbsp; </span>
+			<span id="busuanzi_container_site_uv" style='display:none'>访客数<span id="busuanzi_value_site_uv"></span>人</span>
+			<script async src="/busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+		
+
+    </div>
+</footer>
+  
+
+<script>
+  (function(window, document, undefined) {
+
+    var timer = null;
+
+    function returnTop() {
+      cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function fn() {
+        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (oTop > 0) {
+          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
+          timer = requestAnimationFrame(fn);
+        } else {
+          cancelAnimationFrame(timer);
+        }
+      });
+    }
+
+    var hearts = [];
+    window.requestAnimationFrame = (function() {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback) {
+          setTimeout(callback, 1000 / 60);
+        }
+    })();
+    init();
+
+    function init() {
+      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
+      attachEvent();
+      gameloop();
+      addMenuEvent();
+    }
+
+    function gameloop() {
+      for (var i = 0; i < hearts.length; i++) {
+        if (hearts[i].alpha <= 0) {
+          document.body.removeChild(hearts[i].el);
+          hearts.splice(i, 1);
+          continue;
+        }
+        hearts[i].y--;
+        hearts[i].scale += 0.004;
+        hearts[i].alpha -= 0.013;
+        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
+      }
+      requestAnimationFrame(gameloop);
+    }
+
+    /**
+     * 给logo设置点击事件
+     * 
+     * - 回到顶部
+     * - 出现爱心
+     */
+    function attachEvent() {
+      var old = typeof window.onclick === "function" && window.onclick;
+      var logo = document.getElementById("logo");
+      if (logo) {
+        logo.onclick = function(event) {
+          returnTop();
+          old && old();
+          createHeart(event);
+        }
+      }
+      
+    }
+
+    function createHeart(event) {
+      var d = document.createElement("div");
+      d.className = "heart";
+      hearts.push({
+        el: d,
+        x: event.clientX - 5,
+        y: event.clientY - 5,
+        scale: 1,
+        alpha: 1,
+        color: randomColor()
+      });
+      document.body.appendChild(d);
+    }
+
+    function css(css) {
+      var style = document.createElement("style");
+      style.type = "text/css";
+      try {
+        style.appendChild(document.createTextNode(css));
+      } catch (ex) {
+        style.styleSheet.cssText = css;
+      }
+      document.getElementsByTagName('head')[0].appendChild(style);
+    }
+
+    function randomColor() {
+      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
+      return "#F44336";
+    }
+
+    function addMenuEvent() {
+      var menu = document.getElementById('menu-main-post');
+      if (menu) {
+        var toc = document.getElementById('toc');
+        if (toc) {
+          menu.onclick = function() {
+            if (toc) {
+              if (toc.style.display == 'block') {
+                toc.style.display = 'none';
+              } else {
+                toc.style.display = 'block';
+              }
+            }
+          };
+        } else {
+          menu.style.display = 'none';
+        }
+      }
+    }
+
+  })(window, document);
+</script>
+
+  
+
+
+
+</body>
+</html>

@@ -1,6 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>loadpin介绍</title>
+    <url>/posts/842c6b31.html</url>
+    <content><![CDATA[<h2 id="什么是loadPin模块"><a href="#什么是loadPin模块" class="headerlink" title="什么是loadPin模块"></a>什么是loadPin模块</h2><p>LoadPin是一个基于LSM架构，主要用于限制内核模块来源的安全模块。LoadPin是一个新的Linux安全模块，可确保内核加载的所有文件（内核模块，固件，kexec映像，安全策略）都来自同一文件系统，并期望这样的文件系统由只读设备支持。这旨在简化嵌入式系统（不需要复杂的签名机制），如果系统被配置为从只读设备引导，那么嵌入式系统不需要任何内核模块签名基础设施&#x2F;检查。</p>
+<p>内核4.7开始引入，</p>
+<h2 id="loadpin原理"><a href="#loadpin原理" class="headerlink" title="loadpin原理"></a>loadpin原理</h2><p>loadpin的原理是：安全敏感文件(包括内核模块)保存在只读存储器中，在系统引导之前，对该存储进行整体验证。因此从只读分区加载模块是安全的，无论它们是否已经签名，同时拒绝从其他地方加载模块。他们的来源确定且不能被修改，因此确认了来源安全。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.理解linux下的loadPin</p>
+<p>   <a href="https://zhuanlan.zhihu.com/p/354893466">https://zhuanlan.zhihu.com/p/354893466</a></p>
+]]></content>
+      <categories>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux安全十年</title>
+    <url>/posts/bed61a1b.html</url>
+    <content><![CDATA[<p>Linux安全10年： <a href="https://grsecurity.net/10_years_of_linux_security.pdf">https://grsecurity.net/10_years_of_linux_security.pdf</a></p>
+]]></content>
+      <categories>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux访问控制</title>
+    <url>/posts/92d087f0.html</url>
+    <content><![CDATA[<h1 id="SELinux"><a href="#SELinux" class="headerlink" title="SELinux"></a>SELinux</h1><p>mac访问控制</p>
+<h1 id="AppArmor"><a href="#AppArmor" class="headerlink" title="AppArmor"></a>AppArmor</h1><p>与selinux类似，号称使用更简单，但安全性下降。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>AppArmor是一种MAC技术，与Selinux类似，相对于Selinux</p>
+<p>官网：<a href="https://apparmor.net/">https://apparmor.net/</a></p>
+<h2 id="内核相关配置选项"><a href="#内核相关配置选项" class="headerlink" title="内核相关配置选项"></a>内核相关配置选项</h2><p>CONFIG_SECURITY_APPARMOR&#x3D;y</p>
+<p>CONFIG_SECURITY_APPARMOR_BOOTPARAM_VALUE&#x3D;1</p>
+<p>CONFIG_SECURITY_APPARMOR_HASH&#x3D;y</p>
+<p>CONFIG_DEFAULT_SECURITY_APPARMOR&#x3D;y</p>
+<p>CONFIG_DEFAULT_SECURITY&#x3D;”apparmor</p>
+<h2 id="对系统底噪的影响分析"><a href="#对系统底噪的影响分析" class="headerlink" title="对系统底噪的影响分析"></a>对系统底噪的影响分析</h2><p>经过测试，添加AppArmor后体积增加约28K。</p>
+<h2 id="与selinux对比"><a href="#与selinux对比" class="headerlink" title="与selinux对比"></a>与selinux对比</h2><table>
+<thead>
+<tr>
+<th>比较点</th>
+<th>AppArmor</th>
+<th>SELinux</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>访问控制</strong></td>
+<td>使用基于路径的安全配置文件。</td>
+<td>使用基于文件标签的安全策略。</td>
+</tr>
+<tr>
+<td><strong>可用性</strong></td>
+<td>适用于任何发行版，但主要用于 SUSE 和 Ubuntu。</td>
+<td>适用于任何发行版，但主要用于 RHEL&#x2F;Fedora 系统。</td>
+</tr>
+<tr>
+<td><strong>学习困难</strong></td>
+<td>更短的学习曲线，更易于设置和管理。</td>
+<td>更复杂，更不直观。</td>
+</tr>
+<tr>
+<td><strong>独立验证</strong></td>
+<td>可能的。</td>
+<td>不可能。</td>
+</tr>
+<tr>
+<td><strong>需要复杂的配置</strong></td>
+<td>不。</td>
+<td>是的。</td>
+</tr>
+<tr>
+<td><strong>多语言&#x2F;多语言服务</strong></td>
+<td>不。</td>
+<td>是的。</td>
+</tr>
+<tr>
+<td><strong>系统性能影响</strong></td>
+<td>无，但启动时间较长。</td>
+<td>没有任何。</td>
+</tr>
+<tr>
+<td><strong>政策规则</strong></td>
+<td>缺乏灵活性。</td>
+<td>灵活的。</td>
+</tr>
+<tr>
+<td><strong>控制水平</strong></td>
+<td>中等的。</td>
+<td>高的。</td>
+</tr>
+</tbody></table>
+<p>参考资料：</p>
+<p><a href="https://phoenixnap.com/kb/apparmor-vs-selinux">https://phoenixnap.com/kb/apparmor-vs-selinux</a></p>
+<h1 id="tomoyo"><a href="#tomoyo" class="headerlink" title="tomoyo"></a>tomoyo</h1><p>是一种基于行为分析的MAC机制，它通过分析进程的行为来判断其是否具有访问某个资源的权限。TOMOYO Linux使用内核模块来实现，可以灵活地配置策略。</p>
+<h1 id="yama"><a href="#yama" class="headerlink" title="yama"></a>yama</h1><p>针对ptrace的访问控制。</p>
+]]></content>
+      <categories>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux s和t权限</title>
+    <url>/posts/72cf3cef.html</url>
+    <content><![CDATA[<p>s权限（suid、nosuid、sgid）、t权限（Sticky，粘滞位）</p>
+<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>s权限：强制位，包括suid、sgid</p>
+<p>t权限：粘滞位，包括sticky</p>
+<p><img src="/images/%E5%AE%89%E5%85%A8/s%E5%92%8Ct%E6%9D%83%E9%99%90.jpg" alt="img"></p>
+<p>S_ISUID只能用于二进制可执行文件，shell脚本不能添加该权限。</p>
+<p>S_ISGID可用于二进制可执行文件和目录。</p>
+<p>4：SUID</p>
+<p>2：SGID</p>
+<p>1：VTX  粘滞位</p>
+<h2 id="2-表示"><a href="#2-表示" class="headerlink" title="2.表示"></a>2.表示</h2><p>1）s权限位：所属用户的S_IXUSR(x位)为S_ISUID&#x2F;S_ISGID所共用，当S_IXUSR和S_ISUID&#x2F;S_ISGID共存时，用小写s表示，当只设置了S_ISUID&#x2F;S_ISGID时，用大写S表示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">[_ rws ___ ___]  <span class="comment">//S_IXUSR和S_ISUID均具备</span></span><br><span class="line">[_ rwS ___ ___]  <span class="comment">//只具备S_ISUID</span></span><br></pre></td></tr></table></figure>
+
+<p>2）t权限位：</p>
+<p>所属用户的S_IXOTH(x位)为S_ISVTX所共用，当S_IXOTH和S_ISVTX共存时，用小写t表示，当只设置了S_ISVTX时，用大写T表示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">[_ ___ ___ rwt]  <span class="comment">//S_IXOTH和S_ISVTX均具备</span></span><br><span class="line">[_ ___ ___ rwT]  <span class="comment">//只具备S_ISVTX</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-修改方法"><a href="#3-修改方法" class="headerlink" title="3.修改方法"></a>3.修改方法</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">chmod u-s test <span class="comment">//移除设置用户ID位</span></span><br><span class="line">chmod g-s test <span class="comment">//移除设置组ID位</span></span><br><span class="line">chmod -t test  <span class="comment">//移除粘着位</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4.总结"></a>4.总结</h2><p><strong>s或S（SUID&#x2F;SGID,Set UID&#x2F;GID）：</strong></p>
+<p>可执行的文件搭配这个权限，便能得到特权，任意存取该文件的所有者能使用的全部系统资源。</p>
+<p><strong>t或T（Sticky）：</strong></p>
+<p>&#x2F;tmp和 &#x2F;var&#x2F;tmp目录供所有用户暂时存取文件，亦即每位用户皆拥有完整的权限进入该目录，去浏览、删除和移动文件。</p>
+]]></content>
+      <categories>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux scripts工具</title>
     <url>/posts/f3a59a2.html</url>
     <content><![CDATA[<p>Linux Kernel代码目录scripts下工具</p>
@@ -95,8 +241,8 @@
         <category>编译器</category>
       </categories>
       <tags>
-        <tag>安全</tag>
         <tag>Linux</tag>
+        <tag>安全</tag>
         <tag>gcc插件</tag>
       </tags>
   </entry>
@@ -261,6 +407,67 @@ relatime
       </categories>
       <tags>
         <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux进程状态解析之R、S、D、T、Z、X</title>
+    <url>/posts/d9ee7707.html</url>
+    <content><![CDATA[<p><strong>Linux</strong>是一个多用户，多任务的系统，可以同时运行多个用户的多个程序，就必然会产生很多的进程，而每个进程会有不同的状态。</p>
+<h2 id="R-TASK-RUNNING-，可执行状态"><a href="#R-TASK-RUNNING-，可执行状态" class="headerlink" title="R (TASK_RUNNING)，可执行状态"></a>R (TASK_RUNNING)，可执行状态</h2><p>   只有在该状态的进程才可能在CPU上运行。而同一时刻可能有多个进程处于可执行状态，这些进程的task_struct结构（进程控制块）被放入对应CPU的可执行队列中（一个进程最多只能出现在一个CPU的可执行队列中）。进程调度器的任务就是从各个CPU的可执行队列中分别选择一个进程在该CPU上运行。</p>
+<p>  很多操作系统教科书将正在CPU上执行的进程定义为RUNNING状态、而将可执行但是尚未被调度执行的进程定义为READY状态，这两种状态在linux下统一为 TASK_RUNNING状态。</p>
+<h2 id="S-TASK-INTERRUPTIBLE-，可中断的睡眠状态"><a href="#S-TASK-INTERRUPTIBLE-，可中断的睡眠状态" class="headerlink" title="S (TASK_INTERRUPTIBLE)，可中断的睡眠状态"></a>S (TASK_INTERRUPTIBLE)，可中断的睡眠状态</h2><p>  处于这个状态的进程因为等待某某事件的发生（比如等待socket连接、等待信号量），而被挂起。这些进程的task_struct结构被放入对应事件的等待队列中。当这些事件发生时（由外部中断触发、或由其他进程触发），对应的等待队列中的一个或多个进程将被唤醒。</p>
+<p>  通过ps命令我们会看到，一般情况下，进程列表中的绝大多数进程都处于TASK_INTERRUPTIBLE状态（除非机器的负载很高）。毕竟CPU就这么一两个，进程动辄几十上百个，如果不是绝大多数进程都在睡眠，CPU又怎么响应得过来。</p>
+<h2 id="D-TASK-UNINTERRUPTIBLE-，不可中断的睡眠状态"><a href="#D-TASK-UNINTERRUPTIBLE-，不可中断的睡眠状态" class="headerlink" title="D (TASK_UNINTERRUPTIBLE)，不可中断的睡眠状态"></a>D (TASK_UNINTERRUPTIBLE)，不可中断的睡眠状态</h2><p>  与TASK_INTERRUPTIBLE状态类似，进程处于睡眠状态，但是此刻进程是不可中断的。不可中断，指的并不是CPU不响应外部硬件的中断，而是指进程不响应异步信号。</p>
+<p>绝大多数情况下，进程处在睡眠状态时，总是应该能够响应异步信号的。否则你将惊奇的发现，kill -9竟然杀不死一个正在睡眠的进程了！于是我们也很好理解，为什么ps命令看到的进程几乎不会出现TASK_UNINTERRUPTIBLE状态，而总是TASK_INTERRUPTIBLE状态。</p>
+<p>  <strong>而<strong><strong>TASK_UNINTERRUPTIBLE</strong></strong>状态存在的意义就在于，内核的某些处理流程是不能被打断的</strong>。如果响应异步信号，程序的执行流程中就会被插入一段用于处理异步信号的流程（这个插入的流程可能只存在于内核态，也可能延伸到用户态），于是原有的流程就被中断了。（参见《linux内核异步中断浅析》）</p>
+<p>​    在进程对某些硬件进行操作时（比如进程调用read系统调用对某个设备文件进行读操作，而read系统调用最终执行到对应设备驱动的代码，并与对应的物理设备进行交互），可能需要使用TASK_UNINTERRUPTIBLE状态对进程进行保护，以避免进程与设备交互的过程被打断，造成设备陷入不可控的状态。这种情况下的TASK_UNINTERRUPTIBLE状态总是非常短暂的，通过ps命令基本上不可能捕捉到。</p>
+<p>   linux系统中也存在容易捕捉的TASK_UNINTERRUPTIBLE状态。执行vfork系统调用后，父进程将进入TASK_UNINTERRUPTIBLE状态，直到子进程调用exit或exec（参见《神奇的vfork》）。</p>
+<p>通过下面的代码就能得到处于TASK_UNINTERRUPTIBLE状态的进程：</p>
+<p>#include  void main() {  if (!vfork()) sleep(100);  } </p>
+<p>编译运行，然后ps一下：</p>
+<p>kouu@kouu-one:~&#x2F;test$ ps -ax | grep a.out  4371 pts&#x2F;0  D+   0:00 .&#x2F;a.out  4372 pts&#x2F;0  S+   0:00 .&#x2F;a.out  4374 pts&#x2F;1  S+   0:00 grep a.out </p>
+<p>然后我们可以试验一下TASK_UNINTERRUPTIBLE状态的威力。不管kill还是kill -9，这个TASK_UNINTERRUPTIBLE状态的父进程依然屹立不倒。</p>
+<p>上面我们介绍了Linux进程的R、S、D三种状态，这里接着上面的文章介绍另外三个状态。</p>
+<h2 id="T-TASK-STOPPED-or-TASK-TRACED-，暂停状态或跟踪状态"><a href="#T-TASK-STOPPED-or-TASK-TRACED-，暂停状态或跟踪状态" class="headerlink" title="T (TASK_STOPPED or TASK_TRACED)，暂停状态或跟踪状态"></a>T (TASK_STOPPED or TASK_TRACED)，暂停状态或跟踪状态</h2><p>  向进程发送一个SIGSTOP信号，它就会因响应该信号而进入TASK_STOPPED状态（除非该进程本身处于TASK_UNINTERRUPTIBLE状态而不响应信号）。（SIGSTOP与SIGKILL信号一样，是非常强制的。不允许用户进程通过signal系列的系统调用重新设置对应的信号处理函数。）</p>
+<p>向进程发送一个SIGCONT信号，可以让其从TASK_STOPPED状态恢复到TASK_RUNNING状态。</p>
+<p>当进程正在被跟踪时，它处于TASK_TRACED这个特殊的状态。“正在被跟踪”指的是进程暂停下来，等待跟踪它的进程对它进行操作。比如在gdb中对被跟踪的进程下一个断点，进程在断点处停下来的时候就处于TASK_TRACED状态。而在其他时候，被跟踪的进程还是处于前面提到的那些状态。</p>
+<p>对于进程本身来说，TASK_STOPPED和TASK_TRACED状态很类似，都是表示进程暂停下来。</p>
+<p>而TASK_TRACED状态相当于在TASK_STOPPED之上多了一层保护，处于TASK_TRACED状态的进程不能响应SIGCONT信号而被唤醒。只能等到调试进程通过ptrace系统调用执行PTRACE_CONT、PTRACE_DETACH等操作（通过ptrace系统调用的参数指定操作），或调试进程退出，被调试的进程才能恢复TASK_RUNNING状态。</p>
+<h2 id="Z-TASK-DEAD-EXIT-ZOMBIE-，退出状态，进程成为僵尸进程"><a href="#Z-TASK-DEAD-EXIT-ZOMBIE-，退出状态，进程成为僵尸进程" class="headerlink" title="Z (TASK_DEAD - EXIT_ZOMBIE)，退出状态，进程成为僵尸进程"></a>Z (TASK_DEAD - EXIT_ZOMBIE)，退出状态，进程成为僵尸进程</h2><p> 进程在退出的过程中，处于TASK_DEAD状态。</p>
+<p>在这个退出过程中，进程占有的所有资源将被回收，除了task_struct结构（以及少数资源）以外。于是进程就只剩下task_struct这么个空壳，故称为僵尸。</p>
+<p>之所以保留task_struct，是因为task_struct里面保存了进程的退出码、以及一些统计信息。而其父进程很可能会关心这些信息。比如在shell中，$?变量就保存了最后一个退出的前台进程的退出码，而这个退出码往往被作为if语句的判断条件。</p>
+<p>当然，内核也可以将这些信息保存在别的地方，而将task_struct结构释放掉，以节省一些空间。但是使用task_struct结构更为方便，因为在内核中已经建立了从pid到task_struct查找关系，还有进程间的父子关系。释放掉task_struct，则需要建立一些新的<a href="http://lib.csdn.net/base/datastructure"><strong>数据结构</strong></a>，以便让父进程找到它的子进程的退出信息。</p>
+<p>父进程可以通过wait系列的系统调用（如wait4、waitid）来等待某个或某些子进程的退出，并获取它的退出信息。然后wait系列的系统调用会顺便将子进程的尸体（task_struct）也释放掉。</p>
+<p> 子进程在退出的过程中，内核会给其父进程发送一个信号，通知父进程来“收尸”。这个信号默认是SIGCHLD，但是在通过clone系统调用创建子进程时，可以设置这个信号。</p>
+<p>通过下面的代码能够制造一个EXIT_ZOMBIE状态的进程：</p>
+<p>#include  void main() {  if (fork())  while(1) sleep(100);  } </p>
+<p>编译运行，然后ps一下：</p>
+<p>kouu@kouu-one:~&#x2F;test$ ps -ax | grep a.out  10410 pts&#x2F;0  S+   0:00 .&#x2F;a.out  10411 pts&#x2F;0  Z+   0:00 [a.out]  10413 pts&#x2F;1  S+   0:00 grep a.out </p>
+<p>只要父进程不退出，这个僵尸状态的子进程就一直存在。那么如果父进程退出了呢，谁又来给子进程“收尸”？</p>
+<p>当进程退出的时候，会将它的所有子进程都托管给别的进程（使之成为别的进程的子进程）。托管给谁呢？可能是退出进程所在进程组的下一个进程（如果存在的话），或者是1号进程。所以每个进程、每时每刻都有父进程存在。除非它是1号进程。</p>
+<p>1号进程，pid为1的进程，又称init进程。</p>
+<p>linux系统启动后，第一个被创建的用户态进程就是init进程。它有两项使命：</p>
+<p>1、执行系统初始化脚本，创建一系列的进程（它们都是init进程的子孙）；</p>
+<p>2、在一个死循环中等待其子进程的退出事件，并调用waitid系统调用来完成“收尸”工作；</p>
+<p>init进程不会被暂停、也不会被杀死（这是由内核来保证的）。它在等待子进程退出的过程中处于TASK_INTERRUPTIBLE状态，“收尸”过程中则处于TASK_RUNNING状态。</p>
+<h2 id="X-TASK-DEAD-EXIT-DEAD-，退出状态，进程即将被销毁"><a href="#X-TASK-DEAD-EXIT-DEAD-，退出状态，进程即将被销毁" class="headerlink" title="X (TASK_DEAD - EXIT_DEAD)，退出状态，进程即将被销毁"></a>X (TASK_DEAD - EXIT_DEAD)，退出状态，进程即将被销毁</h2><p>  而进程在退出过程中也可能不会保留它的task_struct。比如这个进程是多线程程序中被detach过的进程（进程？线程？参见《linux线程浅析》）。或者父进程通过设置SIGCHLD信号的handler为SIG_IGN，显式的忽略了SIGCHLD信号。（这是posix的规定，尽管子进程的退出信号可以被设置为SIGCHLD以外的其他信号。）</p>
+<p>  此时，进程将被置于EXIT_DEAD退出状态，这意味着接下来的代码立即就会将该进程彻底释放。所以EXIT_DEAD状态是非常短暂的，几乎不可能通过ps命令捕捉到。</p>
+<h2 id="进程的初始状态"><a href="#进程的初始状态" class="headerlink" title="进程的初始状态"></a>进程的初始状态</h2><p>进程是通过fork系列的系统调用（fork、clone、vfork）来创建的，内核（或内核模块）也可以通过kernel_thread函数创建内核进程。这些创建子进程的函数本质上都完成了相同的功能——将调用进程复制一份，得到子进程。（可以通过选项参数来决定各种资源是共享、还是私有。）</p>
+<p>那么既然调用进程处于TASK_RUNNING状态（否则，它若不是正在运行，又怎么进行调用？），则子进程默认也处于TASK_RUNNING状态。</p>
+<p>另外，在系统调用调用clone和内核函数kernel_thread也接受CLONE_STOPPED选项，从而将子进程的初始状态置为 TASK_STOPPED。</p>
+<h2 id="进程状态变迁"><a href="#进程状态变迁" class="headerlink" title="进程状态变迁"></a>进程状态变迁</h2><p>  进程自创建以后，状态可能发生一系列的变化，直到进程退出。而尽管进程状态有好几种，但是进程状态的变迁却只有两个方向——从TASK_RUNNING状态变为非TASK_RUNNING状态、或者从非TASK_RUNNING状态变为TASK_RUNNING状态。</p>
+<p>  也就是说，如果给一个TASK_INTERRUPTIBLE状态的进程发送SIGKILL信号，这个进程将先被唤醒（进入TASK_RUNNING状态），然后再响应SIGKILL信号而退出（变为TASK_DEAD状态）。并不会从TASK_INTERRUPTIBLE状态直接退出。</p>
+<p>  进程从非TASK_RUNNING状态变为TASK_RUNNING状态，是由别的进程（也可能是中断处理程序）执行唤醒操作来实现的。执行唤醒的进程设置被唤醒进程的状态为TASK_RUNNING，然后将其task_struct结构加入到某个CPU的可执行队列中。于是被唤醒的进程将有机会被调度执行。</p>
+<p> 而进程从TASK_RUNNING状态变为非TASK_RUNNING状态，则有两种途径：</p>
+<p>1、响应信号而进入TASK_STOPED状态、或TASK_DEAD状态；</p>
+<p>2、执行系统调用主动进入TASK_INTERRUPTIBLE状态（如nanosleep系统调用）、或TASK_DEAD状态（如exit系统调用）；或由于执行系统调用需要的资源得不到满足，而进入TASK_INTERRUPTIBLE状态或TASK_UNINTERRUPTIBLE状态（如select系统调用）。</p>
+<p>显然，这两种情况都只能发生在进程正在CPU上执行的情况下。</p>
+]]></content>
+      <categories>
+        <category>经验总结</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -557,9 +764,9 @@ relatime
 <p>在此情况下，该IP192.168.1.101将无法登录</p>
 <h2 id="4-允许指定IP登录"><a href="#4-允许指定IP登录" class="headerlink" title="4.允许指定IP登录"></a>4.允许指定IP登录</h2><p>AllowUsers  *@192.168.1.101</p>
 <p>在此情况下，该IP192.168.1.101将可以登录</p>
-<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#48;&#49;">&#x72;&#x6f;&#111;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#48;&#49;</a></p>
+<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#114;&#111;&#x6f;&#116;&#x40;&#x31;&#57;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#x31;&#x2e;&#49;&#48;&#x31;">&#114;&#111;&#x6f;&#116;&#x40;&#x31;&#57;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#x31;&#x2e;&#49;&#48;&#x31;</a></p>
 <p>在此情况下，该IP192.168.1.101将无法登录root用户</p>
-<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#x72;&#111;&#111;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#x2e;&#x31;&#48;&#49;">&#x72;&#111;&#111;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#x2e;&#x31;&#48;&#49;</a></p>
+<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#x72;&#111;&#111;&#x74;&#x40;&#x31;&#57;&#50;&#46;&#x31;&#54;&#x38;&#46;&#x31;&#x2e;&#x31;&#x30;&#49;">&#x72;&#111;&#111;&#x74;&#x40;&#x31;&#57;&#50;&#46;&#x31;&#54;&#x38;&#46;&#x31;&#x2e;&#x31;&#x30;&#49;</a></p>
 <p>在此情况下，该IP192.168.1.101将可以登录root用户</p>
 ]]></content>
       <categories>
@@ -1337,7 +1544,7 @@ relatime
 <p>sar –u 2 5  报告cpu使用情况，2s每次，统计5次</p>
 <p>sar –r 2 5  报告内存使用情况，2s每次，统计5次</p>
 <h3 id="1-1-77-scp"><a href="#1-1-77-scp" class="headerlink" title="1.1.77 scp"></a>1.1.77 scp</h3><p>复制本地文件到远程：</p>
-<p>scp localfile <a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#x40;&#49;&#46;&#x31;&#46;&#49;&#46;&#x31;">&#x72;&#x6f;&#x6f;&#x74;&#x40;&#49;&#46;&#x31;&#46;&#49;&#46;&#x31;</a>:&#x2F;remotefile</p>
+<p>scp localfile <a href="mailto:&#x72;&#111;&#x6f;&#116;&#64;&#49;&#x2e;&#49;&#x2e;&#49;&#x2e;&#x31;">&#x72;&#111;&#x6f;&#116;&#64;&#49;&#x2e;&#49;&#x2e;&#49;&#x2e;&#x31;</a>:&#x2F;remotefile</p>
 <p>得到远程文件：</p>
 <p>scp <a href="mailto:root@192.168.210.1:/remotefile">root@192.168.210.1:/remotefile</a> localfile</p>
 <h3 id="1-1-78-sed"><a href="#1-1-78-sed" class="headerlink" title="1.1.78 sed"></a>1.1.78 sed</h3><p>cat &#x2F;tmp&#x2F;im_sys_log_temp | sed ‘s|($SystemLogRateLimitInterval)(.*)|\1 0 1’ &gt;&#x2F;tmp&#x2F;im_sys_log.conf</p>
@@ -1824,7 +2031,7 @@ relatime
 <p>第二步：播放所录制的session内容</p>
 <p>[lhd@hongdi ~]$ scriptreplay example1.time example1.txt</p>
 <p>[lhd@hongdi ~]$ ls</p>
-<p>1.gtkrc-2.0 c.tar <a href="mailto:&#106;&#101;&#102;&#102;&#114;&#x61;&#121;&#95;&#x6c;&#101;&#101;&#x40;&#104;&#111;&#x74;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#111;&#109;">&#106;&#101;&#102;&#102;&#114;&#x61;&#121;&#95;&#x6c;&#101;&#101;&#x40;&#104;&#111;&#x74;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#111;&#109;</a> pass</p>
+<p>1.gtkrc-2.0 c.tar <a href="mailto:&#106;&#x65;&#x66;&#102;&#114;&#x61;&#x79;&#x5f;&#108;&#101;&#101;&#x40;&#x68;&#111;&#x74;&#109;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#109;">&#106;&#x65;&#x66;&#102;&#114;&#x61;&#x79;&#x5f;&#108;&#101;&#101;&#x40;&#x68;&#111;&#x74;&#109;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#109;</a> pass</p>
 <p>[lhd@hongdi ~]$ abcd</p>
 <p>bash: abcd: command not found</p>
 <p>[lhd@hongdi ~]$ exit</p>
@@ -8863,9 +9070,9 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 4 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#114;&#105;&#110;&#x74;&#x66;&#64;&#x47;&#x4c;&#x49;&#66;&#67;&#x5f;&#x32;&#x2e;&#50;&#x2e;&#x35;">&#x70;&#114;&#105;&#110;&#x74;&#x66;&#64;&#x47;&#x4c;&#x49;&#66;&#67;&#x5f;&#x32;&#x2e;&#50;&#x2e;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#x6e;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#x43;&#95;&#x32;&#x2e;&#x32;&#x2e;&#x35;">&#x70;&#x72;&#105;&#x6e;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#x43;&#95;&#x32;&#x2e;&#x32;&#x2e;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
-<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#x5f;&#x6c;&#x69;&#x62;&#x63;&#95;&#115;&#116;&#97;&#x72;&#116;&#95;&#109;&#97;&#105;&#x6e;&#64;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#x32;&#x2e;&#x35;">&#x5f;&#x5f;&#x6c;&#x69;&#x62;&#x63;&#95;&#115;&#116;&#97;&#x72;&#116;&#95;&#109;&#97;&#105;&#x6e;&#64;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#x32;&#x2e;&#x35;</a> (2)</p>
+<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#x5f;&#x6c;&#105;&#98;&#x63;&#x5f;&#x73;&#x74;&#97;&#x72;&#x74;&#x5f;&#109;&#97;&#x69;&#110;&#x40;&#x47;&#x4c;&#x49;&#x42;&#67;&#95;&#x32;&#x2e;&#50;&#x2e;&#53;">&#x5f;&#x5f;&#x6c;&#105;&#98;&#x63;&#x5f;&#x73;&#x74;&#97;&#x72;&#x74;&#x5f;&#109;&#97;&#x69;&#110;&#x40;&#x47;&#x4c;&#x49;&#x42;&#67;&#95;&#x32;&#x2e;&#50;&#x2e;&#53;</a> (2)</p>
 <p>Symbol table ‘.symtab’ contains 67 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>…</p>
@@ -8886,10 +9093,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#114;&#105;&#110;&#116;&#x66;&#64;&#71;&#76;&#73;&#x42;&#x43;&#95;&#50;&#46;&#50;&#46;&#53;">&#x70;&#114;&#105;&#110;&#116;&#x66;&#64;&#71;&#76;&#73;&#x42;&#x43;&#95;&#50;&#46;&#50;&#46;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#110;&#116;&#102;&#64;&#71;&#76;&#73;&#x42;&#67;&#95;&#x32;&#46;&#50;&#46;&#53;">&#x70;&#x72;&#105;&#110;&#116;&#102;&#64;&#71;&#76;&#73;&#x42;&#67;&#95;&#x32;&#46;&#50;&#46;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#105;&#98;&#x63;&#x5f;&#115;&#x74;&#97;&#114;&#116;&#95;&#109;&#97;&#x69;&#x6e;&#x40;&#71;&#76;&#73;&#66;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#53;">&#95;&#x5f;&#108;&#105;&#98;&#x63;&#x5f;&#115;&#x74;&#97;&#114;&#116;&#95;&#109;&#97;&#x69;&#x6e;&#x40;&#71;&#76;&#73;&#66;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#108;&#x69;&#98;&#99;&#x5f;&#115;&#x74;&#97;&#x72;&#116;&#95;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#73;&#66;&#67;&#95;&#x32;&#46;&#x32;&#x2e;&#x35;">&#x5f;&#95;&#108;&#x69;&#98;&#99;&#x5f;&#115;&#x74;&#97;&#x72;&#116;&#95;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#73;&#66;&#67;&#95;&#x32;&#46;&#x32;&#x2e;&#x35;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -8926,10 +9133,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#x32;&#46;&#x32;&#46;&#53;">&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#x32;&#46;&#x32;&#46;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#114;&#x69;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#66;&#67;&#x5f;&#50;&#46;&#x32;&#x2e;&#53;">&#x70;&#114;&#x69;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#66;&#67;&#x5f;&#50;&#46;&#x32;&#x2e;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#108;&#105;&#98;&#x63;&#95;&#x73;&#116;&#97;&#114;&#x74;&#95;&#109;&#97;&#x69;&#110;&#64;&#71;&#76;&#x49;&#66;&#x43;&#x5f;&#x32;&#46;&#50;&#x2e;&#53;">&#x5f;&#95;&#108;&#105;&#98;&#x63;&#95;&#x73;&#116;&#97;&#114;&#x74;&#95;&#109;&#97;&#x69;&#110;&#64;&#71;&#76;&#x49;&#66;&#x43;&#x5f;&#x32;&#46;&#50;&#x2e;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#105;&#x62;&#99;&#95;&#x73;&#x74;&#x61;&#x72;&#116;&#x5f;&#109;&#x61;&#105;&#110;&#x40;&#x47;&#76;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#x2e;&#x35;">&#95;&#x5f;&#108;&#105;&#x62;&#99;&#95;&#x73;&#x74;&#x61;&#x72;&#116;&#x5f;&#109;&#x61;&#105;&#110;&#x40;&#x47;&#76;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#x2e;&#x35;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9396,36 +9603,6 @@ relatime
       </tags>
   </entry>
   <entry>
-    <title>深入解析Linux 常用命令--mv</title>
-    <url>/posts/504be2c3.html</url>
-    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>mv常用于重命名文件或文件夹。</p>
-<h2 id="2-各选项解释"><a href="#2-各选项解释" class="headerlink" title="2.各选项解释"></a>2.各选项解释</h2><h3 id="1）-f"><a href="#1）-f" class="headerlink" title="1）-f"></a>1）-f</h3><p> -f选项表示：不管文件是否存在均不出现提示。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# mv a b</span><br><span class="line">mv: overwrite `b&#x27;? y</span><br><span class="line">[root@smart linux]# touch a </span><br><span class="line">[root@smart linux]# mv -f a b </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="2）–backup-x2F-b"><a href="#2）–backup-x2F-b" class="headerlink" title="2）–backup&#x2F;-b"></a>2）–backup&#x2F;-b</h3><p>该选项用于在存在已有文件的情况下，备份文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# mv --backup b b.c</span><br><span class="line">mv: overwrite `b.c&#x27;? y</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 b.c</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# mv --backup b.c f</span><br><span class="line">mv: overwrite `f&#x27;? y</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# mv -b a c</span><br><span class="line">mv: overwrite `c&#x27;? y</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br></pre></td></tr></table></figure>
-
-<h3 id="3）-i"><a href="#3）-i" class="headerlink" title="3）-i"></a>3）-i</h3><p>-i表示：在重命名文件时，提示确认信息。一般情况下，Linux都对这个命令重定义为这个选项。即默认情况下删除文件都会存在提示。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:23 b</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# touch a</span><br><span class="line">[root@smart linux]# mv a b</span><br><span class="line">mv: overwrite `b&#x27;? n</span><br></pre></td></tr></table></figure>
-
-<h3 id="4）-v"><a href="#4）-v" class="headerlink" title="4）-v"></a>4）-v</h3><p>-v表示：执行后显示正在进行的动作，同其他命令。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# mv -v a b</span><br><span class="line">mv: overwrite `b&#x27;? y</span><br><span class="line">`a&#x27; -&gt; `b&#x27;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="5）-n"><a href="#5）-n" class="headerlink" title="5）-n"></a>5）-n</h3><p>该选项用于不覆盖已有文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# ll</span><br><span class="line">total 44</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:25 a</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">-rw-r--r--. 1 root root    5 Nov 17 22:26 b</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# mv -n a b</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 44</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:25 a</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">-rw-r--r--. 1 root root    5 Nov 17 22:26 b</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>Linux命令</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深入解析Linux 常用命令--rm</title>
     <url>/posts/177425b1.html</url>
     <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>rm也是我们经常用到的一个Linux命令，常用于文件和文件夹的删除，rm取自于remove。官方解释为：“Remove files  or  directories”，即移除文件和目录。</p>
@@ -9446,6 +9623,36 @@ relatime
 <h3 id="5）–preserve-root"><a href="#5）–preserve-root" class="headerlink" title="5）–preserve-root"></a>5）–preserve-root</h3><p>–preserve-root表示：保护根目录（&#x2F;）路径。此选项可以避免误操作删除根目录，导致整个系统崩溃的风险，推荐使用。</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm --preserve-root /</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">[root@smart linux]# rm --preserve-root / b</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">rm: remove regular file `b&#x27;? y</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">A  abcde  B  b.c  b.c~  c  d  f  h  kl.txt  rm.txt  ss  test</span><br><span class="line">[root@smart linux]# ls /</span><br><span class="line">bin   cgroup  etc   lib         media  mnt  opt   root  selinux  sys  usr</span><br><span class="line">boot  dev     home  lost+found  misc   net  proc  sbin  srv      tmp  var</span><br></pre></td></tr></table></figure>
 
+
+]]></content>
+      <categories>
+        <category>Linux命令</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深入解析Linux 常用命令--mv</title>
+    <url>/posts/504be2c3.html</url>
+    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>mv常用于重命名文件或文件夹。</p>
+<h2 id="2-各选项解释"><a href="#2-各选项解释" class="headerlink" title="2.各选项解释"></a>2.各选项解释</h2><h3 id="1）-f"><a href="#1）-f" class="headerlink" title="1）-f"></a>1）-f</h3><p> -f选项表示：不管文件是否存在均不出现提示。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# mv a b</span><br><span class="line">mv: overwrite `b&#x27;? y</span><br><span class="line">[root@smart linux]# touch a </span><br><span class="line">[root@smart linux]# mv -f a b </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2）–backup-x2F-b"><a href="#2）–backup-x2F-b" class="headerlink" title="2）–backup&#x2F;-b"></a>2）–backup&#x2F;-b</h3><p>该选项用于在存在已有文件的情况下，备份文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# mv --backup b b.c</span><br><span class="line">mv: overwrite `b.c&#x27;? y</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 b.c</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# mv --backup b.c f</span><br><span class="line">mv: overwrite `f&#x27;? y</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# mv -b a c</span><br><span class="line">mv: overwrite `c&#x27;? y</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="3）-i"><a href="#3）-i" class="headerlink" title="3）-i"></a>3）-i</h3><p>-i表示：在重命名文件时，提示确认信息。一般情况下，Linux都对这个命令重定义为这个选项。即默认情况下删除文件都会存在提示。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# ll</span><br><span class="line">total 40</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:23 b</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# touch a</span><br><span class="line">[root@smart linux]# mv a b</span><br><span class="line">mv: overwrite `b&#x27;? n</span><br></pre></td></tr></table></figure>
+
+<h3 id="4）-v"><a href="#4）-v" class="headerlink" title="4）-v"></a>4）-v</h3><p>-v表示：执行后显示正在进行的动作，同其他命令。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# mv -v a b</span><br><span class="line">mv: overwrite `b&#x27;? y</span><br><span class="line">`a&#x27; -&gt; `b&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5）-n"><a href="#5）-n" class="headerlink" title="5）-n"></a>5）-n</h3><p>该选项用于不覆盖已有文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# ll</span><br><span class="line">total 44</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:25 a</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">-rw-r--r--. 1 root root    5 Nov 17 22:26 b</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br><span class="line">[root@smart linux]# mv -n a b</span><br><span class="line">[root@smart linux]# ll</span><br><span class="line">total 44</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:25 a</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  8 21:52 A</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde</span><br><span class="line">-rw-r--r--. 1 root root    5 Nov 17 22:26 b</span><br><span class="line">drwxr-xr-x. 3 root root 4096 Nov  8 21:55 B</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  3 21:21 b.c~</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:22 c</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov  3 19:50 c~</span><br><span class="line">-rw-r--r--. 1 root root 3820 Nov 16 20:09 df.txt</span><br><span class="line">-rw-r--r--. 1 root root    0 Nov 17 22:20 f</span><br><span class="line">-rw-r--r--. 1 root root    6 Nov  5 15:58 f~</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov 17 22:19 h</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov  5 21:40 ss</span><br><span class="line">drwxr-xr-x. 4 root root 4096 Nov  5 22:16 test</span><br><span class="line">drwxr-xr-x. 2 root root 4096 Nov 11 22:43 txt</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -9867,14 +10074,12 @@ Where: NAME := STRING
       </tags>
   </entry>
   <entry>
-    <title>TensorFlow深度学习笔记-5</title>
-    <url>/posts/b19798f3.html</url>
-    <content><![CDATA[<p>MNIST的结果是0-9，常用softmax函数进行分类，输出结果。</p>
-<p>softmax函数常用于分类，定义如下：</p>
-<p>​                   $$softmax(x_i)&#x3D;\frac{exp(x_i)}{\sum_jexp(x)}$$</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#载入数据集</span></span><br><span class="line"></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&quot;MNIST_data&quot;</span>,one_hot=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#每个批次的大小</span></span><br><span class="line"></span><br><span class="line">batch_size = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#计算一共有多少个批次</span></span><br><span class="line"></span><br><span class="line">n_batch = mnist.train.num_examples // batch_size</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>( mnist.train.num_examples)</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义两个placeholder</span></span><br><span class="line"></span><br><span class="line">x = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">784</span>])<span class="comment">#输入</span></span><br><span class="line"></span><br><span class="line">y = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">10</span>])<span class="comment">#输出</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#创建一个简单的神经网络</span></span><br><span class="line"></span><br><span class="line">W = tf.Variable(tf.zeros([<span class="number">784</span>,<span class="number">10</span>]))</span><br><span class="line"></span><br><span class="line">b = tf.Variable(tf.zeros([<span class="number">10</span>]))</span><br><span class="line"></span><br><span class="line">prediction = tf.nn.softmax(tf.matmul(x,W)+b)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#二次代价函数</span></span><br><span class="line"></span><br><span class="line">loss = tf.reduce_mean(tf.square(y-prediction))</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用梯度下降法</span></span><br><span class="line"></span><br><span class="line">train_step = tf.train.GradientDescentOptimizer(<span class="number">3</span>).minimize(loss)</span><br><span class="line"></span><br><span class="line"><span class="comment">#train_step = tf.train.GradientDescentOptimizer(0.2).minimize(loss)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化变量</span></span><br><span class="line"></span><br><span class="line">init = tf.global_variables_initializer()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#结果存放在一个布尔型列表中</span></span><br><span class="line"></span><br><span class="line">correct_prediction = tf.equal(tf.argmax(y,<span class="number">1</span>),tf.argmax(prediction,<span class="number">1</span>))<span class="comment">#argmax返回一维张量中最大的值所在的位置</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#求准确率</span></span><br><span class="line"></span><br><span class="line">accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))<span class="comment">#布尔转成float32，然后求平均值</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line"></span><br><span class="line">    sess.run(init)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">100</span>):</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> batch <span class="keyword">in</span> <span class="built_in">range</span>(n_batch):</span><br><span class="line"></span><br><span class="line">            batch_xs,batch_ys =  mnist.train.next_batch(batch_size)</span><br><span class="line"></span><br><span class="line">            sess.run(train_step,feed_dict=&#123;x:batch_xs,y:batch_ys&#125;)</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">        acc = sess.run(accuracy,feed_dict=&#123;x:mnist.test.images,y:mnist.test.labels&#125;)</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Iter &quot;</span> + <span class="built_in">str</span>(epoch) + <span class="string">&quot;,Testing Accuracy &quot;</span> + <span class="built_in">str</span>(acc))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> acc &gt; <span class="number">0.99</span>:</span><br><span class="line"></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">            </span><br><span class="line"></span><br><span class="line"><span class="comment">#输出</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 0,Testing Accuracy 0.9074</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 1,Testing Accuracy 0.9168</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 2,Testing Accuracy 0.9221</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 3,Testing Accuracy 0.9223</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 4,Testing Accuracy 0.9237</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 5,Testing Accuracy 0.9248</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 6,Testing Accuracy 0.9246</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 7,Testing Accuracy 0.925</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 8,Testing Accuracy 0.9257</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 9,Testing Accuracy 0.9278</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 10,Testing Accuracy 0.9268</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 11,Testing Accuracy 0.928</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 12,Testing Accuracy 0.9269</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 13,Testing Accuracy 0.9288</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 14,Testing Accuracy 0.9273</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 15,Testing Accuracy 0.9282</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 16,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 17,Testing Accuracy 0.9287</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 18,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 19,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 20,Testing Accuracy 0.9285</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 21,Testing Accuracy 0.9286</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 22,Testing Accuracy 0.9288</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 23,Testing Accuracy 0.9285</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 24,Testing Accuracy 0.9311</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 25,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 26,Testing Accuracy 0.9294</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 27,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 28,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 29,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 30,Testing Accuracy 0.9307</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 31,Testing Accuracy 0.9305</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 32,Testing Accuracy 0.9291</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 33,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 34,Testing Accuracy 0.9289</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 35,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 36,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 37,Testing Accuracy 0.9293</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 38,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 39,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 40,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 41,Testing Accuracy 0.9304</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 42,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 43,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 44,Testing Accuracy 0.9308</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 45,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 46,Testing Accuracy 0.9291</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 47,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 48,Testing Accuracy 0.9311</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 49,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 50,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 51,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 52,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 53,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 54,Testing Accuracy 0.9307</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 55,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 56,Testing Accuracy 0.9313</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 57,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 58,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 59,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 60,Testing Accuracy 0.9286</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 61,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 62,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 63,Testing Accuracy 0.9289</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 64,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 65,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 66,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 67,Testing Accuracy 0.9313</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 68,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 69,Testing Accuracy 0.9312</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 70,Testing Accuracy 0.9294</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 71,Testing Accuracy 0.9283</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 72,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 73,Testing Accuracy 0.9305</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 74,Testing Accuracy 0.929</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 75,Testing Accuracy 0.9315</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 76,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 77,Testing Accuracy 0.9288</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 78,Testing Accuracy 0.9312</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 79,Testing Accuracy 0.9309</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 80,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 81,Testing Accuracy 0.9293</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 82,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 83,Testing Accuracy 0.9292</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 84,Testing Accuracy 0.9291</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 85,Testing Accuracy 0.9294</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 86,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 87,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 88,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 89,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 90,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 91,Testing Accuracy 0.9307</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 92,Testing Accuracy 0.9289</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 93,Testing Accuracy 0.931</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 94,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 95,Testing Accuracy 0.9302</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 96,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 97,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 98,Testing Accuracy 0.9317</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 99,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
+    <title>TensorFlow深度学习笔记-6</title>
+    <url>/posts/289ec949.html</url>
+    <content><![CDATA[<p>代价函数在有些地方也称损失函数，目前常用的几种代价函数有二次代价函数、交叉熵代价函数、对数释然函数等。</p>
+<p>二次代价函数为基本的用来计算结果与预测值之间的差异。</p>
+<p>交叉熵代价函数可以解决二次函数导致学习慢问题</p>
+<p>对数释然函数常用来作为softmax回归的代价函数，如果输出层神经元是sigmoid函数，可以采用交叉熵代价函数。而深度学习中更普遍的做法是将softmax作为最后一层，此时常用的代价函数是对数释然代价函数 </p>
 ]]></content>
       <categories>
         <category>深度学习</category>
@@ -9885,12 +10090,14 @@ Where: NAME := STRING
       </tags>
   </entry>
   <entry>
-    <title>TensorFlow深度学习笔记-6</title>
-    <url>/posts/289ec949.html</url>
-    <content><![CDATA[<p>代价函数在有些地方也称损失函数，目前常用的几种代价函数有二次代价函数、交叉熵代价函数、对数释然函数等。</p>
-<p>二次代价函数为基本的用来计算结果与预测值之间的差异。</p>
-<p>交叉熵代价函数可以解决二次函数导致学习慢问题</p>
-<p>对数释然函数常用来作为softmax回归的代价函数，如果输出层神经元是sigmoid函数，可以采用交叉熵代价函数。而深度学习中更普遍的做法是将softmax作为最后一层，此时常用的代价函数是对数释然代价函数 </p>
+    <title>TensorFlow深度学习笔记-5</title>
+    <url>/posts/b19798f3.html</url>
+    <content><![CDATA[<p>MNIST的结果是0-9，常用softmax函数进行分类，输出结果。</p>
+<p>softmax函数常用于分类，定义如下：</p>
+<p>​                   $$softmax(x_i)&#x3D;\frac{exp(x_i)}{\sum_jexp(x)}$$</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#载入数据集</span></span><br><span class="line"></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&quot;MNIST_data&quot;</span>,one_hot=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#每个批次的大小</span></span><br><span class="line"></span><br><span class="line">batch_size = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#计算一共有多少个批次</span></span><br><span class="line"></span><br><span class="line">n_batch = mnist.train.num_examples // batch_size</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>( mnist.train.num_examples)</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义两个placeholder</span></span><br><span class="line"></span><br><span class="line">x = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">784</span>])<span class="comment">#输入</span></span><br><span class="line"></span><br><span class="line">y = tf.placeholder(tf.float32,[<span class="literal">None</span>,<span class="number">10</span>])<span class="comment">#输出</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#创建一个简单的神经网络</span></span><br><span class="line"></span><br><span class="line">W = tf.Variable(tf.zeros([<span class="number">784</span>,<span class="number">10</span>]))</span><br><span class="line"></span><br><span class="line">b = tf.Variable(tf.zeros([<span class="number">10</span>]))</span><br><span class="line"></span><br><span class="line">prediction = tf.nn.softmax(tf.matmul(x,W)+b)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#二次代价函数</span></span><br><span class="line"></span><br><span class="line">loss = tf.reduce_mean(tf.square(y-prediction))</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用梯度下降法</span></span><br><span class="line"></span><br><span class="line">train_step = tf.train.GradientDescentOptimizer(<span class="number">3</span>).minimize(loss)</span><br><span class="line"></span><br><span class="line"><span class="comment">#train_step = tf.train.GradientDescentOptimizer(0.2).minimize(loss)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#初始化变量</span></span><br><span class="line"></span><br><span class="line">init = tf.global_variables_initializer()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#结果存放在一个布尔型列表中</span></span><br><span class="line"></span><br><span class="line">correct_prediction = tf.equal(tf.argmax(y,<span class="number">1</span>),tf.argmax(prediction,<span class="number">1</span>))<span class="comment">#argmax返回一维张量中最大的值所在的位置</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#求准确率</span></span><br><span class="line"></span><br><span class="line">accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))<span class="comment">#布尔转成float32，然后求平均值</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line"></span><br><span class="line">    sess.run(init)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">100</span>):</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> batch <span class="keyword">in</span> <span class="built_in">range</span>(n_batch):</span><br><span class="line"></span><br><span class="line">            batch_xs,batch_ys =  mnist.train.next_batch(batch_size)</span><br><span class="line"></span><br><span class="line">            sess.run(train_step,feed_dict=&#123;x:batch_xs,y:batch_ys&#125;)</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">        acc = sess.run(accuracy,feed_dict=&#123;x:mnist.test.images,y:mnist.test.labels&#125;)</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Iter &quot;</span> + <span class="built_in">str</span>(epoch) + <span class="string">&quot;,Testing Accuracy &quot;</span> + <span class="built_in">str</span>(acc))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> acc &gt; <span class="number">0.99</span>:</span><br><span class="line"></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">            </span><br><span class="line"></span><br><span class="line"><span class="comment">#输出</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 0,Testing Accuracy 0.9074</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 1,Testing Accuracy 0.9168</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 2,Testing Accuracy 0.9221</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 3,Testing Accuracy 0.9223</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 4,Testing Accuracy 0.9237</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 5,Testing Accuracy 0.9248</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 6,Testing Accuracy 0.9246</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 7,Testing Accuracy 0.925</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 8,Testing Accuracy 0.9257</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 9,Testing Accuracy 0.9278</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 10,Testing Accuracy 0.9268</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 11,Testing Accuracy 0.928</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 12,Testing Accuracy 0.9269</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 13,Testing Accuracy 0.9288</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 14,Testing Accuracy 0.9273</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 15,Testing Accuracy 0.9282</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 16,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 17,Testing Accuracy 0.9287</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 18,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 19,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 20,Testing Accuracy 0.9285</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 21,Testing Accuracy 0.9286</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 22,Testing Accuracy 0.9288</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 23,Testing Accuracy 0.9285</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 24,Testing Accuracy 0.9311</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 25,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 26,Testing Accuracy 0.9294</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 27,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 28,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 29,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 30,Testing Accuracy 0.9307</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 31,Testing Accuracy 0.9305</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 32,Testing Accuracy 0.9291</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 33,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 34,Testing Accuracy 0.9289</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 35,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 36,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 37,Testing Accuracy 0.9293</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 38,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 39,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 40,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 41,Testing Accuracy 0.9304</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 42,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 43,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 44,Testing Accuracy 0.9308</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 45,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 46,Testing Accuracy 0.9291</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 47,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 48,Testing Accuracy 0.9311</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 49,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 50,Testing Accuracy 0.93</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 51,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 52,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 53,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 54,Testing Accuracy 0.9307</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 55,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 56,Testing Accuracy 0.9313</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 57,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 58,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 59,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 60,Testing Accuracy 0.9286</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 61,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 62,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 63,Testing Accuracy 0.9289</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 64,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 65,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 66,Testing Accuracy 0.9303</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 67,Testing Accuracy 0.9313</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 68,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 69,Testing Accuracy 0.9312</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 70,Testing Accuracy 0.9294</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 71,Testing Accuracy 0.9283</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 72,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 73,Testing Accuracy 0.9305</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 74,Testing Accuracy 0.929</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 75,Testing Accuracy 0.9315</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 76,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 77,Testing Accuracy 0.9288</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 78,Testing Accuracy 0.9312</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 79,Testing Accuracy 0.9309</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 80,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 81,Testing Accuracy 0.9293</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 82,Testing Accuracy 0.9295</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 83,Testing Accuracy 0.9292</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 84,Testing Accuracy 0.9291</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 85,Testing Accuracy 0.9294</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 86,Testing Accuracy 0.9298</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 87,Testing Accuracy 0.9296</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 88,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 89,Testing Accuracy 0.9306</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 90,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 91,Testing Accuracy 0.9307</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 92,Testing Accuracy 0.9289</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 93,Testing Accuracy 0.931</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 94,Testing Accuracy 0.9301</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 95,Testing Accuracy 0.9302</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 96,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 97,Testing Accuracy 0.9299</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 98,Testing Accuracy 0.9317</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Iter 99,Testing Accuracy 0.9297</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
 ]]></content>
       <categories>
         <category>深度学习</category>
@@ -10358,6 +10565,104 @@ e
       </categories>
       <tags>
         <tag>C</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux协程分析</title>
+    <url>/posts/afd1a0ae.html</url>
+    <content><![CDATA[<p>协程是一种用户态的轻量级线程。</p>
+<p>实际上，每个运行上下文（ucontext_t）就直接对应于“协程”概念，对于协程的“创建”（Create）、“启动” （Spawn）、“挂起” （Suspend）、“切换” （Swap）等操作，很容易通过上面的4个API及其组合加以实现，需要的工作仅在于设计一组数据结构保存暂不运行的context结构，提供一些调度的策略即可。</p>
+<h2 id="1-1-ucontext-t结构体"><a href="#1-1-ucontext-t结构体" class="headerlink" title="1.1 ucontext_t结构体"></a>1.1 ucontext_t结构体</h2><p>typedef struct ucontext         &#x2F;&#x2F;用户级线程上下文 </p>
+<p>{ </p>
+<p>unsigned long int uc_flags; </p>
+<p>struct ucontext *uc_link; &#x2F;&#x2F;保存当前context结束后继续执行的context记录 </p>
+<p>stack_t uc_stack;     &#x2F;&#x2F;该context运行的栈信息</p>
+<p>mcontext_t uc_mcontext; &#x2F;&#x2F;保存具体的程序执行上下文——如PC值、堆栈指针、寄存器值等信息</p>
+<p>__sigset_t uc_sigmask; &#x2F;&#x2F;记录该context运行阶段需要屏蔽的信号</p>
+<p>struct _libc_fpstate __fpregs_mem; </p>
+<p>} ucontext_t; </p>
+<p>typedef struct sigaltstack { </p>
+<p>void *ss_sp;               &#x2F;&#x2F;栈顶指针 </p>
+<p>int ss_flags; </p>
+<p>size_t ss_size;              &#x2F;&#x2F;栈大小 </p>
+<p>} stack_t;</p>
+<h2 id="1-2-函数定义"><a href="#1-2-函数定义" class="headerlink" title="1.2 函数定义"></a>1.2 函数定义</h2><p><img src="/images/Linux/Linux%E5%8D%8F%E7%A8%8B.png" alt="img"></p>
+<p>下面具体来看每个函数的功能：</p>
+<p>• int makecontext(ucontext_t *ucp, void (*func)(), int argc, …) 该函数用以初始化一个ucontext_t类型的结构，也就是我们所说的用户执行上下文。函数指针func指明了该context的入口函数，argc指明入口参数个数，该值是可变的，但每个参数类型都是int型，这些参数紧随argc传入。 另外，在调用makecontext之前，一般还需要显式的指明其初始栈信息（栈指针SP及栈大小）和运行时的信号屏蔽掩码（signal mask）。 同时也可以指定uc_link字段，这样在func函数返回后，就会切换到uc_link指向的context继续执行。</p>
+<p>makecontext修改通过getcontext取得的上下文ucp(这意味着调用makecontext前必须先调用getcontext)。然后给该上下文指定一个栈空间ucp-&gt;stack，设置后继的上下文ucp-&gt;uc_link.</p>
+<p>当上下文通过setcontext或者swapcontext激活后，执行func函数，argc为func的参数个数，后面是func的参数序列。当func执行返回后，继承的上下文被激活，如果继承上下文为NULL时，线程退出。</p>
+<p>• int setcontext(const ucontext_t *ucp) 该函数用来将当前程序执行线索切换到参数ucp所指向的上下文状态，在执行正确的情况下，该函数直接切入到新的执行状态，不再会返回。比如我们用上面介绍的makecontext初始化了一个新的上下文，并将入口指向某函数entry()，那么setcontext成功后就会马上运行entry()函数。</p>
+<p>设置当前的上下文为ucp，setcontext的上下文ucp应该通过getcontext或者makecontext取得，如果调用成功则不返回。如果上下文是通过调用getcontext()取得,程序会继续执行这个调用。如果上下文是通过调用makecontext取得,程序会调用makecontext函数的第二个参数指向的函数，如果func函数返回,则恢复makecontext第一个参数指向的上下文第一个参数指向的上下文context_t中指向的uc_link.如果uc_link为NULL,则线程退出。</p>
+<p>• int getcontext(ucontext_t *ucp) 该函数用来将当前执行状态上下文保存到一个ucontext_t结构中，若后续调用setcontext或swapcontext恢复该状态，则程序会沿着getcontext调用点之后继续执行，看起来好像刚从getcontext函数返回一样。 这个操作的功能和setjmp所起的作用类似，都是保存执行状态以便后续恢复执行，但需要重点指出的是：getcontext函数的返回值仅能表示本次操作是否执行正确，而不能用来区分是直接从getcontext操作返回，还是由于setcontext&#x2F;swapcontex恢复状态导致的返回，这点与setjmp是不一样的。</p>
+<p>• int swapcontext(ucontext_t *oucp, ucontext_t *ucp) 理论上，有了上面的3个函数，就可以满足需要了（后面讲的libgo就只用了这3个函数，而实际只需setcontext&#x2F;getcontext就足矣了），但由于getcontext不能区分返回状态，因此编写上下文切换的代码时就需要保存额外的信息来进行判断，显得比较麻烦。 为了简化切换操作的实现，ucontext 机制里提供了swapcontext这个函数，用来“原子”地完成旧状态的保存和切换到新状态的工作（当然，这并非真正的原子操作，在多线程情况下也会引入一些调度方面的问题，后面会详细介绍）。</p>
+<p>int swapcontext(ucontext_t *oucp, ucontext_t *ucp);</p>
+<p>保存当前上下文到oucp结构体中，然后激活upc上下文。 </p>
+<p>如果执行成功，getcontext返回0，setcontext和swapcontext不返回；如果执行失败，getcontext,setcontext,swapcontext返回-1，并设置对于的errno.</p>
+<p>简单说来， getcontext获取当前上下文，setcontext设置当前上下文，swapcontext切换上下文，makecontext创建一个新的上下文。</p>
+<h2 id="1-3-示例"><a href="#1-3-示例" class="headerlink" title="1.3 示例"></a>1.3 示例</h2><h3 id="1-3-1-示例1"><a href="#1-3-1-示例1" class="headerlink" title="1.3.1 示例1"></a>1.3.1 示例1</h3><p>#include &lt;stdio.h&gt;</p>
+<p>#include &lt;ucontext.h&gt;</p>
+<p>#include &lt;unistd.h&gt;</p>
+<p>int main(int argc, char *argv[]) {</p>
+<p>  ucontext_t context;</p>
+<p>   puts(“Hello”);</p>
+<p>  getcontext(&amp;context);</p>
+<p>  puts(“Hello world”);</p>
+<p>  sleep(1);</p>
+<p>  setcontext(&amp;context);</p>
+<p>   puts(“Hello2”);</p>
+<p> return 0;</p>
+<p>}</p>
+<p>输出：</p>
+<p>.&#x2F;ucontext1 </p>
+<p>Hello</p>
+<p>Hello world</p>
+<p>Hello world</p>
+<p>…</p>
+<h3 id="1-3-2-示例2"><a href="#1-3-2-示例2" class="headerlink" title="1.3.2 示例2"></a>1.3.2 示例2</h3><p>#include &lt;ucontext.h&gt; </p>
+<p>#include &lt;stdio.h&gt; </p>
+<p>void func1(void * arg) </p>
+<p>{ </p>
+<p>  puts(“1”); </p>
+<p>  puts(“11”); </p>
+<p>  puts(“111”); </p>
+<p>  puts(“1111”); </p>
+<p>} </p>
+<p>void context_test() </p>
+<p>{ </p>
+<p>  char stack[1024*128]; </p>
+<p>  ucontext_t child,main; </p>
+<p>  getcontext(&amp;child); &#x2F;&#x2F;获取当前上下文 </p>
+<p>  child.uc_stack.ss_sp &#x3D; stack;&#x2F;&#x2F;指定栈空间 </p>
+<p>  child.uc_stack.ss_size &#x3D; sizeof(stack);&#x2F;&#x2F;指定栈空间大小 </p>
+<p>  child.uc_stack.ss_flags &#x3D; 0; </p>
+<p>  child.uc_link &#x3D; &amp;main;&#x2F;&#x2F;设置后继上下文 </p>
+<p>  makecontext(&amp;child,(void (*)(void))func1,0);&#x2F;&#x2F;修改上下文指向func1函数 </p>
+<p>  swapcontext(&amp;main,&amp;child);&#x2F;&#x2F;切换到child上下文，保存当前上下文到main </p>
+<p>  puts(“main”);&#x2F;&#x2F;如果设置了后继上下文，func1函数指向完后会返回此处 </p>
+<p>} </p>
+<p>int main() </p>
+<p>{ </p>
+<p>  context_test(); </p>
+<p>  return 0; </p>
+<p>} </p>
+<h2 id="1-4-虚拟线程总结"><a href="#1-4-虚拟线程总结" class="headerlink" title="1.4 虚拟线程总结"></a>1.4 虚拟线程总结</h2><p>\1.   create初始化栈等分配内存，指定线程执行完后的下一个协程，若没有则结束协程。保存初始化位置</p>
+<p>\2.   delete：释放分配的内存</p>
+<p>\3.   sleep&#x2F;weakup，唤醒后接着从sleep后执行</p>
+<h2 id="1-5-优点"><a href="#1-5-优点" class="headerlink" title="1.5 优点"></a>1.5 优点</h2><p>l 运行在用户空间 首先是在用户空间，避免内核态和用户态的切换导致的成本。</p>
+<p>l 由语言或者框架层调度</p>
+<p>l 更小的栈空间允许创建大量实例（百万级别），</p>
+<p>协程的切换开销远远小于内核对于线程的切换开销，</p>
+<h2 id="1-6-缺点"><a href="#1-6-缺点" class="headerlink" title="1.6 缺点"></a>1.6 缺点</h2><p>但遇到其他的瓶颈资源如何处理？比如带锁的共享资源，比如数据库连接等。互联网在线应用场景下，如果每个请求都扔到一个Goroutine里，当资源出现瓶颈的时候，会导致大量的Goroutine阻塞，最后用户请求超时。这时候就需要用Goroutine池来进行控流，同时问题又来了：池子里设置多少个Goroutine合适？</p>
+<p>协同式多线程（collaborative multithreading）</p>
+<p>一般来说coroutine用在异步的场景比较好，异步执行一般需要维护一个状态机，状态的维护需要保存在全局里或者你传进来的参数来，因为每一个状态回调都会重新被调用。</p>
+<p>协程就是用户态线程，比内核线程低廉，切换阻塞成本低; 单调度器下，访问共享资源无需上锁，用于提高cpu单核的并发能力<br> 缺点是 无法利用多核资源，只能开多进程才行，不过现在使用协程的语言都用到了多调度器的架构，单进程下的协程也能用多核了</p>
+<p>1、我们在把一个由于协程可以在用户空间内切换上下文，不再需要陷入内核来做线程切换，避免了大量的用户空间和内核空间之间的数据拷贝，降低了CPU的消耗，从而避免了追求高并发时CPU早早到达瓶颈的窘境。<br> 2、不再需要像异步编程时写那么一堆callback函数，代码结构不再支离破碎，整个代码逻辑上看上去和同步代码没什么区别，简单，易理解，优雅。</p>
+]]></content>
+      <categories>
+        <category>经验总结</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
 </search>

@@ -1,442 +1,268 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="Helloeuler">
+<meta property="og:url" content="http://helloeuler.cn/index.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:author" content="juyin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://helloeuler.cn/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Helloeuler',
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2023-06-07 22:34:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
 
-<!DOCTYPE html>
-<html lang="zh-CN">
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
 
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#202020"/>
-  <meta http-equiv="x-ua-compatible" content="ie=edge">	
-  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-  
-  
-    <meta name="keywords" content="" />
-  
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
 
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
   
-    <meta name="description" content="Helloeuler," />
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
   
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
   
-  
-  <link rel="icon" type="image/x-icon" href="/images/logo.png">
-  
-  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
-  <title></title>
-  
-    <!-- stylesheets list from config.yml -->
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
     
-      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
-    
-      <link rel="stylesheet" href="/css/xoxo.css">
-    
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
-
-
-<body>
-  <div class="nav-container">
-    <nav class="home-menu pure-menu pure-menu-horizontal">
-  <a class="pure-menu-heading" href="/">
-    
-    <span class="title" style="text-transform:none">Helloeuler</span>
-  </a>
-
-  <ul class="pure-menu-list clearfix">
-      
-          
-            <li class="pure-menu-item actived"><a href="/" class="pure-menu-link">首页</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
-          
-      
-  </ul>
-   
-</nav>
-  </div>
-
-  <div class="container" id="content-outer">
-    <div class="inner" id="content-inner">
-      
-
-  <div class="recent-posts">
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/842c6b31.html"><h2>loadpin介绍</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-26T16:00:00.000Z">
-            2023-05-27
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%AE%89%E5%85%A8/" rel="tag">安全</a></li></ul>
-          
-
-        </div>
-
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
         
-        <a class="more" href="/posts/842c6b31.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/bed61a1b.html"><h2>Linux安全十年</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-23T16:00:00.000Z">
-            2023-05-24
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%AE%89%E5%85%A8/" rel="tag">安全</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/bed61a1b.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/92d087f0.html"><h2>Linux访问控制</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-23T16:00:00.000Z">
-            2023-05-24
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%AE%89%E5%85%A8/" rel="tag">安全</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/92d087f0.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/72cf3cef.html"><h2>Linux s和t权限</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-23T16:00:00.000Z">
-            2023-05-24
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%AE%89%E5%85%A8/" rel="tag">安全</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/72cf3cef.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/f3a59a2.html"><h2>Linux scripts工具</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-14T04:00:00.000Z">
-            2023-05-14
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux-Kernel/" rel="tag">Linux Kernel</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/f3a59a2.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/6ed875c1.html"><h2>GCC相关链接</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-12T14:30:00.000Z">
-            2023-05-12
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/GCC/" rel="tag">GCC</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/6ed875c1.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/3e2e1a1a.html"><h2>Linux GCC插件</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-12T14:10:00.000Z">
-            2023-05-12
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/gcc%E6%8F%92%E4%BB%B6/" rel="tag">gcc插件</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%AE%89%E5%85%A8/" rel="tag">安全</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/3e2e1a1a.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/7867ebc4.html"><h2>GCC插件开发</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-05-11T15:00:00.000Z">
-            2023-05-11
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/GCC/" rel="tag">GCC</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/gcc%E6%8F%92%E4%BB%B6/" rel="tag">gcc插件</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/7867ebc4.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/12927.html"><h2>Linux下stat查看atime问题分析</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2023-04-27T16:00:00.000Z">
-            2023-04-28
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/12927.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/94cc1483.html"><h2>makfile变量替换方法</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2022-11-13T16:00:00.000Z">
-            2022-11-14
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/makefile/" rel="tag">makefile</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/94cc1483.html"> 阅读全文〉</a>
-      </article>
-    
-  </div>
-
-
-
-    </div>
-
-    
-      <nav class="page-nav text-center">
-          <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/">〉</a>
-      </nav>
-    
-
-  </div>
-  <footer class="footer text-center">
-    <div id="bottom-inner">
-        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
-<!--    <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
-<!--    <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
-        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
-<!--    <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a> -->
-		
-			</br>
-			<!-- 不蒜子统计 -->
-<!--		<span class="post-meta-divider">&nbsp;|&nbsp;</span> -->
-			<span id="busuanzi_container_site_pv"> 总访问量<span id="busuanzi_value_site_pv"></span>次</span>
-			<span class="post-meta-divider"> &nbsp;|&nbsp; </span>
-			<span id="busuanzi_container_site_uv" style='display:none'>访客数<span id="busuanzi_value_site_uv"></span>人</span>
-			<script async src="/busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-		
-
-    </div>
-</footer>
-  
-
-<script>
-  (function(window, document, undefined) {
-
-    var timer = null;
-
-    function returnTop() {
-      cancelAnimationFrame(timer);
-      timer = requestAnimationFrame(function fn() {
-        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
-        if (oTop > 0) {
-          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
-          timer = requestAnimationFrame(fn);
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
         } else {
-          cancelAnimationFrame(timer);
-        }
-      });
-    }
-
-    var hearts = [];
-    window.requestAnimationFrame = (function() {
-      return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function(callback) {
-          setTimeout(callback, 1000 / 60);
-        }
-    })();
-    init();
-
-    function init() {
-      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
-      attachEvent();
-      gameloop();
-      addMenuEvent();
-    }
-
-    function gameloop() {
-      for (var i = 0; i < hearts.length; i++) {
-        if (hearts[i].alpha <= 0) {
-          document.body.removeChild(hearts[i].el);
-          hearts.splice(i, 1);
-          continue;
-        }
-        hearts[i].y--;
-        hearts[i].scale += 0.004;
-        hearts[i].alpha -= 0.013;
-        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
-      }
-      requestAnimationFrame(gameloop);
-    }
-
-    /**
-     * 给logo设置点击事件
-     * 
-     * - 回到顶部
-     * - 出现爱心
-     */
-    function attachEvent() {
-      var old = typeof window.onclick === "function" && window.onclick;
-      var logo = document.getElementById("logo");
-      if (logo) {
-        logo.onclick = function(event) {
-          returnTop();
-          old && old();
-          createHeart(event);
+          document.documentElement.classList.remove('hide-aside')
         }
       }
-      
-    }
-
-    function createHeart(event) {
-      var d = document.createElement("div");
-      d.className = "heart";
-      hearts.push({
-        el: d,
-        x: event.clientX - 5,
-        y: event.clientY - 5,
-        scale: 1,
-        alpha: 1,
-        color: randomColor()
-      });
-      document.body.appendChild(d);
-    }
-
-    function css(css) {
-      var style = document.createElement("style");
-      style.type = "text/css";
-      try {
-        style.appendChild(document.createTextNode(css));
-      } catch (ex) {
-        style.styleSheet.cssText = css;
-      }
-      document.getElementsByTagName('head')[0].appendChild(style);
-    }
-
-    function randomColor() {
-      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
-      return "#F44336";
-    }
-
-    function addMenuEvent() {
-      var menu = document.getElementById('menu-main-post');
-      if (menu) {
-        var toc = document.getElementById('toc');
-        if (toc) {
-          menu.onclick = function() {
-            if (toc) {
-              if (toc.style.display == 'block') {
-                toc.style.display = 'none';
-              } else {
-                toc.style.display = 'block';
-              }
-            }
-          };
-        } else {
-          menu.style.display = 'none';
-        }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
       }
     }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Helloeuler</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/842c6b31.html" title="loadpin介绍">loadpin介绍</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-26T16:00:00.000Z" title="发表于 2023-05-27 00:00:00">2023-05-27</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="content">什么是loadPin模块LoadPin是一个基于LSM架构，主要用于限制内核模块来源的安全模块。LoadPin是一个新的Linux安全模块，可确保内核加载的所有文件（内核模块，固件，kexec映像，安全策略）都来自同一文件系统，并期望这样的文件系统由只读设备支持。这旨在简化嵌入式系统（不需要复杂的签名机制），如果系统被配置为从只读设备引导，那么嵌入式系统不需要任何内核模块签名基础设施&#x2F;检查。
+内核4.7开始引入，
+loadpin原理loadpin的原理是：安全敏感文件(包括内核模块)保存在只读存储器中，在系统引导之前，对该存储进行整体验证。因此从只读分区加载模块是安全的，无论它们是否已经签名，同时拒绝从其他地方加载模块。他们的来源确定且不能被修改，因此确认了来源安全。
+参考资料1.理解linux下的loadPin
+   https://zhuanlan.zhihu.com/p/354893466
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/92d087f0.html" title="Linux访问控制">Linux访问控制</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="content">SELinuxmac访问控制
+AppArmor与selinux类似，号称使用更简单，但安全性下降。
+概述AppArmor是一种MAC技术，与Selinux类似，相对于Selinux
+官网：https://apparmor.net/
+内核相关配置选项CONFIG_SECURITY_APPARMOR&#x3D;y
+CONFIG_SECURITY_APPARMOR_BOOTPARAM_VALUE&#x3D;1
+CONFIG_SECURITY_APPARMOR_HASH&#x3D;y
+CONFIG_DEFAULT_SECURITY_APPARMOR&#x3D;y
+CONFIG_DEFAULT_SECURITY&#x3D;”apparmor
+对系统底噪的影响分析经过测试，添加AppArmor后体积增加约28K。
+与selinux对比
 
-  })(window, document);
-</script>
 
-  
+比较点
+AppArmor
+SELinux
 
 
 
-</body>
-</html>
+访问控制
+使用基于路径的安全配置文件。
+使用基于文件标签的安全策略。
+
+
+可用性
+适用于任何发行版，但主要用于 SUSE 和 Ubuntu。
+适用于任何发行版，但主要用于 RHEL&#x2F;Fedora 系统。
+ ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/bed61a1b.html" title="Linux安全十年">Linux安全十年</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="content">Linux安全10年： https://grsecurity.net/10_years_of_linux_security.pdf
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/72cf3cef.html" title="Linux s和t权限">Linux s和t权限</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="content">s权限（suid、nosuid、sgid）、t权限（Sticky，粘滞位）
+1.概述s权限：强制位，包括suid、sgid
+t权限：粘滞位，包括sticky
+
+S_ISUID只能用于二进制可执行文件，shell脚本不能添加该权限。
+S_ISGID可用于二进制可执行文件和目录。
+4：SUID
+2：SGID
+1：VTX  粘滞位
+2.表示1）s权限位：所属用户的S_IXUSR(x位)为S_ISUID&#x2F;S_ISGID所共用，当S_IXUSR和S_ISUID&#x2F;S_ISGID共存时，用小写s表示，当只设置了S_ISUID&#x2F;S_ISGID时，用大写S表示：
+12[_ rws ___ ___]  //S_IXUSR和S_ISUID均具备[_ rwS ___ ___]  //只具备S_ISUID
+
+2）t权限位：
+所属用户的S_IXOTH(x位)为S_ISVTX所共用，当S_IXOTH和S_ISVTX共存时，用小写t表示，当只设置了S_ISVTX时，用大写T表示：
+12[_ ___ ___ rwt]  //S_IXOTH和S_ISVTX均具备[_ ___ ___ rwT] ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/f3a59a2.html" title="Linux scripts工具">Linux scripts工具</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-14T04:00:00.000Z" title="发表于 2023-05-14 12:00:00">2023-05-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux-Kernel/">Linux Kernel</a></span></div><div class="content">Linux Kernel代码目录scripts下工具
+1 bloat-o-meter统计二进制函数、数据、只读数据的变化，可用于统计函数代码量。
+效果如下：
+1234567891011hostname@linux:~/work/kernel/linux-nex/scripts&gt; ./bloat-o-meter -c  test test2add/remove: 1/0 grow/shrink: 0/0 up/down: 7/0 (7)Function                                     old     new   deltatest                                           -       7      +7Total: Before=355, After=362, chg +1.97%add/remove: 0/0 grow/shrink: 0/0 up/down: 0/0 (0)Data                                         old     new   de ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/6ed875c1.html" title="GCC相关链接">GCC相关链接</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-12T14:30:00.000Z" title="发表于 2023-05-12 22:30:00">2023-05-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/">编译器</a></span></div><div class="content">gcc官方文档翻译：
+https://code.google.com/archive/p/gccint-zh/downloads
+https://book.aikaiyuan.com/gcc/
+GNU arm汇编伪指令：https://blog.csdn.net/Roland_Sun/article/details/107705952
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/3e2e1a1a.html" title="Linux GCC插件">Linux GCC插件</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-12T14:10:00.000Z" title="发表于 2023-05-12 22:10:00">2023-05-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/">编译器</a></span></div><div class="content">概述Linux gcc plugins是由Emese Revfy 2016年从grsecurity&#x2F;PaX移植而来，提供了一系列gcc插件，它是KSPP的一部分。
+latent_entropy_plugin在启动过程收集熵，但它不是密码学安全的熵。适合嵌入式场景下，熵源较少的场景。
+内核配置：CONFIG_GCC_PLUGIN_LATENT_ENTROPY
+原理概述在irq、init等函数前添加__latent_entropy属性，通过插件，收集有__latent_entropy属性的函数、变量，每个都有一个临时熵，各种计算后累积到全局latent_entropy。然后在start_kernel、kernel_clone函数调用add_latent_entropy-》add_device_randomness添加到随机数熵源中。
+测试情况基于Linux 6.2测试，OS极简，只运行rsyslog、audit、sshd等OS必须的二进制。
+开启该选项后直到“random: crng init done”  6.67s。
+未开启该选项后直到“random: crng init d ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/7867ebc4.html" title="GCC插件开发">GCC插件开发</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-05-11T15:00:00.000Z" title="发表于 2023-05-11 23:00:00">2023-05-11</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/">编译器</a></span></div><div class="content">1 GCC plugins引用官方说明：
+GCC plugins are loadable modules that provide extra features to the compiler. Like GCC itself they can be distributed in source and binary forms.
+GCC plugins provide developers with a rich subset of the GCC API to allow them to extend GCC as they see fit. Whether it is writing an additional optimization pass, transforming code, or analyzing information, plugins can be quite useful.
+GCC plugins特点：可动态加载，无需重新编译GCC，方便扩展GCC新特性。
+2 加载plugin编译时添加如下选项：
+-fplugin&#x3D;name  -fplugin-ar ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/12927.html" title="Linux下stat查看atime问题分析">Linux下stat查看atime问题分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2023-04-27T16:00:00.000Z" title="发表于 2023-04-28 00:00:00">2023-04-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">在分析Linux参与编译代码时，想利用文件的访问时间来判断文件是否参与编译，实际执行情况很意外，识别很多makefile文件没有参与到编译，实际它们如果没有参与编译是不可能的。
+1234567891011121314151617181920212223hostname@linux:~&gt; stat log.txt  File: &#x27;log.txt&#x27;  Size: 260             Blocks: 8          IO Block: 4096   regular fileDevice: ca40h/51776d    Inode: 20971597    Links: 1Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)Access: 2022-07-16 14:55:41.573257894 +0800Modify: 2022-07-08 10:05:32.314052290 +0800Change: 2022-07-08 10:05:32.31405 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/94cc1483.html" title="makfile变量替换方法">makfile变量替换方法</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-11-13T16:00:00.000Z" title="发表于 2022-11-14 00:00:00">2022-11-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">参考资料
+https://www.zhaixue.cc/makefile/makefile-varchange.html
+方法：
+KBUILD_CFLAGS :&#x3D; $(filter-out $(CC_FLAGS_FTRACE) $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
+信息打印方法：
+方法1：
+@echo $xxxx
+方法2：
+$(info $(KBUILD_CFLAGS))
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/dd170fc7.html" title="Typora">Typora</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2022-08-13T16:00:00.000Z" title="发表于 2022-08-14 00:00:00">2022-08-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">参考资料
+https://blog.csdn.net/u012318074/article/details/123948859
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/a2950cc2.html" title="openEuler上如何安装qemu">openEuler上如何安装qemu</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2021-09-23T16:00:00.000Z" title="发表于 2021-09-24 00:00:00">2021-09-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/openEuler/">openEuler</a></span></div><div class="content">前言在软件开发过程中经常会用到虚拟环境用于测试验证OS&#x2F;内核功能正常与否，此时常用qemu模拟代替硬件进行测试验证，方便且快捷。
+qemu的安装相对而言比较简单，不同的安装环境稍有差异，下面以当前流行的openEuler环境做说明。
+一、安装环境说明openEuler  20.03 （LTS-SP2）
+二、下载qemuqemu官网：https://www.qemu.org/download/
+1wget https://download.qemu.org/qemu-6.1.0.tar.xz
+三、安装依赖库1dnf  install  -y libglib2-devel  pixman-devel libcap-ng-devel libattr-devel
+四、执行configure1./configure --target-list=arm-softmmu,aarch64-softmmu --enable-virtfs
+五、安装1执行make &amp;&amp; make install
+六、运行
+basic start
+
+12qemu-system-aarch64 -M  ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/67caa546.html" title="CVE">CVE</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2019-01-13T16:00:00.000Z" title="发表于 2019-01-14 00:00:00">2019-01-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="content">CVE 的英文全称是“Common Vulnerabilities &amp; Exposures”公共漏洞和暴露。 
+常用网站：
+http://nvd.nist.org
+http://cve.mitre.org/
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/d9ee7707.html" title="Linux进程状态解析之R、S、D、T、Z、X">Linux进程状态解析之R、S、D、T、Z、X</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-05-17T16:00:00.000Z" title="发表于 2018-05-18 00:00:00">2018-05-18</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">Linux是一个多用户，多任务的系统，可以同时运行多个用户的多个程序，就必然会产生很多的进程，而每个进程会有不同的状态。
+R (TASK_RUNNING)，可执行状态   只有在该状态的进程才可能在CPU上运行。而同一时刻可能有多个进程处于可执行状态，这些进程的task_struct结构（进程控制块）被放入对应CPU的可执行队列中（一个进程最多只能出现在一个CPU的可执行队列中）。进程调度器的任务就是从各个CPU的可执行队列中分别选择一个进程在该CPU上运行。
+  很多操作系统教科书将正在CPU上执行的进程定义为RUNNING状态、而将可执行但是尚未被调度执行的进程定义为READY状态，这两种状态在linux下统一为 TASK_RUNNING状态。
+S (TASK_INTERRUPTIBLE)，可中断的睡眠状态  处于这个状态的进程因为等待某某事件的发生（比如等待socket连接、等待信号量），而被挂起。这些进程的task_struct结构被放入对应事件的等待队列中。当这些事件发生时（由外部中断触发、或由其他进程触发），对应的等待队列中的一个或多个进程将被唤醒。
+  通过ps命令我们会 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/17600.html" title="深入解析Linux 常用命令--awk">深入解析Linux 常用命令--awk</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-04-27T16:00:00.000Z" title="发表于 2018-04-28 00:00:00">2018-04-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述awk是一个功能十分强大的文本处理命令，本文主要介绍一些常用的文本处理方法。
+2.awk命令行格式格式1：	awk ‘{[pattern] action}’  filenames
+格式2：	awk -F  #指定分割字符
+格式1：
+12345678910111213141516[root@smart Desktop]# cat test.logApr 21 15:34:49 smart user: helloApr 21 15:34:59 smart user: hello2Apr 22 15:45:55 smart test1.bin: test1.c main 15 Apr 22 15:46:08 smart test1.bin: test1.c main 15 [root@smart Desktop]# awk &#x27;&#123;print $5&#125;&#x27; test.loguser:user:test1.bin:test1.bin:[root@smart Desktop]# [root@smart Desktop]# awk &#x27;&#123;p ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/#content-inner">5</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/842c6b31.html" title="loadpin介绍">loadpin介绍</a><time datetime="2023-05-26T16:00:00.000Z" title="发表于 2023-05-27 00:00:00">2023-05-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/92d087f0.html" title="Linux访问控制">Linux访问控制</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/bed61a1b.html" title="Linux安全十年">Linux安全十年</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/72cf3cef.html" title="Linux s和t权限">Linux s和t权限</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/f3a59a2.html" title="Linux scripts工具">Linux scripts工具</a><time datetime="2023-05-14T04:00:00.000Z" title="发表于 2023-05-14 12:00:00">2023-05-14</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+            </div>
+            <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-Kernel/"><span class="card-category-list-name">Linux Kernel</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux%E5%91%BD%E4%BB%A4/"><span class="card-category-list-name">Linux命令</span><span class="card-category-list-count">19</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/openEuler/"><span class="card-category-list-name">openEuler</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">安全</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">深度学习</span><span class="card-category-list-count">11</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/"><span class="card-category-list-name">经验总结</span><span class="card-category-list-count">22</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/"><span class="card-category-list-name">编译器</span><span class="card-category-list-count">3</span></a></li>
+            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/TensorFlow/" style="font-size: 1.34em; color: #99a3b0">TensorFlow</a> <a href="/tags/%E5%8D%8F%E8%AE%AE/" style="font-size: 1.1em; color: #999">协议</a> <a href="/tags/SSH/" style="font-size: 1.1em; color: #999">SSH</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 1.34em; color: #99a3b0">深度学习</a> <a href="/tags/C/" style="font-size: 1.26em; color: #999fa8">C</a> <a href="/tags/%E5%AE%89%E5%85%A8/" style="font-size: 1.26em; color: #999fa8">安全</a> <a href="/tags/GCC/" style="font-size: 1.18em; color: #999ca1">GCC</a> <a href="/tags/qemu/" style="font-size: 1.1em; color: #999">qemu</a> <a href="/tags/%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC/" style="font-size: 1.1em; color: #999">编码风格</a> <a href="/tags/GRE/" style="font-size: 1.1em; color: #999">GRE</a> <a href="/tags/libcli/" style="font-size: 1.1em; color: #999">libcli</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.18em; color: #999ca1">工具</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/log4cplus/" style="font-size: 1.1em; color: #999">log4cplus</a> <a href="/tags/openEuler/" style="font-size: 1.1em; color: #999">openEuler</a> <a href="/tags/Linux/" style="font-size: 1.5em; color: #99a9bf">Linux</a> <a href="/tags/makefile/" style="font-size: 1.1em; color: #999">makefile</a> <a href="/tags/%E5%91%BD%E4%BB%A4/" style="font-size: 1.42em; color: #99a6b7">命令</a> <a href="/tags/Linux-Kernel/" style="font-size: 1.1em; color: #999">Linux Kernel</a> <a href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/" style="font-size: 1.1em; color: #999">栈溢出</a> <a href="/tags/gcc%E6%8F%92%E4%BB%B6/" style="font-size: 1.18em; color: #999ca1">gcc插件</a> <a href="/tags/%E7%A3%81%E7%9B%98%E9%98%B5%E5%88%97/" style="font-size: 1.1em; color: #999">磁盘阵列</a> <a href="/tags/%E7%94%9F%E9%95%BF%E5%9B%A0%E5%AD%90/" style="font-size: 1.1em; color: #999">生长因子</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><span class="card-archive-list-count">8</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/04/"><span class="card-archive-list-date">四月 2023</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/11/"><span class="card-archive-list-date">十一月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/08/"><span class="card-archive-list-date">八月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/09/"><span class="card-archive-list-date">九月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2019/01/"><span class="card-archive-list-date">一月 2019</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/05/"><span class="card-archive-list-date">五月 2018</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/04/"><span class="card-archive-list-date">四月 2018</span><span class="card-archive-list-count">5</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">62</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-06-07T14:34:04.153Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By juyin</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

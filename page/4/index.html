@@ -1,442 +1,253 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="Helloeuler">
+<meta property="og:url" content="http://helloeuler.cn/page/4/index.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:author" content="juyin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://helloeuler.cn/page/4/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Helloeuler',
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2023-06-07 22:34:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
 
-<!DOCTYPE html>
-<html lang="zh-CN">
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
 
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#202020"/>
-  <meta http-equiv="x-ua-compatible" content="ie=edge">	
-  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-  
-  
-    <meta name="keywords" content="" />
-  
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
 
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
   
-    <meta name="description" content="Helloeuler," />
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
   
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
   
-  
-  <link rel="icon" type="image/x-icon" href="/images/logo.png">
-  
-  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
-  <title></title>
-  
-    <!-- stylesheets list from config.yml -->
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
     
-      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
-    
-      <link rel="stylesheet" href="/css/xoxo.css">
-    
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
-
-
-<body>
-  <div class="nav-container">
-    <nav class="home-menu pure-menu pure-menu-horizontal">
-  <a class="pure-menu-heading" href="/">
-    
-    <span class="title" style="text-transform:none">Helloeuler</span>
-  </a>
-
-  <ul class="pure-menu-list clearfix">
-      
-          
-            <li class="pure-menu-item actived"><a href="/" class="pure-menu-link">首页</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
-          
-      
-  </ul>
-   
-</nav>
-  </div>
-
-  <div class="container" id="content-outer">
-    <div class="inner" id="content-inner">
-      
-
-  <div class="recent-posts">
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/b821d4d8.html"><h2>TensorFlow深度学习笔记-9</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-07T16:00:00.000Z">
-            2017-12-08
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
         
-        <a class="more" href="/posts/b821d4d8.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/cf26e44e.html"><h2>TensorFlow深度学习笔记-8</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-04T16:00:00.000Z">
-            2017-12-05
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/cf26e44e.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/5f99f9df.html"><h2>TensorFlow深度学习笔记-7</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-03T16:00:00.000Z">
-            2017-12-04
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/5f99f9df.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/289ec949.html"><h2>TensorFlow深度学习笔记-6</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-11-30T16:00:00.000Z">
-            2017-12-01
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/289ec949.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/b19798f3.html"><h2>TensorFlow深度学习笔记-5</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-11-30T16:00:00.000Z">
-            2017-12-01
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/b19798f3.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/c690a865.html"><h2>TensorFlow深度学习笔记-4</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-11-29T16:00:00.000Z">
-            2017-11-30
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/c690a865.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/58f43dc6.html"><h2>TensorFlow深度学习笔记-3</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-11-11T16:00:00.000Z">
-            2017-11-12
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/58f43dc6.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/2ff30d50.html"><h2>TensorFlow深度学习笔记-2</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-11-10T16:00:00.000Z">
-            2017-11-11
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/TensorFlow/" rel="tag">TensorFlow</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/2ff30d50.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/27ab6a78.html"><h2>深入解析Linux 常用命令--cp</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-11-09T16:00:00.000Z">
-            2017-11-10
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/27ab6a78.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/25247.html"><h2>深入解析Linux 常用命令--alias</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-11-05T16:45:53.000Z">
-            2017-11-06
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/25247.html"> 阅读全文〉</a>
-      </article>
-    
-  </div>
-
-
-
-    </div>
-
-    
-      <nav class="page-nav text-center">
-          <a class="extend prev" rel="prev" href="/page/3/">〈</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/">〉</a>
-      </nav>
-    
-
-  </div>
-  <footer class="footer text-center">
-    <div id="bottom-inner">
-        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
-<!--    <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
-<!--    <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
-        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
-<!--    <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a> -->
-		
-			</br>
-			<!-- 不蒜子统计 -->
-<!--		<span class="post-meta-divider">&nbsp;|&nbsp;</span> -->
-			<span id="busuanzi_container_site_pv"> 总访问量<span id="busuanzi_value_site_pv"></span>次</span>
-			<span class="post-meta-divider"> &nbsp;|&nbsp; </span>
-			<span id="busuanzi_container_site_uv" style='display:none'>访客数<span id="busuanzi_value_site_uv"></span>人</span>
-			<script async src="/busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-		
-
-    </div>
-</footer>
-  
-
-<script>
-  (function(window, document, undefined) {
-
-    var timer = null;
-
-    function returnTop() {
-      cancelAnimationFrame(timer);
-      timer = requestAnimationFrame(function fn() {
-        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
-        if (oTop > 0) {
-          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
-          timer = requestAnimationFrame(fn);
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
         } else {
-          cancelAnimationFrame(timer);
-        }
-      });
-    }
-
-    var hearts = [];
-    window.requestAnimationFrame = (function() {
-      return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function(callback) {
-          setTimeout(callback, 1000 / 60);
-        }
-    })();
-    init();
-
-    function init() {
-      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
-      attachEvent();
-      gameloop();
-      addMenuEvent();
-    }
-
-    function gameloop() {
-      for (var i = 0; i < hearts.length; i++) {
-        if (hearts[i].alpha <= 0) {
-          document.body.removeChild(hearts[i].el);
-          hearts.splice(i, 1);
-          continue;
-        }
-        hearts[i].y--;
-        hearts[i].scale += 0.004;
-        hearts[i].alpha -= 0.013;
-        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
-      }
-      requestAnimationFrame(gameloop);
-    }
-
-    /**
-     * 给logo设置点击事件
-     * 
-     * - 回到顶部
-     * - 出现爱心
-     */
-    function attachEvent() {
-      var old = typeof window.onclick === "function" && window.onclick;
-      var logo = document.getElementById("logo");
-      if (logo) {
-        logo.onclick = function(event) {
-          returnTop();
-          old && old();
-          createHeart(event);
+          document.documentElement.classList.remove('hide-aside')
         }
       }
-      
-    }
-
-    function createHeart(event) {
-      var d = document.createElement("div");
-      d.className = "heart";
-      hearts.push({
-        el: d,
-        x: event.clientX - 5,
-        y: event.clientY - 5,
-        scale: 1,
-        alpha: 1,
-        color: randomColor()
-      });
-      document.body.appendChild(d);
-    }
-
-    function css(css) {
-      var style = document.createElement("style");
-      style.type = "text/css";
-      try {
-        style.appendChild(document.createTextNode(css));
-      } catch (ex) {
-        style.styleSheet.cssText = css;
-      }
-      document.getElementsByTagName('head')[0].appendChild(style);
-    }
-
-    function randomColor() {
-      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
-      return "#F44336";
-    }
-
-    function addMenuEvent() {
-      var menu = document.getElementById('menu-main-post');
-      if (menu) {
-        var toc = document.getElementById('toc');
-        if (toc) {
-          menu.onclick = function() {
-            if (toc) {
-              if (toc.style.display == 'block') {
-                toc.style.display = 'none';
-              } else {
-                toc.style.display = 'block';
-              }
-            }
-          };
-        } else {
-          menu.style.display = 'none';
-        }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
       }
     }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Helloeuler</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b821d4d8.html" title="TensorFlow深度学习笔记-9">TensorFlow深度学习笔记-9</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-07T16:00:00.000Z" title="发表于 2017-12-08 00:00:00">2017-12-08</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">1.传统神经网络缺陷：权值太多，计算量太大，需要大量样本进行训练 .
+2.卷积神经网络，是一种前馈神经网络，人工神经元可以响应周围单元，可以大型图像处理。卷积神经网络包括卷积层和池化层。
+   卷积操作是利用卷积核对图像的关键信息进行提取。
+   卷积层：将图像与卷积核做卷积的过程。
+​    池化层：对不同位置的特征进行聚合的过程。
 
-  })(window, document);
-</script>
+在深度学习中，利用多个卷积、池化操作来对图像进行分类。
+1.卷积卷积操作有两种模式：
+ a.Same padding模式
+​     给平面补0
+b.valid padding 
+   不会超出平面外部。
+2.池化池化操作有两种模式，与卷积类似：
+ a.Same padding模式
+​     给平面补0
+b.valid padding 
+   不会超出平面外部。
+12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/cf26e44e.html" title="TensorFlow深度学习笔记-8">TensorFlow深度学习笔记-8</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-04T16:00:00.000Z" title="发表于 2017-12-05 00:00:00">2017-12-05</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
+tensorboard可以以图形的方式观察训练过程，直观的显示训练情况。下面采用之前的代码，再加上tensorboard相关代码。本文主要介绍MNIST训练集的tensorboard的输入可视化。
+123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116# coding: utf-8import tensorflow as tffrom tensorflow.examples.tutorials.mnist import input_datafrom tensorflow.contrib.tensorboard.plugins import projector#载入数 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/5f99f9df.html" title="TensorFlow深度学习笔记-7">TensorFlow深度学习笔记-7</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-03T16:00:00.000Z" title="发表于 2017-12-04 00:00:00">2017-12-04</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
+tensorboard可以以图形的方式观察训练过程，直观的显示训练情况。下面采用之前的代码，再加上tensorboard相关代码。
+12345678910111213141516171819202122232425262728293031323334353637383940# coding: utf-8import tensorflow as tfimport numpy as np#使用numpy随机产生100个随机点x_data=np.random.rand(100)y_data = x_data*0.1+0.3#构造一个线性模型with tf.name_scope(&#x27;input&#x27;):    b= tf.Variable(0.,name=&#x27;b-input&#x27;)    k= tf.Variable(0.,name=&#x27;k-input&#x27;)y= k*x_data +b#二次代价函数with tf.name_scope(&#x27;loss&#x27;):    loss = tf.reduce_mean(tf.square(y_d ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/289ec949.html" title="TensorFlow深度学习笔记-6">TensorFlow深度学习笔记-6</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-30T16:00:00.000Z" title="发表于 2017-12-01 00:00:00">2017-12-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">代价函数在有些地方也称损失函数，目前常用的几种代价函数有二次代价函数、交叉熵代价函数、对数释然函数等。
+二次代价函数为基本的用来计算结果与预测值之间的差异。
+交叉熵代价函数可以解决二次函数导致学习慢问题
+对数释然函数常用来作为softmax回归的代价函数，如果输出层神经元是sigmoid函数，可以采用交叉熵代价函数。而深度学习中更普遍的做法是将softmax作为最后一层，此时常用的代价函数是对数释然代价函数 
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b19798f3.html" title="TensorFlow深度学习笔记-5">TensorFlow深度学习笔记-5</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-30T16:00:00.000Z" title="发表于 2017-12-01 00:00:00">2017-12-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">MNIST的结果是0-9，常用softmax函数进行分类，输出结果。
+softmax函数常用于分类，定义如下：
+​                   $$softmax(x_i)&#x3D;\frac{exp(x_i)}{\sum_jexp(x)}$$
+123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119120121122123124125126127128129130131132133134135136137138139140141142143144145146147148149150151152153154155156157158159160 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/c690a865.html" title="TensorFlow深度学习笔记-4">TensorFlow深度学习笔记-4</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-29T16:00:00.000Z" title="发表于 2017-11-30 00:00:00">2017-11-30</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">本文主要分享一个利用神经网络来预测非线性回归的示例。
+首先，定义生成我们的测试数据，即y_data &#x3D; np.square(x_data) + noise，通过x_data的平方再加上噪声来生成y_data.
+然后，利用神经网络，将x_data作为输入，得到预测值。然后让预测值与y_data做比较，使其差异最小。
+x_data &#x3D;&#x3D;&gt;神经网络中间层&#x3D;&#x3D;&gt;神经网络输出层&#x3D;&#x3D;&gt;预测值
+1234567891011121314151617181920212223242526272829303132333435363738394041424344454647import tensorflow as tfimport numpy as npimport matplotlib.pyplot as plt# 使用numpy生成200个随机点，从-0.5到0.5生成200个点x_data = np.linspace(-0.5, 0.5, 200)[:, np.newaxis]#转成二维数据noise = np.ran ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/58f43dc6.html" title="TensorFlow深度学习笔记-3">TensorFlow深度学习笔记-3</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-11T16:00:00.000Z" title="发表于 2017-11-12 00:00:00">2017-11-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">本文主要引入一个简单的示例来阐述Tensorflow的应用。
+先来一段程序，它是采用梯度下降法来训练数据。
+123456789101112131415161718192021222324252627282930313233import  tensorflow as tfimport numpy as np #numpy库为数学计算库，若导入失败，请先安装（pip install numpy）#使用numpy随机产生100个随机点x_data=np.random.rand(100)y_data = x_data+1#构造一个线性模型b= tf.Variable(0.)k= tf.Variable(0.)y= k*x_data +b#损失函数loss = tf.reduce_mean(tf.square(y_data-y))#定义一个梯度下降法优化器optimizer = tf.train.GradientDescentOptimizer(0.03)#最小化代价函数train = optimizer.minimize(loss)#初始化全局变量init = tf.global_variab ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/2ff30d50.html" title="TensorFlow深度学习笔记-2">TensorFlow深度学习笔记-2</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-10T16:00:00.000Z" title="发表于 2017-11-11 00:00:00">2017-11-11</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
+TensorFlow™ 是一个采用数据流图（data flow graphs），用于数值计算的开源软件库。节点（Nodes）在图中表示数学操作，图中的线（edges）则表示在节点间相互联系的多维数据数组，即张量（tensor）。
 
-  
+1.Tensortensor [‘tɛnsɚ]，表示张量，在TensorFlow中常用Tensor来描述矩阵信息。如下表示创建一个tensor，并将其初始化为0（zeros函数表示初始化一个tensor，并将其所有成员置位为0，缺省类型为float32）。
+1234import tensorflow as tf #一般对导入库进行重命名，减少后续引用的复杂性a=tf.zeros(shape=[3,4])print(a)#输出 Tensor(&quot;zeros:0&quot;, shape=(3, 4), dtype=float32)
 
+2.常量格式：a&#x3D;tf.constant(shape)，shape可以为一维矩阵，也可为多维矩阵。如下所示：
+123456789101112131415b=tf.constant([[1]])c=tf.cons ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/27ab6a78.html" title="深入解析Linux 常用命令--cp">深入解析Linux 常用命令--cp</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-09T16:00:00.000Z" title="发表于 2017-11-10 00:00:00">2017-11-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述cp常用于复制文件或目录。
+2.格式cp命令复制时，有如下几种组合：
 
+cp [OPTION]  源文件  目标文件
+cp [OPTION]  源文件  目标路径
+cp [OPTION]  源文件  目标路径&#x2F;目标文件
+cp [OPTION]  源路径  目标路径
+cp [OPTION]  源路径  目标路径
 
-</body>
-</html>
+3.强制复制cp  -f   SRC  DEST，把SRC复制到DEST。当DEST文件存在时，将去先移除DEST，再把SRC复制到DEST。
+12345678[root@smart linux]# cp b.txt  k.txt[root@smart linux]# cp b.txt  k.txtcp: overwrite `k.txt&#x27;? y   [root@smart linux]# cp -f b.txt  k.txtcp: overwrite `k.txt&#x27;? y[root@smart linux]# \cp -f b.txt  k.txt[root@smart linux]# alias cp=&#x27;cp&#x27;[ro ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/25247.html" title="深入解析Linux 常用命令--alias">深入解析Linux 常用命令--alias</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-05T16:45:53.000Z" title="发表于 2017-11-06 00:45:53">2017-11-06</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述alias常用于重命名已有命令、定义组合命令等
+2.格式格式：alias  [name]&#x3D;[value]。如alias  cp&#x3D;’cp -v’，这样重命名后复制会有信息输出。
+
+特别注意：[name]和[value]与等号之间不能有空格！！！
+
+12345[root@smart Desktop]# cp ls.txt ls.txt.bak[root@smart Desktop]# rm -rf *.bak[root@smart Desktop]# alias cp=&#x27;cp -v&#x27;[root@smart Desktop]# cp ls.txt ls.txt.bak`ls.txt&#x27; -&gt; `ls.txt.bak&#x27;
+
+#3.已重命名变量输出
+alias  -p ，可以输出所有已重命名的变量。
+alias  -p  [name]，可以检测重命名为[name]的命令，同时也可以检测是否已定义某个变量。
+1234567891011121314151617181920212223242526[root@smart Deskto ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b6fa5cea.html" title="TensorFlow深度学习笔记-1">TensorFlow深度学习笔记-1</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-04T16:00:00.000Z" title="发表于 2017-11-05 00:00:00">2017-11-05</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
+Tensorflow深度学习框架已学习了一段时间，对其已有一定的了解，由于当时太过于追求速度，没有及时的记录学习过程，不利于打牢基础，遂特意从基础入门开始编写Tensorflow框架学习笔记。
+
+前言​	首先，在学习Tensorflow前，你最好能够对Python的基本语法能够有一定的了解。可以从w3cschool学习一些基本知识，建议使用Python3版本，因为很多新开源的代码不兼容Python2。
+​	其次，熟悉Python软件包安装方法。如果接触过Linux的话，这个就很简单了。建议使用pip进行安装。安装命令也就几个，如：pip install tensorflow，pip  install tensorflow –upgrade, pip uninstall tensorflow。对于有些国外网站下载速度慢的问题，大家可以把安装包先下载下来，采用其他方式进行安装。		
+​	最后，你要熟悉Python的一些IDE(Pycharm,subline等)的使用，IDE推荐Pycharm，有了IDE工具，可以省去很多麻烦，简单又实用。
+正文​	Tensorflow的安装网上有很多的教 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/55e85884.html" title="(*(volatile unsigned long *)详解">(*(volatile unsigned long *)详解</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-04T09:43:50.000Z" title="发表于 2017-11-04 17:43:50">2017-11-04</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">   (*(volatile unsigned long *)
+对于不同的计算机体系结构，设备可能是端口映射，也可能是内存映射的。如果系统结构支持独立的IO地址空间，并且是端口映射，就必须使用汇编语言完成实际对设备的控制，因为C语言并没有提供真正的“端口”的概念。如果是内存映射，那就方便的多了。
+以 #define IOPIN(*((volatile unsigned long *) 0xE0028000)) 为例：作为一个宏定义语句，define是定义一个变量或常量的伪指令。首先（volatile unsigned long *）的意思是将后面的那个地址强制转换成volatile unsigned long * ，unsigned long *是无符号长整形，volatile是一个类型限定符，如const一样，当使用volatile限定时，表示这个变量是依赖系统实现的，以为着这个变量会被其他程序或者计算机硬件修改，由于地址依赖于硬件，volatile就表示他的值会依赖于硬件。
+volatile 类型是这样的，其数据确实可能在未知的情况下发生变化。比如，硬件设备的终端更改了它，现在硬件 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/393a270d.html" title="深入解析Linux 常用命令--ls">深入解析Linux 常用命令--ls</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-03T16:00:00.000Z" title="发表于 2017-11-04 00:00:00">2017-11-04</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">从今天开始，开始分享Linux常用命令系列。今天从ls命令开始。
+1.概述ls常用于查看当前路径或指定路径下的文件or文件夹等信息。
+2.显示所有文件ls  –a  显示所有文件，不忽略以.开头文件及目录
+ls  -A  显示所有文件及路径，忽略以.开头文件及目录（linux下隐藏文件及目录）
+[root@smart linux]# ls -a
+.  ..  a  abcde  a.txt  b.c  b.txt  c  d  .dir  e  .test
+[root@smart linux]# ls -A
+a  abcde  a.txt  b.c  b.txt  c  d  .dir  e  .test
+
+3.列出当前目录详细信息ls -l
+[root@smart linux]# ls -l --sort=extension
+total 20
+-rw-r--r--. 1 root root    8 Nov  3 19:47 a
+drwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcde
+-rw-r--r--. 1 root root    0 N ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/659e7174.html" title="关于交叉编译log4cplus库的问题">关于交叉编译log4cplus库的问题</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-03T13:43:50.000Z" title="发表于 2017-11-03 21:43:50">2017-11-03</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">近日在使用log4cplus日志库，当然一直都是在PC上使用，也就没有进行过交叉编译，可是应用程序最终是要下载至ARM开发板上去的，于是对库按照网络上的说法，加上了几个参数，进行编译，很快就编译完成了，可是在使用的时候，编译器一直提示&#x2F;opt&#x2F;tools&#x2F;4.5.1&#x2F;bin&#x2F;..&#x2F;lib&#x2F;gcc&#x2F;arm-none-linux-gnueabi&#x2F;4.5.1&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;arm-none-linux-gnueabi&#x2F;bin&#x2F;ld: skipping incompatible &#x2F;opt&#x2F;tools&#x2F;4.5.1&#x2F;bin&#x2F;..&#x2F;lib&#x2F;gcc&#x2F;arm-none-linux-gnueabi&#x2F;4.5.1&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;arm-none-linux-gnueabi&#x2F;lib&#x ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/bbf1cede.html" title="printf问题">printf问题</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-01-13T16:00:00.000Z" title="发表于 2017-01-14 00:00:00">2017-01-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">printf问题近日在工作中遇到一个奇怪问题，A程序发送一个结构给B程序，在B程序接收后，B程序按照A程序的结构进行解析，但始终不对。看过结构定义后，虽然知道有可能会出现字节对齐问题，一直怀疑是他们消息传输构造不对。经过GDB确认A程序发出的结构是正确的，在B程序接收处也同样没问题。当调试到转化处时才发现确实是字节对齐导致的。下面举例说明（32bit Linux  Gcc）。
+12345678910111213141516171819202122#include &lt;stdio.h&gt;typedef struct&#123;    unsigned int a;    short int b;    long long int c;    unsigned int d;&#125;type1; int main(int argc,char *argv[])&#123;    type1 A=&#123;1,2,0x1234567890123456LL,0x87654321&#125;,B,*C;    B=A;    C=&amp;A;    printf(&quot;B=&# ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/3/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/#content-inner">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#content-inner">5</a><a class="extend next" rel="next" href="/page/5/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/842c6b31.html" title="loadpin介绍">loadpin介绍</a><time datetime="2023-05-26T16:00:00.000Z" title="发表于 2023-05-27 00:00:00">2023-05-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/92d087f0.html" title="Linux访问控制">Linux访问控制</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/bed61a1b.html" title="Linux安全十年">Linux安全十年</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/72cf3cef.html" title="Linux s和t权限">Linux s和t权限</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/f3a59a2.html" title="Linux scripts工具">Linux scripts工具</a><time datetime="2023-05-14T04:00:00.000Z" title="发表于 2023-05-14 12:00:00">2023-05-14</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+            </div>
+            <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-Kernel/"><span class="card-category-list-name">Linux Kernel</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux%E5%91%BD%E4%BB%A4/"><span class="card-category-list-name">Linux命令</span><span class="card-category-list-count">19</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/openEuler/"><span class="card-category-list-name">openEuler</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">安全</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">深度学习</span><span class="card-category-list-count">11</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/"><span class="card-category-list-name">经验总结</span><span class="card-category-list-count">22</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/"><span class="card-category-list-name">编译器</span><span class="card-category-list-count">3</span></a></li>
+            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/TensorFlow/" style="font-size: 1.34em; color: #99a3b0">TensorFlow</a> <a href="/tags/%E5%8D%8F%E8%AE%AE/" style="font-size: 1.1em; color: #999">协议</a> <a href="/tags/SSH/" style="font-size: 1.1em; color: #999">SSH</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 1.34em; color: #99a3b0">深度学习</a> <a href="/tags/C/" style="font-size: 1.26em; color: #999fa8">C</a> <a href="/tags/%E5%AE%89%E5%85%A8/" style="font-size: 1.26em; color: #999fa8">安全</a> <a href="/tags/GCC/" style="font-size: 1.18em; color: #999ca1">GCC</a> <a href="/tags/qemu/" style="font-size: 1.1em; color: #999">qemu</a> <a href="/tags/%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC/" style="font-size: 1.1em; color: #999">编码风格</a> <a href="/tags/GRE/" style="font-size: 1.1em; color: #999">GRE</a> <a href="/tags/libcli/" style="font-size: 1.1em; color: #999">libcli</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.18em; color: #999ca1">工具</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/log4cplus/" style="font-size: 1.1em; color: #999">log4cplus</a> <a href="/tags/openEuler/" style="font-size: 1.1em; color: #999">openEuler</a> <a href="/tags/Linux/" style="font-size: 1.5em; color: #99a9bf">Linux</a> <a href="/tags/makefile/" style="font-size: 1.1em; color: #999">makefile</a> <a href="/tags/%E5%91%BD%E4%BB%A4/" style="font-size: 1.42em; color: #99a6b7">命令</a> <a href="/tags/Linux-Kernel/" style="font-size: 1.1em; color: #999">Linux Kernel</a> <a href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/" style="font-size: 1.1em; color: #999">栈溢出</a> <a href="/tags/gcc%E6%8F%92%E4%BB%B6/" style="font-size: 1.18em; color: #999ca1">gcc插件</a> <a href="/tags/%E7%A3%81%E7%9B%98%E9%98%B5%E5%88%97/" style="font-size: 1.1em; color: #999">磁盘阵列</a> <a href="/tags/%E7%94%9F%E9%95%BF%E5%9B%A0%E5%AD%90/" style="font-size: 1.1em; color: #999">生长因子</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><span class="card-archive-list-count">8</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/04/"><span class="card-archive-list-date">四月 2023</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/11/"><span class="card-archive-list-date">十一月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/08/"><span class="card-archive-list-date">八月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/09/"><span class="card-archive-list-date">九月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2019/01/"><span class="card-archive-list-date">一月 2019</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/05/"><span class="card-archive-list-date">五月 2018</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/04/"><span class="card-archive-list-date">四月 2018</span><span class="card-archive-list-count">5</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">62</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-06-07T14:34:04.153Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By juyin</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

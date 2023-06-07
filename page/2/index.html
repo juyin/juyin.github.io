@@ -1,442 +1,274 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="Helloeuler">
+<meta property="og:url" content="http://helloeuler.cn/page/2/index.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:author" content="juyin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://helloeuler.cn/page/2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Helloeuler',
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2023-06-07 22:34:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
 
-<!DOCTYPE html>
-<html lang="zh-CN">
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
 
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#202020"/>
-  <meta http-equiv="x-ua-compatible" content="ie=edge">	
-  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-  
-  
-    <meta name="keywords" content="" />
-  
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
 
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
   
-    <meta name="description" content="Helloeuler," />
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
   
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
   
-  
-  <link rel="icon" type="image/x-icon" href="/images/logo.png">
-  
-  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
-  <title></title>
-  
-    <!-- stylesheets list from config.yml -->
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
     
-      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
-    
-      <link rel="stylesheet" href="/css/xoxo.css">
-    
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
-
-
-<body>
-  <div class="nav-container">
-    <nav class="home-menu pure-menu pure-menu-horizontal">
-  <a class="pure-menu-heading" href="/">
-    
-    <span class="title" style="text-transform:none">Helloeuler</span>
-  </a>
-
-  <ul class="pure-menu-list clearfix">
-      
-          
-            <li class="pure-menu-item actived"><a href="/" class="pure-menu-link">首页</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
-          
-      
-  </ul>
-   
-</nav>
-  </div>
-
-  <div class="container" id="content-outer">
-    <div class="inner" id="content-inner">
-      
-
-  <div class="recent-posts">
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/edb75dcc.html"><h2>深入解析Linux 常用命令--sed</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-04-27T16:00:00.000Z">
-            2018-04-28
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
         
-        <a class="more" href="/posts/edb75dcc.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/1bd3d423.html"><h2>libcli应用</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-04-25T17:55:42.000Z">
-            2018-04-26
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/libcli/" rel="tag">libcli</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/1bd3d423.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/ff79d5bf.html"><h2>利用虚拟机增加小米WiFi链的生长因子</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-04-18T16:00:00.000Z">
-            2018-04-19
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E7%94%9F%E9%95%BF%E5%9B%A0%E5%AD%90/" rel="tag">生长因子</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/ff79d5bf.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/36655b48.html"><h2>你要知道的指针强转</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-04-12T17:55:42.000Z">
-            2018-04-13
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/C/" rel="tag">C</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/36655b48.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/acd8d70f.html"><h2>联想服务器磁盘阵列划分</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-03-27T17:55:42.000Z">
-            2018-03-28
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E7%A3%81%E7%9B%98%E9%98%B5%E5%88%97/" rel="tag">磁盘阵列</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/acd8d70f.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/cb70c7b7.html"><h2>如何得到程序中6字节的结构体</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-03-13T16:00:00.000Z">
-            2018-03-14
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/C/" rel="tag">C</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/cb70c7b7.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/53c81467.html"><h2>常用变量命名方法</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-03-12T16:00:00.000Z">
-            2018-03-13
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/C/" rel="tag">C</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC/" rel="tag">编码风格</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/53c81467.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/3e9b8cfc.html"><h2>Linux SSH登录权限控制</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-02-28T16:00:00.000Z">
-            2018-03-01
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/SSH/" rel="tag">SSH</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/3e9b8cfc.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/32eab41d.html"><h2>执行脚本提示shell-init：xxx问题分析</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-01-31T16:00:00.000Z">
-            2018-02-01
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/32eab41d.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/f7ea96c3.html"><h2>栈溢出问题分析</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2018-01-15T17:55:42.000Z">
-            2018-01-16
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/" rel="tag">栈溢出</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/f7ea96c3.html"> 阅读全文〉</a>
-      </article>
-    
-  </div>
-
-
-
-    </div>
-
-    
-      <nav class="page-nav text-center">
-          <a class="extend prev" rel="prev" href="/">〈</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/">〉</a>
-      </nav>
-    
-
-  </div>
-  <footer class="footer text-center">
-    <div id="bottom-inner">
-        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
-<!--    <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
-<!--    <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
-        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
-<!--    <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a> -->
-		
-			</br>
-			<!-- 不蒜子统计 -->
-<!--		<span class="post-meta-divider">&nbsp;|&nbsp;</span> -->
-			<span id="busuanzi_container_site_pv"> 总访问量<span id="busuanzi_value_site_pv"></span>次</span>
-			<span class="post-meta-divider"> &nbsp;|&nbsp; </span>
-			<span id="busuanzi_container_site_uv" style='display:none'>访客数<span id="busuanzi_value_site_uv"></span>人</span>
-			<script async src="/busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-		
-
-    </div>
-</footer>
-  
-
-<script>
-  (function(window, document, undefined) {
-
-    var timer = null;
-
-    function returnTop() {
-      cancelAnimationFrame(timer);
-      timer = requestAnimationFrame(function fn() {
-        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
-        if (oTop > 0) {
-          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
-          timer = requestAnimationFrame(fn);
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
         } else {
-          cancelAnimationFrame(timer);
-        }
-      });
-    }
-
-    var hearts = [];
-    window.requestAnimationFrame = (function() {
-      return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function(callback) {
-          setTimeout(callback, 1000 / 60);
-        }
-    })();
-    init();
-
-    function init() {
-      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
-      attachEvent();
-      gameloop();
-      addMenuEvent();
-    }
-
-    function gameloop() {
-      for (var i = 0; i < hearts.length; i++) {
-        if (hearts[i].alpha <= 0) {
-          document.body.removeChild(hearts[i].el);
-          hearts.splice(i, 1);
-          continue;
-        }
-        hearts[i].y--;
-        hearts[i].scale += 0.004;
-        hearts[i].alpha -= 0.013;
-        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
-      }
-      requestAnimationFrame(gameloop);
-    }
-
-    /**
-     * 给logo设置点击事件
-     * 
-     * - 回到顶部
-     * - 出现爱心
-     */
-    function attachEvent() {
-      var old = typeof window.onclick === "function" && window.onclick;
-      var logo = document.getElementById("logo");
-      if (logo) {
-        logo.onclick = function(event) {
-          returnTop();
-          old && old();
-          createHeart(event);
+          document.documentElement.classList.remove('hide-aside')
         }
       }
-      
-    }
-
-    function createHeart(event) {
-      var d = document.createElement("div");
-      d.className = "heart";
-      hearts.push({
-        el: d,
-        x: event.clientX - 5,
-        y: event.clientY - 5,
-        scale: 1,
-        alpha: 1,
-        color: randomColor()
-      });
-      document.body.appendChild(d);
-    }
-
-    function css(css) {
-      var style = document.createElement("style");
-      style.type = "text/css";
-      try {
-        style.appendChild(document.createTextNode(css));
-      } catch (ex) {
-        style.styleSheet.cssText = css;
-      }
-      document.getElementsByTagName('head')[0].appendChild(style);
-    }
-
-    function randomColor() {
-      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
-      return "#F44336";
-    }
-
-    function addMenuEvent() {
-      var menu = document.getElementById('menu-main-post');
-      if (menu) {
-        var toc = document.getElementById('toc');
-        if (toc) {
-          menu.onclick = function() {
-            if (toc) {
-              if (toc.style.display == 'block') {
-                toc.style.display = 'none';
-              } else {
-                toc.style.display = 'block';
-              }
-            }
-          };
-        } else {
-          menu.style.display = 'none';
-        }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
       }
     }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Helloeuler</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/edb75dcc.html" title="深入解析Linux 常用命令--sed">深入解析Linux 常用命令--sed</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-04-27T16:00:00.000Z" title="发表于 2018-04-28 00:00:00">2018-04-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述sed是一个功能十分强大的文本处理命令，本文主要介绍一些常用的文本处理方法。
+2.总述2.1sed命令行格式​     sed [-nefri]  ‘command’  输入文本&#x2F;文件       
+2.2 常用选项​        -n∶取消默认的输出,使用安静(silent)模式。
+    -e∶进行多项编辑，即对输入行应用多条sed命令时使用. 直接在指令列模式上进行 sed 的动作编辑
 
-  })(window, document);
-</script>
+    -f∶指定sed脚本的文件名. 直接将 sed 的动作写在一个档案内， -f filename 则可以执行 filename 内的sed 动作
 
+    -r∶sed 的动作支援的是延伸型正则表达式的语法。(预设是基础正则表达式语法)
+
+    -i∶直接修改读取的文件内容，而不是由屏幕输出       
+
+2.3 常用命令   p∶ 列印，亦即将某个选择的资料印出。通常 p 会与参数 sed -n 一起用
+
+​        i ∶ 插入， i 的后面可以接字串，而这些字串会在新的一行出现(目前的上一行)
+​        a ∶ 新增， a 的后面可以接字串，而这 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/1bd3d423.html" title="libcli应用">libcli应用</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-04-25T17:55:42.000Z" title="发表于 2018-04-26 01:55:42">2018-04-26</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">libcli应用通常在我们的程序运行中，我们需要对程序运行状态，变量值等情况进行了解，此时我们就可以用到Libcli库。
+libcli可以从此处下载：http://freshmeat.sourceforge.net/projects/libcli
+目录结构：
+123456789[root@smart myself]# tree.├── build.sh├── cli├── cli.c├── cli_debug.c├── cli_debug.h├── cli.h└── main.c
+
+cli.c
+1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980818283848586878889909192939495969798991001011021031041051061071081091101111121131141151161171181191 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/ff79d5bf.html" title="利用虚拟机增加小米WiFi链的生长因子">利用虚拟机增加小米WiFi链的生长因子</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-04-18T16:00:00.000Z" title="发表于 2018-04-19 00:00:00">2018-04-19</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">近日上线了小米WiFi链，试了下可以利用虚拟机Linux通过添加IP的方式提高生长因子，从而在相同时间内获得更多的米粒。具体方法如下：
+1.准备一台Linux虚拟机，具体安装方法可百度。
+2.给该虚拟机添加IP，需要与手机公用WiFi，并可以访问的IP地址。
+大家可以使用如下脚本自动连续添加IP地址：
+12345678##file:addip.sh#!/bin/bashfor(( i=1 ;i&lt;255;i++))do	ip addr add 192.168.1.$i dev eth0	sleep 2done
+
+3.查看小米WiFi链APP，就可以看到效果了
+
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/36655b48.html" title="你要知道的指针强转">你要知道的指针强转</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-04-12T17:55:42.000Z" title="发表于 2018-04-13 01:55:42">2018-04-13</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">在工作中经常可以看到函数中传递指针，同时偶尔也能看到指针强转的滥用，今天就来说说函数中的指针强转。
+无论何时都不应该出现不同类型的指针强转，如int型指针转为char型指针，int型指针转为double指针等。应确保在传递过程中指针类型不改变。
+如下示例：
+12345678910111213141516171819202122232425#include &lt;stdio.h&gt;void test(void *b)&#123;    int c=0;      int d=0;    c= *((int*)b);    d= *((char*)b);    printf(&quot;c=%d\n&quot;,c);    printf(&quot;d=%d\n&quot;,d);&#125;int main(int argc,char *argv[])&#123;    char  b =5;    test(&amp;b);    return 0;&#125;//输出结果：[root@smart c]# ./castc=75780101d=5
+
+从上述输出结果中，可以看出指针 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/acd8d70f.html" title="联想服务器磁盘阵列划分">联想服务器磁盘阵列划分</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-03-27T17:55:42.000Z" title="发表于 2018-03-28 01:55:42">2018-03-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">1.F1进入配置界面
+2.进入系统设置，选择storage
+3.进入Main Manu
+
+4.进入配置管理，先清除配置再创建虚拟驱动   
+5.返回，选择控制器管理  选择boot device，勾上刚刚创建的Raid   
+6.返回选择虚拟设备管理查看驱动器是否已初始化待初始化完成进行快速初始化
   
+7.返回至系统配置和boot管理页面,选择boot mange 
+ 
+8.然后选择boot mode为legacy mode   
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/cb70c7b7.html" title="如何得到程序中6字节的结构体">如何得到程序中6字节的结构体</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-03-13T16:00:00.000Z" title="发表于 2018-03-14 00:00:00">2018-03-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">在工作中我们可能会遇到这样的情况，我们知道有个大小为100字节的变量存在内存未释放的情况，但是很难从数量庞大的代码中寻找该结构体。那我们有什么方法可以快速找到么？
+我们在gcc编译时通常会添加一些编译选项用来保证程序的质量，今天我们就用-Wlarger-than&#x3D;x的选项来查找我们需要的结构体。
+12345678910111213141516171819202122232425262728293031#include &lt;stdio.h&gt;typedef struct&#123;   int a;   int b;   char c;&#125;A;typedef struct&#123;   int a;   char b;&#125;B;typedef struct&#123;  short int a;  char b;  short int c;&#125;C;int main(int argc,char *argv[])&#123;    A a;    B b;    C c;    return 0;&#125;
+
+123456[root@smart 2 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/53c81467.html" title="常用变量命名方法">常用变量命名方法</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-03-12T16:00:00.000Z" title="发表于 2018-03-13 00:00:00">2018-03-13</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">目前常用的变量名命名方法有以下几种：1.驼峰法   驼峰法以小写开头，如 myApp，myName等类似命名。
+2.匈牙利命名法   以变量类型的缩写开头，如int  iCount；unsigned int  uiNum等类似命令。
+3.帕斯卡命名法   帕斯卡命名方法与驼峰法有点类似，它以大写开头，后面与驼峰相似。如MyApp,MyName等
+4.下划线命名法   下划线命名方法在Linux中比较常见，包括在一些系统库、开源软件等都比较常见。如char  my_name[10],int  first_num等。
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/3e9b8cfc.html" title="Linux SSH登录权限控制">Linux SSH登录权限控制</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-02-28T16:00:00.000Z" title="发表于 2018-03-01 00:00:00">2018-03-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">近日在云端开发过程中，莫名其妙的程序被重启了，现象非常奇怪。采用history命令看到有执行重启程序指令，但是我很清楚自己没有执行。使用who命令查看后，发现除了我还有其他人登录我的服务器。遂想到通过SSH配置文件控制，方法非常简单，只需在&#x2F;etc&#x2F;ssh&#x2F;sshd_config文件添加即可。如下：
+1.禁止root用户登录​      DenyUsers  root
+  在此情况下，root无法登录，其他用户可登陆
+2.允许root用户登录AllowUsers  root
+在此情况下，root用户可以登录，其他用户无法登陆
+AllowUsers  root,smart
+在此情况下，root，smart用户可以登录，其他用户无法登陆
+3.禁止指定IP登录DenyUsers  *@192.168.1.101
+在此情况下，该IP192.168.1.101将无法登录
+4.允许指定IP登录AllowUsers  *@192.168.1.101
+在此情况下，该IP192.168.1.101将可以登录
+5.禁止指定IP登录指定用户DenyUsers  &#114;&# ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/32eab41d.html" title="执行脚本提示shell-init：xxx问题分析">执行脚本提示shell-init：xxx问题分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-01-31T16:00:00.000Z" title="发表于 2018-02-01 00:00:00">2018-02-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">近日，在部署完我们的程序后，调用脚本启动程序突然提示错误：
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+123456[root@smart hello]# cat /root/Desktop/hello.sh #!/bin/bashecho &quot;hello&quot;[root@smart hello]# /root/Desktop/hello.shshell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directoryhello
+
+对此问题，想来也十分奇怪，之前虽有出现也未进行深究，今天闲来无事就研究了下这个问题。
+这个问题细细看来就是“No such file or directory”当前所处目录被删除。如下：
+1234567891 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/f7ea96c3.html" title="栈溢出问题分析">栈溢出问题分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-01-15T17:55:42.000Z" title="发表于 2018-01-16 01:55:42">2018-01-16</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">近日，程序总是莫名其妙的coredump，而且还是在变量定义的时候（如  int  a&#x3D;1），百思不得其解。在这种情况下，只有几种情况可能出现：内存踩踏、栈溢出。
+在经过长时间的分析确认，肯定不是内存踩踏。剩下的就是栈溢出了。Linux下一般单个程序栈大小为10M，可用ulimit -s查阅。一般情况下，10M的大小足够用，怎会出现栈溢出。再次对代码进行了详细的分析，发现有一处临时变量的结构竟然有2M之巨。此处确实难以理解，为何采用如此大的结构体。可能是考虑到动态分配内存用不好容易导致内存泄漏，因此采用临时变量。另外该函数又被递归调用两次，因此该函数就耗用接近5M的栈空间。将该结构体改为指针后，该问题即解决。
+解决该问题后，过了一段时间又出现了该问题，耗费较长时间后，最终确定又是栈溢出导致的。
+查阅一番资料发现有一库可以检测栈溢出问题，现分享给大家，它就是libsigsegv。使用方法如下：
+1.下载libsigsegv库，编译并安装。
+12345tar -xvzf  libsigsegv-2.11.tar.gzcd libsigsegv-2.11./configuremak ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/6d977824.html" title="Mobaxterm工具">Mobaxterm工具</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2018-01-13T16:00:00.000Z" title="发表于 2018-01-14 00:00:00">2018-01-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">1    登录1.1   远程登录1.1.1 内建命令行模式
+ 点击![img](https://img-blog.csdn.net/20180114144501802?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)图标，在弹出的窗口中选择SSH连接，然后填入Remote host IP及用户名。
 
 
 
-</body>
-</html>
+
+
+ 点击确认后输入密码即可
+
+
+
+
+1.1.2 Gnome模式(类似VNC)
+ 点击![img](https://img-blog.csdn.net/20180114144501802?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)图标，在弹出的窗口中 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/e511c25d.html" title="Linux笔记">Linux笔记</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-31T16:00:00.000Z" title="发表于 2018-01-01 00:00:00">2018-01-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">第 1 章 Linux管理1.1 Linux基本指令1.1.1 addr2lineaddr2line –e pgw 0Xfffff
+另外：dmesg |grep pgw
+注意：编译pgw需添加-g选项才可以找到所在行
+1.1.2 alias重命名:  alias killim&#x3D;”kill $(ps –A | awk ‘&#x2F;im_test&#x2F;{print $1}’)”
+1.1.3 ar　ar命令可以用来创建、修改库，也可以从库中提出单个模块。库是一单独的文件，里面包含了按照特定的结构组织起来的其它的一些文件（称做此库文件的member）。原始文件的内容、模式、时间戳、属主、组等属性都保留在库文件中。
+下面是ar命令的格式：
+ar [-]{dmpqrtx}[abcfilNoPsSuvV] [membername] [count] archive files…
+例如我们可以用ar rv libtest.a hello.o hello1.o来生成一个库，库名字是test，链接时可以用-ltest链接。该库中存放了两个模块hello.o和hello1.o。选项前可以有‘ ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/8cd77be.html" title="深入解析Linux 常用命令--top">深入解析Linux 常用命令--top</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-29T16:00:00.000Z" title="发表于 2017-12-30 00:00:00">2017-12-30</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述当我们在Linux环境下运行我们的程序时，我们经常会使用top命令来查看程序的运行状态，CPU、内存使用情况，类似我们在Windows下的任务管理器，可以查看内存的使用情况，剩余情况等。
+2.各项说明在终端中直接输入top即可查看当前资源使用情况信息。
+1234567891011121314151617181920212223242526272829[root@smart linux]# toptop - 22:52:37 up  2:55,  4 users,  load average: 0.01, 0.03, 0.00Tasks: 190 total,   1 running, 189 sleeping,   0 stopped,   0 zombieCpu(s):  1.6%us,  0.3%sy,  0.0%ni, 98.0%id,  0.0%wa,  0.1%hi,  0.0%si,  0.0%stMem:   1939652k total,   462412k used,  1477240k free,    46596k buffersSwap:  209714 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/df4d7a50.html" title="深入解析Linux 常用命令--ps">深入解析Linux 常用命令--ps</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-28T16:00:00.000Z" title="发表于 2017-12-29 00:00:00">2017-12-29</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">ps用于显示当前正在运行的进程。
+ps - report a snapshot of the current processes.
+常用参数：
+ps  -ef|grep  x
+ps  -aux|grep x  列出详细信息
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/afe63f5.html" title="深入解析Linux 常用命令--route">深入解析Linux 常用命令--route</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-28T16:00:00.000Z" title="发表于 2017-12-29 00:00:00">2017-12-29</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述route用于查看路由表、增加路由、删除路由、修改路由表等操作。
+2.路由类型a.主机路由：表示指向单个IP地址或主机名的路由
+b.网络路由：表示指向某个网路的路由
+c.默认路由：表示不能再路由表中找到的目标主机或网路的路由
+3.命令a.显示数字地址（不解析主机名）route -n,该命令经常使用，由于直接输入route主机会去接析主机名，有时候会耗用较长时间。
+1234567891011121314[root@smart Desktop]# routeKernel IP routing tableDestination     Gateway         Genmask         Flags Metric Ref    Use Iface192.168.1.0     *               255.255.255.0   U     1      0        0 eth0192.168.42.0    *               255.255.255.0   U     1      0        0 eth1192.168.122.0   ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#content-inner">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/#content-inner">5</a><a class="extend next" rel="next" href="/page/3/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/842c6b31.html" title="loadpin介绍">loadpin介绍</a><time datetime="2023-05-26T16:00:00.000Z" title="发表于 2023-05-27 00:00:00">2023-05-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/92d087f0.html" title="Linux访问控制">Linux访问控制</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/bed61a1b.html" title="Linux安全十年">Linux安全十年</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/72cf3cef.html" title="Linux s和t权限">Linux s和t权限</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/f3a59a2.html" title="Linux scripts工具">Linux scripts工具</a><time datetime="2023-05-14T04:00:00.000Z" title="发表于 2023-05-14 12:00:00">2023-05-14</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+            </div>
+            <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-Kernel/"><span class="card-category-list-name">Linux Kernel</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux%E5%91%BD%E4%BB%A4/"><span class="card-category-list-name">Linux命令</span><span class="card-category-list-count">19</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/openEuler/"><span class="card-category-list-name">openEuler</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">安全</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">深度学习</span><span class="card-category-list-count">11</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/"><span class="card-category-list-name">经验总结</span><span class="card-category-list-count">22</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/"><span class="card-category-list-name">编译器</span><span class="card-category-list-count">3</span></a></li>
+            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/TensorFlow/" style="font-size: 1.34em; color: #99a3b0">TensorFlow</a> <a href="/tags/%E5%8D%8F%E8%AE%AE/" style="font-size: 1.1em; color: #999">协议</a> <a href="/tags/SSH/" style="font-size: 1.1em; color: #999">SSH</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 1.34em; color: #99a3b0">深度学习</a> <a href="/tags/C/" style="font-size: 1.26em; color: #999fa8">C</a> <a href="/tags/%E5%AE%89%E5%85%A8/" style="font-size: 1.26em; color: #999fa8">安全</a> <a href="/tags/GCC/" style="font-size: 1.18em; color: #999ca1">GCC</a> <a href="/tags/qemu/" style="font-size: 1.1em; color: #999">qemu</a> <a href="/tags/%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC/" style="font-size: 1.1em; color: #999">编码风格</a> <a href="/tags/GRE/" style="font-size: 1.1em; color: #999">GRE</a> <a href="/tags/libcli/" style="font-size: 1.1em; color: #999">libcli</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.18em; color: #999ca1">工具</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/log4cplus/" style="font-size: 1.1em; color: #999">log4cplus</a> <a href="/tags/openEuler/" style="font-size: 1.1em; color: #999">openEuler</a> <a href="/tags/Linux/" style="font-size: 1.5em; color: #99a9bf">Linux</a> <a href="/tags/makefile/" style="font-size: 1.1em; color: #999">makefile</a> <a href="/tags/%E5%91%BD%E4%BB%A4/" style="font-size: 1.42em; color: #99a6b7">命令</a> <a href="/tags/Linux-Kernel/" style="font-size: 1.1em; color: #999">Linux Kernel</a> <a href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/" style="font-size: 1.1em; color: #999">栈溢出</a> <a href="/tags/gcc%E6%8F%92%E4%BB%B6/" style="font-size: 1.18em; color: #999ca1">gcc插件</a> <a href="/tags/%E7%A3%81%E7%9B%98%E9%98%B5%E5%88%97/" style="font-size: 1.1em; color: #999">磁盘阵列</a> <a href="/tags/%E7%94%9F%E9%95%BF%E5%9B%A0%E5%AD%90/" style="font-size: 1.1em; color: #999">生长因子</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><span class="card-archive-list-count">8</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/04/"><span class="card-archive-list-date">四月 2023</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/11/"><span class="card-archive-list-date">十一月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/08/"><span class="card-archive-list-date">八月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/09/"><span class="card-archive-list-date">九月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2019/01/"><span class="card-archive-list-date">一月 2019</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/05/"><span class="card-archive-list-date">五月 2018</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/04/"><span class="card-archive-list-date">四月 2018</span><span class="card-archive-list-count">5</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">62</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-06-07T14:34:04.153Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By juyin</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,442 +1,282 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="Helloeuler">
+<meta property="og:url" content="http://helloeuler.cn/page/3/index.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:author" content="juyin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://helloeuler.cn/page/3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Helloeuler',
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2023-06-07 22:34:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
 
-<!DOCTYPE html>
-<html lang="zh-CN">
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
 
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#202020"/>
-  <meta http-equiv="x-ua-compatible" content="ie=edge">	
-  <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-  
-  
-    <meta name="keywords" content="" />
-  
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
 
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
   
-    <meta name="description" content="Helloeuler," />
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
   
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
   
-  
-  <link rel="icon" type="image/x-icon" href="/images/logo.png">
-  
-  <meta name="baidu-site-verification" content="codeva-g8ZVM1XNws" />
-  <title></title>
-  
-    <!-- stylesheets list from config.yml -->
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
     
-      <link rel="stylesheet" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css">
-    
-      <link rel="stylesheet" href="/css/xoxo.css">
-    
-  
-<meta name="generator" content="Hexo 6.3.0"></head>
-
-
-<body>
-  <div class="nav-container">
-    <nav class="home-menu pure-menu pure-menu-horizontal">
-  <a class="pure-menu-heading" href="/">
-    
-    <span class="title" style="text-transform:none">Helloeuler</span>
-  </a>
-
-  <ul class="pure-menu-list clearfix">
-      
-          
-            <li class="pure-menu-item actived"><a href="/" class="pure-menu-link">首页</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/archives" class="pure-menu-link">归档</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/tags" class="pure-menu-link">标签</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/categories" class="pure-menu-link">分类</a></li>
-          
-      
-          
-            <li class="pure-menu-item"><a href="/search" class="pure-menu-link">搜索</a></li>
-          
-      
-  </ul>
-   
-</nav>
-  </div>
-
-  <div class="container" id="content-outer">
-    <div class="inner" id="content-inner">
-      
-
-  <div class="recent-posts">
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/17c953e6.html"><h2>深入解析Linux 常用命令--lsof</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-27T16:00:00.000Z">
-            2017-12-28
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
         
-        <a class="more" href="/posts/17c953e6.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/a6e4fc89.html"><h2>深入解析Linux 常用命令--cut</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-25T16:00:00.000Z">
-            2017-12-26
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/a6e4fc89.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/18800830.html"><h2>深入解析Linux 常用命令--du</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-24T16:00:00.000Z">
-            2017-12-25
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/18800830.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/f4f6ffd3.html"><h2>基于LTE系统的GRE隧道配置方法</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-24T16:00:00.000Z">
-            2017-12-25
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/GRE/" rel="tag">GRE</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE/" rel="tag">协议</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/f4f6ffd3.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/3d71be05.html"><h2>深入解析Linux 常用命令--cd</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-23T16:00:00.000Z">
-            2017-12-24
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/3d71be05.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/18800830.html"><h2>深入解析Linux 常用命令--du</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-23T16:00:00.000Z">
-            2017-12-24
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/18800830.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/177425b1.html"><h2>深入解析Linux 常用命令--rm</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-23T16:00:00.000Z">
-            2017-12-24
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/177425b1.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/504be2c3.html"><h2>深入解析Linux 常用命令--mv</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-23T16:00:00.000Z">
-            2017-12-24
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/504be2c3.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/884a2bdc.html"><h2>深入解析Linux 常用命令--cat</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-21T16:00:00.000Z">
-            2017-12-22
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/884a2bdc.html"> 阅读全文〉</a>
-      </article>
-    
-
-      <article class="recent-post-item">
-        <a class="title" href="/posts/20036.html"><h2>深入解析Linux 常用命令--arping</h2></a>
-        <div class="post-meta">
-          
-          <time class="time" datetime="2017-12-20T16:00:00.000Z">
-            2017-12-21
-          </time>
-          
-          <span class="slash">/</span>
-          
-          <ul class="index-tag-list" itemprop="keywords"><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="index-tag-list-item"><a class="index-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag">命令</a></li></ul>
-          
-
-        </div>
-
-        
-        <a class="more" href="/posts/20036.html"> 阅读全文〉</a>
-      </article>
-    
-  </div>
-
-
-
-    </div>
-
-    
-      <nav class="page-nav text-center">
-          <a class="extend prev" rel="prev" href="/page/2/">〈</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/">〉</a>
-      </nav>
-    
-
-  </div>
-  <footer class="footer text-center">
-    <div id="bottom-inner">
-        <a class="bottom-item" href="http://helloeuler.cn">首页</a> |
-<!--    <a class="bottom-item" href="http://helloeuler.cn" target="_blank">主站</a> |  -->
-<!--    <a class="bottom-item" href="https://github.com/juyin" target="_blank">GitHub</a> |  -->
-        <a class="bottom-item" href="https://hexo.io" target="_blank">Hexo</a> 
-<!--    <a class="bottom-item" href="https://github.com/KevinOfNeu/hexo-theme-xoxo" target="_blank">Theme xoxo</a> -->
-		
-			</br>
-			<!-- 不蒜子统计 -->
-<!--		<span class="post-meta-divider">&nbsp;|&nbsp;</span> -->
-			<span id="busuanzi_container_site_pv"> 总访问量<span id="busuanzi_value_site_pv"></span>次</span>
-			<span class="post-meta-divider"> &nbsp;|&nbsp; </span>
-			<span id="busuanzi_container_site_uv" style='display:none'>访客数<span id="busuanzi_value_site_uv"></span>人</span>
-			<script async src="/busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-		
-
-    </div>
-</footer>
-  
-
-<script>
-  (function(window, document, undefined) {
-
-    var timer = null;
-
-    function returnTop() {
-      cancelAnimationFrame(timer);
-      timer = requestAnimationFrame(function fn() {
-        var oTop = document.body.scrollTop || document.documentElement.scrollTop;
-        if (oTop > 0) {
-          document.body.scrollTop = document.documentElement.scrollTop = oTop - 50;
-          timer = requestAnimationFrame(fn);
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
         } else {
-          cancelAnimationFrame(timer);
-        }
-      });
-    }
-
-    var hearts = [];
-    window.requestAnimationFrame = (function() {
-      return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function(callback) {
-          setTimeout(callback, 1000 / 60);
-        }
-    })();
-    init();
-
-    function init() {
-      css(".heart{z-index:9999;width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: absolute;}.heart:after{top: -5px;}.heart:before{left: -5px;}");
-      attachEvent();
-      gameloop();
-      addMenuEvent();
-    }
-
-    function gameloop() {
-      for (var i = 0; i < hearts.length; i++) {
-        if (hearts[i].alpha <= 0) {
-          document.body.removeChild(hearts[i].el);
-          hearts.splice(i, 1);
-          continue;
-        }
-        hearts[i].y--;
-        hearts[i].scale += 0.004;
-        hearts[i].alpha -= 0.013;
-        hearts[i].el.style.cssText = "left:" + hearts[i].x + "px;top:" + hearts[i].y + "px;opacity:" + hearts[i].alpha + ";transform:scale(" + hearts[i].scale + "," + hearts[i].scale + ") rotate(45deg);background:" + hearts[i].color;
-      }
-      requestAnimationFrame(gameloop);
-    }
-
-    /**
-     * 给logo设置点击事件
-     * 
-     * - 回到顶部
-     * - 出现爱心
-     */
-    function attachEvent() {
-      var old = typeof window.onclick === "function" && window.onclick;
-      var logo = document.getElementById("logo");
-      if (logo) {
-        logo.onclick = function(event) {
-          returnTop();
-          old && old();
-          createHeart(event);
+          document.documentElement.classList.remove('hide-aside')
         }
       }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Helloeuler</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/17c953e6.html" title="深入解析Linux 常用命令--lsof">深入解析Linux 常用命令--lsof</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-27T16:00:00.000Z" title="发表于 2017-12-28 00:00:00">2017-12-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述lsof用于显示打开的文件。list open files。
+2.各参数含义a.-c列出指定进程所打开的文件
+12345678[root@smart Desktop]# lsof -c XorgCOMMAND  PID USER   FD   TYPE     DEVICE  SIZE/OFF       NODE NAMEXorg    2846 root  cwd    DIR      253,0      4096     653625 /var/gdmXorg    2846 root  rtd    DIR      253,0      4096          2 /Xorg    2846 root  txt    REG      253,0   2295880     956717 /usr/bin/XorgXorg    2846 root  mem    REG      253,0    122232     787409 /lib/libgcc_s-4.4.7-20120601.so.1Xorg    2846 root  mem    REG  ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/a6e4fc89.html" title="深入解析Linux 常用命令--cut">深入解析Linux 常用命令--cut</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-25T16:00:00.000Z" title="发表于 2017-12-26 00:00:00">2017-12-26</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述cut用于截取部分字符或字符串等
+2.各参数含义a.-b  选择部分字节
+cut  -b  1  选择第一个字节
+cut  -b  1-  选择第一个字节及其后的字节
+cut  -b   3,5,6-
+1234567891011[root@smart temp]# cat test.txt |cut -b 1htit[root@smart temp]# cat test.txt |cut -b 1-hellothis is test	[root@smart temp]# 
+
+b.-c  选择部分字符
+12345[root@smart temp]# cat test.txt |cut -c 1-hellothis is test	
+
+c. -d 分割，常与-f使用
+123456#以空格为分割，取出第一个[root@smart temp]# cat test.txt |cut -d&#x27; &#x27; -f 1 hellothisistest
+
+d. -f 区域
+-i    interval ，ping包间隔
+</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/18800830.html" title="深入解析Linux 常用命令--du">深入解析Linux 常用命令--du</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-24T16:00:00.000Z" title="发表于 2017-12-25 00:00:00">2017-12-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述du常用于查看磁盘剩余空间大小。
+2.不带参数默认情况下，df显示磁盘空间使用情况
+123456[root@smart linux]# dfFilesystem                   1K-blocks    Used Available Use% Mounted on/dev/mapper/vg_smart-lv_root  18069936 5379972  11772052  32% /tmpfs                           969824     224    969600   1% /dev/shm/dev/sda1                       495844   37653    432591   9% /boot[root@smart linux]# 
+
+3.以人类可读方式df  -h
+12345[root@smart linux]# df -hFilesystem                    Size  Used Avail Use% Mounted on/dev/mapper/vg_smart-lv_ ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/f4f6ffd3.html" title="基于LTE系统的GRE隧道配置方法">基于LTE系统的GRE隧道配置方法</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-24T16:00:00.000Z" title="发表于 2017-12-25 00:00:00">2017-12-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">
+今日由于项目需求，需要搭建一个承载于LTE系统的数据隔离测试网，该方案采用GRE隧道方案，通过不同目的IP地址走不同隧道来实现数据隔离。
+
+0.前言​	此处GRE并非是Graduate Record Examination（美国研究生入学考试），此处为通信行业名词，Generic Routing Encapsulation，即通用路由封装。它可以对某些网络层协议的数据报进行封装，使这些被封装的数据报能够在IPv4网络中进行传输。
+​	此处有较多的专业术语，先列举出来，如下：
+LTE: Long Time Envolved，长期演进计划，即当前的4G系统
+EPC：Envolved  Packet  Core，演进的分组核心网
+CPE: Customer Premise Equipment ，一种无线接入终端设备
+SGi接口：EPC中PGW与外部网络接口
+GW：gateway，网关
+​	
+1.GRE网络拓扑各设备IP地址如下图所示。
+​	
+2.配置步骤2.1 博特CPE配置开启GRE隧道配置进入“配置&#x2F;虚拟专网&#x2F;GRE隧道设置”，配置如下：
+配置隧道名称为g0。
+隧道 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/3d71be05.html" title="深入解析Linux 常用命令--cd">深入解析Linux 常用命令--cd</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-23T16:00:00.000Z" title="发表于 2017-12-24 00:00:00">2017-12-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述cd常用于切换目录，改变目录（change directory）
+2.切换目录cd  [Directory] , [Directory] 可以 为任意存在的目录。
+12345678[root@smart Desktop]# pwd/root/Desktop[root@smart Desktop]# cd /[root@smart /]# pwd/[root@smart /]# cd /home/[root@smart home]# pwd/home
+
+3.切换到上一次目录cd -
+123456[root@smart /]# cd /opt/rh/[root@smart rh]# pwd/opt/rh[root@smart rh]# cd /home[root@smart home]# cd -/opt/rh
+
+4.返回上级目录cd  ..              切换到上级目录
+cd  ..&#x2F;..          切换到上级目录的上级目录
+12345[root@smart rh]# pwd/opt/rh[root@smart rh]# cd ..[root@sma ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/18800830.html" title="深入解析Linux 常用命令--du">深入解析Linux 常用命令--du</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-23T16:00:00.000Z" title="发表于 2017-12-24 00:00:00">2017-12-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述du常用于查看占用空间大小。
+2.不带参数默认情况下，du只显示文件夹大小。
+1234567891011121314151617181920[root@smart Desktop]# ls -paa          cd.txt.bak2      ls.test       test.md    wireshark.desktopalias.txt   du.txt           ls.txt        test.md~cat.txt     k.txt            ls.txt.bak    test.txtcd.txt      linux/           test.log      test.txt2cd.txt.bak  ls (copy).test~  test.log.bak  test.txt3[root@smart Desktop]# du1340	./linux/txt4	./linux/h/abcde8	./linux/h4	./linux/B/A8	./linux/B4	./linux/.dir4	./linux/ss8	./ ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/504be2c3.html" title="深入解析Linux 常用命令--mv">深入解析Linux 常用命令--mv</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-23T16:00:00.000Z" title="发表于 2017-12-24 00:00:00">2017-12-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述mv常用于重命名文件或文件夹。
+2.各选项解释1）-f -f选项表示：不管文件是否存在均不出现提示。
+12345[root@smart linux]# mv a bmv: overwrite `b&#x27;? y[root@smart linux]# touch a [root@smart linux]# mv -f a b 
+
+2）–backup&#x2F;-b该选项用于在存在已有文件的情况下，备份文件
+12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849[root@smart linux]# mv --backup b b.cmv: overwrite `b.c&#x27;? y[root@smart linux]# lltotal 40drwxr-xr-x. 2 root root 4096 Nov  8 21:52 Adrwxr-xr-x. 2 root root 4096 Nov  3 19:52 abcdedrwxr-xr-x. 3 roo ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/177425b1.html" title="深入解析Linux 常用命令--rm">深入解析Linux 常用命令--rm</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-23T16:00:00.000Z" title="发表于 2017-12-24 00:00:00">2017-12-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述rm也是我们经常用到的一个Linux命令，常用于文件和文件夹的删除，rm取自于remove。官方解释为：“Remove files  or  directories”，即移除文件和目录。
+2.各选项解释1）-f -f选项表示：不管文件是否存在均不出现提示。
+12[root@smart linux]# rm -f a.t[root@smart linux]# rm -f b.t
+
+2）-r&#x2F;-R-r&#x2F;-R表示：递归删除文件或目录
+1234567891011121314[root@smart linux]# rm -r arm: remove regular file `a&#x27;? y[root@smart linux]# rm -r grm: descend into directory `g&#x27;? yrm: remove directory `g/abcde&#x27;? yrm: remove directory `g&#x27;? y[root@smart linux]# rm -R erm: descend into directory  ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/884a2bdc.html" title="深入解析Linux 常用命令--cat">深入解析Linux 常用命令--cat</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-21T16:00:00.000Z" title="发表于 2017-12-22 00:00:00">2017-12-22</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述cat常用于查看文件内容。
+2.显示文件内容（显示字符）cat  -A  显示文件内容，包括结束符、TAB。其中结束符以$显示，TAB以^I显示，空格不显示。
+[root@smart Desktop]# cat test.md
+AUTHOR
+       Written by Richard M. Stallman and David MacKenzie.
+[root@smart Desktop]# cat -A test.md
+AUTHOR$
+^IWritten by Richard M. Stallman and David MacKenzie.$
+$
+
+3.显示行号cat -b  显示非空行行号
+cat -n  显示所有行行号
+[root@smart Desktop]# cat -b test.md
+     1	AUTHOR
+     2	       Written by Richard M. Stallman and David MacKenzie.
+
+     3	REPORTING BUGS
+     4	       Report ls bugs to bug ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/20036.html" title="深入解析Linux 常用命令--arping">深入解析Linux 常用命令--arping</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-20T16:00:00.000Z" title="发表于 2017-12-21 00:00:00">2017-12-21</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述arping常用于检测IP是否已经存在、某个IP的MAC的地址等。
+2.arping各参数含义a.无参数，持续的向特定IP地址请求arp
+12345[root@smart Desktop]# arping 192.168.1.105 ARPING 192.168.1.105 from 192.168.1.120 eth0Unicast reply from 192.168.1.105 [3C:BD:3E:61:13:08]  1.324msUnicast reply from 192.168.1.105 [3C:BD:3E:61:13:08]  104.092msUnicast reply from 192.168.1.105 [3C:BD:3E:61:13:08]  8.286ms
+
+b. -c   count，发送arp包个数
+12345678910111213141516171819[root@smart Desktop]# arping -c 1 192.168.1.105 ARPING 192.168.1.105 from 192.168.1.120 eth0Unic ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/dd4482f2.html" title="深入解析Linux 常用命令--ip">深入解析Linux 常用命令--ip</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-20T16:00:00.000Z" title="发表于 2017-12-21 00:00:00">2017-12-21</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述ip命令用于显示&#x2F;操作路由、设备、策略、隧道等信息。
+2.用法 ip [ OPTIONS ] OBJECT { COMMAND | help }
+OPTIONS := &#123; -V[ersion] | -s[tatistics] | -r[esolve] | -f[amily] &#123; inet
+       | inet6 | ipx | dnet | link &#125; | -o[neline] &#125;
       
-    }
+OBJECT := &#123; link | addr | addrlabel | route | rule | neigh | tunnel |
+           maddr | mroute | monitor &#125;
+COMMAND :=&#123; add | del |show | list&#125;	       
 
-    function createHeart(event) {
-      var d = document.createElement("div");
-      d.className = "heart";
-      hearts.push({
-        el: d,
-        x: event.clientX - 5,
-        y: event.clientY - 5,
-        scale: 1,
-        alpha: 1,
-        color: randomColor()
-      });
-      document.body.appendChild(d);
-    }
+a.Options-V   打印ip的版本号
+-s    输出详细的统计信息
+b.Objectlink   网络设备
+address&#x2F;addr   设备ip地址
+neighbor ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/72ab9cb0.html" title="深入解析Linux 常用命令--ping">深入解析Linux 常用命令--ping</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-19T16:00:00.000Z" title="发表于 2017-12-20 00:00:00">2017-12-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述ping常用于检测网络状况。
+2.各参数含义-c   count，当ping到一定数量后终止ping。
+-i    interval ，ping包间隔
+-I    interface address，网卡,IP所在网卡ping出
+-s    packetsize，包大小，包含8字节icmp头
+-S    指定源地址
+12345678910111213141516171819202122232425262728293031323334353637383940414243[root@smart Desktop]# ping 192.168.1.1PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.576 ms64 bytes from 192.168.1.1: icmp_seq=2 ttl=64 time=0.790 ms^C--- 192.168.1.1 ping statistics ---2 packets transmi ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/ae24cd1e.html" title="CentOS OOM问题分析">CentOS OOM问题分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-18T17:55:42.000Z" title="发表于 2017-12-19 01:55:42">2017-12-19</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">
+近日，部署应用程序的CentOS操作系统频繁kill应用进程，感到非常意外。通过对系统日志进行分析，发现syslog中输出out of memery，LowMem不足。
+经过查阅大量的资料，分析发现是由于32位系统寻址空间的限制。32位linux将内存空间分为三部分：DMA、Normal（LowMem）、HighMem。其范围如下： Zone PFN ranges: DMA           0x00000000 -&gt; 0x00FFFFFF       16M Normal       0x01000000 -&gt; 0x37FFFFFF        880M HighMem   0x38000000 -&gt; 
+其中，DMA为系统直接存储器空间，LowMem为系统低端内存，主要为Linux内核使用，HighMem为通用内存。（注：64位系统基本都是LowMem）
+一般情况下，16G内存的IBM服务器LowMem约700M，系统启动后剩余约600M。
+经过对各个进程进行分析后发现，有一个进程会对内核协议栈参数进行优化，使得socket缓冲过大，从而导致LowMem耗尽， ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/c3b51e8d.html" title="TensorFlow深度学习笔记-11">TensorFlow深度学习笔记-11</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-15T16:00:00.000Z" title="发表于 2017-12-16 00:00:00">2017-12-16</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">Inception是Google训练好的一个图像识别模型，我们可以利用它来对我们的图像进行识别。
+123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899# coding: utf-8import tensorflow as tfimport osimport numpy as npimport refrom PIL import Imageimport matplotlib.pyplot as pltclass NodeLookup(object):    def __init__(self):          label_lookup_path = &#x27;inception_model/imagenet_2012_challenge_label_map_pr ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b4b22e1b.html" title="TensorFlow深度学习笔记-10">TensorFlow深度学习笔记-10</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-09T16:00:00.000Z" title="发表于 2017-12-10 00:00:00">2017-12-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
+在深度学习过程中我们会训练很多的模型，有些模型的训练很费时间。是否可以保存已经训练好的模型应用于后续的图像识别呢？答案自然是肯定的，本节我们来讲述模型的保存与载入。
 
-    function css(css) {
-      var style = document.createElement("style");
-      style.type = "text/css";
-      try {
-        style.appendChild(document.createTextNode(css));
-      } catch (ex) {
-        style.styleSheet.cssText = css;
-      }
-      document.getElementsByTagName('head')[0].appendChild(style);
-    }
-
-    function randomColor() {
-      // return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + ")";
-      return "#F44336";
-    }
-
-    function addMenuEvent() {
-      var menu = document.getElementById('menu-main-post');
-      if (menu) {
-        var toc = document.getElementById('toc');
-        if (toc) {
-          menu.onclick = function() {
-            if (toc) {
-              if (toc.style.display == 'block') {
-                toc.style.display = 'none';
-              } else {
-                toc.style.display = 'block';
-              }
-            }
-          };
-        } else {
-          menu.style.display = 'none';
-        }
-      }
-    }
-
-  })(window, document);
-</script>
-
-  
-
-
-
-</body>
-</html>
+1.模型的保存模型的保存有两个步骤：
+a.创建saver对象
+​	saver &#x3D; tf.train.Saver()
+b.训练完成后，保存模型
+​	 saver.save(sess,’net&#x2F;my_net.ckpt’)
+代码如下：
+123456789101112131415161718192021222324252627282930313233343536373839404142434445464748# coding: utf-8import tensorflow as tffrom tensorflow.examples.tutorials.mnist import input_data#载入数据集mnist = input_data.read_data_sets(&quot;MNIST_data&quot;,one_hot=True)#每个批次100张照片batch_size = 100#计算一 ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/2/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#content-inner">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/#content-inner">4</a><a class="page-number" href="/page/5/#content-inner">5</a><a class="extend next" rel="next" href="/page/4/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/842c6b31.html" title="loadpin介绍">loadpin介绍</a><time datetime="2023-05-26T16:00:00.000Z" title="发表于 2023-05-27 00:00:00">2023-05-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/92d087f0.html" title="Linux访问控制">Linux访问控制</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/bed61a1b.html" title="Linux安全十年">Linux安全十年</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/72cf3cef.html" title="Linux s和t权限">Linux s和t权限</a><time datetime="2023-05-23T16:00:00.000Z" title="发表于 2023-05-24 00:00:00">2023-05-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/f3a59a2.html" title="Linux scripts工具">Linux scripts工具</a><time datetime="2023-05-14T04:00:00.000Z" title="发表于 2023-05-14 12:00:00">2023-05-14</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+            </div>
+            <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-Kernel/"><span class="card-category-list-name">Linux Kernel</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux%E5%91%BD%E4%BB%A4/"><span class="card-category-list-name">Linux命令</span><span class="card-category-list-count">19</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/openEuler/"><span class="card-category-list-name">openEuler</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">安全</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">深度学习</span><span class="card-category-list-count">11</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/"><span class="card-category-list-name">经验总结</span><span class="card-category-list-count">22</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/"><span class="card-category-list-name">编译器</span><span class="card-category-list-count">3</span></a></li>
+            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/TensorFlow/" style="font-size: 1.34em; color: #99a3b0">TensorFlow</a> <a href="/tags/%E5%8D%8F%E8%AE%AE/" style="font-size: 1.1em; color: #999">协议</a> <a href="/tags/SSH/" style="font-size: 1.1em; color: #999">SSH</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 1.34em; color: #99a3b0">深度学习</a> <a href="/tags/C/" style="font-size: 1.26em; color: #999fa8">C</a> <a href="/tags/%E5%AE%89%E5%85%A8/" style="font-size: 1.26em; color: #999fa8">安全</a> <a href="/tags/GCC/" style="font-size: 1.18em; color: #999ca1">GCC</a> <a href="/tags/qemu/" style="font-size: 1.1em; color: #999">qemu</a> <a href="/tags/%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC/" style="font-size: 1.1em; color: #999">编码风格</a> <a href="/tags/GRE/" style="font-size: 1.1em; color: #999">GRE</a> <a href="/tags/libcli/" style="font-size: 1.1em; color: #999">libcli</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.18em; color: #999ca1">工具</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/log4cplus/" style="font-size: 1.1em; color: #999">log4cplus</a> <a href="/tags/openEuler/" style="font-size: 1.1em; color: #999">openEuler</a> <a href="/tags/Linux/" style="font-size: 1.5em; color: #99a9bf">Linux</a> <a href="/tags/makefile/" style="font-size: 1.1em; color: #999">makefile</a> <a href="/tags/%E5%91%BD%E4%BB%A4/" style="font-size: 1.42em; color: #99a6b7">命令</a> <a href="/tags/Linux-Kernel/" style="font-size: 1.1em; color: #999">Linux Kernel</a> <a href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/" style="font-size: 1.1em; color: #999">栈溢出</a> <a href="/tags/gcc%E6%8F%92%E4%BB%B6/" style="font-size: 1.18em; color: #999ca1">gcc插件</a> <a href="/tags/%E7%A3%81%E7%9B%98%E9%98%B5%E5%88%97/" style="font-size: 1.1em; color: #999">磁盘阵列</a> <a href="/tags/%E7%94%9F%E9%95%BF%E5%9B%A0%E5%AD%90/" style="font-size: 1.1em; color: #999">生长因子</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><span class="card-archive-list-count">8</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/04/"><span class="card-archive-list-date">四月 2023</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/11/"><span class="card-archive-list-date">十一月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/08/"><span class="card-archive-list-date">八月 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/09/"><span class="card-archive-list-date">九月 2021</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2019/01/"><span class="card-archive-list-date">一月 2019</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/05/"><span class="card-archive-list-date">五月 2018</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2018/04/"><span class="card-archive-list-date">四月 2018</span><span class="card-archive-list-count">5</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">62</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-06-07T14:34:04.153Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By juyin</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

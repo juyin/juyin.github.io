@@ -31,6 +31,42 @@
       </tags>
   </entry>
   <entry>
+    <title>Linux s和t权限</title>
+    <url>/posts/72cf3cef.html</url>
+    <content><![CDATA[<p>s权限（suid、nosuid、sgid）、t权限（Sticky，粘滞位）</p>
+<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>s权限：强制位，包括suid、sgid</p>
+<p>t权限：粘滞位，包括sticky</p>
+<p><img src="/images/%E5%AE%89%E5%85%A8/s%E5%92%8Ct%E6%9D%83%E9%99%90.jpg" alt="img"></p>
+<p>S_ISUID只能用于二进制可执行文件，shell脚本不能添加该权限。</p>
+<p>S_ISGID可用于二进制可执行文件和目录。</p>
+<p>4：SUID</p>
+<p>2：SGID</p>
+<p>1：VTX  粘滞位</p>
+<h2 id="2-表示"><a href="#2-表示" class="headerlink" title="2.表示"></a>2.表示</h2><p>1）s权限位：所属用户的S_IXUSR(x位)为S_ISUID&#x2F;S_ISGID所共用，当S_IXUSR和S_ISUID&#x2F;S_ISGID共存时，用小写s表示，当只设置了S_ISUID&#x2F;S_ISGID时，用大写S表示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">[_ rws ___ ___]  <span class="comment">//S_IXUSR和S_ISUID均具备</span></span><br><span class="line">[_ rwS ___ ___]  <span class="comment">//只具备S_ISUID</span></span><br></pre></td></tr></table></figure>
+
+<p>2）t权限位：</p>
+<p>所属用户的S_IXOTH(x位)为S_ISVTX所共用，当S_IXOTH和S_ISVTX共存时，用小写t表示，当只设置了S_ISVTX时，用大写T表示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">[_ ___ ___ rwt]  <span class="comment">//S_IXOTH和S_ISVTX均具备</span></span><br><span class="line">[_ ___ ___ rwT]  <span class="comment">//只具备S_ISVTX</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-修改方法"><a href="#3-修改方法" class="headerlink" title="3.修改方法"></a>3.修改方法</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">chmod u-s test <span class="comment">//移除设置用户ID位</span></span><br><span class="line">chmod g-s test <span class="comment">//移除设置组ID位</span></span><br><span class="line">chmod -t test  <span class="comment">//移除粘着位</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4.总结"></a>4.总结</h2><p><strong>s或S（SUID&#x2F;SGID,Set UID&#x2F;GID）：</strong></p>
+<p>可执行的文件搭配这个权限，便能得到特权，任意存取该文件的所有者能使用的全部系统资源。</p>
+<p><strong>t或T（Sticky）：</strong></p>
+<p>&#x2F;tmp和 &#x2F;var&#x2F;tmp目录供所有用户暂时存取文件，亦即每位用户皆拥有完整的权限进入该目录，去浏览、删除和移动文件。</p>
+]]></content>
+      <categories>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux访问控制</title>
     <url>/posts/92d087f0.html</url>
     <content><![CDATA[<h1 id="SELinux"><a href="#SELinux" class="headerlink" title="SELinux"></a>SELinux</h1><p>mac访问控制</p>
@@ -101,42 +137,6 @@
 <p><a href="https://phoenixnap.com/kb/apparmor-vs-selinux">https://phoenixnap.com/kb/apparmor-vs-selinux</a></p>
 <h1 id="tomoyo"><a href="#tomoyo" class="headerlink" title="tomoyo"></a>tomoyo</h1><p>是一种基于行为分析的MAC机制，它通过分析进程的行为来判断其是否具有访问某个资源的权限。TOMOYO Linux使用内核模块来实现，可以灵活地配置策略。</p>
 <h1 id="yama"><a href="#yama" class="headerlink" title="yama"></a>yama</h1><p>针对ptrace的访问控制。</p>
-]]></content>
-      <categories>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux s和t权限</title>
-    <url>/posts/72cf3cef.html</url>
-    <content><![CDATA[<p>s权限（suid、nosuid、sgid）、t权限（Sticky，粘滞位）</p>
-<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>s权限：强制位，包括suid、sgid</p>
-<p>t权限：粘滞位，包括sticky</p>
-<p><img src="/images/%E5%AE%89%E5%85%A8/s%E5%92%8Ct%E6%9D%83%E9%99%90.jpg" alt="img"></p>
-<p>S_ISUID只能用于二进制可执行文件，shell脚本不能添加该权限。</p>
-<p>S_ISGID可用于二进制可执行文件和目录。</p>
-<p>4：SUID</p>
-<p>2：SGID</p>
-<p>1：VTX  粘滞位</p>
-<h2 id="2-表示"><a href="#2-表示" class="headerlink" title="2.表示"></a>2.表示</h2><p>1）s权限位：所属用户的S_IXUSR(x位)为S_ISUID&#x2F;S_ISGID所共用，当S_IXUSR和S_ISUID&#x2F;S_ISGID共存时，用小写s表示，当只设置了S_ISUID&#x2F;S_ISGID时，用大写S表示：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">[_ rws ___ ___]  <span class="comment">//S_IXUSR和S_ISUID均具备</span></span><br><span class="line">[_ rwS ___ ___]  <span class="comment">//只具备S_ISUID</span></span><br></pre></td></tr></table></figure>
-
-<p>2）t权限位：</p>
-<p>所属用户的S_IXOTH(x位)为S_ISVTX所共用，当S_IXOTH和S_ISVTX共存时，用小写t表示，当只设置了S_ISVTX时，用大写T表示：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">[_ ___ ___ rwt]  <span class="comment">//S_IXOTH和S_ISVTX均具备</span></span><br><span class="line">[_ ___ ___ rwT]  <span class="comment">//只具备S_ISVTX</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-修改方法"><a href="#3-修改方法" class="headerlink" title="3.修改方法"></a>3.修改方法</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">chmod u-s test <span class="comment">//移除设置用户ID位</span></span><br><span class="line">chmod g-s test <span class="comment">//移除设置组ID位</span></span><br><span class="line">chmod -t test  <span class="comment">//移除粘着位</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4.总结"></a>4.总结</h2><p><strong>s或S（SUID&#x2F;SGID,Set UID&#x2F;GID）：</strong></p>
-<p>可执行的文件搭配这个权限，便能得到特权，任意存取该文件的所有者能使用的全部系统资源。</p>
-<p><strong>t或T（Sticky）：</strong></p>
-<p>&#x2F;tmp和 &#x2F;var&#x2F;tmp目录供所有用户暂时存取文件，亦即每位用户皆拥有完整的权限进入该目录，去浏览、删除和移动文件。</p>
 ]]></content>
       <categories>
         <category>安全</category>
@@ -293,8 +293,8 @@
         <category>编译器</category>
       </categories>
       <tags>
-        <tag>gcc插件</tag>
         <tag>GCC</tag>
+        <tag>gcc插件</tag>
       </tags>
   </entry>
   <entry>
@@ -764,9 +764,9 @@ relatime
 <p>在此情况下，该IP192.168.1.101将无法登录</p>
 <h2 id="4-允许指定IP登录"><a href="#4-允许指定IP登录" class="headerlink" title="4.允许指定IP登录"></a>4.允许指定IP登录</h2><p>AllowUsers  *@192.168.1.101</p>
 <p>在此情况下，该IP192.168.1.101将可以登录</p>
-<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#111;&#x6f;&#116;&#64;&#x31;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#46;&#49;&#46;&#49;&#48;&#49;">&#x72;&#111;&#x6f;&#116;&#64;&#x31;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#46;&#49;&#46;&#49;&#48;&#49;</a></p>
+<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#114;&#111;&#111;&#116;&#64;&#49;&#57;&#50;&#46;&#x31;&#54;&#x38;&#46;&#49;&#46;&#49;&#48;&#49;">&#114;&#111;&#111;&#116;&#64;&#49;&#57;&#50;&#46;&#x31;&#54;&#x38;&#46;&#49;&#46;&#49;&#48;&#49;</a></p>
 <p>在此情况下，该IP192.168.1.101将无法登录root用户</p>
-<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#114;&#111;&#x6f;&#x74;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#56;&#46;&#49;&#46;&#x31;&#48;&#x31;">&#114;&#111;&#x6f;&#x74;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#56;&#46;&#49;&#46;&#x31;&#48;&#x31;</a></p>
+<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#114;&#111;&#x6f;&#x74;&#x40;&#x31;&#57;&#x32;&#46;&#x31;&#x36;&#56;&#46;&#x31;&#x2e;&#49;&#48;&#49;">&#114;&#111;&#x6f;&#x74;&#x40;&#x31;&#57;&#x32;&#46;&#x31;&#x36;&#56;&#46;&#x31;&#x2e;&#49;&#48;&#49;</a></p>
 <p>在此情况下，该IP192.168.1.101将可以登录root用户</p>
 ]]></content>
       <categories>
@@ -1544,7 +1544,7 @@ relatime
 <p>sar –u 2 5  报告cpu使用情况，2s每次，统计5次</p>
 <p>sar –r 2 5  报告内存使用情况，2s每次，统计5次</p>
 <h3 id="1-1-77-scp"><a href="#1-1-77-scp" class="headerlink" title="1.1.77 scp"></a>1.1.77 scp</h3><p>复制本地文件到远程：</p>
-<p>scp localfile <a href="mailto:&#x72;&#111;&#x6f;&#116;&#64;&#49;&#x2e;&#49;&#46;&#49;&#46;&#x31;">&#x72;&#111;&#x6f;&#116;&#64;&#49;&#x2e;&#49;&#46;&#49;&#46;&#x31;</a>:&#x2F;remotefile</p>
+<p>scp localfile <a href="mailto:&#114;&#x6f;&#111;&#x74;&#64;&#49;&#x2e;&#x31;&#x2e;&#49;&#46;&#49;">&#114;&#x6f;&#111;&#x74;&#64;&#49;&#x2e;&#x31;&#x2e;&#49;&#46;&#49;</a>:&#x2F;remotefile</p>
 <p>得到远程文件：</p>
 <p>scp <a href="mailto:root@192.168.210.1:/remotefile">root@192.168.210.1:/remotefile</a> localfile</p>
 <h3 id="1-1-78-sed"><a href="#1-1-78-sed" class="headerlink" title="1.1.78 sed"></a>1.1.78 sed</h3><p>cat &#x2F;tmp&#x2F;im_sys_log_temp | sed ‘s|($SystemLogRateLimitInterval)(.*)|\1 0 1’ &gt;&#x2F;tmp&#x2F;im_sys_log.conf</p>
@@ -2031,7 +2031,7 @@ relatime
 <p>第二步：播放所录制的session内容</p>
 <p>[lhd@hongdi ~]$ scriptreplay example1.time example1.txt</p>
 <p>[lhd@hongdi ~]$ ls</p>
-<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#x65;&#x66;&#x66;&#x72;&#x61;&#121;&#95;&#x6c;&#101;&#101;&#x40;&#104;&#x6f;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#99;&#x6f;&#x6d;">&#x6a;&#x65;&#x66;&#x66;&#x72;&#x61;&#121;&#95;&#x6c;&#101;&#101;&#x40;&#104;&#x6f;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#99;&#x6f;&#x6d;</a> pass</p>
+<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#x65;&#102;&#x66;&#x72;&#x61;&#x79;&#x5f;&#x6c;&#x65;&#x65;&#64;&#104;&#x6f;&#116;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#x6d;">&#x6a;&#x65;&#102;&#x66;&#x72;&#x61;&#x79;&#x5f;&#x6c;&#x65;&#x65;&#64;&#104;&#x6f;&#116;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#x6d;</a> pass</p>
 <p>[lhd@hongdi ~]$ abcd</p>
 <p>bash: abcd: command not found</p>
 <p>[lhd@hongdi ~]$ exit</p>
@@ -9070,9 +9070,9 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 4 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#x72;&#x69;&#x6e;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#66;&#x43;&#x5f;&#50;&#46;&#50;&#46;&#x35;">&#112;&#x72;&#x69;&#x6e;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#66;&#x43;&#x5f;&#50;&#46;&#50;&#46;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#x69;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#66;&#x43;&#95;&#x32;&#46;&#x32;&#x2e;&#53;">&#112;&#114;&#x69;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#66;&#x43;&#95;&#x32;&#46;&#x32;&#x2e;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
-<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#116;&#95;&#109;&#x61;&#105;&#x6e;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#x32;&#x2e;&#50;&#x2e;&#x35;">&#95;&#x5f;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#116;&#95;&#109;&#x61;&#105;&#x6e;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#x32;&#x2e;&#50;&#x2e;&#x35;</a> (2)</p>
+<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#x5f;&#108;&#105;&#98;&#99;&#x5f;&#115;&#116;&#97;&#114;&#x74;&#95;&#109;&#x61;&#105;&#110;&#64;&#71;&#76;&#73;&#66;&#67;&#x5f;&#x32;&#x2e;&#50;&#46;&#x35;">&#x5f;&#x5f;&#108;&#105;&#98;&#99;&#x5f;&#115;&#116;&#97;&#114;&#x74;&#95;&#109;&#x61;&#105;&#110;&#64;&#71;&#76;&#73;&#66;&#67;&#x5f;&#x32;&#x2e;&#50;&#46;&#x35;</a> (2)</p>
 <p>Symbol table ‘.symtab’ contains 67 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>…</p>
@@ -9093,10 +9093,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#x6e;&#x74;&#x66;&#x40;&#x47;&#76;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#50;&#x2e;&#53;">&#x70;&#x72;&#x69;&#x6e;&#x74;&#x66;&#x40;&#x47;&#76;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#50;&#x2e;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#x6e;&#x74;&#102;&#x40;&#x47;&#76;&#73;&#66;&#x43;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;">&#x70;&#x72;&#x69;&#x6e;&#x74;&#102;&#x40;&#x47;&#76;&#73;&#66;&#x43;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#95;&#x6c;&#x69;&#x62;&#x63;&#x5f;&#x73;&#x74;&#97;&#114;&#116;&#95;&#x6d;&#x61;&#x69;&#x6e;&#64;&#71;&#76;&#x49;&#66;&#x43;&#95;&#x32;&#46;&#50;&#46;&#53;">&#95;&#95;&#x6c;&#x69;&#x62;&#x63;&#x5f;&#x73;&#x74;&#97;&#114;&#116;&#95;&#x6d;&#x61;&#x69;&#x6e;&#64;&#71;&#76;&#x49;&#66;&#x43;&#95;&#x32;&#46;&#50;&#46;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#105;&#98;&#99;&#x5f;&#x73;&#x74;&#x61;&#114;&#116;&#x5f;&#109;&#97;&#x69;&#110;&#64;&#71;&#76;&#73;&#66;&#x43;&#x5f;&#50;&#46;&#x32;&#x2e;&#x35;">&#95;&#x5f;&#108;&#105;&#98;&#99;&#x5f;&#x73;&#x74;&#x61;&#114;&#116;&#x5f;&#109;&#97;&#x69;&#110;&#64;&#71;&#76;&#73;&#66;&#x43;&#x5f;&#50;&#46;&#x32;&#x2e;&#x35;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9133,10 +9133,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#x6e;&#x74;&#x66;&#64;&#71;&#x4c;&#x49;&#66;&#67;&#x5f;&#50;&#46;&#50;&#46;&#x35;">&#112;&#114;&#105;&#x6e;&#x74;&#x66;&#64;&#71;&#x4c;&#x49;&#66;&#67;&#x5f;&#50;&#46;&#50;&#46;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#110;&#x74;&#x66;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#50;&#46;&#x32;&#46;&#x35;">&#x70;&#x72;&#x69;&#110;&#x74;&#x66;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#50;&#46;&#x32;&#46;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#x6c;&#x69;&#98;&#99;&#x5f;&#115;&#x74;&#97;&#x72;&#x74;&#x5f;&#x6d;&#97;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#95;&#x32;&#x2e;&#x32;&#x2e;&#x35;">&#x5f;&#95;&#x6c;&#x69;&#98;&#99;&#x5f;&#115;&#x74;&#97;&#x72;&#x74;&#x5f;&#x6d;&#97;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#95;&#x32;&#x2e;&#x32;&#x2e;&#x35;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#x69;&#x62;&#99;&#x5f;&#x73;&#x74;&#97;&#x72;&#x74;&#95;&#x6d;&#x61;&#x69;&#110;&#x40;&#x47;&#x4c;&#x49;&#x42;&#67;&#x5f;&#x32;&#46;&#x32;&#46;&#53;">&#95;&#x5f;&#108;&#x69;&#x62;&#99;&#x5f;&#x73;&#x74;&#97;&#x72;&#x74;&#95;&#x6d;&#x61;&#x69;&#110;&#x40;&#x47;&#x4c;&#x49;&#x42;&#67;&#x5f;&#x32;&#46;&#x32;&#46;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9462,6 +9462,31 @@ relatime
       </tags>
   </entry>
   <entry>
+    <title>深入解析Linux 常用命令--du</title>
+    <url>/posts/18800830.html</url>
+    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>du常用于查看磁盘剩余空间大小。</p>
+<h2 id="2-不带参数"><a href="#2-不带参数" class="headerlink" title="2.不带参数"></a>2.不带参数</h2><p>默认情况下，df显示磁盘空间使用情况</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# df</span><br><span class="line">Filesystem                   1K-blocks    Used Available Use% Mounted on</span><br><span class="line">/dev/mapper/vg_smart-lv_root  18069936 5379972  11772052  32% /</span><br><span class="line">tmpfs                           969824     224    969600   1% /dev/shm</span><br><span class="line">/dev/sda1                       495844   37653    432591   9% /boot</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
+
+<h2 id="3-以人类可读方式"><a href="#3-以人类可读方式" class="headerlink" title="3.以人类可读方式"></a>3.以人类可读方式</h2><p>df  -h</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# df -h</span><br><span class="line">Filesystem                    Size  Used Avail Use% Mounted on</span><br><span class="line">/dev/mapper/vg_smart-lv_root   18G  5.2G   12G  32% /</span><br><span class="line">tmpfs                         948M  224K  947M   1% /dev/shm</span><br><span class="line">/dev/sda1                     485M   37M  423M   9% /boot</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-指定文件夹路径"><a href="#4-指定文件夹路径" class="headerlink" title="4.指定文件夹路径"></a>4.指定文件夹路径</h2><p>df  [dir]</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# df -h /home</span><br><span class="line">Filesystem                    Size  Used Avail Use% Mounted on</span><br><span class="line">/dev/mapper/vg_smart-lv_root   18G  5.2G   12G  32% /</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Enjoy！</p>
+]]></content>
+      <categories>
+        <category>Linux命令</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>基于LTE系统的GRE隧道配置方法</title>
     <url>/posts/f4f6ffd3.html</url>
     <content><![CDATA[<blockquote>
@@ -9513,21 +9538,26 @@ relatime
       </tags>
   </entry>
   <entry>
-    <title>深入解析Linux 常用命令--du</title>
-    <url>/posts/18800830.html</url>
-    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>du常用于查看磁盘剩余空间大小。</p>
-<h2 id="2-不带参数"><a href="#2-不带参数" class="headerlink" title="2.不带参数"></a>2.不带参数</h2><p>默认情况下，df显示磁盘空间使用情况</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# df</span><br><span class="line">Filesystem                   1K-blocks    Used Available Use% Mounted on</span><br><span class="line">/dev/mapper/vg_smart-lv_root  18069936 5379972  11772052  32% /</span><br><span class="line">tmpfs                           969824     224    969600   1% /dev/shm</span><br><span class="line">/dev/sda1                       495844   37653    432591   9% /boot</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
+    <title>深入解析Linux 常用命令--cd</title>
+    <url>/posts/3d71be05.html</url>
+    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>cd常用于切换目录，改变目录（change directory）</p>
+<h2 id="2-切换目录"><a href="#2-切换目录" class="headerlink" title="2.切换目录"></a>2.切换目录</h2><p>cd  [Directory] , [Directory] 可以 为任意存在的目录。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]# pwd</span><br><span class="line">/root/Desktop</span><br><span class="line">[root@smart Desktop]# cd /</span><br><span class="line">[root@smart /]# pwd</span><br><span class="line">/</span><br><span class="line">[root@smart /]# cd /home/</span><br><span class="line">[root@smart home]# pwd</span><br><span class="line">/home</span><br></pre></td></tr></table></figure>
 
-<h2 id="3-以人类可读方式"><a href="#3-以人类可读方式" class="headerlink" title="3.以人类可读方式"></a>3.以人类可读方式</h2><p>df  -h</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# df -h</span><br><span class="line">Filesystem                    Size  Used Avail Use% Mounted on</span><br><span class="line">/dev/mapper/vg_smart-lv_root   18G  5.2G   12G  32% /</span><br><span class="line">tmpfs                         948M  224K  947M   1% /dev/shm</span><br><span class="line">/dev/sda1                     485M   37M  423M   9% /boot</span><br></pre></td></tr></table></figure>
+<h2 id="3-切换到上一次目录"><a href="#3-切换到上一次目录" class="headerlink" title="3.切换到上一次目录"></a>3.切换到上一次目录</h2><p>cd -</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart /]# cd /opt/rh/</span><br><span class="line">[root@smart rh]# pwd</span><br><span class="line">/opt/rh</span><br><span class="line">[root@smart rh]# cd /home</span><br><span class="line">[root@smart home]# cd -</span><br><span class="line">/opt/rh</span><br></pre></td></tr></table></figure>
 
-<h2 id="4-指定文件夹路径"><a href="#4-指定文件夹路径" class="headerlink" title="4.指定文件夹路径"></a>4.指定文件夹路径</h2><p>df  [dir]</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# df -h /home</span><br><span class="line">Filesystem                    Size  Used Avail Use% Mounted on</span><br><span class="line">/dev/mapper/vg_smart-lv_root   18G  5.2G   12G  32% /</span><br></pre></td></tr></table></figure>
+<h2 id="4-返回上级目录"><a href="#4-返回上级目录" class="headerlink" title="4.返回上级目录"></a>4.返回上级目录</h2><p>cd  ..              切换到上级目录</p>
+<p>cd  ..&#x2F;..          切换到上级目录的上级目录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart rh]# pwd</span><br><span class="line">/opt/rh</span><br><span class="line">[root@smart rh]# cd ..</span><br><span class="line">[root@smart opt]# pwd</span><br><span class="line">/opt</span><br></pre></td></tr></table></figure>
 
+<h2 id="5-切换到子目录"><a href="#5-切换到子目录" class="headerlink" title="5.切换到子目录"></a>5.切换到子目录</h2><p>cd [子目录名]</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart home]# pwd</span><br><span class="line">/home</span><br><span class="line">[root@smart home]# ls</span><br><span class="line">smart  software  workspace</span><br><span class="line">[root@smart home]# cd smart/</span><br><span class="line">[root@smart smart]# pwd</span><br><span class="line">/home/smart</span><br></pre></td></tr></table></figure>
 
+<h2 id="6-切换到当前用户主目录"><a href="#6-切换到当前用户主目录" class="headerlink" title="6.切换到当前用户主目录"></a>6.切换到当前用户主目录</h2><p>cd                    默认情况下，cd后不接任何路径，将会切换到用户主目录</p>
+<p>cd  ~                </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart smart]# cd /</span><br><span class="line">[root@smart /]# cd </span><br><span class="line">[root@smart ~]# pwd</span><br><span class="line">/root</span><br><span class="line">[root@smart ~]# cd /</span><br><span class="line">[root@smart /]# cd ~</span><br><span class="line">[root@smart ~]# pwd</span><br><span class="line">/root</span><br></pre></td></tr></table></figure>
 
-<p>Enjoy！</p>
 ]]></content>
       <categories>
         <category>Linux命令</category>
@@ -9573,37 +9603,6 @@ relatime
       </tags>
   </entry>
   <entry>
-    <title>深入解析Linux 常用命令--rm</title>
-    <url>/posts/177425b1.html</url>
-    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>rm也是我们经常用到的一个Linux命令，常用于文件和文件夹的删除，rm取自于remove。官方解释为：“Remove files  or  directories”，即移除文件和目录。</p>
-<h2 id="2-各选项解释"><a href="#2-各选项解释" class="headerlink" title="2.各选项解释"></a>2.各选项解释</h2><h3 id="1）-f"><a href="#1）-f" class="headerlink" title="1）-f"></a>1）-f</h3><p> -f选项表示：不管文件是否存在均不出现提示。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -f a.t</span><br><span class="line">[root@smart linux]# rm -f b.t</span><br></pre></td></tr></table></figure>
-
-<h3 id="2）-r-x2F-R"><a href="#2）-r-x2F-R" class="headerlink" title="2）-r&#x2F;-R"></a>2）-r&#x2F;-R</h3><p>-r&#x2F;-R表示：递归删除文件或目录</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -r a</span><br><span class="line">rm: remove regular file `a&#x27;? y</span><br><span class="line">[root@smart linux]# rm -r g</span><br><span class="line">rm: descend into directory `g&#x27;? y</span><br><span class="line">rm: remove directory `g/abcde&#x27;? y</span><br><span class="line">rm: remove directory `g&#x27;? y</span><br><span class="line">[root@smart linux]# rm -R e</span><br><span class="line">rm: descend into directory `e&#x27;? y</span><br><span class="line">rm: remove regular file `e/b.c&#x27;? y</span><br><span class="line">rm: remove directory `e&#x27;? y</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">A      a.txt  B    b.c~   c  f  kl.txt  rm.txt  s.txt</span><br><span class="line">abcde  b      b.c  b.txt  d  h  k.txt   ss      test</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
-
-<h3 id="3）-i"><a href="#3）-i" class="headerlink" title="3）-i"></a>3）-i</h3><p>-i表示：在删除文件前，提示确认信息。一般情况下，Linux都对这个命令重定义为这个选项。即默认情况下删除文件都会存在提示。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -i a.t</span><br><span class="line">rm: cannot remove `a.t&#x27;: No such file or directory</span><br><span class="line">[root@smart linux]# rm a.t</span><br><span class="line">rm: cannot remove `a.t&#x27;: No such file or directory</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
-
-<h3 id="4）-v"><a href="#4）-v" class="headerlink" title="4）-v"></a>4）-v</h3><p>-v表示：执行后显示正在进行的动作，同其他命令。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -v a.txt b.txt</span><br><span class="line">rm: cannot remove `a.txt&#x27;: No such file or directory</span><br><span class="line">rm: cannot remove `b.txt&#x27;: No such file or directory</span><br><span class="line">[root@smart linux]# rm -v k.txt</span><br><span class="line">rm: remove regular file `k.txt&#x27;? y</span><br><span class="line">removed `k.txt&#x27;</span><br><span class="line">[root@smart linux]# rm -fv s.txt</span><br><span class="line">removed `s.txt&#x27;</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="5）–preserve-root"><a href="#5）–preserve-root" class="headerlink" title="5）–preserve-root"></a>5）–preserve-root</h3><p>–preserve-root表示：保护根目录（&#x2F;）路径。此选项可以避免误操作删除根目录，导致整个系统崩溃的风险，推荐使用。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm --preserve-root /</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">[root@smart linux]# rm --preserve-root / b</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">rm: remove regular file `b&#x27;? y</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">A  abcde  B  b.c  b.c~  c  d  f  h  kl.txt  rm.txt  ss  test</span><br><span class="line">[root@smart linux]# ls /</span><br><span class="line">bin   cgroup  etc   lib         media  mnt  opt   root  selinux  sys  usr</span><br><span class="line">boot  dev     home  lost+found  misc   net  proc  sbin  srv      tmp  var</span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <categories>
-        <category>Linux命令</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>命令</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深入解析Linux 常用命令--mv</title>
     <url>/posts/504be2c3.html</url>
     <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>mv常用于重命名文件或文件夹。</p>
@@ -9634,25 +9633,26 @@ relatime
       </tags>
   </entry>
   <entry>
-    <title>深入解析Linux 常用命令--cd</title>
-    <url>/posts/3d71be05.html</url>
-    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>cd常用于切换目录，改变目录（change directory）</p>
-<h2 id="2-切换目录"><a href="#2-切换目录" class="headerlink" title="2.切换目录"></a>2.切换目录</h2><p>cd  [Directory] , [Directory] 可以 为任意存在的目录。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart Desktop]# pwd</span><br><span class="line">/root/Desktop</span><br><span class="line">[root@smart Desktop]# cd /</span><br><span class="line">[root@smart /]# pwd</span><br><span class="line">/</span><br><span class="line">[root@smart /]# cd /home/</span><br><span class="line">[root@smart home]# pwd</span><br><span class="line">/home</span><br></pre></td></tr></table></figure>
+    <title>深入解析Linux 常用命令--rm</title>
+    <url>/posts/177425b1.html</url>
+    <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>rm也是我们经常用到的一个Linux命令，常用于文件和文件夹的删除，rm取自于remove。官方解释为：“Remove files  or  directories”，即移除文件和目录。</p>
+<h2 id="2-各选项解释"><a href="#2-各选项解释" class="headerlink" title="2.各选项解释"></a>2.各选项解释</h2><h3 id="1）-f"><a href="#1）-f" class="headerlink" title="1）-f"></a>1）-f</h3><p> -f选项表示：不管文件是否存在均不出现提示。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -f a.t</span><br><span class="line">[root@smart linux]# rm -f b.t</span><br></pre></td></tr></table></figure>
 
-<h2 id="3-切换到上一次目录"><a href="#3-切换到上一次目录" class="headerlink" title="3.切换到上一次目录"></a>3.切换到上一次目录</h2><p>cd -</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart /]# cd /opt/rh/</span><br><span class="line">[root@smart rh]# pwd</span><br><span class="line">/opt/rh</span><br><span class="line">[root@smart rh]# cd /home</span><br><span class="line">[root@smart home]# cd -</span><br><span class="line">/opt/rh</span><br></pre></td></tr></table></figure>
+<h3 id="2）-r-x2F-R"><a href="#2）-r-x2F-R" class="headerlink" title="2）-r&#x2F;-R"></a>2）-r&#x2F;-R</h3><p>-r&#x2F;-R表示：递归删除文件或目录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -r a</span><br><span class="line">rm: remove regular file `a&#x27;? y</span><br><span class="line">[root@smart linux]# rm -r g</span><br><span class="line">rm: descend into directory `g&#x27;? y</span><br><span class="line">rm: remove directory `g/abcde&#x27;? y</span><br><span class="line">rm: remove directory `g&#x27;? y</span><br><span class="line">[root@smart linux]# rm -R e</span><br><span class="line">rm: descend into directory `e&#x27;? y</span><br><span class="line">rm: remove regular file `e/b.c&#x27;? y</span><br><span class="line">rm: remove directory `e&#x27;? y</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">A      a.txt  B    b.c~   c  f  kl.txt  rm.txt  s.txt</span><br><span class="line">abcde  b      b.c  b.txt  d  h  k.txt   ss      test</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
 
-<h2 id="4-返回上级目录"><a href="#4-返回上级目录" class="headerlink" title="4.返回上级目录"></a>4.返回上级目录</h2><p>cd  ..              切换到上级目录</p>
-<p>cd  ..&#x2F;..          切换到上级目录的上级目录</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart rh]# pwd</span><br><span class="line">/opt/rh</span><br><span class="line">[root@smart rh]# cd ..</span><br><span class="line">[root@smart opt]# pwd</span><br><span class="line">/opt</span><br></pre></td></tr></table></figure>
+<h3 id="3）-i"><a href="#3）-i" class="headerlink" title="3）-i"></a>3）-i</h3><p>-i表示：在删除文件前，提示确认信息。一般情况下，Linux都对这个命令重定义为这个选项。即默认情况下删除文件都会存在提示。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -i a.t</span><br><span class="line">rm: cannot remove `a.t&#x27;: No such file or directory</span><br><span class="line">[root@smart linux]# rm a.t</span><br><span class="line">rm: cannot remove `a.t&#x27;: No such file or directory</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
 
-<h2 id="5-切换到子目录"><a href="#5-切换到子目录" class="headerlink" title="5.切换到子目录"></a>5.切换到子目录</h2><p>cd [子目录名]</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart home]# pwd</span><br><span class="line">/home</span><br><span class="line">[root@smart home]# ls</span><br><span class="line">smart  software  workspace</span><br><span class="line">[root@smart home]# cd smart/</span><br><span class="line">[root@smart smart]# pwd</span><br><span class="line">/home/smart</span><br></pre></td></tr></table></figure>
+<h3 id="4）-v"><a href="#4）-v" class="headerlink" title="4）-v"></a>4）-v</h3><p>-v表示：执行后显示正在进行的动作，同其他命令。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm -v a.txt b.txt</span><br><span class="line">rm: cannot remove `a.txt&#x27;: No such file or directory</span><br><span class="line">rm: cannot remove `b.txt&#x27;: No such file or directory</span><br><span class="line">[root@smart linux]# rm -v k.txt</span><br><span class="line">rm: remove regular file `k.txt&#x27;? y</span><br><span class="line">removed `k.txt&#x27;</span><br><span class="line">[root@smart linux]# rm -fv s.txt</span><br><span class="line">removed `s.txt&#x27;</span><br><span class="line">[root@smart linux]# </span><br></pre></td></tr></table></figure>
 
-<h2 id="6-切换到当前用户主目录"><a href="#6-切换到当前用户主目录" class="headerlink" title="6.切换到当前用户主目录"></a>6.切换到当前用户主目录</h2><p>cd                    默认情况下，cd后不接任何路径，将会切换到用户主目录</p>
-<p>cd  ~                </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart smart]# cd /</span><br><span class="line">[root@smart /]# cd </span><br><span class="line">[root@smart ~]# pwd</span><br><span class="line">/root</span><br><span class="line">[root@smart ~]# cd /</span><br><span class="line">[root@smart /]# cd ~</span><br><span class="line">[root@smart ~]# pwd</span><br><span class="line">/root</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="5）–preserve-root"><a href="#5）–preserve-root" class="headerlink" title="5）–preserve-root"></a>5）–preserve-root</h3><p>–preserve-root表示：保护根目录（&#x2F;）路径。此选项可以避免误操作删除根目录，导致整个系统崩溃的风险，推荐使用。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@smart linux]# rm --preserve-root /</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">[root@smart linux]# rm --preserve-root / b</span><br><span class="line">rm: cannot remove `/&#x27;: Is a directory</span><br><span class="line">rm: remove regular file `b&#x27;? y</span><br><span class="line">[root@smart linux]# ls</span><br><span class="line">A  abcde  B  b.c  b.c~  c  d  f  h  kl.txt  rm.txt  ss  test</span><br><span class="line">[root@smart linux]# ls /</span><br><span class="line">bin   cgroup  etc   lib         media  mnt  opt   root  selinux  sys  usr</span><br><span class="line">boot  dev     home  lost+found  misc   net  proc  sbin  srv      tmp  var</span><br></pre></td></tr></table></figure>
+
 
 ]]></content>
       <categories>

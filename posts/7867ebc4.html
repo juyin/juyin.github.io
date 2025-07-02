@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>GCC插件开发 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1 GCC plugins引用官方说明： GCC plugins are loadable modules that provide extra features to the compiler. Like GCC itself they can be distributed in source and binary forms. GCC plugins provide developers wi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GCC插件开发">
+<meta property="og:url" content="http://helloeuler.cn/posts/7867ebc4.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="1 GCC plugins引用官方说明： GCC plugins are loadable modules that provide extra features to the compiler. Like GCC itself they can be distributed in source and binary forms. GCC plugins provide developers wi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2023-05-11T15:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-02T15:27:01.731Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="GCC">
+<meta property="article:tag" content="gcc插件">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/7867ebc4.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'GCC插件开发',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-02 23:27:01'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">73</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">28</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">GCC插件开发</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-05-11T15:00:00.000Z" title="发表于 2023-05-11 23:00:00">2023-05-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E8%AF%91%E5%99%A8/">编译器</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="GCC插件开发"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h2 id="1-GCC-plugins"><a href="#1-GCC-plugins" class="headerlink" title="1 GCC plugins"></a>1 GCC plugins</h2><p>引用官方说明：</p>
+<p>GCC plugins are loadable modules that provide extra features to the compiler. Like GCC itself they can be distributed in source and binary forms.</p>
+<p>GCC plugins provide developers with a rich subset of the GCC API to allow them to extend GCC as they see fit. Whether it is writing an additional optimization pass, transforming code, or analyzing information, plugins can be quite useful.</p>
+<p>GCC plugins特点：可动态加载，无需重新编译GCC，方便扩展GCC新特性。</p>
+<h2 id="2-加载plugin"><a href="#2-加载plugin" class="headerlink" title="2 加载plugin"></a>2 加载plugin</h2><p>编译时添加如下选项：</p>
+<p>-fplugin&#x3D;name  -fplugin-arg-name-key1[&#x3D;value1]</p>
+<p>name 是GCC plugin插件名称</p>
+<p>key1 是插件的第一个参数</p>
+<p>value1是插件第一个参数的值</p>
+<h2 id="3-plugin框架"><a href="#3-plugin框架" class="headerlink" title="3 plugin框架"></a>3 plugin框架</h2><p>常见的plugin至少包括plugin_is_GPL_compatible、plugin_init。代码如下：</p>
+<p>plugin.c</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;gcc-plugin.h&quot;</span><br><span class="line">#include &quot;plugin-version.h&quot;</span><br><span class="line"></span><br><span class="line">int plugin_is_GPL_compatible;   // 框架要求必须有该变量声明</span><br><span class="line"></span><br><span class="line">// 插件初始化，当指定编译插件时，首先调用该函数。</span><br><span class="line">__visible int plugin_init(struct plugin_name_args *plugin_info, struct plugin_gcc_version *version)</span><br><span class="line">&#123;</span><br><span class="line">	// 检查插件版本与当前编译器版本是否一致， 也可以不检查。</span><br><span class="line">	if (!plugin_default_version_check(version, &amp;gcc_version)) &#123;</span><br><span class="line">		error(G_(&quot;incompatible gcc/plugin versions&quot;));</span><br><span class="line">		return 1;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>test.c</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">    printf(&quot;hello\n&quot;);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">编译：</span><br><span class="line">g++ -I`gcc -print-file-name=plugin`/include -fPIC -shared -o plugin1.so plugin1.c</span><br><span class="line">g++ -O0 -g -fplugin=plugin1.so test.c -o test.exe</span><br></pre></td></tr></table></figure>
+
+
+
+<p>编译器粗略分为词法分析，语法分析，类型检查，中间代码生成，代码优化，目标代码生成，目标代码优化。</p>
+<p>GCC编译过程中分为几个部分：前端、中端、后端。</p>
+<p>前端主要做词法分析，语法分析，类型检查，中间代码生成。</p>
+<p>中端实现中间代码的优化。</p>
+<p>后端实现对各个平台的汇编代码。</p>
+<p>在gcc的实现通过pass进行上述过程的映射。 pass定义在GCC passes.def</p>
+<h3 id="3-1-注册pass"><a href="#3-1-注册pass" class="headerlink" title="3.1  注册pass"></a>3.1  注册pass</h3><p> 1）基于gcc plugin</p>
+<p>​      参考 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/49490338">https://zhuanlan.zhihu.com/p/49490338</a></p>
+<p>2）基于linux kernel</p>
+<p>​    Linux Kernel封装了一系列宏，简化了plugin的使用。<br>   代码中实现了一个打印函数名称的功能。</p>
+<h3 id="3-2-plugin事件"><a href="#3-2-plugin事件" class="headerlink" title="3.2  plugin事件"></a>3.2  plugin事件</h3><p>有了plugin框架后，我们就可以添加plugin核心内容了。GCC plugin提供了一些plugin的事件，分别对应于plugin的各个过程。</p>
+<p>通过register_callback函数注册回调钩子，当触发事件是回调相应的处理函数。</p>
+<p>附：plugin事件列表。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">enum plugin_event</span><br><span class="line">&#123;</span><br><span class="line">  PLUGIN_START_PARSE_FUNCTION,  /* Called before parsing the body of a function. */</span><br><span class="line">  PLUGIN_FINISH_PARSE_FUNCTION, /* After finishing parsing a function. */</span><br><span class="line">  PLUGIN_PASS_MANAGER_SETUP,    /* To hook into pass manager.  */</span><br><span class="line">  PLUGIN_FINISH_TYPE,           /* After finishing parsing a type.  */</span><br><span class="line">  PLUGIN_FINISH_DECL,           /* After finishing parsing a declaration. */</span><br><span class="line">  PLUGIN_FINISH_UNIT,           /* Useful for summary processing.  */</span><br><span class="line">  PLUGIN_PRE_GENERICIZE,        /* Allows to see low level AST in C and C++ frontends.  */</span><br><span class="line">  PLUGIN_FINISH,                /* Called before GCC exits.  */</span><br><span class="line">  PLUGIN_INFO,                  /* Information about the plugin. */</span><br><span class="line">  PLUGIN_GGC_START,             /* Called at start of GCC Garbage Collection. */</span><br><span class="line">  PLUGIN_GGC_MARKING,           /* Extend the GGC marking. */</span><br><span class="line">  PLUGIN_GGC_END,               /* Called at end of GGC. */</span><br><span class="line">  PLUGIN_REGISTER_GGC_ROOTS,    /* Register an extra GGC root table. */</span><br><span class="line">  PLUGIN_ATTRIBUTES,            /* Called during attribute registration */</span><br><span class="line">  PLUGIN_START_UNIT,            /* Called before processing a translation unit.  */</span><br><span class="line">  PLUGIN_PRAGMAS,               /* Called during pragma registration. */</span><br><span class="line">  /* Called before first pass from all_passes.  */</span><br><span class="line">  PLUGIN_ALL_PASSES_START,</span><br><span class="line">  /* Called after last pass from all_passes.  */</span><br><span class="line">  PLUGIN_ALL_PASSES_END,</span><br><span class="line">  /* Called before first ipa pass.  */</span><br><span class="line">  PLUGIN_ALL_IPA_PASSES_START,</span><br><span class="line">  /* Called after last ipa pass.  */</span><br><span class="line">  PLUGIN_ALL_IPA_PASSES_END,</span><br><span class="line">  /* Allows to override pass gate decision for current_pass.  */</span><br><span class="line">  PLUGIN_OVERRIDE_GATE,</span><br><span class="line">  /* Called before executing a pass.  */</span><br><span class="line">  PLUGIN_PASS_EXECUTION,</span><br><span class="line">  /* Called before executing subpasses of a GIMPLE_PASS in</span><br><span class="line">     execute_ipa_pass_list.  */</span><br><span class="line">  PLUGIN_EARLY_GIMPLE_PASSES_START,</span><br><span class="line">  /* Called after executing subpasses of a GIMPLE_PASS in</span><br><span class="line">     execute_ipa_pass_list.  */</span><br><span class="line">  PLUGIN_EARLY_GIMPLE_PASSES_END,</span><br><span class="line">  /* Called when a pass is first instantiated.  */</span><br><span class="line">  PLUGIN_NEW_PASS,</span><br><span class="line">/* Called when a file is #include-d or given via the #line directive.</span><br><span class="line">   This could happen many times.  The event data is the included file path,</span><br><span class="line">   as a const char* pointer.  */</span><br><span class="line">  PLUGIN_INCLUDE_FILE,</span><br><span class="line"></span><br><span class="line">  /* Called when -fanalyzer starts. The event data is an</span><br><span class="line">     ana::plugin_analyzer_init_iface *.  */</span><br><span class="line">  PLUGIN_ANALYZER_INIT,</span><br><span class="line"></span><br><span class="line">  PLUGIN_EVENT_FIRST_DYNAMIC    /* Dummy event used for indexing callback array.  */</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1.GCC plugins官方文档：<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gccint/Plugins.html#Plugins">https://gcc.gnu.org/onlinedocs/gccint/Plugins.html#Plugins</a></p>
+<p>2.GCC-Plugin的一些笔记（一）：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/49490338">https://zhuanlan.zhihu.com/p/49490338</a></p>
+<p>3.gcc插件：<a target="_blank" rel="noopener" href="https://github.com/rofirrim/gcc-plugins.git">https://github.com/rofirrim/gcc-plugins.git</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/7867ebc4.html">http://helloeuler.cn/posts/7867ebc4.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/GCC/">GCC</a><a class="post-meta__tags" href="/tags/gcc%E6%8F%92%E4%BB%B6/">gcc插件</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/3e2e1a1a.html" title="Linux GCC插件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux GCC插件</div></div></a></div><div class="next-post pull-right"><a href="/posts/12927.html" title="Linux下stat查看atime问题分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux下stat查看atime问题分析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/6ed875c1.html" title="GCC相关链接"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">GCC相关链接</div></div></a></div><div><a href="/posts/3e2e1a1a.html" title="Linux GCC插件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">Linux GCC插件</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">73</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">28</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-GCC-plugins"><span class="toc-text">1 GCC plugins</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8A%A0%E8%BD%BDplugin"><span class="toc-text">2 加载plugin</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-plugin%E6%A1%86%E6%9E%B6"><span class="toc-text">3 plugin框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%B3%A8%E5%86%8Cpass"><span class="toc-text">3.1  注册pass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-plugin%E4%BA%8B%E4%BB%B6"><span class="toc-text">3.2  plugin事件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无题">无题</a><time datetime="2025-07-02T15:27:01.731Z" title="发表于 2025-07-02 23:27:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无题">无题</a><time datetime="2025-07-02T15:27:01.731Z" title="发表于 2025-07-02 23:27:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无题">无题</a><time datetime="2025-07-02T15:27:01.731Z" title="发表于 2025-07-02 23:27:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/0.html" title="无题">无题</a><time datetime="2025-07-02T15:27:01.731Z" title="发表于 2025-07-02 23:27:01">2025-07-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/842c6b31.html" title="loadpin介绍">loadpin介绍</a><time datetime="2023-05-26T16:00:00.000Z" title="发表于 2023-05-27 00:00:00">2023-05-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

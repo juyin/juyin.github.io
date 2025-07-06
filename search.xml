@@ -1,51 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title></title>
-    <url>/posts/0.html</url>
-    <content><![CDATA[<p>在添加用户时发现如下告警：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">hostname ~ # useradd test12</span><br><span class="line">Group &#x27;mail&#x27; not found. Creating the user mailbox file with 0600 mode.</span><br></pre></td></tr></table></figure>
-
-<p>通过网络搜索，发现该告警来源于&#x2F;etc&#x2F;default&#x2F;useradd的配置CREATE_MAIL_SPOOL&#x3D;yes，查询该配置来源于shadow软件包。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">linux:/usr1/test # rpm -qf /etc/default/useradd</span><br><span class="line">shadow-4.2.1-34.20.x86_64</span><br></pre></td></tr></table></figure>
-
-<p>通过查询代码，该打印来源于useradd.c:2338行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2336         gr = prefix_getgrnam (&quot;mail&quot;); /* local, no need for xgetgrnam */</span><br><span class="line">2337         if (NULL == gr) &#123;</span><br><span class="line">2338             fputs (_(&quot;Group &#x27;mail&#x27; not found. Creating the user mailbox file with 0600 mode.\n&quot;),</span><br><span class="line">2339                    stderr);</span><br><span class="line">2340             gid = user_gid;</span><br><span class="line">2341             mode = 0600;</span><br></pre></td></tr></table></figure>
-
-<p>调用链：main-&gt;create_mail -&gt; prefix_getgrnam-&gt;getgrnam，获取mail的组名称。如果mail组不存在，返回NULL，从而打印上述告警。</p>
-<p>规避该告警有两种方法：</p>
-<p>1.创建mail组</p>
-<p>2.&#x2F;etc&#x2F;default&#x2F;useradd配置CREATE_MAIL_SPOOL&#x3D;no</p>
+    <title>virt_to_page函数</title>
+    <url>/posts/f3a59a2.html</url>
+    <content><![CDATA[<p>在 Linux 内核中使用 <code>virt_to_page</code> 接口将内核虚拟地址转换为对应的 <code>struct page *</code> 指针时，需要格外小心。以下是关键的使用注意事项：</p>
+<ol>
+<li><p><strong>地址必须在内核线性映射区域 (Low Memory &#x2F; Directly Mapped Region)</strong></p>
+<ul>
+<li><code>virt_to_page</code> <strong>仅适用于</strong>通过 <code>kmalloc</code>, <code>alloc_pages</code> (<code>GFP_KERNEL</code> 或 <code>GFP_ATOMIC</code> 等标志)、<code>__get_free_pages</code> 等函数分配的<strong>物理上连续</strong>的内存块的首地址。</li>
+<li><strong>不适用于：</strong><ul>
+<li><code>vmalloc</code> 分配的内存：这些地址在内核的 VMALLOC 区域，没有直接的 1:1 物理映射。使用 <code>vmalloc_to_page</code> 代替。</li>
+<li>用户空间地址：用户空间地址需要通过 <code>get_user_pages</code> 或类似机制获取其对应的 <code>struct page *</code>。</li>
+<li>内核镜像代码&#x2F;数据段、模块代码段等特殊区域的地址：这些地址通常没有对应的 <code>struct page</code> 结构体，或者映射关系复杂。</li>
+<li>IO 映射地址 (<code>ioremap</code> 返回的)：使用 <code>phys_to_page(page_to_phys(virt_to_page()))</code> 是<strong>错误且危险</strong>的。应该使用 <code>pfn_to_page</code> 结合物理地址或 I&#x2F;O 资源信息来获取正确的页。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>地址必须是有效的内核虚拟地址</strong></p>
+<ul>
+<li>传递给 <code>virt_to_page</code> 的指针必须是当前内核上下文中有效的、可安全访问的虚拟地址。</li>
+<li>确保该地址指向的内存在调用 <code>virt_to_page</code> 时仍然有效（未被释放）。在内存释放后访问其对应的 <code>struct page</code> 是未定义行为。</li>
+</ul>
+</li>
+<li><p><strong>地址必须页对齐 (Page Aligned)</strong></p>
+<ul>
+<li>虽然 <code>virt_to_page</code> 可以接受非页对齐的地址，但它返回的是包含该地址的物理页框对应的 <code>struct page *</code>。</li>
+<li><strong>理解其行为：</strong> 如果你传入的地址 <code>virt_addr</code> 指向某个物理页中间的一个字节，<code>virt_to_page(virt_addr)</code> 返回的是该物理页的 <code>struct page *</code>，而不是偏移量对应的某个“子页”。内核内存管理的基本单位是物理页框 (Page Frame)。</li>
+<li><strong>如果需要偏移：</strong> 操作该页内的具体偏移量，需要自行计算：<code>offset_in_page(virt_addr)</code>。</li>
+</ul>
+</li>
+<li><p><strong>仅在内核上下文中使用</strong></p>
+<ul>
+<li><code>virt_to_page</code> 设计用于内核线程、中断处理程序（上下文允许时）、系统调用处理等内核代码路径。</li>
+<li>不能在用户空间程序中使用。</li>
+</ul>
+</li>
+<li><p><strong>内存模型和架构差异</strong></p>
+<ul>
+<li><code>virt_to_page</code> 的实现依赖于内核配置的内存模型（如 FLATMEM, DISCONTIGMEM, SPARSEMEM）和具体的 CPU 架构。</li>
+<li>其计算逻辑是 <code>(virt_addr - PAGE_OFFSET) &gt;&gt; PAGE_SHIFT</code> 得到物理页帧号 (PFN)，然后通过特定内存模型的 <code>pfn_to_page</code> 宏&#x2F;函数得到 <code>struct page *</code>。这意味着它<strong>只适用于</strong> <code>PAGE_OFFSET</code> 开始的线性映射区域（即 Low Memory）。</li>
+<li>在配置了 <code>CONFIG_HIGHMEM</code> 的系统上，<code>virt_to_page</code> <strong>不能</strong>用于处理高端内存 (High Memory) 的地址。高端内存没有固定不变的线性映射。<code>kmalloc</code> 通常不返回高端内存地址（除非指定 <code>GFP_HIGHUSER</code> 且系统压力极大），所以一般 <code>kmalloc</code> 的地址对 <code>virt_to_page</code> 是安全的。但 <code>vmalloc</code> 可能映射高端内存。</li>
+</ul>
+</li>
+<li><p><strong>ZONE 考虑 (较少见但需知晓)</strong></p>
+<ul>
+<li><code>virt_to_page</code> 返回的 <code>struct page *</code> 指向的物理页可能位于不同的内存 ZONE (DMA, DMA32, NORMAL, HIGHMEM&#x2F;MOVABLE)。如果你的操作对页所在的 ZONE 有特定要求（例如 DMA 操作需要 DMA 或 DMA32 ZONE 的页），你需要检查 <code>page_zone(page)</code> 的结果。<code>kmalloc</code> 通常优先从 NORMAL ZONE 分配，但可以通过 <code>GFP_DMA</code> 等标志指定。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结与最佳实践：</strong></p>
+<ol>
+<li><strong>严格限制来源：</strong> 只对明确通过 <code>kmalloc</code>, <code>alloc_pages</code>, <code>__get_free_pages</code> 分配的<strong>物理连续</strong>内存的<strong>起始地址</strong>（或其中的页对齐地址）使用 <code>virt_to_page</code>。</li>
+<li><strong>绝对避免 <code>vmalloc</code> 和用户空间地址：</strong> 对 <code>vmalloc</code> 内存用 <code>vmalloc_to_page</code>，对用户空间地址用 <code>get_user_pages</code> 等机制。</li>
+<li><strong>明确理解对齐和范围：</strong> 清楚 <code>virt_to_page</code> 返回的是包含该地址的整个物理页框的 <code>struct page *</code>。</li>
+<li><strong>生命周期管理：</strong> 确保在转换和使用 <code>struct page *</code> 期间，底层内存未被释放。</li>
+<li><strong>考虑 HIGHMEM：</strong> 在支持 HIGHMEM 的内核中，明确你的操作是否涉及高端内存，并选择正确的转换函数。</li>
+<li><strong>优先考虑替代方案：</strong> 如果你已经有一个 <code>struct page *</code>，需要获取其在内核线性映射中的虚拟地址，使用 <code>page_address(page)</code>。这通常比反过来操作更安全。</li>
+<li><strong>查阅文档和代码：</strong> 当有疑问时，务必查阅内核源码 (<code>include/asm-generic/page.h</code>, <code>mm/vmalloc.c</code>, <code>mm/highmem.c</code> 等) 和内核文档 (<code>Documentation/mm/</code>)。</li>
+</ol>
+<p><strong>简单口诀：<code>virt_to_page</code> 只认 <code>kmalloc</code> 和伙伴系统 (<code>alloc_pages</code>, <code>__get_free_pages</code>) 分配的低端内存 (Low Memory) 的起始地址。</strong> 不符合这个条件的地址，使用它几乎必然导致错误或崩溃。</p>
 ]]></content>
+      <categories>
+        <category>Linux Kernel</category>
+      </categories>
+      <tags>
+        <tag>virt_to_page</tag>
+      </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/posts/0.html</url>
-    <content><![CDATA[<p>vdso： virtual dynamic shared object</p>
-<p>目的是解决用户态频繁调用内核接口性能较低，用它来提升访问性能，目前支持接口如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">test@linux:~/work/kernel/baseos/mykernel&gt; objdump -T  ./arch/arm64/kernel/vdso/vdso.so</span><br><span class="line"></span><br><span class="line">./arch/arm64/kernel/vdso/vdso.so:     file format elf64-littleaarch64</span><br><span class="line"></span><br><span class="line">DYNAMIC SYMBOL TABLE:</span><br><span class="line">0000000000000000 g    DO *ABS*  0000000000000000  LINUX_2.6.39 LINUX_2.6.39</span><br><span class="line">00000000000005c8 g    DF .text  0000000000000068  LINUX_2.6.39 __kernel_clock_getres</span><br><span class="line">0000000000000634 g    D  .text  0000000000000008  LINUX_2.6.39 __kernel_rt_sigreturn</span><br><span class="line">0000000000000490 g    DF .text  000000000000012c  LINUX_2.6.39 __kernel_gettimeofday</span><br><span class="line">0000000000000308 g    DF .text  0000000000000180  LINUX_2.6.39 __kernel_clock_gettime</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<p>所有用户态进程都会依赖它，名称如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vDSO names</span><br><span class="line">       The name of the vDSO varies across architectures.  It will often show up in things like glibc&#x27;s ldd(1) output.  The exact name should not matter to any code, so do not hardcode it.</span><br><span class="line"></span><br><span class="line">       user ABI   vDSO name</span><br><span class="line">       ─────────────────────────────</span><br><span class="line">       aarch64    linux-vdso.so.1</span><br><span class="line">       arm        linux-vdso.so.1</span><br><span class="line">       ia64       linux-gate.so.1</span><br><span class="line">       ppc/32     linux-vdso32.so.1</span><br><span class="line">       ppc/64     linux-vdso64.so.1</span><br><span class="line">       s390       linux-vdso32.so.1</span><br><span class="line">       s390x      linux-vdso64.so.1</span><br><span class="line">       sh         linux-gate.so.1</span><br><span class="line">       i386       linux-gate.so.1</span><br><span class="line">       x86_64     linux-vdso.so.1</span><br><span class="line">       x86/x32    linux-vdso.so.1</span><br></pre></td></tr></table></figure>
-
-]]></content>
+    <title>根据物理地址获得虚拟地址</title>
+    <url>/posts/f3a59a2.html</url>
+    <content><![CDATA[<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;linux/init.h&gt;</span><br><span class="line">#include &lt;linux/module.h&gt;</span><br><span class="line">#include &lt;linux/platform_device.h&gt;</span><br><span class="line">#include &lt;linux/mm.h&gt;</span><br><span class="line">#include &lt;linux/rwsem.h&gt;</span><br><span class="line">#include &lt;linux/rmap.h&gt;</span><br><span class="line">#include &quot;klookup_symbol.h&quot;</span><br><span class="line">#include &lt;linux/slab.h&gt;</span><br><span class="line"></span><br><span class="line">static int g_enter_num;</span><br><span class="line"></span><br><span class="line">struct vma_info &#123;</span><br><span class="line">    struct list_head list;</span><br><span class="line">    struct vm_area_struct *vma;</span><br><span class="line">    unsigned long address;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">static bool collect_vmas(struct page *page, struct vm_area_struct *vma, unsigned long address, void *arg)</span><br><span class="line">&#123;</span><br><span class="line">    struct list_head *vma_list = arg;</span><br><span class="line">    struct vma_info *info = kmalloc(sizeof(*info), GFP_KERNEL);</span><br><span class="line">    info-&gt;vma = vma;</span><br><span class="line">    info-&gt;address = address;</span><br><span class="line">    list_add(&amp;info-&gt;list, vma_list);</span><br><span class="line"></span><br><span class="line">    g_enter_num++;</span><br><span class="line">    pr_info(&quot;debug collect_vmas count=%d\n&quot;, g_enter_num);</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void find_processes(phys_addr_t paddr)</span><br><span class="line">&#123;</span><br><span class="line">    /* pfn: physical frame number */</span><br><span class="line">    unsigned long pfn = paddr &gt;&gt; PAGE_SHIFT;</span><br><span class="line">    struct page *page = pfn_to_page(pfn);</span><br><span class="line">    LIST_HEAD(vma_list);</span><br><span class="line">    struct rmap_walk_control rwc = &#123;</span><br><span class="line">        .rmap_one = collect_vmas,</span><br><span class="line">        .arg = &amp;vma_list,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    printk(&quot;paddr=0x%lx\n&quot;, paddr);</span><br><span class="line"></span><br><span class="line">    g_rmap_walk(page, &amp;rwc);</span><br><span class="line">    // 遍历 vma_list 输出进程和虚拟地址</span><br><span class="line">    struct vma_info *info;</span><br><span class="line">    list_for_each_entry(info, &amp;vma_list, list)</span><br><span class="line">    &#123;</span><br><span class="line">        struct task_struct *task = info-&gt;vma-&gt;vm_mm-&gt;owner;</span><br><span class="line">        printk(&quot;Process: %s, PID: %d, Virtual Address: 0x%lx\n&quot;, task-&gt;comm, task-&gt;pid, info-&gt;address);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // pr_info(&quot;current pid=%d finished\n&quot;, current-&gt;pid);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/*</span><br><span class="line"> echo 0x10742b000 &gt; /sys/module/vma/parameters/paddr</span><br><span class="line"></span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">unsigned long paddr = 0x104cb7000;</span><br><span class="line">module_param(paddr, ulong, 0644);</span><br><span class="line"></span><br><span class="line">static int hello_init(void)</span><br><span class="line">&#123;</span><br><span class="line">    init_symbol();</span><br><span class="line">    find_processes(paddr);</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void hello_exit(void)</span><br><span class="line">&#123;</span><br><span class="line">    printk(KERN_ALERT &quot;Goodbye,world\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(hello_init);</span><br><span class="line">module_exit(hello_exit);</span><br><span class="line">MODULE_LICENSE(&quot;GPL&quot;);</span><br><span class="line">MODULE_DESCRIPTION(&quot;hello driver&quot;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>内存管理</category>
+      </categories>
+      <tags>
+        <tag>物理地址转换</tag>
+      </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/posts/0.html</url>
-    <content><![CDATA[<p>objdump -hw test<br>分析二进制各段大小是否一致</p>
-<p>objdump –line-numbers –disassemble –demangle –section&#x3D;.text test</p>
+    <title>openEuler上包构建</title>
+    <url>/posts/a2950cc2.html</url>
+    <content><![CDATA[<p>3 执行构建<br>3.1 新建一个用于所有软件构建的顶层目录(创建一次即可)<br>mkdir ~&#x2F;rpmbuild&#x2F;SOURCES -p</p>
+<p>3.2 进入源码目录<br>cd ~&#x2F;open_source&#x2F;musl</p>
+<p>3.3 根据各软件包内容按需将源码、patch、配置文件等复制到构建目录<br>cp *.patch *.gz ~&#x2F;rpmbuild&#x2F;SOURCES&#x2F;<br>注: 如果拷贝文件不对,构建时会报缺少文件的错误,此时重新拷贝过去即可</p>
+<p>3.4 在当前目录执行如下命令进行软件包构建<br>rpmbuild -bb musl.spec</p>
+<p>3.5 构建成功显示结果如下，构建结果存储在&#x2F;root&#x2F;rpmbuild&#x2F;RPMS&#x2F;目录下（截图需要根据软件包不同进行更新）。</p>
 ]]></content>
+      <categories>
+        <category>openEuler</category>
+      </categories>
+      <tags>
+        <tag>openEuler</tag>
+      </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/posts/0.html</url>
-    <content><![CDATA[<p>dot文件格式</p>
-<p>digraph graphname {<br>“模块A” -&gt; “模块B “;<br>“模块C “ -&gt; “模块B “;<br>“模块B “ -&gt; “模块D “;<br>}</p>
-<p>dot -Tpng -o .&#x2F;tmp.png tmp.dot</p>
+    <title>内存管理参考链接</title>
+    <url>/posts/f3a59a2.html</url>
+    <content><![CDATA[<p>slab内存回收流程：<a href="https://gitee.com/link?target=https://www.cnblogs.com/binlovetech/p/17434311.html">https://www.cnblogs.com/binlovetech/p/17434311.html</a></p>
 ]]></content>
+      <categories>
+        <category>Linux kernel</category>
+      </categories>
+      <tags>
+        <tag>内存管理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>openEuler embedded构建</title>
+    <url>/posts/a2950cc2.html</url>
+    <content><![CDATA[<p><a href="https://gitee.com/link?target=https://pages.openeuler.openatom.cn/embedded/docs/build/html/openEuler-24.03-LTS/oebuild/userguide/install/index.html">https://pages.openeuler.openatom.cn/embedded/docs/build/html/openEuler-24.03-LTS/oebuild/userguide/install/index.html</a></p>
+<p>oebuild init -b openEuler-24.03-LTS openeuler_2403</p>
+<p>oebuild update</p>
+<p>oebuild generate -p qemu-aarch64 -d build_aarch64</p>
+<p>oebuild generate -p qemu-aarch64 -f openeuler-mcs -f systemd -d build_arm64-mcs-systemd</p>
+<p>进入构建容器<br>oebuild bitbake</p>
+<p>8&lt;——– 进入容器环境 ——–</p>
+<p>构建 openEuler Embedded 镜像<br>bitbake openeuler-image-tiny</p>
+<p>构建 openEuler Embedded 的 SDK<br>bitbake openeuler-image -c do_populate_sdk</p>
+<p>构建完成后，退出容器环境<br>exit</p>
+<p>8&lt;——– 返回构建主机 ——–</p>
+<p>在 output 目录中可以找到构建镜像<br>cd output&#x2F;&lt;构建时间戳&gt;</p>
+]]></content>
+      <categories>
+        <category>openEuler</category>
+      </categories>
+      <tags>
+        <tag>openEuler embedded</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>kernel-hardening-checker</title>
+    <url>/posts/bed61a1b.html</url>
+    <content><![CDATA[<p>背景：</p>
+<p>Linux发展至今，总代码已有3000W+，代码量非常庞大，那些模块能够加固Linux，使之更加安全越来越重要，尤其是对安全要求特别高的场景。</p>
+<p>工具：</p>
+<p><a href="https://gitee.com/link?target=https://github.com/a13xp0p0v/kernel-hardening-checker">https://github.com/a13xp0p0v/kernel-hardening-checker</a></p>
+]]></content>
+      <categories>
+        <category>安全/工具</category>
+      </categories>
+      <tags>
+        <tag>Linux加固</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安全工具</title>
+    <url>/posts/bed61a1b.html</url>
+    <content><![CDATA[<p>安全测试工具：</p>
+<p><a href="https://github.com/kernelslacker/trinity">https://github.com/kernelslacker/trinity</a><br>Trinity是一款linux系统调用fuzz工具，用来测试linux系统调用接口即linux syscall</p>
+<p><a href="https://github.com/google/syzkaller">https://github.com/google/syzkaller</a><br>syzkaller是Google团队开发的一款针对Linux内核进行模糊测试的开源工具，目前还在不断的维护之中。它使用了类似AFL的代码路径覆盖检测机制来达到尽可能大的代码覆盖率，因此，与trinity、IoFuzzer这些上一代的fuzz工具相比，能发现更多的问题。</p>
+<p><a href="https://nmap.org/">https://nmap.org/</a></p>
+<p><a href="https://www.greenbone.net/">https://www.greenbone.net/</a><br>GSM作为开源工具OpenVAS的商用版，由德国公司Greenbone维护和发布，相比OpenVAS使用的开源漏洞规则库有更丰富的商业漏洞规则库，而且具备安全配置相关扫描能力。</p>
+<p><a href="http://www.rapid7.com/products/nexpose/">http://www.rapid7.com/products/nexpose/</a><br>Nexpose 是一项统一漏洞解决方案，可扫描网络以识别出在这些网络中运行的设备以及测试设备是否有漏洞。漏洞检查会识别出网络计算环境所有层面（包括在操作系统、数据库、应用程序和文件中）的安全短板。</p>
+<p><a href="https://github.com/tenable">https://github.com/tenable</a><br>Nessus作为目前全世界最多人使用的系统漏洞扫描与分析软件，其具有免费、威力强大、更新频繁并简易使用的特点，能够提供完整的系统漏洞扫描服务, 并随时更新漏洞数据库，更兼具在本机或远端上摇控, 进行系统的漏洞分析扫描，其内部调用机制能够根据系统的资源而自行调整，自动调度。</p>
+<p><a href="https://www.hcltechsw.com/appscan">https://www.hcltechsw.com/appscan</a></p>
+]]></content>
+      <categories>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>安全</tag>
+      </tags>
   </entry>
   <entry>
     <title>loadpin介绍</title>
@@ -65,15 +182,16 @@
       </tags>
   </entry>
   <entry>
-    <title>Linux安全十年</title>
+    <title>Linux安全相关文章</title>
     <url>/posts/bed61a1b.html</url>
     <content><![CDATA[<p>Linux安全10年： <a href="https://grsecurity.net/10_years_of_linux_security.pdf">https://grsecurity.net/10_years_of_linux_security.pdf</a></p>
+<p><a href="http://www.stxletto.com/posts/%E6%BC%AB%E8%B0%88Linux%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E7%BC%BA%E9%99%B7%E7%BC%93%E8%A7%A3%E6%9C%BA%E5%88%B6/">http://www.stxletto.com/posts/漫谈Linux系统安全缺陷缓解机制/</a></p>
+<p>Randomizing structure layout： <a href="https://lwn.net/Articles/722293/">https://lwn.net/Articles/722293/</a></p>
 ]]></content>
       <categories>
         <category>安全</category>
       </categories>
       <tags>
-        <tag>Linux</tag>
         <tag>安全</tag>
       </tags>
   </entry>
@@ -314,6 +432,24 @@
       </tags>
   </entry>
   <entry>
+    <title>社区提交</title>
+    <url>/posts/49e27d50.html</url>
+    <content><![CDATA[<p>一、已经合入的commit：<br>Linux Kernel:<br>  2019-04-19：<br>    usb：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9bcb762ce02db5cc99e6705f0fcfab6b097a9bc8">https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=9bcb762ce02db5cc99e6705f0fcfab6b097a9bc8</a><br>  2022-04-13：<br>    bpf:<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2900005ea287b11dcc8c1b9fcf24893b7ff41d6d">https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2900005ea287b11dcc8c1b9fcf24893b7ff41d6d</a></p>
+<p>abi-dumper：<br>  2021-7-31：<br>    <a href="https://github.com/lvc/abi-dumper/commit/a07c8d16f4cfeb01a0f0b503b4c7d39bed266154">https://github.com/lvc/abi-dumper/commit/a07c8d16f4cfeb01a0f0b503b4c7d39bed266154</a></p>
+<p>shadow：<br>  2022-4-4：<br>    <a href="https://github.com/shadow-maint/shadow/pull/515">https://github.com/shadow-maint/shadow/pull/515</a></p>
+<p>busybox：<br>  2023-8-31：<br>    <a href="https://git.busybox.net/busybox/commit/?id=ed4a24dfd10539e144ed4b7de008f8791d09a551">https://git.busybox.net/busybox/commit/?id=ed4a24dfd10539e144ed4b7de008f8791d09a551</a></p>
+<p>  2024-4-13<br>   <a href="https://git.busybox.net/busybox/commit/?id=681e4f5d922b9f0ea968238750d5c5d748eac809">https://git.busybox.net/busybox/commit/?id=681e4f5d922b9f0ea968238750d5c5d748eac809</a></p>
+<p>audit<br>  2025-6-4:<br>    <a href="https://github.com/linux-audit/audit-userspace/commit/4d53484533bca95c95b2e5de99ce6f3c31559ce2">https://github.com/linux-audit/audit-userspace/commit/4d53484533bca95c95b2e5de99ce6f3c31559ce2</a></p>
+<p>二、未合入的commit：</p>
+]]></content>
+      <categories>
+        <category>个人</category>
+      </categories>
+      <tags>
+        <tag>社区提交</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GCC相关链接</title>
     <url>/posts/6ed875c1.html</url>
     <content><![CDATA[<p>gcc官方文档翻译：</p>
@@ -370,9 +506,9 @@
         <category>编译器</category>
       </categories>
       <tags>
-        <tag>gcc插件</tag>
         <tag>Linux</tag>
         <tag>安全</tag>
+        <tag>gcc插件</tag>
       </tags>
   </entry>
   <entry>
@@ -455,6 +591,50 @@ relatime
       </tags>
   </entry>
   <entry>
+    <title>useradd添加用户时提示“Group &#39;mail’ not found”</title>
+    <url>/posts/12927.html</url>
+    <content><![CDATA[<p>在添加用户时发现如下告警：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">hostname ~ # useradd test12</span><br><span class="line">Group &#x27;mail&#x27; not found. Creating the user mailbox file with 0600 mode.</span><br></pre></td></tr></table></figure>
+
+<p>通过网络搜索，发现该告警来源于&#x2F;etc&#x2F;default&#x2F;useradd的配置CREATE_MAIL_SPOOL&#x3D;yes，查询该配置来源于shadow软件包。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">linux:/usr1/test # rpm -qf /etc/default/useradd</span><br><span class="line">shadow-4.2.1-34.20.x86_64</span><br></pre></td></tr></table></figure>
+
+<p>通过查询代码，该打印来源于useradd.c:2338行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2336         gr = prefix_getgrnam (&quot;mail&quot;); /* local, no need for xgetgrnam */</span><br><span class="line">2337         if (NULL == gr) &#123;</span><br><span class="line">2338             fputs (_(&quot;Group &#x27;mail&#x27; not found. Creating the user mailbox file with 0600 mode.\n&quot;),</span><br><span class="line">2339                    stderr);</span><br><span class="line">2340             gid = user_gid;</span><br><span class="line">2341             mode = 0600;</span><br></pre></td></tr></table></figure>
+
+<p>调用链：main-&gt;create_mail -&gt; prefix_getgrnam-&gt;getgrnam，获取mail的组名称。如果mail组不存在，返回NULL，从而打印上述告警。</p>
+<p>规避该告警有两种方法：</p>
+<p>1.创建mail组</p>
+<p>2.&#x2F;etc&#x2F;default&#x2F;useradd配置CREATE_MAIL_SPOOL&#x3D;no</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>useradd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vdso</title>
+    <url>/posts/12927.html</url>
+    <content><![CDATA[<p>vdso： virtual dynamic shared object</p>
+<p>目的是解决用户态频繁调用内核接口性能较低，用它来提升访问性能，目前支持接口如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">test@linux:~/work/kernel/baseos/mykernel&gt; objdump -T  ./arch/arm64/kernel/vdso/vdso.so</span><br><span class="line"></span><br><span class="line">./arch/arm64/kernel/vdso/vdso.so:     file format elf64-littleaarch64</span><br><span class="line"></span><br><span class="line">DYNAMIC SYMBOL TABLE:</span><br><span class="line">0000000000000000 g    DO *ABS*  0000000000000000  LINUX_2.6.39 LINUX_2.6.39</span><br><span class="line">00000000000005c8 g    DF .text  0000000000000068  LINUX_2.6.39 __kernel_clock_getres</span><br><span class="line">0000000000000634 g    D  .text  0000000000000008  LINUX_2.6.39 __kernel_rt_sigreturn</span><br><span class="line">0000000000000490 g    DF .text  000000000000012c  LINUX_2.6.39 __kernel_gettimeofday</span><br><span class="line">0000000000000308 g    DF .text  0000000000000180  LINUX_2.6.39 __kernel_clock_gettime</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>所有用户态进程都会依赖它，名称如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vDSO names</span><br><span class="line">       The name of the vDSO varies across architectures.  It will often show up in things like glibc&#x27;s ldd(1) output.  The exact name should not matter to any code, so do not hardcode it.</span><br><span class="line"></span><br><span class="line">       user ABI   vDSO name</span><br><span class="line">       ─────────────────────────────</span><br><span class="line">       aarch64    linux-vdso.so.1</span><br><span class="line">       arm        linux-vdso.so.1</span><br><span class="line">       ia64       linux-gate.so.1</span><br><span class="line">       ppc/32     linux-vdso32.so.1</span><br><span class="line">       ppc/64     linux-vdso64.so.1</span><br><span class="line">       s390       linux-vdso32.so.1</span><br><span class="line">       s390x      linux-vdso64.so.1</span><br><span class="line">       sh         linux-gate.so.1</span><br><span class="line">       i386       linux-gate.so.1</span><br><span class="line">       x86_64     linux-vdso.so.1</span><br><span class="line">       x86/x32    linux-vdso.so.1</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>vdso</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>glibc和musl对比分析</title>
     <url>/posts/98f20fd9.html</url>
     <content><![CDATA[<h1 id="glibc"><a href="#glibc" class="headerlink" title="glibc"></a>glibc</h1><p>glibc相当于是ANSI C library的扩展，其实现了常见的C库的函数，支持很多种系统平台，功能很全，但是也相对比较臃肿和庞大。</p>
@@ -487,6 +667,33 @@ relatime
       </categories>
       <tags>
         <tag>glibc, musl</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二进制一致性分析</title>
+    <url>/posts/98f20fd9.html</url>
+    <content><![CDATA[<p>objdump -hw test<br>分析二进制各段大小是否一致</p>
+<p>objdump –line-numbers –disassemble –demangle –section&#x3D;.text test</p>
+]]></content>
+      <categories>
+        <category>开源软件</category>
+      </categories>
+      <tags>
+        <tag>一致性</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>生成开源软件依赖关系图</title>
+    <url>/posts/98f20fd9.html</url>
+    <content><![CDATA[<p>dot文件格式</p>
+<p>digraph graphname {<br>“模块A” -&gt; “模块B “;<br>“模块C “ -&gt; “模块B “;<br>“模块B “ -&gt; “模块D “;<br>}</p>
+<p>dot -Tpng -o .&#x2F;tmp.png tmp.dot</p>
+]]></content>
+      <categories>
+        <category>开源软件</category>
+      </categories>
+      <tags>
+        <tag>软件依赖</tag>
       </tags>
   </entry>
   <entry>
@@ -668,7 +875,19 @@ relatime
 <p><a href="https://blog.csdn.net/u012318074/article/details/123948859">https://blog.csdn.net/u012318074/article/details/123948859</a></p>
 ]]></content>
       <categories>
-        <category>经验总结</category>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>sendmail</title>
+    <url>/posts/dd170fc7.html</url>
+    <content><![CDATA[<p>邮箱客户端：<a href="https://gitee.com/link?target=https://www.thunderbird.net/zh-CN/">https://www.thunderbird.net/zh-CN/</a></p>
+]]></content>
+      <categories>
+        <category>工具</category>
       </categories>
       <tags>
         <tag>工具</tag>
@@ -717,6 +936,7 @@ relatime
 <p>常用网站：</p>
 <p><a href="http://nvd.nist.org/">http://nvd.nist.org</a></p>
 <p><a href="http://cve.mitre.org/">http://cve.mitre.org/</a></p>
+<p>漏洞跟踪：<a href="https://gitee.com/link?target=https://github.com/google/vanir">https://github.com/google/vanir</a></p>
 ]]></content>
       <categories>
         <category>安全</category>
@@ -1080,9 +1300,9 @@ relatime
 <p>在此情况下，该IP192.168.1.101将无法登录</p>
 <h2 id="4-允许指定IP登录"><a href="#4-允许指定IP登录" class="headerlink" title="4.允许指定IP登录"></a>4.允许指定IP登录</h2><p>AllowUsers  *@192.168.1.101</p>
 <p>在此情况下，该IP192.168.1.101将可以登录</p>
-<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#114;&#111;&#111;&#x74;&#x40;&#x31;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#x2e;&#49;&#x2e;&#49;&#x30;&#49;">&#114;&#111;&#111;&#x74;&#x40;&#x31;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#x2e;&#49;&#x2e;&#49;&#x30;&#49;</a></p>
+<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#x30;&#x31;">&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#x30;&#x31;</a></p>
 <p>在此情况下，该IP192.168.1.101将无法登录root用户</p>
-<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#46;&#x31;&#48;&#49;">&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#46;&#x31;&#48;&#49;</a></p>
+<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#114;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#48;&#49;">&#114;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#48;&#49;</a></p>
 <p>在此情况下，该IP192.168.1.101将可以登录root用户</p>
 ]]></content>
       <categories>
@@ -1207,7 +1427,7 @@ relatime
 <hr>
 ]]></content>
       <categories>
-        <category>经验总结</category>
+        <category>工具</category>
       </categories>
       <tags>
         <tag>工具</tag>
@@ -1860,7 +2080,7 @@ relatime
 <p>sar –u 2 5  报告cpu使用情况，2s每次，统计5次</p>
 <p>sar –r 2 5  报告内存使用情况，2s每次，统计5次</p>
 <h3 id="1-1-77-scp"><a href="#1-1-77-scp" class="headerlink" title="1.1.77 scp"></a>1.1.77 scp</h3><p>复制本地文件到远程：</p>
-<p>scp localfile <a href="mailto:&#114;&#111;&#111;&#x74;&#64;&#49;&#x2e;&#x31;&#46;&#x31;&#46;&#x31;">&#114;&#111;&#111;&#x74;&#64;&#49;&#x2e;&#x31;&#46;&#x31;&#46;&#x31;</a>:&#x2F;remotefile</p>
+<p>scp localfile <a href="mailto:&#x72;&#111;&#111;&#116;&#x40;&#x31;&#46;&#49;&#x2e;&#x31;&#x2e;&#49;">&#x72;&#111;&#111;&#116;&#x40;&#x31;&#46;&#49;&#x2e;&#x31;&#x2e;&#49;</a>:&#x2F;remotefile</p>
 <p>得到远程文件：</p>
 <p>scp <a href="mailto:root@192.168.210.1:/remotefile">root@192.168.210.1:/remotefile</a> localfile</p>
 <h3 id="1-1-78-sed"><a href="#1-1-78-sed" class="headerlink" title="1.1.78 sed"></a>1.1.78 sed</h3><p>cat &#x2F;tmp&#x2F;im_sys_log_temp | sed ‘s|($SystemLogRateLimitInterval)(.*)|\1 0 1’ &gt;&#x2F;tmp&#x2F;im_sys_log.conf</p>
@@ -2347,7 +2567,7 @@ relatime
 <p>第二步：播放所录制的session内容</p>
 <p>[lhd@hongdi ~]$ scriptreplay example1.time example1.txt</p>
 <p>[lhd@hongdi ~]$ ls</p>
-<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#101;&#102;&#x66;&#x72;&#97;&#x79;&#x5f;&#x6c;&#x65;&#101;&#64;&#104;&#111;&#116;&#109;&#97;&#105;&#108;&#46;&#99;&#x6f;&#109;">&#x6a;&#101;&#102;&#x66;&#x72;&#97;&#x79;&#x5f;&#x6c;&#x65;&#101;&#64;&#104;&#111;&#116;&#109;&#97;&#105;&#108;&#46;&#99;&#x6f;&#109;</a> pass</p>
+<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#101;&#102;&#x66;&#114;&#x61;&#121;&#x5f;&#x6c;&#x65;&#x65;&#64;&#x68;&#111;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;">&#x6a;&#101;&#102;&#x66;&#114;&#x61;&#121;&#x5f;&#x6c;&#x65;&#x65;&#64;&#x68;&#111;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a> pass</p>
 <p>[lhd@hongdi ~]$ abcd</p>
 <p>bash: abcd: command not found</p>
 <p>[lhd@hongdi ~]$ exit</p>
@@ -9386,9 +9606,9 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 4 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#110;&#x74;&#102;&#64;&#x47;&#x4c;&#73;&#66;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#x35;">&#x70;&#x72;&#x69;&#110;&#x74;&#102;&#64;&#x47;&#x4c;&#73;&#66;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#x72;&#105;&#x6e;&#x74;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#53;">&#112;&#x72;&#105;&#x6e;&#x74;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
-<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#x5f;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#x6d;&#x61;&#105;&#110;&#64;&#71;&#76;&#x49;&#66;&#67;&#x5f;&#50;&#x2e;&#x32;&#x2e;&#53;">&#x5f;&#x5f;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#x6d;&#x61;&#105;&#110;&#64;&#71;&#76;&#x49;&#66;&#67;&#x5f;&#50;&#x2e;&#x32;&#x2e;&#53;</a> (2)</p>
+<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#x6c;&#105;&#x62;&#99;&#95;&#x73;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#53;">&#95;&#x5f;&#x6c;&#105;&#x62;&#99;&#95;&#x73;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#53;</a> (2)</p>
 <p>Symbol table ‘.symtab’ contains 67 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>…</p>
@@ -9409,10 +9629,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#x6e;&#x74;&#102;&#64;&#x47;&#x4c;&#x49;&#x42;&#67;&#95;&#x32;&#46;&#50;&#x2e;&#x35;">&#112;&#114;&#105;&#x6e;&#x74;&#102;&#64;&#x47;&#x4c;&#x49;&#x42;&#67;&#95;&#x32;&#46;&#50;&#x2e;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;">&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#105;&#x62;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#116;&#95;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#76;&#73;&#66;&#67;&#95;&#x32;&#46;&#50;&#46;&#53;">&#95;&#x5f;&#108;&#105;&#x62;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#116;&#95;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#76;&#73;&#66;&#67;&#95;&#x32;&#46;&#50;&#46;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#x32;&#x2e;&#53;">&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#x32;&#x2e;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9449,10 +9669,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#x6e;&#116;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#x32;&#x2e;&#x32;&#x2e;&#x35;">&#x70;&#x72;&#x69;&#x6e;&#116;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#x32;&#x2e;&#x32;&#x2e;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#110;&#x74;&#102;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#53;">&#x70;&#x72;&#105;&#110;&#x74;&#102;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#115;&#x74;&#97;&#x72;&#x74;&#x5f;&#x6d;&#97;&#105;&#110;&#x40;&#71;&#76;&#x49;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#x35;">&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#115;&#x74;&#97;&#x72;&#x74;&#x5f;&#x6d;&#97;&#105;&#110;&#x40;&#71;&#76;&#x49;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#x35;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#95;&#x6c;&#x69;&#x62;&#99;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#46;&#53;">&#95;&#95;&#x6c;&#x69;&#x62;&#99;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#46;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>

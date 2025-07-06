@@ -1,29 +1,49 @@
 ## My posts  
-### **2025-07** (4)  
-- 2025-07-02 [](http://helloeuler.cn/posts/0.html)  
-- 2025-07-02 [](http://helloeuler.cn/posts/0.html)  
-- 2025-07-02 [](http://helloeuler.cn/posts/0.html)  
-- 2025-07-02 [](http://helloeuler.cn/posts/0.html)  
+### **2025-06** (2)  
+- 2025-06-30 [virt_to_page函数](http://helloeuler.cn/posts/f3a59a2.html)  
+- 2025-06-30 [根据物理地址获得虚拟地址](http://helloeuler.cn/posts/f3a59a2.html)  
   
   
-### **2023-05** (9)  
+### **2025-02** (1)  
+- 2025-02-15 [openEuler上包构建](http://helloeuler.cn/posts/a2950cc2.html)  
+  
+  
+### **2025-01** (1)  
+- 2025-01-12 [内存管理参考链接](http://helloeuler.cn/posts/f3a59a2.html)  
+  
+  
+### **2024-09** (1)  
+- 2024-09-16 [openEuler embedded构建](http://helloeuler.cn/posts/a2950cc2.html)  
+  
+  
+### **2024-05** (2)  
+- 2024-05-24 [kernel-hardening-checker](http://helloeuler.cn/posts/bed61a1b.html)  
+- 2024-05-24 [安全工具](http://helloeuler.cn/posts/bed61a1b.html)  
+  
+  
+### **2023-05** (10)  
 - 2023-05-27 [loadpin介绍](http://helloeuler.cn/posts/842c6b31.html)  
-- 2023-05-24 [Linux安全十年](http://helloeuler.cn/posts/bed61a1b.html)  
+- 2023-05-24 [Linux安全相关文章](http://helloeuler.cn/posts/bed61a1b.html)  
 - 2023-05-24 [Linux访问控制](http://helloeuler.cn/posts/92d087f0.html)  
 - 2023-05-24 [Linux访问控制](http://helloeuler.cn/posts/72cf3cef.html)  
 - 2023-05-24 [Linux s和t权限](http://helloeuler.cn/posts/72cf3cef.html)  
 - 2023-05-14 [Linux scripts工具](http://helloeuler.cn/posts/f3a59a2.html)  
+- 2023-05-14 [社区提交](http://helloeuler.cn/posts/49e27d50.html)  
 - 2023-05-12 [GCC相关链接](http://helloeuler.cn/posts/6ed875c1.html)  
 - 2023-05-12 [Linux GCC插件](http://helloeuler.cn/posts/3e2e1a1a.html)  
 - 2023-05-11 [GCC插件开发](http://helloeuler.cn/posts/7867ebc4.html)  
   
   
-### **2023-04** (1)  
+### **2023-04** (3)  
 - 2023-04-28 [Linux下stat查看atime问题分析](http://helloeuler.cn/posts/12927.html)  
+- 2023-04-28 [useradd添加用户时提示“Group 'mail’ not found”](http://helloeuler.cn/posts/12927.html)  
+- 2023-04-28 [vdso](http://helloeuler.cn/posts/12927.html)  
   
   
-### **2023-03** (2)  
+### **2023-03** (4)  
 - 2023-03-21 [glibc和musl对比分析](http://helloeuler.cn/posts/98f20fd9.html)  
+- 2023-03-21 [二进制一致性分析](http://helloeuler.cn/posts/98f20fd9.html)  
+- 2023-03-21 [生成开源软件依赖关系图](http://helloeuler.cn/posts/98f20fd9.html)  
 - 2023-03-21 [虚拟机下直接编译运行基于musl的程序](http://helloeuler.cn/posts/98f20fd9.html)  
   
   
@@ -38,8 +58,9 @@
 - 2022-11-14 [makfile变量替换方法](http://helloeuler.cn/posts/94cc1483.html)  
   
   
-### **2022-08** (1)  
+### **2022-08** (2)  
 - 2022-08-14 [Typora](http://helloeuler.cn/posts/dd170fc7.html)  
+- 2022-08-14 [sendmail](http://helloeuler.cn/posts/dd170fc7.html)  
   
   
 ### **2021-09** (1)  

@@ -147,7 +147,7 @@
   </entry>
   <entry>
     <title>安全工具</title>
-    <url>/posts/bed61a1b.html</url>
+    <url>/posts/2fc53c69.html</url>
     <content><![CDATA[<p>安全测试工具：</p>
 <p><a href="https://github.com/kernelslacker/trinity">https://github.com/kernelslacker/trinity</a><br>Trinity是一款linux系统调用fuzz工具，用来测试linux系统调用接口即linux syscall</p>
 <p><a href="https://github.com/google/syzkaller">https://github.com/google/syzkaller</a><br>syzkaller是Google团队开发的一款针对Linux内核进行模糊测试的开源工具，目前还在不断的维护之中。它使用了类似AFL的代码路径覆盖检测机制来达到尽可能大的代码覆盖率，因此，与trinity、IoFuzzer这些上一代的fuzz工具相比，能发现更多的问题。</p>
@@ -9791,6 +9791,22 @@ relatime
 <p>注：部分来源于网络</p>
 <hr>
 <p>2017&#x2F;12&#x2F;30</p>
+]]></content>
+      <categories>
+        <category>Linux命令</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深入解析Linux 常用命令--sshpass</title>
+    <url>/posts/8cd77be.html</url>
+    <content><![CDATA[<p>sshpass</p>
+<p>用于ssh远程登录</p>
+<hr>
+<p>2015&#x2F;7&#x2F;11</p>
 ]]></content>
       <categories>
         <category>Linux命令</category>

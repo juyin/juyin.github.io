@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>virt_to_page函数</title>
-    <url>/posts/f3a59a2.html</url>
+    <url>/posts/a27665ae.html</url>
     <content><![CDATA[<p>在 Linux 内核中使用 <code>virt_to_page</code> 接口将内核虚拟地址转换为对应的 <code>struct page *</code> 指针时，需要格外小心。以下是关键的使用注意事项：</p>
 <ol>
 <li><p><strong>地址必须在内核线性映射区域 (Low Memory &#x2F; Directly Mapped Region)</strong></p>
@@ -70,7 +70,7 @@
   </entry>
   <entry>
     <title>根据物理地址获得虚拟地址</title>
-    <url>/posts/f3a59a2.html</url>
+    <url>/posts/c887f84f.html</url>
     <content><![CDATA[<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;linux/init.h&gt;</span><br><span class="line">#include &lt;linux/module.h&gt;</span><br><span class="line">#include &lt;linux/platform_device.h&gt;</span><br><span class="line">#include &lt;linux/mm.h&gt;</span><br><span class="line">#include &lt;linux/rwsem.h&gt;</span><br><span class="line">#include &lt;linux/rmap.h&gt;</span><br><span class="line">#include &quot;klookup_symbol.h&quot;</span><br><span class="line">#include &lt;linux/slab.h&gt;</span><br><span class="line"></span><br><span class="line">static int g_enter_num;</span><br><span class="line"></span><br><span class="line">struct vma_info &#123;</span><br><span class="line">    struct list_head list;</span><br><span class="line">    struct vm_area_struct *vma;</span><br><span class="line">    unsigned long address;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">static bool collect_vmas(struct page *page, struct vm_area_struct *vma, unsigned long address, void *arg)</span><br><span class="line">&#123;</span><br><span class="line">    struct list_head *vma_list = arg;</span><br><span class="line">    struct vma_info *info = kmalloc(sizeof(*info), GFP_KERNEL);</span><br><span class="line">    info-&gt;vma = vma;</span><br><span class="line">    info-&gt;address = address;</span><br><span class="line">    list_add(&amp;info-&gt;list, vma_list);</span><br><span class="line"></span><br><span class="line">    g_enter_num++;</span><br><span class="line">    pr_info(&quot;debug collect_vmas count=%d\n&quot;, g_enter_num);</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void find_processes(phys_addr_t paddr)</span><br><span class="line">&#123;</span><br><span class="line">    /* pfn: physical frame number */</span><br><span class="line">    unsigned long pfn = paddr &gt;&gt; PAGE_SHIFT;</span><br><span class="line">    struct page *page = pfn_to_page(pfn);</span><br><span class="line">    LIST_HEAD(vma_list);</span><br><span class="line">    struct rmap_walk_control rwc = &#123;</span><br><span class="line">        .rmap_one = collect_vmas,</span><br><span class="line">        .arg = &amp;vma_list,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    printk(&quot;paddr=0x%lx\n&quot;, paddr);</span><br><span class="line"></span><br><span class="line">    g_rmap_walk(page, &amp;rwc);</span><br><span class="line">    // 遍历 vma_list 输出进程和虚拟地址</span><br><span class="line">    struct vma_info *info;</span><br><span class="line">    list_for_each_entry(info, &amp;vma_list, list)</span><br><span class="line">    &#123;</span><br><span class="line">        struct task_struct *task = info-&gt;vma-&gt;vm_mm-&gt;owner;</span><br><span class="line">        printk(&quot;Process: %s, PID: %d, Virtual Address: 0x%lx\n&quot;, task-&gt;comm, task-&gt;pid, info-&gt;address);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // pr_info(&quot;current pid=%d finished\n&quot;, current-&gt;pid);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/*</span><br><span class="line"> echo 0x10742b000 &gt; /sys/module/vma/parameters/paddr</span><br><span class="line"></span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">unsigned long paddr = 0x104cb7000;</span><br><span class="line">module_param(paddr, ulong, 0644);</span><br><span class="line"></span><br><span class="line">static int hello_init(void)</span><br><span class="line">&#123;</span><br><span class="line">    init_symbol();</span><br><span class="line">    find_processes(paddr);</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void hello_exit(void)</span><br><span class="line">&#123;</span><br><span class="line">    printk(KERN_ALERT &quot;Goodbye,world\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(hello_init);</span><br><span class="line">module_exit(hello_exit);</span><br><span class="line">MODULE_LICENSE(&quot;GPL&quot;);</span><br><span class="line">MODULE_DESCRIPTION(&quot;hello driver&quot;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>内存管理</category>
@@ -81,7 +81,7 @@
   </entry>
   <entry>
     <title>openEuler上包构建</title>
-    <url>/posts/a2950cc2.html</url>
+    <url>/posts/6d8b47c5.html</url>
     <content><![CDATA[<p>3 执行构建<br>3.1 新建一个用于所有软件构建的顶层目录(创建一次即可)<br>mkdir ~&#x2F;rpmbuild&#x2F;SOURCES -p</p>
 <p>3.2 进入源码目录<br>cd ~&#x2F;open_source&#x2F;musl</p>
 <p>3.3 根据各软件包内容按需将源码、patch、配置文件等复制到构建目录<br>cp *.patch *.gz ~&#x2F;rpmbuild&#x2F;SOURCES&#x2F;<br>注: 如果拷贝文件不对,构建时会报缺少文件的错误,此时重新拷贝过去即可</p>
@@ -132,7 +132,7 @@
   </entry>
   <entry>
     <title>kernel-hardening-checker</title>
-    <url>/posts/bed61a1b.html</url>
+    <url>/posts/a8dbe0a2.html</url>
     <content><![CDATA[<p>背景：</p>
 <p>Linux发展至今，总代码已有3000W+，代码量非常庞大，那些模块能够加固Linux，使之更加安全越来越重要，尤其是对安全要求特别高的场景。</p>
 <p>工具：</p>
@@ -1300,9 +1300,9 @@ relatime
 <p>在此情况下，该IP192.168.1.101将无法登录</p>
 <h2 id="4-允许指定IP登录"><a href="#4-允许指定IP登录" class="headerlink" title="4.允许指定IP登录"></a>4.允许指定IP登录</h2><p>AllowUsers  *@192.168.1.101</p>
 <p>在此情况下，该IP192.168.1.101将可以登录</p>
-<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#x30;&#x31;">&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#x30;&#x31;</a></p>
+<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#49;&#x39;&#x32;&#46;&#49;&#54;&#56;&#x2e;&#x31;&#x2e;&#49;&#48;&#x31;">&#x72;&#x6f;&#111;&#116;&#x40;&#49;&#x39;&#x32;&#46;&#49;&#54;&#56;&#x2e;&#x31;&#x2e;&#49;&#48;&#x31;</a></p>
 <p>在此情况下，该IP192.168.1.101将无法登录root用户</p>
-<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#114;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#48;&#49;">&#114;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#48;&#49;</a></p>
+<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#x72;&#111;&#111;&#116;&#x40;&#49;&#57;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#49;&#x2e;&#x31;&#x30;&#x31;">&#x72;&#111;&#111;&#116;&#x40;&#49;&#57;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#49;&#x2e;&#x31;&#x30;&#x31;</a></p>
 <p>在此情况下，该IP192.168.1.101将可以登录root用户</p>
 ]]></content>
       <categories>
@@ -2080,7 +2080,7 @@ relatime
 <p>sar –u 2 5  报告cpu使用情况，2s每次，统计5次</p>
 <p>sar –r 2 5  报告内存使用情况，2s每次，统计5次</p>
 <h3 id="1-1-77-scp"><a href="#1-1-77-scp" class="headerlink" title="1.1.77 scp"></a>1.1.77 scp</h3><p>复制本地文件到远程：</p>
-<p>scp localfile <a href="mailto:&#x72;&#111;&#111;&#116;&#x40;&#x31;&#46;&#49;&#x2e;&#x31;&#x2e;&#49;">&#x72;&#111;&#111;&#116;&#x40;&#x31;&#46;&#49;&#x2e;&#x31;&#x2e;&#49;</a>:&#x2F;remotefile</p>
+<p>scp localfile <a href="mailto:&#x72;&#x6f;&#111;&#x74;&#64;&#x31;&#x2e;&#49;&#46;&#49;&#x2e;&#x31;">&#x72;&#x6f;&#111;&#x74;&#64;&#x31;&#x2e;&#49;&#46;&#49;&#x2e;&#x31;</a>:&#x2F;remotefile</p>
 <p>得到远程文件：</p>
 <p>scp <a href="mailto:root@192.168.210.1:/remotefile">root@192.168.210.1:/remotefile</a> localfile</p>
 <h3 id="1-1-78-sed"><a href="#1-1-78-sed" class="headerlink" title="1.1.78 sed"></a>1.1.78 sed</h3><p>cat &#x2F;tmp&#x2F;im_sys_log_temp | sed ‘s|($SystemLogRateLimitInterval)(.*)|\1 0 1’ &gt;&#x2F;tmp&#x2F;im_sys_log.conf</p>
@@ -2567,7 +2567,7 @@ relatime
 <p>第二步：播放所录制的session内容</p>
 <p>[lhd@hongdi ~]$ scriptreplay example1.time example1.txt</p>
 <p>[lhd@hongdi ~]$ ls</p>
-<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#101;&#102;&#x66;&#114;&#x61;&#121;&#x5f;&#x6c;&#x65;&#x65;&#64;&#x68;&#111;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;">&#x6a;&#101;&#102;&#x66;&#114;&#x61;&#121;&#x5f;&#x6c;&#x65;&#x65;&#64;&#x68;&#111;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a> pass</p>
+<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#x65;&#102;&#x66;&#x72;&#x61;&#121;&#95;&#108;&#101;&#101;&#64;&#104;&#x6f;&#x74;&#109;&#97;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;">&#x6a;&#x65;&#102;&#x66;&#x72;&#x61;&#121;&#95;&#108;&#101;&#101;&#64;&#104;&#x6f;&#x74;&#109;&#97;&#x69;&#108;&#x2e;&#99;&#111;&#x6d;</a> pass</p>
 <p>[lhd@hongdi ~]$ abcd</p>
 <p>bash: abcd: command not found</p>
 <p>[lhd@hongdi ~]$ exit</p>
@@ -9606,9 +9606,9 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 4 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#x72;&#105;&#x6e;&#x74;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#53;">&#112;&#x72;&#105;&#x6e;&#x74;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#x72;&#x69;&#110;&#x74;&#102;&#64;&#x47;&#x4c;&#x49;&#x42;&#x43;&#x5f;&#x32;&#x2e;&#x32;&#x2e;&#53;">&#112;&#x72;&#x69;&#110;&#x74;&#102;&#64;&#x47;&#x4c;&#x49;&#x42;&#x43;&#x5f;&#x32;&#x2e;&#x32;&#x2e;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
-<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#x6c;&#105;&#x62;&#99;&#95;&#x73;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#53;">&#95;&#x5f;&#x6c;&#105;&#x62;&#99;&#95;&#x73;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#53;</a> (2)</p>
+<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#x6c;&#x69;&#x62;&#99;&#x5f;&#x73;&#x74;&#97;&#114;&#x74;&#x5f;&#x6d;&#97;&#105;&#110;&#64;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#46;&#50;&#46;&#x35;">&#95;&#x5f;&#x6c;&#x69;&#x62;&#99;&#x5f;&#x73;&#x74;&#97;&#114;&#x74;&#x5f;&#x6d;&#97;&#105;&#110;&#64;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#46;&#50;&#46;&#x35;</a> (2)</p>
 <p>Symbol table ‘.symtab’ contains 67 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>…</p>
@@ -9629,10 +9629,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;">&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#x2e;&#53;">&#x70;&#x72;&#x69;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#x2e;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#x32;&#x2e;&#53;">&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#x32;&#x2e;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#x6c;&#x69;&#98;&#99;&#95;&#x73;&#116;&#x61;&#114;&#x74;&#x5f;&#x6d;&#x61;&#x69;&#110;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#95;&#x32;&#46;&#50;&#x2e;&#53;">&#x5f;&#95;&#x6c;&#x69;&#98;&#99;&#95;&#x73;&#116;&#x61;&#114;&#x74;&#x5f;&#x6d;&#x61;&#x69;&#110;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#95;&#x32;&#46;&#50;&#x2e;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9669,10 +9669,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#110;&#x74;&#102;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#53;">&#x70;&#x72;&#105;&#110;&#x74;&#102;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#x69;&#x6e;&#116;&#x66;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#53;">&#x70;&#x72;&#x69;&#x6e;&#116;&#x66;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#95;&#x6c;&#x69;&#x62;&#99;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#46;&#53;">&#95;&#95;&#x6c;&#x69;&#x62;&#99;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#46;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#x6c;&#x69;&#98;&#x63;&#95;&#115;&#x74;&#97;&#114;&#116;&#95;&#x6d;&#97;&#105;&#110;&#x40;&#71;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#50;&#46;&#53;">&#x5f;&#95;&#x6c;&#x69;&#98;&#x63;&#95;&#115;&#x74;&#97;&#114;&#116;&#95;&#x6d;&#97;&#105;&#110;&#x40;&#71;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#50;&#46;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9755,6 +9755,22 @@ relatime
       </tags>
   </entry>
   <entry>
+    <title>深入解析Linux 常用命令--sshpass</title>
+    <url>/posts/f3cf9244.html</url>
+    <content><![CDATA[<p>sshpass</p>
+<p>用于ssh远程登录</p>
+<hr>
+<p>2015&#x2F;7&#x2F;11</p>
+]]></content>
+      <categories>
+        <category>Linux命令</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入解析Linux 常用命令--top</title>
     <url>/posts/8cd77be.html</url>
     <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>当我们在Linux环境下运行我们的程序时，我们经常会使用top命令来查看程序的运行状态，CPU、内存使用情况，类似我们在Windows下的任务管理器，可以查看内存的使用情况，剩余情况等。</p>
@@ -9791,22 +9807,6 @@ relatime
 <p>注：部分来源于网络</p>
 <hr>
 <p>2017&#x2F;12&#x2F;30</p>
-]]></content>
-      <categories>
-        <category>Linux命令</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>命令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>深入解析Linux 常用命令--sshpass</title>
-    <url>/posts/8cd77be.html</url>
-    <content><![CDATA[<p>sshpass</p>
-<p>用于ssh远程登录</p>
-<hr>
-<p>2015&#x2F;7&#x2F;11</p>
 ]]></content>
       <categories>
         <category>Linux命令</category>

@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>随机数 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="随机数随机数是专门的随机试验的结果。 产生随机数有多种不同的方法，这些方法被称为随机数发生器。 根据密码学原理，随机数的随机性检验可以分为三个标准：  统计学伪随机性。统计学伪随机性指的是在给定的随机比特流样本中，1的数量大致等于0的数量，同理，“10”“01”“00”“11”四者数量大致相等。类似的标准被称为统计学随机性。满足这类要求的数字在人类“一眼看上去”是随机的。  密码学安全伪随机性。其">
+<meta property="og:type" content="article">
+<meta property="og:title" content="随机数">
+<meta property="og:url" content="http://helloeuler.cn/posts/bed61a1b.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="随机数随机数是专门的随机试验的结果。 产生随机数有多种不同的方法，这些方法被称为随机数发生器。 根据密码学原理，随机数的随机性检验可以分为三个标准：  统计学伪随机性。统计学伪随机性指的是在给定的随机比特流样本中，1的数量大致等于0的数量，同理，“10”“01”“00”“11”四者数量大致相等。类似的标准被称为统计学随机性。满足这类要求的数字在人类“一眼看上去”是随机的。  密码学安全伪随机性。其">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2023-02-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-02T15:43:43.164Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="KASLR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/bed61a1b.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '随机数',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-02 23:43:43'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">84</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">随机数</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-02-13T16:00:00.000Z" title="发表于 2023-02-14 00:00:00">2023-02-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="随机数"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h1 id="随机数"><a href="#随机数" class="headerlink" title="随机数"></a>随机数</h1><p>随机数是专门的随机试验的结果。</p>
+<p>产生随机数有多种不同的方法，这些方法被称为随机数发生器。</p>
+<p>根据<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%AF%86%E7%A0%81%E5%AD%A6?fromModule=lemma_inlink">密码学</a>原理，随机数的随机性检验可以分为三个标准：</p>
+<ol>
+<li><p>统计学伪随机性。统计学伪随机性指的是在给定的随机比特流样本中，1的数量大致等于0的数量，同理，“10”“01”“00”“11”四者数量大致相等。类似的标准被称为统计学随机性。满足这类要求的数字在人类“一眼看上去”是随机的。</p>
+</li>
+<li><p>密码学安全伪随机性。其定义为，给定随机样本的一部分和随机算法，不能有效的演算出随机样本的剩余部分。</p>
+</li>
+<li><p>真随机性。其定义为随机样本不可重现。实际上只要给定边界条件，真随机数并不存在，可是如果产生一个真随机数样本的边界条件十分复杂且难以捕捉（比如计算机当地的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%9C%AC%E5%BA%95%E8%BE%90%E5%B0%84?fromModule=lemma_inlink">本底辐射</a>波动值），可以认为用这个方法演算出来了真随机数。</p>
+</li>
+</ol>
+<p>相应的，随机数也分为三类：</p>
+<ol>
+<li>伪随机数：满足第一个条件的随机数。</li>
+<li>密码学安全的伪随机数：同时满足前两个条件的随机数。可以通过密码学安全伪随机数生成器计算得出。</li>
+<li>真随机数：同时满足三个条件的随机数。</li>
+</ol>
+<h1 id="Linux随机数"><a href="#Linux随机数" class="headerlink" title="Linux随机数"></a>Linux随机数</h1><p>在Linux内核中采用熵来描述数据的随机性。为了能产生足够高效随机数，Linux系统维护了一个专门用于收集噪声的熵池（entropy pool），熵池的信息来自外界的熵信息 如：设备驱动的噪音，鼠标点击的声音，设备风扇运作的噪音。将这些噪声收集起来被用于产生真正的随机数。如果熵池中没有足够的噪音资源，就需要等待熵池的收集。只要设备的物理混乱程度越大，熵增就越快，熵池的信息越饱和，随机性的效率就越高。</p>
+<p>&#x2F;dev&#x2F;random 是 Linux&#x2F;Unix  操作系统中的一个设备文件，用来作为随机数发生器&#x2F;伪随机数发生器。它允许程序访问来自设备驱动程序或其它来源的背景噪声，Linux是第一个以背景噪声产生真正的随机数的实现。这种设计使得&#x2F;dev&#x2F;random是真正的随机数发生器，提供了最大可能的随机数据熵。因为它是真正以熵池的背景噪音为种子产生随机数，所以在调用时可能会有堵塞，需要等待熵池有足够多的熵信息。另外一种 &#x2F;dev&#x2F;urandom ,它是非阻塞的发生器，它会重复使用熵池中的信息产生伪随机数。这种随机数的生成一般运用在密钥强度要求不是太高的地方。另外还有一些常见的随机数算法有线性同余法（Linear Congruential Generator）、梅森旋转法（Mersenne twister）等。其中线性同余的随机性相对较差点，而梅森旋转法的随机性较好，ruby、python的底层实现采用了这种随机数算法。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>通常从设备驱动程序等收集环境噪音，并返回适合加密用途的良好随机数。除了明显的密码用途外，这些数字还适用于播种 TCP 序列号，以及其他需要数字的地方，这些数字不仅是随机的，而且攻击者难以预测。</p>
+<h2 id="操作原理"><a href="#操作原理" class="headerlink" title="操作原理"></a>操作原理</h2><p>计算机是非常可预测的设备。因此，在计算机上产生真正的随机数是极其困难的——与伪随机数相反，伪随机数可以很容易地通过算法产生。不幸的是，攻击者很容易猜出伪随机数生成器的序列，对于某些应用程序来说，这是不可接受的。因此，我们必须尝试从计算机环境中收集外部攻击者难以观察到的“环境噪声”，并使用它来生成随机数。在 Unix 环境中，这最好从内核内部完成。</p>
+<p>来自环境的随机性来源包括键盘间计时、来自某些中断的中断间计时，以及其他 (a) 不确定且 (b) 外部观察者难以测量的事件。来自这些来源的随机性被添加到“熵池”中，该池使用类似 CRC 的函数进行混合。这在密码学上并不强大，但假设不是恶意选择随机性就足够了，而且速度足够快，每次中断时这样做的开销是非常合理的。当随机字节混合到熵池中时，例程会估计*有多少随机位已存储到随机数生成器的内部状态中。</p>
+<p>当需要随机字节时，它们是通过对“熵池”的内容进行 SHA 哈希来获得的。 SHA 哈希避免暴露熵池的内部状态。人们认为从 SHA 的输出中导出任何关于 SHA 输入的有用信息在计算上是不可行的。即使有可能以某种巧妙的方式分析 SHA，只要从生成器返回的数据量小于池中的固有熵，输出数据就完全不可预测。出于这个原因，该例程在输出随机数时会降低其对熵池中包含多少“真正随机性”位的内部估计。</p>
+<p>如果这个估计值变为零，例程仍然可以生成随机数；然而，攻击者可能（至少在理论上）能够从先前的输出中推断出生成器的未来输出。这需要对 SHA 进行成功的密码分析，这被认为是不可行的，但可能性很小。尽管如此，这些数字对于绝大多数用途应该是有用的。</p>
+<h3 id="导出接口"><a href="#导出接口" class="headerlink" title="导出接口"></a>导出接口</h3><p>4个接口，2个内核使用，2个用户态使用</p>
+<h4 id="用户态接口"><a href="#用户态接口" class="headerlink" title="用户态接口"></a>用户态接口</h4><p>&#x2F;dev&#x2F;random         安全性更高，如果熵不足会阻塞。</p>
+<p>&#x2F;dev&#x2F;urandom       不阻塞。</p>
+<h4 id="内核接口"><a href="#内核接口" class="headerlink" title="内核接口"></a>内核接口</h4><p>get_random_bytes       《&#x3D;&#x3D;》 &#x2F;dev&#x2F;urandom</p>
+<ul>
+<li><pre><code>u32 get_random_u32()
+</code></pre>
+</li>
+<li><pre><code>u64 get_random_u64()
+</code></pre>
+</li>
+<li><pre><code>unsigned int get_random_int()
+</code></pre>
+</li>
+<li><pre><code>unsigned long get_random_long()
+</code></pre>
+</li>
+</ul>
+<p>这些是由从 get_random_bytes 播种的加密 RNG 生成的，因此不会耗尽熵池。如果结果要存储在内核中*，建议将这些用于大多数内核操作。</p>
+<p>具体来说，get_random_int() 系列不会尝试进行“反回溯”。如果您捕获内核的状态（例如通过快照 VM），您可以计算出以前的 get_random_int() 返回值。但是如果值无论如何都存储在内核中，这不是问题。</p>
+<p>将 get_random_int() 输出暴露给攻击者是*安全的（例如作为网络 cookie）；给定输出 1..n，预测输出 0 或 n+1 是不可行的。唯一需要担心的是稍后闯入内核的攻击者； get_random_int() 引擎不像 get_random_bytes() 那样经常重新播种。</p>
+<p> get_random_bytes() 对于从内核中删除后需要保密的密钥是必需的。例如，任何将被包装并加密存储的密钥。和会话加密密钥：我们想知道在会话关闭并删除密钥后，明文对于记录密文的人来说是不可恢复的。</p>
+<p> 但是对于网络端口&#x2F;cookie、堆栈金丝雀、PRNG 种子、地址空间布局随机化、sessionauthentication* 密钥，或敏感数据以明文形式存储在内核中的其他应用程序，只要它是敏感的，get_random_int() 系列就只是美好的。</p>
+<p> 考虑 ASLR。我们希望在进程运行时对外部攻击者保密地址空间，但是一旦地址空间被拆除，它对攻击者就不再有用了。只要它还存在，它就会存储在内核数据结构中，因此担心攻击者有能力从 get_random_int() CRNG 推断它是愚蠢的。</p>
+<p> 使用 get_random_int() 甚至可以安全地生成一些加密密钥。特别是 SipHash 的密钥通常没问题。在这里，密钥的知识授权您对内核对象执行某些操作（将数据包注入网络连接，或淹没哈希表），并且密钥与受保护的对象一起存储。一旦它消失了，我们就不再关心是否有人知道密钥。</p>
+<p> prandom_u32()</p>
+<p>对于更弱的应用程序，请参阅伪随机生成器 prandom_u32()、prandom_max() 和 prandom_bytes()。如果随机数根本不是安全关键的，那么这些随机数要便宜得多。可用于自测、随机错误模拟、随机退避以及您相信没有人试图通过猜测“随机”数字来恶意干扰您的任何其他应用程序。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>维基百科：<a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans//dev/random">https://zh.m.wikipedia.org/zh-hans//dev/random</a></p>
+<h1 id="随机数评估"><a href="#随机数评估" class="headerlink" title="随机数评估"></a>随机数评估</h1><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/20222653">https://www.zhihu.com/question/20222653</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.fourmilab.ch/random/">https://www.fourmilab.ch/random/</a></p>
+<h1 id="随机数相关概念"><a href="#随机数相关概念" class="headerlink" title="随机数相关概念"></a>随机数相关概念</h1><h2 id="硬件随机数生成器"><a href="#硬件随机数生成器" class="headerlink" title="硬件随机数生成器"></a>硬件随机数生成器</h2><p><strong>硬件随机数生成器</strong>（英语：hardware random number generator），或<strong>真随机数生成器</strong>（True Random Number Generator，縮寫：TRNG）是一种通过物理过程而不是计算机程序来生成<a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%95%B0">随机数</a>的设备。</p>
+<h2 id="密码学安全伪随机数生成器"><a href="#密码学安全伪随机数生成器" class="headerlink" title="密码学安全伪随机数生成器"></a>密码学安全伪随机数生成器</h2><p><strong>密码学安全伪随机数生成器</strong>（亦作<strong>密码学伪随机数生成器</strong>，英文：<strong>Cryptographically secure pseudo-random number generator</strong>，通称<strong>CSPRNG</strong>），是一种能够通过运算得出<a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA%E6%95%B0#%E5%AF%86%E7%A2%BC%E5%AD%B8%E7%AF%84%E7%96%87%E7%9A%84%E9%9A%A8%E6%A9%9F%E6%95%B8">密码学安全伪随机数</a>的<a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/wiki/%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E5%99%A8">伪随机数生成器</a>。相较于统计学伪随机数生成器和更弱的伪随机数生成器，CSPRNG所生成的密码学安全伪随机数具有额外的伪随机属性。</p>
+<h2 id="加密随机数生成器"><a href="#加密随机数生成器" class="headerlink" title="加密随机数生成器"></a>加密随机数生成器</h2><p>cryptographic random number generator(<strong>CRNG</strong>)</p>
+<h2 id="真随机数"><a href="#真随机数" class="headerlink" title="真随机数"></a>真随机数</h2><p>不同的地方不同叫法，没有绝对。</p>
+<h2 id="haveged"><a href="#haveged" class="headerlink" title="haveged"></a>haveged</h2><p>可以增加噪声来源。</p>
+<h2 id="jitter-RNG"><a href="#jitter-RNG" class="headerlink" title="jitter-RNG"></a>jitter-RNG</h2><p>提供接口生成密码学安全的伪随机数</p>
+<h1 id="参考资料-1"><a href="#参考资料-1" class="headerlink" title="参考资料"></a>参考资料</h1><p>1）<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E9%9A%8F%E6%9C%BA%E6%95%B0">https://baike.baidu.com/item/%E9%9A%8F%E6%9C%BA%E6%95%B0</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/bed61a1b.html">http://helloeuler.cn/posts/bed61a1b.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/KASLR/">KASLR</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/bed61a1b.html" title="Linux地址随机化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux地址随机化</div></div></a></div><div class="next-post pull-right"><a href="/posts/94cc1483.html" title="makfile变量替换方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">makfile变量替换方法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/72cf3cef.html" title="Linux访问控制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-24</div><div class="title">Linux访问控制</div></div></a></div><div><a href="/posts/18800830.html" title="深入解析Linux 常用命令--du"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2017-12-25</div><div class="title">深入解析Linux 常用命令--du</div></div></a></div><div><a href="/posts/842c6b31.html" title="loadpin介绍"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-27</div><div class="title">loadpin介绍</div></div></a></div><div><a href="/posts/92d087f0.html" title="Linux访问控制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-24</div><div class="title">Linux访问控制</div></div></a></div><div><a href="/posts/3e2e1a1a.html" title="Linux GCC插件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">Linux GCC插件</div></div></a></div><div><a href="/posts/12927.html" title="Linux下stat查看atime问题分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-28</div><div class="title">Linux下stat查看atime问题分析</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">84</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E6%95%B0"><span class="toc-text">随机数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E9%9A%8F%E6%9C%BA%E6%95%B0"><span class="toc-text">Linux随机数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">操作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E6%8E%A5%E5%8F%A3"><span class="toc-text">导出接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E6%80%81%E6%8E%A5%E5%8F%A3"><span class="toc-text">用户态接口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E6%8E%A5%E5%8F%A3"><span class="toc-text">内核接口</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">参考资料</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E6%95%B0%E8%AF%84%E4%BC%B0"><span class="toc-text">随机数评估</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="toc-text">随机数相关概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AC%E4%BB%B6%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E5%99%A8"><span class="toc-text">硬件随机数生成器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%86%E7%A0%81%E5%AD%A6%E5%AE%89%E5%85%A8%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E5%99%A8"><span class="toc-text">密码学安全伪随机数生成器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E5%AF%86%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E5%99%A8"><span class="toc-text">加密随机数生成器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9C%9F%E9%9A%8F%E6%9C%BA%E6%95%B0"><span class="toc-text">真随机数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#haveged"><span class="toc-text">haveged</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jitter-RNG"><span class="toc-text">jitter-RNG</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99-1"><span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/ff2589f3.html" title="Windows11下WSL安装openEuler2403SP1版本">Windows11下WSL安装openEuler2403SP1版本</a><time datetime="2025-07-17T16:00:00.000Z" title="发表于 2025-07-18 00:00:00">2025-07-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/a27665ae.html" title="virt_to_page函数">virt_to_page函数</a><time datetime="2025-06-30T04:00:00.000Z" title="发表于 2025-06-30 12:00:00">2025-06-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/c887f84f.html" title="根据物理地址获得虚拟地址">根据物理地址获得虚拟地址</a><time datetime="2025-06-30T04:00:00.000Z" title="发表于 2025-06-30 12:00:00">2025-06-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6d8b47c5.html" title="openEuler上包构建">openEuler上包构建</a><time datetime="2025-02-14T16:00:00.000Z" title="发表于 2025-02-15 00:00:00">2025-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/f3a59a2.html" title="内存管理参考链接">内存管理参考链接</a><time datetime="2025-01-12T04:00:00.000Z" title="发表于 2025-01-12 12:00:00">2025-01-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

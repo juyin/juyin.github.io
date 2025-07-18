@@ -10,20 +10,20 @@
 <p>   <a href="https://dl-cdn.openeuler.openatom.cn/openEuler-24.03-LTS-SP1/WSL/openEuler-WSL-24.03.zip">https://dl-cdn.openeuler.openatom.cn/openEuler-24.03-LTS-SP1/WSL/openEuler-WSL-24.03.zip</a></p>
 <p>2.解压后安装证书：DistroLauncher-Appx_2403.0.1.0_x64_ARM64.cer</p>
 <p>3.命令行窗口执行Add-AppDevPackage.ps1</p>
-<p><img src="/./images/image-20250718222513063.png" alt="image-20250718222513063"></p>
+<p><img src="/posts/ff2589f3/image-20250718222513063.png" alt="image-20250718222513063"></p>
 <p>4.点击yes</p>
-<p><img src="/./images/image-20250718222644441.png"></p>
+<p><img src="/posts/ff2589f3/image-20250718222644441.png"></p>
 <p>5.按enter就安装好了openEuler</p>
-<p><img src="/./images/image-20250718223051463.png" alt="image-20250718223051463"></p>
+<p><img src="/posts/ff2589f3/image-20250718223051463.png" alt="image-20250718223051463"></p>
 <p>6.初始化openEuler</p>
 <p>  Windows开始菜单 -  openEuler2403</p>
 <p>然后输入用户名和密码</p>
-<p><img src="/./images/image-20250718223825918.png" alt="image-20250718223825918"></p>
-<p><img src="/./images/image-20250718223902117.png" alt="image-20250718223902117"></p>
+<p><img src="/posts/ff2589f3/image-20250718223825918.png" alt="image-20250718223825918"></p>
+<p><img src="/posts/ff2589f3/image-20250718223902117.png" alt="image-20250718223902117"></p>
 <p>此时就已经可以进入到linux了。</p>
 <h2 id="如何设置wsl的root密码"><a href="#如何设置wsl的root密码" class="headerlink" title="如何设置wsl的root密码"></a>如何设置wsl的root密码</h2><p>openEuler24.03.exe config –default-user root</p>
 <p>然后配置密码即可。</p>
-<p><img src="/./images/image-20250718224648506.png" alt="image-20250718224648506"></p>
+<p><img src="/posts/ff2589f3/image-20250718224648506.png" alt="image-20250718224648506"></p>
 <p>参考链接：<a href="https://zhuanlan.zhihu.com/p/23036380928">https://zhuanlan.zhihu.com/p/23036380928</a></p>
 <h2 id="将WSL的目录放在指定的位置"><a href="#将WSL的目录放在指定的位置" class="headerlink" title="将WSL的目录放在指定的位置"></a>将WSL的目录放在指定的位置</h2><p><strong>1.导出当前WSL实例</strong>:</p>
 <p>   wsl –export openEuler-2403  E:&#x2F;exportimage.os</p>
@@ -36,8 +36,8 @@
 
 <p>然后重新启动wsl</p>
 <h2 id="WSL常用命令"><a href="#WSL常用命令" class="headerlink" title="WSL常用命令"></a>WSL常用命令</h2><h3 id="查看当前有哪些wsl版本"><a href="#查看当前有哪些wsl版本" class="headerlink" title="查看当前有哪些wsl版本"></a>查看当前有哪些wsl版本</h3><p>wsl -l -v</p>
-<p><img src="/./images/image-20250718223349168.png" alt="image-20250718223349168"></p>
-<p><img src="/./images/image-20250718223427078.png" alt="image-20250718223427078"></p>
+<p><img src="/posts/ff2589f3/image-20250718223349168.png" alt="image-20250718223349168"></p>
+<p><img src="/posts/ff2589f3/image-20250718223427078.png" alt="image-20250718223427078"></p>
 <h3 id="停止运行wsl"><a href="#停止运行wsl" class="headerlink" title="停止运行wsl"></a>停止运行wsl</h3><p>wsl  –shutdown  openEuler</p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.openeuler.openatom.cn/zh/wiki/install/wsl/">https://www.openeuler.openatom.cn/zh/wiki/install/wsl/</a></p>
 ]]></content>
@@ -1125,7 +1125,7 @@ relatime
 <p>​        c ∶ 取代， c 的后面可以接字串，这些字串可以取代 n1,n2 之间的行</p>
 <p>​        s∶ 取代，可以直接进行替换的工作。通常这个 s 的动作可以搭配正则表达式。例如 1,20s&#x2F;old&#x2F;new&#x2F;g    </p>
 <p>​        &#x2F; &#x2F;:   模式匹配</p>
-<h2 id=""><a href="#" class="headerlink" title=""></a></h2><h2 id="3-各选项用法"><a href="#3-各选项用法" class="headerlink" title="3.各选项用法"></a>3.各选项用法</h2><h3 id="3-1-i"><a href="#3-1-i" class="headerlink" title="3.1 -i"></a>3.1 -i</h3><p>直接修改文件，不带该选项是不会操作文件，只会显示处理结果</p>
+<h2 id><a href="#" class="headerlink" title></a></h2><h2 id="3-各选项用法"><a href="#3-各选项用法" class="headerlink" title="3.各选项用法"></a>3.各选项用法</h2><h3 id="3-1-i"><a href="#3-1-i" class="headerlink" title="3.1 -i"></a>3.1 -i</h3><p>直接修改文件，不带该选项是不会操作文件，只会显示处理结果</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">[root@smart Desktop]# cat test.log</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:49 smart root: hello</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:59 smart root: hello2</span><br><span class="line"></span><br><span class="line">Apr 22 15:45:55 smart test1.bin: test1.c main 15 </span><br><span class="line"></span><br><span class="line">Apr 22 15:46:08 smart test1.bin: test1.c main 15 </span><br><span class="line"></span><br><span class="line">[root@smart Desktop]# sed &quot;s/root/user/g&quot; test.log</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:49 smart user: hello</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:59 smart user: hello2</span><br><span class="line"></span><br><span class="line">Apr 22 15:45:55 smart test1.bin: test1.c main 15 </span><br><span class="line"></span><br><span class="line">Apr 22 15:46:08 smart test1.bin: test1.c main 15 </span><br><span class="line"></span><br><span class="line">[root@smart Desktop]# cat test.log</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:49 smart root: hello</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:59 smart root: hello2</span><br><span class="line"></span><br><span class="line">Apr 22 15:45:55 smart test1.bin: test1.c main 15 </span><br><span class="line"></span><br><span class="line">Apr 22 15:46:08 smart test1.bin: test1.c main 15 </span><br><span class="line"></span><br><span class="line">[root@smart Desktop]# sed -i &quot;s/root/user/g&quot; test.log</span><br><span class="line"></span><br><span class="line">[root@smart Desktop]# cat test.log</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:49 smart user: hello</span><br><span class="line"></span><br><span class="line">Apr 21 15:34:59 smart user: hello2</span><br><span class="line"></span><br><span class="line">Apr 22 15:45:55 smart test1.bin: test1.c main 15 </span><br><span class="line"></span><br><span class="line">Apr 22 15:46:08 smart test1.bin: test1.c main 15</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 
@@ -1349,9 +1349,9 @@ relatime
 <p>在此情况下，该IP192.168.1.101将无法登录</p>
 <h2 id="4-允许指定IP登录"><a href="#4-允许指定IP登录" class="headerlink" title="4.允许指定IP登录"></a>4.允许指定IP登录</h2><p>AllowUsers  *@192.168.1.101</p>
 <p>在此情况下，该IP192.168.1.101将可以登录</p>
-<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#x30;&#x31;">&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#49;&#x2e;&#49;&#x30;&#x31;</a></p>
+<h2 id="5-禁止指定IP登录指定用户"><a href="#5-禁止指定IP登录指定用户" class="headerlink" title="5.禁止指定IP登录指定用户"></a>5.禁止指定IP登录指定用户</h2><p>DenyUsers  <a href="mailto:&#x72;&#x6f;&#111;&#x74;&#x40;&#49;&#57;&#x32;&#x2e;&#x31;&#54;&#x38;&#46;&#49;&#x2e;&#x31;&#48;&#49;">&#x72;&#x6f;&#111;&#x74;&#x40;&#49;&#57;&#x32;&#x2e;&#x31;&#54;&#x38;&#46;&#49;&#x2e;&#x31;&#48;&#49;</a></p>
 <p>在此情况下，该IP192.168.1.101将无法登录root用户</p>
-<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#114;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#48;&#49;">&#114;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#x2e;&#49;&#46;&#49;&#48;&#49;</a></p>
+<h2 id="6-允许指定IP登录指定用户"><a href="#6-允许指定IP登录指定用户" class="headerlink" title="6.允许指定IP登录指定用户"></a>6.允许指定IP登录指定用户</h2><p>AllowUsers  <a href="mailto:&#114;&#111;&#111;&#116;&#64;&#x31;&#57;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#x2e;&#x31;&#48;&#49;">&#114;&#111;&#111;&#116;&#64;&#x31;&#57;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#x2e;&#x31;&#48;&#49;</a></p>
 <p>在此情况下，该IP192.168.1.101将可以登录root用户</p>
 ]]></content>
       <categories>
@@ -1485,7 +1485,7 @@ relatime
   <entry>
     <title>Linux笔记</title>
     <url>/posts/e511c25d.html</url>
-    <content><![CDATA[<h1 id="第-1-章-Linux管理"><a href="#第-1-章-Linux管理" class="headerlink" title="第 1 章 Linux管理"></a>第 1 章 <a href="">Linux管理</a></h1><h2 id="1-1-Linux基本指令"><a href="#1-1-Linux基本指令" class="headerlink" title="1.1 Linux基本指令"></a>1.1 <a href="">Linux基本指令</a></h2><h3 id="1-1-1-addr2line"><a href="#1-1-1-addr2line" class="headerlink" title="1.1.1 addr2line"></a>1.1.1 addr2line</h3><p>addr2line –e pgw 0Xfffff</p>
+    <content><![CDATA[<h1 id="第-1-章-Linux管理"><a href="#第-1-章-Linux管理" class="headerlink" title="第 1 章 Linux管理"></a>第 1 章 <a href>Linux管理</a></h1><h2 id="1-1-Linux基本指令"><a href="#1-1-Linux基本指令" class="headerlink" title="1.1 Linux基本指令"></a>1.1 <a href>Linux基本指令</a></h2><h3 id="1-1-1-addr2line"><a href="#1-1-1-addr2line" class="headerlink" title="1.1.1 addr2line"></a>1.1.1 addr2line</h3><p>addr2line –e pgw 0Xfffff</p>
 <p>另外：dmesg |grep pgw</p>
 <p>注意：编译pgw需添加-g选项才可以找到所在行</p>
 <h3 id="1-1-2-alias"><a href="#1-1-2-alias" class="headerlink" title="1.1.2 alias"></a>1.1.2 alias</h3><p>重命名:  alias killim&#x3D;”kill $(ps –A | awk ‘&#x2F;im_test&#x2F;{print $1}’)”</p>
@@ -1590,7 +1590,7 @@ relatime
 <p>查看当前目录大小  du  -sh</p>
 <p>查看当前目录所在分区大小 du  -h</p>
 <p>存储情况</p>
-<h3 id="1-1-15-dos2unix"><a href="#1-1-15-dos2unix" class="headerlink" title="1.1.15 dos2unix"></a>1.1.15 dos2unix</h3><p><a href="">sudo </a>find &#x2F;home   -name “*.c”|xargs  dos2unix</p>
+<h3 id="1-1-15-dos2unix"><a href="#1-1-15-dos2unix" class="headerlink" title="1.1.15 dos2unix"></a>1.1.15 dos2unix</h3><p><a href>sudo </a>find &#x2F;home   -name “*.c”|xargs  dos2unix</p>
 <h3 id="1-1-16-echo"><a href="#1-1-16-echo" class="headerlink" title="1.1.16 echo"></a>1.1.16 echo</h3><p>显示打印</p>
 <p>echo  hello			显示hello</p>
 <p>​	 不换行： echo –n hello</p>
@@ -2088,7 +2088,7 @@ relatime
 <p>-v, –verbose                     provide more detailed output</p>
 <p>-h, –hash                        print hash marks as package installs (good with -v)</p>
 <p>-e, –erase                       erase (uninstall) package</p>
-<p>-U, –upgrade&#x3D;<packagefile>+      upgrade package(s)</p>
+<p>-U, –upgrade&#x3D;<packagefile>+      upgrade package(s)</packagefile></p>
 <p>－-replacepkge                    无论软件包是否已被安装，都强行安装软件包</p>
 <p>–test                            安装测试，并不实际安装</p>
 <p>–nodeps                          忽略软件包的依赖关系强行安装</p>
@@ -2129,7 +2129,7 @@ relatime
 <p>sar –u 2 5  报告cpu使用情况，2s每次，统计5次</p>
 <p>sar –r 2 5  报告内存使用情况，2s每次，统计5次</p>
 <h3 id="1-1-77-scp"><a href="#1-1-77-scp" class="headerlink" title="1.1.77 scp"></a>1.1.77 scp</h3><p>复制本地文件到远程：</p>
-<p>scp localfile <a href="mailto:&#x72;&#111;&#111;&#116;&#x40;&#x31;&#46;&#49;&#x2e;&#x31;&#x2e;&#49;">&#x72;&#111;&#111;&#116;&#x40;&#x31;&#46;&#49;&#x2e;&#x31;&#x2e;&#49;</a>:&#x2F;remotefile</p>
+<p>scp localfile <a href="mailto:&#x72;&#111;&#111;&#116;&#64;&#49;&#x2e;&#x31;&#x2e;&#x31;&#46;&#x31;">&#x72;&#111;&#111;&#116;&#64;&#49;&#x2e;&#x31;&#x2e;&#x31;&#46;&#x31;</a>:&#x2F;remotefile</p>
 <p>得到远程文件：</p>
 <p>scp <a href="mailto:root@192.168.210.1:/remotefile">root@192.168.210.1:/remotefile</a> localfile</p>
 <h3 id="1-1-78-sed"><a href="#1-1-78-sed" class="headerlink" title="1.1.78 sed"></a>1.1.78 sed</h3><p>cat &#x2F;tmp&#x2F;im_sys_log_temp | sed ‘s|($SystemLogRateLimitInterval)(.*)|\1 0 1’ &gt;&#x2F;tmp&#x2F;im_sys_log.conf</p>
@@ -2616,7 +2616,7 @@ relatime
 <p>第二步：播放所录制的session内容</p>
 <p>[lhd@hongdi ~]$ scriptreplay example1.time example1.txt</p>
 <p>[lhd@hongdi ~]$ ls</p>
-<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#101;&#102;&#x66;&#114;&#x61;&#121;&#x5f;&#x6c;&#x65;&#x65;&#64;&#x68;&#111;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;">&#x6a;&#101;&#102;&#x66;&#114;&#x61;&#121;&#x5f;&#x6c;&#x65;&#x65;&#64;&#x68;&#111;&#x74;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a> pass</p>
+<p>1.gtkrc-2.0 c.tar <a href="mailto:&#x6a;&#x65;&#x66;&#x66;&#114;&#97;&#121;&#95;&#108;&#101;&#x65;&#64;&#104;&#111;&#x74;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x6a;&#x65;&#x66;&#x66;&#114;&#97;&#121;&#95;&#108;&#101;&#x65;&#64;&#104;&#111;&#x74;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#x6d;</a> pass</p>
 <p>[lhd@hongdi ~]$ abcd</p>
 <p>bash: abcd: command not found</p>
 <p>[lhd@hongdi ~]$ exit</p>
@@ -2640,17 +2640,17 @@ relatime
 <p>HOSTNAME &#x3D; smart</p>
 <p>重启即可生效</p>
 <h2 id="1-13-查看linux发布版本"><a href="#1-13-查看linux发布版本" class="headerlink" title="1.13 查看linux发布版本"></a>1.13 查看linux发布版本</h2><p>cat &#x2F;etc&#x2F;redhat-release</p>
-<h2 id="1-14-修改ip地址"><a href="#1-14-修改ip地址" class="headerlink" title="1.14 修改ip地址"></a>1.14 <a href="">修改ip地址</a></h2><p>对于开发板：</p>
+<h2 id="1-14-修改ip地址"><a href="#1-14-修改ip地址" class="headerlink" title="1.14 修改ip地址"></a>1.14 <a href>修改ip地址</a></h2><p>对于开发板：</p>
 <p>vi  &#x2F;etc&#x2F;eth0-setting</p>
 <p>对于CentOS：</p>
 <p>修改&#x2F;etc&#x2F;sysconfig&#x2F;network-scripts&#x2F;</p>
-<h2 id="1-15-去除DHCP"><a href="#1-15-去除DHCP" class="headerlink" title="1.15 去除DHCP"></a>1.15 <a href="">去除DHCP</a></h2><p>修改启动文件&#x2F;etc&#x2F;init.d&#x2F;rcS 把 fa-network-service注释掉</p>
-<h2 id="1-16-telnet"><a href="#1-16-telnet" class="headerlink" title="1.16 telnet"></a>1.16 <a href="">telnet</a></h2><p>远程登录时，应注意新版的文件系统必须先设置开发板的密码，方可远程登录。</p>
+<h2 id="1-15-去除DHCP"><a href="#1-15-去除DHCP" class="headerlink" title="1.15 去除DHCP"></a>1.15 <a href>去除DHCP</a></h2><p>修改启动文件&#x2F;etc&#x2F;init.d&#x2F;rcS 把 fa-network-service注释掉</p>
+<h2 id="1-16-telnet"><a href="#1-16-telnet" class="headerlink" title="1.16 telnet"></a>1.16 <a href>telnet</a></h2><p>远程登录时，应注意新版的文件系统必须先设置开发板的密码，方可远程登录。</p>
 <p>passwd  root</p>
-<h2 id="1-17-修改主机名"><a href="#1-17-修改主机名" class="headerlink" title="1.17 修改主机名"></a>1.17 <a href="">修改主机名</a></h2><h3 id="1-17-1-方法1"><a href="#1-17-1-方法1" class="headerlink" title="1.17.1 方法1"></a>1.17.1 方法1</h3><p>主机名即：root@zhuyan中的zhuyan</p>
+<h2 id="1-17-修改主机名"><a href="#1-17-修改主机名" class="headerlink" title="1.17 修改主机名"></a>1.17 <a href>修改主机名</a></h2><h3 id="1-17-1-方法1"><a href="#1-17-1-方法1" class="headerlink" title="1.17.1 方法1"></a>1.17.1 方法1</h3><p>主机名即：root@zhuyan中的zhuyan</p>
 <p>hostname  DataCollector即修改了。</p>
 <h3 id="1-17-2-方法2"><a href="#1-17-2-方法2" class="headerlink" title="1.17.2 方法2"></a>1.17.2 方法2</h3><p>修改rcS 下的&#x2F;bin&#x2F;hostname  </p>
-<h2 id="1-18-linux配置虚拟IP地址"><a href="#1-18-linux配置虚拟IP地址" class="headerlink" title="1.18 linux配置虚拟IP地址"></a>1.18 <a href="">linux配置虚拟IP地址</a></h2><p>在日常linux管理工作中,需要为应用配置单独的IP地址,以达到主机与应用的分离,在应用切换与迁移过程中可以做到动态切换,特别是在使用HA的时候,这种方案可以保证主机与应用的隔离,对日常的运维有很大的益处.</p>
+<h2 id="1-18-linux配置虚拟IP地址"><a href="#1-18-linux配置虚拟IP地址" class="headerlink" title="1.18 linux配置虚拟IP地址"></a>1.18 <a href>linux配置虚拟IP地址</a></h2><p>在日常linux管理工作中,需要为应用配置单独的IP地址,以达到主机与应用的分离,在应用切换与迁移过程中可以做到动态切换,特别是在使用HA的时候,这种方案可以保证主机与应用的隔离,对日常的运维有很大的益处.</p>
 <p>但在有些应用中还没有配置HA,后期需要配置HA时,我们可以先配置虚拟IP给在线的应用使用,这要后期的系统运维可以做到更好的可扩展性.</p>
 <p>本文主要是对IP地址如何配置做一些简单的介绍.</p>
 <p>PS:以下实例在redhat linux实施成功!</p>
@@ -3115,7 +3115,7 @@ relatime
 </ul>
 </li>
 </ul>
-<h2 id="2-2-Vi编辑器"><a href="#2-2-Vi编辑器" class="headerlink" title="2.2 Vi编辑器"></a>2.2 <a href="">Vi编辑器</a></h2><p>Vim		vi  improved</p>
+<h2 id="2-2-Vi编辑器"><a href="#2-2-Vi编辑器" class="headerlink" title="2.2 Vi编辑器"></a>2.2 <a href>Vi编辑器</a></h2><p>Vim		vi  improved</p>
 <p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps26.jpg" alt="img"> </p>
 <p>i    在光标前插入</p>
 <p>a	  在光标后插入</p>
@@ -3164,7 +3164,7 @@ relatime
 <p>-Wall	生成所有警告信息</p>
 <p>gcc  –O 	optimize.c   -o   optimizetime   .&#x2F;optimize</p>
 <h1 id="第-3-章-Linux基础"><a href="#第-3-章-Linux基础" class="headerlink" title="第 3 章 Linux基础"></a>第 3 章 Linux基础</h1><p>Linux严格说只是一个操作系统内核，实现了操作系统的核心功能：内存管理、进程管理、文件系统管理、和设备管理等。</p>
-<h2 id="3-1-Linux标准目录"><a href="#3-1-Linux标准目录" class="headerlink" title="3.1 Linux标准目录"></a>3.1 <a href="">Linux标准目录</a></h2><p>· root — 启动<a href="http://linux-wiki.cn/wiki/Linux">Linux</a>时使用的一些核心文件。如操作系统<a href="http://linux-wiki.cn/index.php?title=%E5%86%85%E6%A0%B8&action=edit&redlink=1">内核</a>、引导程序<a href="http://linux-wiki.cn/wiki/Category:Grub">Grub</a>等。</p>
+<h2 id="3-1-Linux标准目录"><a href="#3-1-Linux标准目录" class="headerlink" title="3.1 Linux标准目录"></a>3.1 <a href>Linux标准目录</a></h2><p>· root — 启动<a href="http://linux-wiki.cn/wiki/Linux">Linux</a>时使用的一些核心文件。如操作系统<a href="http://linux-wiki.cn/index.php?title=%E5%86%85%E6%A0%B8&action=edit&redlink=1">内核</a>、引导程序<a href="http://linux-wiki.cn/wiki/Category:Grub">Grub</a>等。</p>
 <p>· home — 存储普通用户的个人文件</p>
 <p>· ftp — 用户所有服务</p>
 <p>· httpd</p>
@@ -3223,9 +3223,9 @@ relatime
 <p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps41.png" alt="img"> <strong>&#x2F;srv：</strong>服务启动之后需要访问的数据目录，如www服务需要访问的网页数据存放在&#x2F;srv&#x2F;www内</p>
 <p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps42.png" alt="img"> <strong>&#x2F;usr：</strong>应用程序存放目录，**&#x2F;usr&#x2F;bin<strong>存放应用程序，</strong>&#x2F;usr&#x2F;share<strong>存放共享数据，</strong>&#x2F;usr&#x2F;lib<strong>存放不能直接运行的，却是许多程序运行所必需的一些函数库文件。</strong>&#x2F;usr&#x2F;local:<strong>存放软件升级包。</strong>&#x2F;usr&#x2F;share&#x2F;doc:<strong>系统说明文件存放目录。</strong>&#x2F;usr&#x2F;share&#x2F;man:** 程序说明文件存放目录，使用 man ls时会查询&#x2F;usr&#x2F;share&#x2F;man&#x2F;man1&#x2F;ls.1.gz的内容<strong>建议单独分区，设置较大的磁盘空间</strong></p>
 <p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps43.png" alt="img"> <strong>&#x2F;var：</strong>放置系统执行过程中经常变化的文件，如随时更改的日志文件&#x2F;var&#x2F;log，**&#x2F;var&#x2F;log&#x2F;message：<strong>所有的登录文件存放目录，</strong>&#x2F;var&#x2F;spool&#x2F;mail<strong>：邮件存放的目录，</strong>&#x2F;var&#x2F;run:<strong>程序或服务启动后，其PID存放在该目录下。</strong>建议单独分区，设置较大的磁盘空间**</p>
-<h2 id="3-2-Linux名词"><a href="#3-2-Linux名词" class="headerlink" title="3.2 Linux名词"></a>3.2 <a href="">Linux名词</a></h2><h3 id="3-2-1-NAT"><a href="#3-2-1-NAT" class="headerlink" title="3.2.1 NAT"></a>3.2.1 NAT</h3><p>network  address	translation	网络地址转换</p>
-<h3 id="3-2-2-命名"><a href="#3-2-2-命名" class="headerlink" title="3.2.2 命名"></a>3.2.2 <a href="">命名</a></h3><p>linux 2.4.18     主版本号2		从版本号4 	补丁18</p>
-<h2 id="3-3-快捷键"><a href="#3-3-快捷键" class="headerlink" title="3.3 快捷键"></a>3.3 <a href="">快捷键</a></h2><p>ctrl+Alt+F1    进入图形界面</p>
+<h2 id="3-2-Linux名词"><a href="#3-2-Linux名词" class="headerlink" title="3.2 Linux名词"></a>3.2 <a href>Linux名词</a></h2><h3 id="3-2-1-NAT"><a href="#3-2-1-NAT" class="headerlink" title="3.2.1 NAT"></a>3.2.1 NAT</h3><p>network  address	translation	网络地址转换</p>
+<h3 id="3-2-2-命名"><a href="#3-2-2-命名" class="headerlink" title="3.2.2 命名"></a>3.2.2 <a href>命名</a></h3><p>linux 2.4.18     主版本号2		从版本号4 	补丁18</p>
+<h2 id="3-3-快捷键"><a href="#3-3-快捷键" class="headerlink" title="3.3 快捷键"></a>3.3 <a href>快捷键</a></h2><p>ctrl+Alt+F1    进入图形界面</p>
 <p>ctrl+alt+F2&#x2F;F3    进入命令界面</p>
 <p>​		+F7		返回</p>
 <p>ctrl+D			结束</p>
@@ -3243,11 +3243,11 @@ relatime
 <h3 id="3-3-2-设置快捷键"><a href="#3-3-2-设置快捷键" class="headerlink" title="3.3.2 设置快捷键"></a>3.3.2 设置快捷键</h3><p>System-&gt;Preferences-&gt;Keyboard Shortcuts</p>
 <p>在Desktop分类下找到“Run a terminal”</p>
 <p>点击Run a terminal，按下需要的快捷键，比如Ctrl+Alt+T，即可。</p>
-<h2 id="3-4-安装软件"><a href="#3-4-安装软件" class="headerlink" title="3.4 安装软件"></a>3.4 <a href="">安装软件</a></h2><p>A	.configure</p>
+<h2 id="3-4-安装软件"><a href="#3-4-安装软件" class="headerlink" title="3.4 安装软件"></a>3.4 <a href>安装软件</a></h2><p>A	.configure</p>
 <p>B	make</p>
 <p>C	make install</p>
-<p>D	source	<a href="">&#x2F;etc&#x2F;profile</a>		保持环境变量生效</p>
-<h2 id="3-5-文件操作"><a href="#3-5-文件操作" class="headerlink" title="3.5 文件操作"></a>3.5 <a href="">文件操作</a></h2><h3 id="3-5-1-rwx-rwx-rwx-文件拥有者-文件所有组-其他用户"><a href="#3-5-1-rwx-rwx-rwx-文件拥有者-文件所有组-其他用户" class="headerlink" title="3.5.1 -rwx rwx rwx   文件拥有者  文件所有组  其他用户"></a>3.5.1 -rwx rwx rwx   文件拥有者  文件所有组  其他用户</h3><p>-   普通文件</p>
+<p>D	source	<a href>&#x2F;etc&#x2F;profile</a>		保持环境变量生效</p>
+<h2 id="3-5-文件操作"><a href="#3-5-文件操作" class="headerlink" title="3.5 文件操作"></a>3.5 <a href>文件操作</a></h2><h3 id="3-5-1-rwx-rwx-rwx-文件拥有者-文件所有组-其他用户"><a href="#3-5-1-rwx-rwx-rwx-文件拥有者-文件所有组-其他用户" class="headerlink" title="3.5.1 -rwx rwx rwx   文件拥有者  文件所有组  其他用户"></a>3.5.1 -rwx rwx rwx   文件拥有者  文件所有组  其他用户</h3><p>-   普通文件</p>
 <p>r	 可读</p>
 <p>w	 可写</p>
 <p>x	 可执行</p>
@@ -3257,13 +3257,13 @@ relatime
 <p>a是指同类型设备编号  a：第一个硬盘，b：第二个硬盘</p>
 <p>5是指分区号</p>
 <h3 id="3-5-3-隐藏文件"><a href="#3-5-3-隐藏文件" class="headerlink" title="3.5.3 隐藏文件"></a>3.5.3 隐藏文件</h3><p>在文件前加.</p>
-<h2 id="3-6-minicom"><a href="#3-6-minicom" class="headerlink" title="3.6 minicom"></a>3.6 <a href="">minicom</a></h2><p>Linux下串口通信软件</p>
-<h2 id="3-7-开启root账户方法"><a href="#3-7-开启root账户方法" class="headerlink" title="3.7 开启root账户方法"></a>3.7 <a href="">开启root账户方法</a></h2><p>A 命令</p>
+<h2 id="3-6-minicom"><a href="#3-6-minicom" class="headerlink" title="3.6 minicom"></a>3.6 <a href>minicom</a></h2><p>Linux下串口通信软件</p>
+<h2 id="3-7-开启root账户方法"><a href="#3-7-开启root账户方法" class="headerlink" title="3.7 开启root账户方法"></a>3.7 <a href>开启root账户方法</a></h2><p>A 命令</p>
 <p>sudo  passwd  root </p>
 <p>禁用 sudo passwd  -l  root</p>
 <p>B 在终端模式下切换root</p>
 <p>​	 sudo  -s  -H</p>
-<h2 id="3-8-fedora以root登录的方法"><a href="#3-8-fedora以root登录的方法" class="headerlink" title="3.8 fedora以root登录的方法"></a>3.8 <a href="">fedora以root登录的方法</a></h2><p>fedora从10开始就禁止了以root来登录系统,这个可能是出于安全的考虑,毕竟root的权限太大了,出余增强系统安全性,而且普通的账号可以运行一般应该用户的应用程序来说足够了,如果需要用到root权限时，会自动提示输入密码,可以说在安全考虑上做到相当完美了.</p>
+<h2 id="3-8-fedora以root登录的方法"><a href="#3-8-fedora以root登录的方法" class="headerlink" title="3.8 fedora以root登录的方法"></a>3.8 <a href>fedora以root登录的方法</a></h2><p>fedora从10开始就禁止了以root来登录系统,这个可能是出于安全的考虑,毕竟root的权限太大了,出余增强系统安全性,而且普通的账号可以运行一般应该用户的应用程序来说足够了,如果需要用到root权限时，会自动提示输入密码,可以说在安全考虑上做到相当完美了.</p>
 <p>步骤&#x2F;方法</p>
 <p>想用root登录系统该怎么办呢？在网上找到了资料解决如下:</p>
 <p>修改目录 &#x2F;etc&#x2F;pam.d&#x2F;gdm与&#x2F;etc&#x2F;pam.d&#x2F;gdm-password两个文件</p>
@@ -3275,10 +3275,10 @@ relatime
 <p>也是在auth required pam_succeed_if.so user !&#x3D; root quiet前面加上#号注释</p>
 <p>保存之后我们重启或者注销一次计算机就能以root进行登录系统了</p>
 <p>当然如果会使用vi命令的话这个最方便</p>
-<h2 id="3-9-重命名逻辑卷名"><a href="#3-9-重命名逻辑卷名" class="headerlink" title="3.9 重命名逻辑卷名"></a>3.9 <a href="">重命名逻辑卷名</a></h2><p>vgrename   原名  新名</p>
+<h2 id="3-9-重命名逻辑卷名"><a href="#3-9-重命名逻辑卷名" class="headerlink" title="3.9 重命名逻辑卷名"></a>3.9 <a href>重命名逻辑卷名</a></h2><p>vgrename   原名  新名</p>
 <p><strong>提示：最好不要使用，多次使用证明，这样会导致虚拟机无法打开</strong>****</p>
-<h2 id="3-10-busybox"><a href="#3-10-busybox" class="headerlink" title="3.10 busybox"></a>3.10 <a href="">busybox</a></h2><p>BusyBox 是一个集成了一百多个最常用linux命令和工具的软件。BusyBox 包含了一些简单的工具，例如ls、cat和echo等等，还包含了一些更大、更复杂的工具，例grep、find、mount以及telnet。有些人将 BusyBox 称为 Linux 工具里的瑞士军刀。简单的说BusyBox就好像是个大工具箱，它集成压缩了 Linux 的许多工具和命令，也包含了 Android 系统的自带的shell。</p>
-<h2 id="3-11-linux移植"><a href="#3-11-linux移植" class="headerlink" title="3.11 linux移植"></a>3.11 <a href="">linux移植</a></h2><p>修改rcS文件下的内容改变root@FrindlyARM</p>
+<h2 id="3-10-busybox"><a href="#3-10-busybox" class="headerlink" title="3.10 busybox"></a>3.10 <a href>busybox</a></h2><p>BusyBox 是一个集成了一百多个最常用linux命令和工具的软件。BusyBox 包含了一些简单的工具，例如ls、cat和echo等等，还包含了一些更大、更复杂的工具，例grep、find、mount以及telnet。有些人将 BusyBox 称为 Linux 工具里的瑞士军刀。简单的说BusyBox就好像是个大工具箱，它集成压缩了 Linux 的许多工具和命令，也包含了 Android 系统的自带的shell。</p>
+<h2 id="3-11-linux移植"><a href="#3-11-linux移植" class="headerlink" title="3.11 linux移植"></a>3.11 <a href>linux移植</a></h2><p>修改rcS文件下的内容改变root@FrindlyARM</p>
 <h3 id="3-11-1-Linux内核"><a href="#3-11-1-Linux内核" class="headerlink" title="3.11.1 Linux内核"></a>3.11.1 Linux内核</h3><p>Linux由内核空间和用户空间两部分组成。</p>
 <h4 id="3-11-1-1-arch目录"><a href="#3-11-1-1-arch目录" class="headerlink" title="3.11.1.1 arch目录"></a>3.11.1.1 arch目录</h4><p>architecture的缩写，内核支持的每种CPU体系</p>
 <h4 id="3-11-1-2-block"><a href="#3-11-1-2-block" class="headerlink" title="3.11.1.2 block"></a>3.11.1.2 block</h4><p>部分块设备的驱动程序</p>
@@ -3315,7 +3315,7 @@ relatime
 <p>如需获取详细信息</p>
 <p>make  zImage   v&#x3D;1</p>
 <p>make  bzImage  v&#x3D;1</p>
-<p>编译好的内核位于  arch &#x2F;<cpu>&#x2F;boot目录下</p>
+<p>编译好的内核位于  arch &#x2F;<cpu>&#x2F;boot目录下</cpu></p>
 <p>[5] 编译内核步骤</p>
 <p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps44.png" alt="img"> 以root用户登录</p>
 <p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps45.png" alt="img"> 拷贝config_mini6410_h43为文件.config</p>
@@ -3384,7 +3384,7 @@ relatime
 <p>​	tauch	hello</p>
 <p>​	echo”hello world”&gt;hello</p>
 <p>​	cat		hello</p>
-<h3 id="3-11-7-printk"><a href="#3-11-7-printk" class="headerlink" title="3.11.7 printk"></a>3.11.7 printk</h3><h2 id="3-12-应用程序的开发"><a href="#3-12-应用程序的开发" class="headerlink" title="3.12 应用程序的开发"></a>3.12 <a href="">应用程序的开发</a></h2><p>ARM环境下应用程序的开发——–编写helloworld程序</p>
+<h3 id="3-11-7-printk"><a href="#3-11-7-printk" class="headerlink" title="3.11.7 printk"></a>3.11.7 printk</h3><h2 id="3-12-应用程序的开发"><a href="#3-12-应用程序的开发" class="headerlink" title="3.12 应用程序的开发"></a>3.12 <a href>应用程序的开发</a></h2><p>ARM环境下应用程序的开发——–编写helloworld程序</p>
 <p>[1] 使用vi编写helloworld程序</p>
 <p>[2] 使用arm-linux-gcc编译helloworld程序</p>
 <p>[3] 通过串口下载可执行文件至开发板中并运行（rz指令）</p>
@@ -3401,7 +3401,7 @@ relatime
 <p>pidof   命令，捕获led-player的进程号</p>
 <h3 id="3-12-5-size-t-time-t"><a href="#3-12-5-size-t-time-t" class="headerlink" title="3.12.5 size_t  time_t"></a>3.12.5 size_t  time_t</h3><p>size_t是标准C库中定义的，应为unsigned int，在64位系统中为 long unsigned int。</p>
 <p>time_t的单位是秒, time_t实际上是长整型. typedef  long   time_t</p>
-<h2 id="3-13-Linux驱动程序"><a href="#3-13-Linux驱动程序" class="headerlink" title="3.13 Linux驱动程序"></a>3.13 <a href="">Linux驱动程序</a></h2><p>linux的外设可分为3类：字符设备（character device）、块设备（block device）和网络接口（network interface）。</p>
+<h2 id="3-13-Linux驱动程序"><a href="#3-13-Linux驱动程序" class="headerlink" title="3.13 Linux驱动程序"></a>3.13 <a href>Linux驱动程序</a></h2><p>linux的外设可分为3类：字符设备（character device）、块设备（block device）和网络接口（network interface）。</p>
 <p>字符设备是指能够像字节流一样被访问的设备，就是说对它的读写是以字节为单位的。</p>
 <p>linux驱动在开发板运行时表现为一个设备即dev,所以通常使用open函数调用&#x2F;dev&#x2F;leds</p>
 <h3 id="3-13-1-编写Linux驱动"><a href="#3-13-1-编写Linux驱动" class="headerlink" title="3.13.1 编写Linux驱动"></a>3.13.1 编写Linux驱动</h3><p>[1] 编写helloworld驱动程序</p>
@@ -3446,7 +3446,7 @@ relatime
 <p>​       else printk(“copy to user is okn”);</p>
 <p>Return 1;</p>
 <p>}</p>
-<h4 id="3-13-3-2-File-operations"><a href="#3-13-3-2-File-operations" class="headerlink" title="3.13.3.2 File_operations"></a>3.13.3.2 <a href="http://blog.sina.com.cn/s/blog_56332e1d0100crc8.html">File_operations</a></h4><h2 id="3-14-Linux生成动态库"><a href="#3-14-Linux生成动态库" class="headerlink" title="3.14 Linux生成动态库"></a>3.14 <a href="">Linux生成动态库</a></h2><p>附件：<a href="G:\学习笔记\笔记\附件\文档\Linux下生成静态动态库.doc">附件\文档\Linux下生成静态动态库.doc</a></p>
+<h4 id="3-13-3-2-File-operations"><a href="#3-13-3-2-File-operations" class="headerlink" title="3.13.3.2 File_operations"></a>3.13.3.2 <a href="http://blog.sina.com.cn/s/blog_56332e1d0100crc8.html">File_operations</a></h4><h2 id="3-14-Linux生成动态库"><a href="#3-14-Linux生成动态库" class="headerlink" title="3.14 Linux生成动态库"></a>3.14 <a href>Linux生成动态库</a></h2><p>附件：<a href="G:\学习笔记\笔记\附件\文档\Linux下生成静态动态库.doc">附件\文档\Linux下生成静态动态库.doc</a></p>
 <p>附件：<a href="file:///G:\学习笔记\笔记\附件\文档\Linux下Gcc生成和使用静态库和动态库详解.pdf">附件\文档\Linux下Gcc生成和使用静态库和动态库详解.pdf</a></p>
 <h3 id="3-14-1-生成动态链接库"><a href="#3-14-1-生成动态链接库" class="headerlink" title="3.14.1 生成动态链接库"></a>3.14.1 生成动态链接库</h3><p>gcc -shared -fpic -o libmyhello.so  hello.c</p>
 <p>-fpic 使输出的对象模块是按照可重定位地址方式生成的。 </p>
@@ -3475,19 +3475,19 @@ relatime
 <p>ar -cr libmyhello.a hello.o</p>
 <p>gcc -o t main.c libmyhello.a </p>
 <p>ar rv libso.a hello.o</p>
-<h3 id="3-15-1-几个Linux文件的作用"><a href="#3-15-1-几个Linux文件的作用" class="headerlink" title="3.15.1 几个Linux文件的作用"></a>3.15.1 <a href="">几个Linux文件的作用</a></h3><p>（1） &#x2F;etc&#x2F;profile： 此文件为系统的每个用户设置环境信息,当用户第一次登录时,该文件被执行. 并从&#x2F;etc&#x2F;profile.d目录的配置文件中搜集shell的设置。</p>
+<h3 id="3-15-1-几个Linux文件的作用"><a href="#3-15-1-几个Linux文件的作用" class="headerlink" title="3.15.1 几个Linux文件的作用"></a>3.15.1 <a href>几个Linux文件的作用</a></h3><p>（1） &#x2F;etc&#x2F;profile： 此文件为系统的每个用户设置环境信息,当用户第一次登录时,该文件被执行. 并从&#x2F;etc&#x2F;profile.d目录的配置文件中搜集shell的设置。</p>
 <p>（2） &#x2F;etc&#x2F;bashrc: 为每一个运行bash shell的用户执行此文件.当bash shell被打开时,该文件被读取（即每次新开一个终端，都会执行bashrc）。</p>
 <p>（3） ~&#x2F;.bash_profile: 每个用户都可使用该文件输入专用于自己使用的shell信息,当用户登录时,该文件仅仅执行一次。默认情况下,设置一些环境变量,执行用户的.bashrc文件。</p>
 <p>（4） ~&#x2F;.bashrc: 该文件包含专用于你的bash shell的bash信息,当登录时以及每次打开新的shell时,该该文件被读取。</p>
 <p>（5） <del>&#x2F;.bash_logout: 当每次退出系统(退出bash shell)时,执行该文件. 另外,&#x2F;etc&#x2F;profile中设定的变量(全局)的可以作用于任何用户,而</del>&#x2F;.bashrc等中设定的变量(局部)只能继承 &#x2F;etc&#x2F;profile中的变量,他们是”父子”关系。</p>
 <p>（6） <del>&#x2F;.bash_profile: 是交互式、login 方式进入 bash 运行的</del>&#x2F;.bashrc 是交互式 non-login 方式进入 bash 运行的通常二者设置大致相同，所以通常前者会调用后者。</p>
-<h2 id="3-16-启动脚本"><a href="#3-16-启动脚本" class="headerlink" title="3.16 启动脚本"></a>3.16 <a href="">启动</a>脚本</h2><p>系统启动后会执行脚本&#x2F;etc&#x2F;rc.local它在服务&#x2F;etc&#x2F;init.d&#x2F;rc.local中被调用，可以在这里进行一些系统级的初始化工作。</p>
+<h2 id="3-16-启动脚本"><a href="#3-16-启动脚本" class="headerlink" title="3.16 启动脚本"></a>3.16 <a href>启动</a>脚本</h2><p>系统启动后会执行脚本&#x2F;etc&#x2F;rc.local它在服务&#x2F;etc&#x2F;init.d&#x2F;rc.local中被调用，可以在这里进行一些系统级的初始化工作。</p>
 <h3 id="3-16-1-bash启动脚本"><a href="#3-16-1-bash启动脚本" class="headerlink" title="3.16.1 bash启动脚本"></a>3.16.1 bash启动脚本</h3><p>bash启动也会自动执行一些脚本</p>
 <p>&#x2F;etc&#x2F;profile			全局登陆脚本，任何用户登陆都执行			</p>
 <p>&#x2F;etc&#x2F;bash.bashrc	全局bash脚本，任何用户启动非登陆的交互式bash时执行</p>
 <p>~&#x2F;.profile			用户登陆脚本，用户登陆时执行</p>
 <p>~&#x2F;.bashrc			用户bash脚本，用户启动费登陆的交互式bash执行</p>
-<h2 id="3-17-DHCP"><a href="#3-17-DHCP" class="headerlink" title="3.17 DHCP"></a>3.17 <a href="">DHCP</a></h2><p>&#x2F;etc&#x2F;dhcpd.conf</p>
+<h2 id="3-17-DHCP"><a href="#3-17-DHCP" class="headerlink" title="3.17 DHCP"></a>3.17 <a href>DHCP</a></h2><p>&#x2F;etc&#x2F;dhcpd.conf</p>
 <h2 id="3-18-Linux下清理内存和Cache方法"><a href="#3-18-Linux下清理内存和Cache方法" class="headerlink" title="3.18 Linux下清理内存和Cache方法"></a>3.18 Linux下清理内存和Cache方法</h2><p>&#x2F;proc&#x2F;sys&#x2F;vm&#x2F;drop_caches</p>
 <p>频繁的文件访问会导致系统的Cache使用量大增</p>
 <p>$ free -m</p>
@@ -3511,7 +3511,7 @@ relatime
 <p>As this is a non-destructive operation, and dirty objects are notfreeable, the user should run “sync” first in order to make sure allcached objects are freed.</p>
 <p>This tunable was added in 2.6.16.</p>
 <p>本篇文章来源于 Linux公社网站(<a href="http://www.linuxidc.com/">www.linuxidc.com</a>)  原文链接：<a href="http://www.linuxidc.com/Linux/2010-03/24939.htm">http://www.linuxidc.com/Linux/2010-03/24939.htm</a></p>
-<h1 id="第-4-章-Shell"><a href="#第-4-章-Shell" class="headerlink" title="第 4 章 Shell"></a>第 4 章 <a href="">Shell</a></h1><h2 id="4-1-shell语法"><a href="#4-1-shell语法" class="headerlink" title="4.1 shell语法"></a>4.1 shell语法</h2><h3 id="4-1-1-参数"><a href="#4-1-1-参数" class="headerlink" title="4.1.1 参数"></a>4.1.1 参数</h3><p>#!&#x2F;bin&#x2F;sh</p>
+<h1 id="第-4-章-Shell"><a href="#第-4-章-Shell" class="headerlink" title="第 4 章 Shell"></a>第 4 章 <a href>Shell</a></h1><h2 id="4-1-shell语法"><a href="#4-1-shell语法" class="headerlink" title="4.1 shell语法"></a>4.1 shell语法</h2><h3 id="4-1-1-参数"><a href="#4-1-1-参数" class="headerlink" title="4.1.1 参数"></a>4.1.1 参数</h3><p>#!&#x2F;bin&#x2F;sh</p>
 <p>#!用来指定</p>
 <p>注释以“#”开头，所有变量没有类型也不用声明</p>
 <p>$#:传入脚本的命令行参数个数，保存程序命令行参数的数目</p>
@@ -4978,7 +4978,7 @@ relatime
 <p>-debug&#x3D;all,basic</p>
 <h3 id="5-4-2-echo显示"><a href="#5-4-2-echo显示" class="headerlink" title="5.4.2 echo显示"></a>5.4.2 echo显示</h3><h2 id="5-5-附件"><a href="#5-5-附件" class="headerlink" title="5.5 附件"></a>5.5 附件</h2><p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps64.png" alt="img"></p>
 <h1 id="第-6-章-Linux应用程序开发"><a href="#第-6-章-Linux应用程序开发" class="headerlink" title="第 6 章 Linux应用程序开发"></a>第 6 章 Linux应用程序开发</h1><p>Linux是多任务、支持多种文件系统、采用虚拟内存管理技术、良好的可移植性、设备独立性、丰富的网络功能、提供全部源代码。</p>
-<h2 id="6-1-Linux文件编程"><a href="#6-1-Linux文件编程" class="headerlink" title="6.1 Linux文件编程"></a>6.1 <a href="">Linux文件编程</a></h2><h3 id="6-1-1-系统调用文件访问"><a href="#6-1-1-系统调用文件访问" class="headerlink" title="6.1.1 系统调用文件访问"></a>6.1.1 系统调用文件访问</h3><h4 id="6-1-1-1-创建"><a href="#6-1-1-1-创建" class="headerlink" title="6.1.1.1 创建"></a>6.1.1.1 创建</h4><p>Ø int creat(const char *filename, mode_t mode)</p>
+<h2 id="6-1-Linux文件编程"><a href="#6-1-Linux文件编程" class="headerlink" title="6.1 Linux文件编程"></a>6.1 <a href>Linux文件编程</a></h2><h3 id="6-1-1-系统调用文件访问"><a href="#6-1-1-系统调用文件访问" class="headerlink" title="6.1.1 系统调用文件访问"></a>6.1.1 系统调用文件访问</h3><h4 id="6-1-1-1-创建"><a href="#6-1-1-1-创建" class="headerlink" title="6.1.1.1 创建"></a>6.1.1.1 创建</h4><p>Ø int creat(const char *filename, mode_t mode)</p>
 <p>filename:要创建的文件名(包含路径，缺省为当前路径)</p>
 <p>mode:创建模式</p>
 <p>常见创建模式：</p>
@@ -5210,9 +5210,9 @@ relatime
 <h4 id="6-1-1-6-read-与-fread-的区别的误解"><a href="#6-1-1-6-read-与-fread-的区别的误解" class="headerlink" title="6.1.1.6  read 与 fread 的区别的误解"></a>6.1.1.6  read 与 fread 的区别的误解</h4><p>缓冲</p>
 <p><a href="file:///G:\学习笔记\笔记\附件\文档\read%20与%20fread%20的区别的误解.docx">链接1</a></p>
 <p><a href="http://blog.sina.com.cn/s/blog_93b45b0f01014qyb.html">链接2</a></p>
-<h4 id="6-1-1-7-读写二进制文件"><a href="#6-1-1-7-读写二进制文件" class="headerlink" title="6.1.1.7 读写二进制文件"></a>6.1.1.7 读写二进制文件</h4><p><em>#include<fstream></em>**</p>
-<p><em>#include<string></em>**</p>
-<p><em>#include<iostream></em>**</p>
+<h4 id="6-1-1-7-读写二进制文件"><a href="#6-1-1-7-读写二进制文件" class="headerlink" title="6.1.1.7 读写二进制文件"></a>6.1.1.7 读写二进制文件</h4><p><em>#include<fstream></fstream></em>**</p>
+<p><em>#include<string></string></em>**</p>
+<p><em>#include<iostream></iostream></em>**</p>
 <p><em>using namespace std;</em>**</p>
 <p><em>struct Point</em>**</p>
 <p><em>{   string user;</em>**</p>
@@ -5489,9 +5489,9 @@ relatime
 <p>r+, r+b, rb+       读写方式打开</p>
 <p>w+, w+b, wh+   读写方式打开，如果文件不存在，则创建该文件</p>
 <p>a+, a+b, ab+       读和追加方式打开。如果文件不存在，则创建该文件</p>
-<h4 id="6-1-2-2-读"><a href="#6-1-2-2-读" class="headerlink" title="6.1.2.2 读"></a>6.1.2.2 读</h4><p><a href="">size_t fread(void *ptr, size_t size, size_t n, FILE </a> *stream)</p>
+<h4 id="6-1-2-2-读"><a href="#6-1-2-2-读" class="headerlink" title="6.1.2.2 读"></a>6.1.2.2 读</h4><p><a href>size_t fread(void *ptr, size_t size, size_t n, FILE </a> *stream)</p>
 <p>功能：从stream指向的文件中读取n个字段，每个字段为size字节，并将读取的数据放入ptr所指的字符数组中，返回实际已读取的字节数。</p>
-<h4 id="6-1-2-3-写"><a href="#6-1-2-3-写" class="headerlink" title="6.1.2.3 写"></a>6.1.2.3 写</h4><p><a href="">size_t fwrite (const void *ptr, size_t size, size_t</a> n, FILE *stream)</p>
+<h4 id="6-1-2-3-写"><a href="#6-1-2-3-写" class="headerlink" title="6.1.2.3 写"></a>6.1.2.3 写</h4><p><a href>size_t fwrite (const void *ptr, size_t size, size_t</a> n, FILE *stream)</p>
 <p>功能：从缓冲区ptr所指的数组中把n个字段写到stream指向的文件中，每个字段长为size个字节，返回实际写入的字段数。</p>
 <h4 id="6-1-2-4-库函数-读字符"><a href="#6-1-2-4-库函数-读字符" class="headerlink" title="6.1.2.4 库函数-读字符"></a>6.1.2.4 库函数-读字符</h4><p>int fgetc(FILE *stream)   从指定的文件中读一个字符</p>
 <p>#include&lt;stdio.h&gt; </p>
@@ -5751,7 +5751,7 @@ relatime
 <h3 id="6-1-5-struct-stat结构体"><a href="#6-1-5-struct-stat结构体" class="headerlink" title="6.1.5 struct stat结构体"></a>6.1.5 struct stat结构体</h3><p>可以得到文件属性</p>
 <p>如：0&#x3D;&#x3D;stat(pFileName,&amp;sFileStat)可以用来判断文件是否存在</p>
 <p>头文件：&lt;sys&#x2F;stat.h&gt;</p>
-<h2 id="6-2-Linux时间编程"><a href="#6-2-Linux时间编程" class="headerlink" title="6.2 Linux时间编程"></a>6.2 <a href="">Linux时间编程</a></h2><p>UTC   Coordinated Universal  Time   世界标准时间</p>
+<h2 id="6-2-Linux时间编程"><a href="#6-2-Linux时间编程" class="headerlink" title="6.2 Linux时间编程"></a>6.2 <a href>Linux时间编程</a></h2><p>UTC   Coordinated Universal  Time   世界标准时间</p>
 <p>GMT  Greenwich  Mean  Time   格林威治标准时间	</p>
 <p>Calendar  Time  日历时间，“从一个标准时间点到此时经过的秒数”</p>
 <h3 id="6-2-1-返回时间函数time"><a href="#6-2-1-返回时间函数time" class="headerlink" title="6.2.1 返回时间函数time"></a>6.2.1 返回时间函数time</h3><p>#include &lt;time.h&gt;</p>
@@ -6084,7 +6084,7 @@ relatime
 <p><em>}</em>**</p>
 <h4 id="6-2-15-2-第二种方法"><a href="#6-2-15-2-第二种方法" class="headerlink" title="6.2.15.2 第二种方法"></a>6.2.15.2 第二种方法</h4><p>strftime</p>
 <p>strftime() 函数根据区域设置格式化本地时间&#x2F;日期，函数的功能将时间格式化，或者说格式化一个时间字符串。</p>
-<p><em>#include<iostream></em>**</p>
+<p><em>#include<iostream></iostream></em>**</p>
 <p>*#include &lt;time.h&gt; ***</p>
 <p><em>using namespace std;</em>**</p>
 <p><em>int main()</em>**</p>
@@ -6097,11 +6097,11 @@ relatime
 <p><em>return 0;</em>**</p>
 <p><em>}</em>**</p>
 <p><em>程序运行结果：</em><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps65.jpg" alt="img">**</p>
-<h3 id="6-2-16-设置系统时间"><a href="#6-2-16-设置系统时间" class="headerlink" title="6.2.16 设置系统时间"></a>6.2.16 <a href="">设置系统时间</a></h3><p><em>#include &lt;sys&#x2F;time.h&gt;</em>**</p>
+<h3 id="6-2-16-设置系统时间"><a href="#6-2-16-设置系统时间" class="headerlink" title="6.2.16 设置系统时间"></a>6.2.16 <a href>设置系统时间</a></h3><p><em>#include &lt;sys&#x2F;time.h&gt;</em>**</p>
 <p><em>#include &lt;unistd.h&gt;</em>**</p>
 <p><em>#include &lt;stdio.h&gt;</em>**</p>
 <p><em>#include &lt;time.h&gt;</em>**</p>
-<p><em>#include <string></em>**</p>
+<p><em>#include <string></string></em>**</p>
 <p><em>using namespace std;</em>**</p>
 <p>*int main(void)  ***</p>
 <p>*{  ***</p>
@@ -6152,7 +6152,7 @@ relatime
 </li>
 </ul>
 <p>*}  ***</p>
-<h2 id="6-3-目录与文件"><a href="#6-3-目录与文件" class="headerlink" title="6.3 目录与文件"></a>6.3 <a href="">目录与文件</a></h2><h3 id="6-3-1-错误处理"><a href="#6-3-1-错误处理" class="headerlink" title="6.3.1 错误处理"></a>6.3.1 错误处理</h3><p>将错误号转换成字符串，显示错误信息：strerror（）；它是一个指针</p>
+<h2 id="6-3-目录与文件"><a href="#6-3-目录与文件" class="headerlink" title="6.3 目录与文件"></a>6.3 <a href>目录与文件</a></h2><h3 id="6-3-1-错误处理"><a href="#6-3-1-错误处理" class="headerlink" title="6.3.1 错误处理"></a>6.3.1 错误处理</h3><p>将错误号转换成字符串，显示错误信息：strerror（）；它是一个指针</p>
 <h3 id="6-3-2-创建与删除目录"><a href="#6-3-2-创建与删除目录" class="headerlink" title="6.3.2 创建与删除目录"></a>6.3.2 创建与删除目录</h3><h4 id="6-3-2-1-创建目录函数mkdir"><a href="#6-3-2-1-创建目录函数mkdir" class="headerlink" title="6.3.2.1 创建目录函数mkdir()"></a>6.3.2.1 创建目录函数mkdir()</h4><p><em>#include&lt;sys&#x2F;types.h&gt;</em>**</p>
 <p><em>#include&lt;sys&#x2F;stat.h&gt;</em>**</p>
 <p>int  mkdir(char *pathname,mode_t  mode);</p>
@@ -6301,7 +6301,7 @@ relatime
 <p>参数template表示需要建立临时文件的文件名字符串。文件名字符串中最后6个字符必须是XXXXXX。mkstemp()函数会以可读写模式和0600权限来打开该文件，如果文件不存在，则会建立这个文件，返回值是打开文件的编号；如果文件建立不成功，则返回-1。</p>
 <p>另外参数template字符串必须声明为数组。char  template[]&#x3D;”template-XXXXXX”;</p>
 <p> 不能使用char *template &#x3D;”template-XXXXXX”;</p>
-<h3 id="6-3-6-文件打开关闭见前面"><a href="#6-3-6-文件打开关闭见前面" class="headerlink" title="6.3.6 文件打开关闭见前面"></a>6.3.6 文件打开关闭见前面</h3><h2 id="6-4-串口通信"><a href="#6-4-串口通信" class="headerlink" title="6.4 串口通信"></a>6.4 <a href="">串口通信</a></h2><p>数据通信方式：串行通信、并行通信</p>
+<h3 id="6-3-6-文件打开关闭见前面"><a href="#6-3-6-文件打开关闭见前面" class="headerlink" title="6.3.6 文件打开关闭见前面"></a>6.3.6 文件打开关闭见前面</h3><h2 id="6-4-串口通信"><a href="#6-4-串口通信" class="headerlink" title="6.4 串口通信"></a>6.4 <a href>串口通信</a></h2><p>数据通信方式：串行通信、并行通信</p>
 <p>串行通信：利用一条传输线将数据以比特位为单位顺序传送。</p>
 <p>并行通信：利用多条数据传输线将一个字数据的各比特位同时传送。</p>
 <h3 id="6-4-1-虚拟机虚拟串口设置"><a href="#6-4-1-虚拟机虚拟串口设置" class="headerlink" title="6.4.1 虚拟机虚拟串口设置"></a>6.4.1 虚拟机虚拟串口设置</h3><p>① 在关机情况下，设置</p>
@@ -6310,7 +6310,7 @@ relatime
 <p>&#x2F;<em>设置等待时间和最小接收字符</em>&#x2F;</p>
 <p>​	new_cfg.c_cc[VTIME]  &#x3D; 50;</p>
 <p>​	new_cfg.c_cc[VMIN] &#x3D; 0;</p>
-<h2 id="6-5-Linux进程控制程序设计"><a href="#6-5-Linux进程控制程序设计" class="headerlink" title="6.5 Linux进程控制程序设计"></a>6.5 <a href="">Linux进程控制程序设计</a></h2><p>进程分为运行态、就绪态、等待态。</p>
+<h2 id="6-5-Linux进程控制程序设计"><a href="#6-5-Linux进程控制程序设计" class="headerlink" title="6.5 Linux进程控制程序设计"></a>6.5 <a href>Linux进程控制程序设计</a></h2><p>进程分为运行态、就绪态、等待态。</p>
 <p>进程号：Process 	Identity		Number			PID</p>
 <p>​	父进程号：Parent 	Process		Idenity	Number		PPID	</p>
 <h3 id="6-5-1-系统调用函数列表"><a href="#6-5-1-系统调用函数列表" class="headerlink" title="6.5.1 系统调用函数列表"></a>6.5.1 系统调用函数列表</h3><p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps66.png" alt="img"> </p>
@@ -6501,7 +6501,7 @@ relatime
 <p>③改变当前目录为根目录</p>
 <p>④重设文件权限掩码</p>
 <p>⑤关闭文件描述符</p>
-<h4 id="6-5-11-2-实例"><a href="#6-5-11-2-实例" class="headerlink" title="6.5.11.2 实例"></a>6.5.11.2 实例</h4><h4 id="6-5-11-3-守护进程的出错处理"><a href="#6-5-11-3-守护进程的出错处理" class="headerlink" title="6.5.11.3 守护进程的出错处理"></a>6.5.11.3 守护进程的出错处理</h4><h2 id="6-6-Linux进程间通信程序设计"><a href="#6-6-Linux进程间通信程序设计" class="headerlink" title="6.6 Linux进程间通信程序设计"></a>6.6 <a href="">L</a>inux进程间通信程序设计</h2><h3 id="6-6-1-为什么进程间需要通信？"><a href="#6-6-1-为什么进程间需要通信？" class="headerlink" title="6.6.1 为什么进程间需要通信？"></a>6.6.1 为什么进程间需要通信？</h3><p>1、数据传输</p>
+<h4 id="6-5-11-2-实例"><a href="#6-5-11-2-实例" class="headerlink" title="6.5.11.2 实例"></a>6.5.11.2 实例</h4><h4 id="6-5-11-3-守护进程的出错处理"><a href="#6-5-11-3-守护进程的出错处理" class="headerlink" title="6.5.11.3 守护进程的出错处理"></a>6.5.11.3 守护进程的出错处理</h4><h2 id="6-6-Linux进程间通信程序设计"><a href="#6-6-Linux进程间通信程序设计" class="headerlink" title="6.6 Linux进程间通信程序设计"></a>6.6 <a href>L</a>inux进程间通信程序设计</h2><h3 id="6-6-1-为什么进程间需要通信？"><a href="#6-6-1-为什么进程间需要通信？" class="headerlink" title="6.6.1 为什么进程间需要通信？"></a>6.6.1 为什么进程间需要通信？</h3><p>1、数据传输</p>
 <p>一个进程需要将它的数据发送给另一个进程。</p>
 <p>2、资源共享</p>
 <p>多个进程之间共享同样的资源。</p>
@@ -8220,7 +8220,7 @@ relatime
 <p>Binary semaphore与Mutex的差异：</p>
 <p>\1. mutex要由获得锁的线程来释放（谁获得，谁释放）。而semaphore可以由其它线程释放</p>
 <p>\2. 初始状态可能不一样：mutex的初始值是1,而semaphore的初始值可能是0（或者为1）。</p>
-<h2 id="6-7-Linux网络应用程序设计"><a href="#6-7-Linux网络应用程序设计" class="headerlink" title="6.7 Linux网络应用程序设计"></a>6.7 <a href="">Linux网络应用程序设计</a></h2><h3 id="6-7-1-端口"><a href="#6-7-1-端口" class="headerlink" title="6.7.1 端口"></a>6.7.1 端口</h3><p>端口是指计算机为了标识在计算机中访问网络的不同程序而设置的编号。</p>
+<h2 id="6-7-Linux网络应用程序设计"><a href="#6-7-Linux网络应用程序设计" class="headerlink" title="6.7 Linux网络应用程序设计"></a>6.7 <a href>Linux网络应用程序设计</a></h2><h3 id="6-7-1-端口"><a href="#6-7-1-端口" class="headerlink" title="6.7.1 端口"></a>6.7.1 端口</h3><p>端口是指计算机为了标识在计算机中访问网络的不同程序而设置的编号。</p>
 <h3 id="6-7-2-TCP-IP"><a href="#6-7-2-TCP-IP" class="headerlink" title="6.7.2 TCP&#x2F;IP"></a>6.7.2 TCP&#x2F;IP</h3><p>TCP&#x2F;IP（Transmission Control Protocol&#x2F;Internet Protocol）即传输控制协议&#x2F;网间协议，是一个工业标准的协议集，它是为广域网（WANs）设计的。</p>
 <p>UDP（User Data Protocol，用户数据报协议）是与TCP相对应的协议。它是属于TCP&#x2F;IP协议族中的一种。</p>
 <h4 id="6-7-2-1-网络模型"><a href="#6-7-2-1-网络模型" class="headerlink" title="6.7.2.1 网络模型"></a>6.7.2.1 网络模型</h4><p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps78.jpg" alt="img"> </p>
@@ -8698,7 +8698,7 @@ relatime
 <p>listen    设置能处理的最大连接要求，Listen()并未开始接收连线，只是设置socket为listen模式。</p>
 <p>accept   用来接受socket连接。</p>
 <p>send    发送数据</p>
-<h4 id="6-7-3-10-基于TCP-服务器"><a href="#6-7-3-10-基于TCP-服务器" class="headerlink" title="6.7.3.10 基于TCP-服务器"></a>6.7.3.10 <a href="">基于TCP-服务器</a></h4><p>\1. 创建一个socket，用函数socket()</p>
+<h4 id="6-7-3-10-基于TCP-服务器"><a href="#6-7-3-10-基于TCP-服务器" class="headerlink" title="6.7.3.10 基于TCP-服务器"></a>6.7.3.10 <a href>基于TCP-服务器</a></h4><p>\1. 创建一个socket，用函数socket()</p>
 <p>\2. 绑定IP地址、端口等信息到socket上，用函数bind()</p>
 <p>\3. 设置允许的最大连接数，用函数listen()</p>
 <p>\4. 接收客户端上来的连接，用函数accept()</p>
@@ -8810,7 +8810,7 @@ relatime
 <p>optname：需设置的选项。</p>
 <p>optval：<a href="http://baike.baidu.com/view/159417.htm">指针</a>，指向存放选项值的<a href="http://baike.baidu.com/view/266782.htm">缓冲区</a>。</p>
 <p>optlen：optval<a href="http://baike.baidu.com/view/266782.htm">缓冲区</a>长度。</p>
-<h5 id="6-7-3-13-7-sockaddr-ll结构体"><a href="#6-7-3-13-7-sockaddr-ll结构体" class="headerlink" title="6.7.3.13.7 sockaddr_ll结构体"></a>6.7.3.13.7 <a href="">sockaddr_ll</a>结构体</h5><h5 id="6-7-3-13-8-Linux学习笔记之网络的send和recv函数"><a href="#6-7-3-13-8-Linux学习笔记之网络的send和recv函数" class="headerlink" title="6.7.3.13.8 Linux学习笔记之网络的send和recv函数"></a>6.7.3.13.8 Linux学习笔记之网络的send和recv函数</h5><p>1、  函数原型</p>
+<h5 id="6-7-3-13-7-sockaddr-ll结构体"><a href="#6-7-3-13-7-sockaddr-ll结构体" class="headerlink" title="6.7.3.13.7 sockaddr_ll结构体"></a>6.7.3.13.7 <a href>sockaddr_ll</a>结构体</h5><h5 id="6-7-3-13-8-Linux学习笔记之网络的send和recv函数"><a href="#6-7-3-13-8-Linux学习笔记之网络的send和recv函数" class="headerlink" title="6.7.3.13.8 Linux学习笔记之网络的send和recv函数"></a>6.7.3.13.8 Linux学习笔记之网络的send和recv函数</h5><p>1、  函数原型</p>
 <p>Int send(int socket, const void * buff, int length, int flags)</p>
 <p>Int recv(int socket, void *buff, int length, int flags)</p>
 <p>2、  对于正常的tcp通信来说，参数flags应设置为0</p>
@@ -9401,7 +9401,7 @@ relatime
 <p>ctx保存协程的上下文，stack为协程的栈，栈大小默认为DEFAULT_STACK_SZIE&#x3D;128Kb.你可以根据自己的需求更改栈的大小。func为协程执行的用户函数，arg为func的参数，state表示协程的运行状态，包括FREE,RUNNABLE,RUNING,SUSPEND,分别表示空闲，就绪，正在执行和挂起四种状态。 </p>
 <p>在定义一个调度器的结构体</p>
 <p>[cpp] <a href="http://blog.csdn.net/qq910894904/article/details/41911175">view plain</a> <a href="http://blog.csdn.net/qq910894904/article/details/41911175">copy</a> <a href="http://blog.csdn.net/qq910894904/article/details/41911175">print</a><a href="http://blog.csdn.net/qq910894904/article/details/41911175">?</a><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps100.jpg" alt="img"><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps101.png" alt="img"></p>
-<p>typedef std::vector<uthread_t> Thread_vector;  </p>
+<p>typedef std::vector<uthread_t> Thread_vector;  </uthread_t></p>
 <p>typedef struct schedule_t  </p>
 <p>{  </p>
 <p>​    ucontext_t main;  </p>
@@ -9409,7 +9409,7 @@ relatime
 <p>​    Thread_vector threads;  </p>
 <p>​    schedule_t():running_thread(-1){}  </p>
 <p>}schedule_t;  </p>
-<p>typedef std::vector<uthread_t> Thread_vector;</p>
+<p>typedef std::vector<uthread_t> Thread_vector;</uthread_t></p>
 <p>typedef struct schedule_t</p>
 <p>{</p>
 <p>​    ucontext_t main;</p>
@@ -9614,7 +9614,7 @@ relatime
 <p>附上一个例子：</p>
 <p><img src="file:///C:\Users\Administrator\AppData\Local\Temp\ksohtml7452\wps110.png" alt="img"> </p>
 <p>&#x2F;&#x2F;execute shell command<br>&#x2F;&#x2F;执行一个shell命令，输出结果逐行存储在resvec中，并返回行数</p>
-<p>int32_t myexec(const char *cmd, vector<string> &amp;resvec) {</p>
+<p>int32_t myexec(const char *cmd, vector<string> &amp;resvec) {</string></p>
 <p>​    resvec.clear();</p>
 <p>​    FILE *pp &#x3D; popen(cmd, “r”); &#x2F;&#x2F;建立管道</p>
 <p>​    if (!pp) {</p>
@@ -9655,9 +9655,9 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 4 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#x72;&#105;&#x6e;&#x74;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#53;">&#112;&#x72;&#105;&#x6e;&#x74;&#x66;&#x40;&#x47;&#x4c;&#73;&#x42;&#67;&#95;&#50;&#x2e;&#x32;&#46;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#x6e;&#x74;&#102;&#64;&#71;&#76;&#73;&#66;&#67;&#95;&#x32;&#46;&#50;&#x2e;&#x35;">&#112;&#114;&#105;&#x6e;&#x74;&#102;&#64;&#71;&#76;&#73;&#66;&#67;&#95;&#x32;&#46;&#50;&#x2e;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
-<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#x6c;&#105;&#x62;&#99;&#95;&#x73;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#53;">&#95;&#x5f;&#x6c;&#105;&#x62;&#99;&#95;&#x73;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#x61;&#x69;&#x6e;&#x40;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#x2e;&#50;&#46;&#53;</a> (2)</p>
+<p>​     3: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#x69;&#98;&#99;&#95;&#115;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#97;&#105;&#110;&#64;&#71;&#76;&#x49;&#66;&#x43;&#95;&#x32;&#x2e;&#50;&#46;&#x35;">&#95;&#x5f;&#108;&#x69;&#98;&#99;&#95;&#115;&#116;&#x61;&#114;&#116;&#x5f;&#109;&#97;&#105;&#110;&#64;&#71;&#76;&#x49;&#66;&#x43;&#95;&#x32;&#x2e;&#50;&#46;&#x35;</a> (2)</p>
 <p>Symbol table ‘.symtab’ contains 67 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>…</p>
@@ -9678,10 +9678,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;">&#112;&#114;&#105;&#110;&#116;&#x66;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#x5f;&#50;&#x2e;&#50;&#x2e;&#x35;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#114;&#105;&#x6e;&#116;&#102;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#50;&#x2e;&#50;&#46;&#53;">&#x70;&#114;&#105;&#x6e;&#116;&#102;&#x40;&#71;&#x4c;&#73;&#66;&#67;&#x5f;&#50;&#x2e;&#50;&#46;&#53;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#x32;&#x2e;&#53;">&#x5f;&#95;&#108;&#x69;&#98;&#x63;&#95;&#x73;&#116;&#x61;&#x72;&#x74;&#x5f;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#76;&#x49;&#x42;&#67;&#95;&#50;&#46;&#x32;&#x2e;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#x6c;&#x69;&#98;&#x63;&#x5f;&#x73;&#116;&#x61;&#114;&#116;&#95;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#x4c;&#x49;&#x42;&#67;&#x5f;&#50;&#46;&#50;&#46;&#53;">&#95;&#x5f;&#x6c;&#x69;&#98;&#x63;&#x5f;&#x73;&#116;&#x61;&#114;&#116;&#95;&#109;&#x61;&#105;&#x6e;&#x40;&#x47;&#x4c;&#x49;&#x42;&#67;&#x5f;&#50;&#46;&#50;&#46;&#53;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9718,10 +9718,10 @@ relatime
 <p>Symbol table ‘.dynsym’ contains 20 entries:</p>
 <p>   Num:    Value          Size Type    Bind   Vis      Ndx Name</p>
 <p>​     0: 0000000000000000     0 NOTYPE  LOCAL  <strong>DEFAULT</strong>  UND</p>
-<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#110;&#x74;&#102;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#53;">&#x70;&#x72;&#105;&#110;&#x74;&#102;&#64;&#71;&#x4c;&#73;&#x42;&#x43;&#x5f;&#50;&#46;&#x32;&#46;&#53;</a> (2)</p>
+<p>​     1: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#x70;&#x72;&#105;&#x6e;&#116;&#102;&#x40;&#71;&#x4c;&#x49;&#x42;&#x43;&#x5f;&#x32;&#46;&#50;&#x2e;&#x35;">&#x70;&#x72;&#105;&#x6e;&#116;&#102;&#x40;&#71;&#x4c;&#x49;&#x42;&#x43;&#x5f;&#x32;&#46;&#50;&#x2e;&#x35;</a> (2)</p>
 <p>​     2: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND <strong>gmon_start</strong></p>
 <p>​     3: 0000000000000000     0 NOTYPE  WEAK   <strong>DEFAULT</strong>  UND _Jv_RegisterClasses</p>
-<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#95;&#x6c;&#x69;&#x62;&#99;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#46;&#53;">&#95;&#95;&#x6c;&#x69;&#x62;&#99;&#95;&#x73;&#x74;&#97;&#114;&#116;&#x5f;&#109;&#97;&#105;&#x6e;&#x40;&#x47;&#x4c;&#73;&#66;&#67;&#95;&#50;&#46;&#50;&#46;&#53;</a> (2)</p>
+<p>​     4: 0000000000000000     0 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>  UND <a href="mailto:&#95;&#x5f;&#108;&#105;&#x62;&#x63;&#95;&#x73;&#116;&#x61;&#114;&#x74;&#95;&#109;&#x61;&#105;&#x6e;&#64;&#71;&#x4c;&#73;&#x42;&#67;&#x5f;&#x32;&#46;&#50;&#x2e;&#x35;">&#95;&#x5f;&#108;&#105;&#x62;&#x63;&#95;&#x73;&#116;&#x61;&#114;&#x74;&#95;&#109;&#x61;&#105;&#x6e;&#64;&#71;&#x4c;&#73;&#x42;&#67;&#x5f;&#x32;&#46;&#50;&#x2e;&#x35;</a> (2)</p>
 <p>​     5: 0000000000400724     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 bar</p>
 <p>​     6: 0000000000400730     6 FUNC    <strong>GLOBAL</strong> <strong>DEFAULT</strong>   13 foo</p>
 <p>​     7: 0000000000600b68     0 NOTYPE  <strong>GLOBAL</strong> <strong>DEFAULT</strong>   24 __data_start</p>
@@ -9804,6 +9804,22 @@ relatime
       </tags>
   </entry>
   <entry>
+    <title>深入解析Linux 常用命令--sshpass</title>
+    <url>/posts/f3cf9244.html</url>
+    <content><![CDATA[<p>sshpass</p>
+<p>用于ssh远程登录</p>
+<hr>
+<p>2015&#x2F;7&#x2F;11</p>
+]]></content>
+      <categories>
+        <category>Linux命令</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入解析Linux 常用命令--top</title>
     <url>/posts/8cd77be.html</url>
     <content><![CDATA[<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h2><p>当我们在Linux环境下运行我们的程序时，我们经常会使用top命令来查看程序的运行状态，CPU、内存使用情况，类似我们在Windows下的任务管理器，可以查看内存的使用情况，剩余情况等。</p>
@@ -9818,7 +9834,7 @@ relatime
 <h3 id="进程信息"><a href="#进程信息" class="headerlink" title="进程信息"></a>进程信息</h3><p>再下面就是进程信息：<br>PID：进程的ID<br>USER：进程所有者<br>PR：进程的优先级别，越小越优先被执行<br>NInice：值<br>VIRT：进程占用的虚拟内存<br>RES：进程占用的物理内存<br>SHR：进程使用的共享内存<br>S：进程的状态。S表示休眠，R表示正在运行，Z表示僵死状态，N表示该进程优先值为负数<br>%CPU：进程占用CPU的使用率<br>%MEM：进程使用的物理内存和总内存的百分比<br>TIME+：该进程启动后占用的总的CPU时间，即占用CPU使用时间的累加值。<br>COMMAND：进程启动命令名称</p>
 <h2 id="3-交互操作指令"><a href="#3-交互操作指令" class="headerlink" title="3.交互操作指令"></a>3.交互操作指令</h2><p>下面列出一些常用的 top命令操作指令</p>
 <p>q：退出top命令</p>
-<p><Space>：立即刷新</p>
+<p><Space>：立即刷新</Space></p>
 <p>s：设置刷新时间间隔</p>
 <p>c：显示命令完全模式</p>
 <p>t:：显示或隐藏进程和CPU状态信息</p>
@@ -9840,22 +9856,6 @@ relatime
 <p>注：部分来源于网络</p>
 <hr>
 <p>2017&#x2F;12&#x2F;30</p>
-]]></content>
-      <categories>
-        <category>Linux命令</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>命令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>深入解析Linux 常用命令--sshpass</title>
-    <url>/posts/f3cf9244.html</url>
-    <content><![CDATA[<p>sshpass</p>
-<p>用于ssh远程登录</p>
-<hr>
-<p>2015&#x2F;7&#x2F;11</p>
 ]]></content>
       <categories>
         <category>Linux命令</category>
@@ -10109,7 +10109,7 @@ relatime
 <p><strong>隧道本地IP地址</strong>：此处为CPE配置的GRE隧道IP地址。特别注意需要添加掩码。</p>
 <p><strong>对端内网网段：</strong>指对端交换机下面的PC机所在的网段。特别注意需要添加掩码。</p>
 <p><img src="https://img-blog.csdnimg.cn/img_convert/b5dd3cbaf85acd071d05a4c4a54d968b.png" alt="这里写图片描述"></p>
-<h3 id="2-2-华为路由器AR1220配置"><a href="#2-2-华为路由器AR1220配置" class="headerlink" title="2.2    华为路由器AR1220配置"></a>2.2    华为路由器AR1220配置</h3><h4 id="1-配置RouterA"><a href="#1-配置RouterA" class="headerlink" title="1) 配置RouterA"></a>1) 配置RouterA</h4><p><Huawei>system-view</p>
+<h3 id="2-2-华为路由器AR1220配置"><a href="#2-2-华为路由器AR1220配置" class="headerlink" title="2.2    华为路由器AR1220配置"></a>2.2    华为路由器AR1220配置</h3><h4 id="1-配置RouterA"><a href="#1-配置RouterA" class="headerlink" title="1) 配置RouterA"></a>1) 配置RouterA</h4><p><Huawei>system-view</Huawei></p>
 <p>[huawei]sysname RouterA</p>
 <h4 id="2-添加Sgi网关IP地址（隧道网络侧实际物理IP地址）"><a href="#2-添加Sgi网关IP地址（隧道网络侧实际物理IP地址）" class="headerlink" title="2)  添加Sgi网关IP地址（隧道网络侧实际物理IP地址）"></a>2)  添加Sgi网关IP地址（隧道网络侧实际物理IP地址）</h4><p>[RouterA]interface Gigabitethernet 0&#x2F;0&#x2F;0</p>
 <p>[RouterA-Gigabitethernet 0&#x2F;0&#x2F;0]ip address 10.10.1.111255.255.255.0</p>
@@ -10610,7 +10610,7 @@ Where: NAME := STRING
 <p>   卷积操作是利用卷积核对图像的关键信息进行提取。</p>
 <p>   卷积层：将图像与卷积核做卷积的过程。</p>
 <p>​    池化层：对不同位置的特征进行聚合的过程。</p>
-<p><img src="F:\2017Tensorflow教程\第六周\卷积.gif" alt="卷积"></p>
+<p><img src="/posts/b821d4d8/2017Tensorflow教程\第六周\卷积.gif" alt="卷积"></p>
 <p>在深度学习中，利用多个卷积、池化操作来对图像进行分类。</p>
 <h3 id="1-卷积"><a href="#1-卷积" class="headerlink" title="1.卷积"></a>1.卷积</h3><p>卷积操作有两种模式：</p>
 <p> a.Same padding模式</p>
@@ -10665,7 +10665,7 @@ Where: NAME := STRING
 <p>1.cd 工程目录</p>
 <p>2.tensorboard –logdir&#x3D;.&#x2F;testlogs</p>
 <p>3.然后在浏览器中输入<a href="http://127.0.0.1:6006即可看到Tensorboard的界面">http://127.0.0.1:6006即可看到Tensorboard的界面</a></p>
-<h2 id=""><a href="#" class="headerlink" title=""></a><img src="https://img-blog.csdn.net/20171130191527005?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></h2>]]></content>
+<h2 id><a href="#" class="headerlink" title></a><img src="https://img-blog.csdn.net/20171130191527005?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></h2>]]></content>
       <categories>
         <category>深度学习</category>
       </categories>

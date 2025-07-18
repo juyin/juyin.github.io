@@ -1422,29 +1422,29 @@ relatime
     <title>Mobaxterm工具</title>
     <url>/posts/6d977824.html</url>
     <content><![CDATA[<h1 id="1-登录"><a href="#1-登录" class="headerlink" title="1    登录"></a>1    登录</h1><h2 id="1-1-远程登录"><a href="#1-1-远程登录" class="headerlink" title="1.1   远程登录"></a>1.1   远程登录</h2><h3 id="1-1-1-内建命令行模式"><a href="#1-1-1-内建命令行模式" class="headerlink" title="1.1.1 内建命令行模式"></a>1.1.1 内建命令行模式</h3><ol>
-<li><pre><code> 点击![img](https://img-blog.csdn.net/20180114144501802?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)图标，在弹出的窗口中选择SSH连接，然后填入Remote host IP及用户名。
+<li><pre><code> 点击![img](MobaXterm工具/SouthEast.png)图标，在弹出的窗口中选择SSH连接，然后填入Remote host IP及用户名。
 </code></pre>
 </li>
 </ol>
-<p><img src="https://img-blog.csdn.net/20180114144532444?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><img src="/posts/6d977824/SouthEast-1752854824523-3.png" alt="这里写图片描述"></p>
 <ol start="2">
 <li><pre><code> 点击确认后输入密码即可
 </code></pre>
 </li>
 </ol>
-<p><img src="https://img-blog.csdn.net/20180114144546606?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><img src="/posts/6d977824/SouthEast-1752854831187-6.png" alt="这里写图片描述"></p>
 <h3 id="1-1-2-Gnome模式-类似VNC"><a href="#1-1-2-Gnome模式-类似VNC" class="headerlink" title="1.1.2 Gnome模式(类似VNC)"></a>1.1.2 Gnome模式(类似VNC)</h3><ol>
-<li><pre><code> 点击![img](https://img-blog.csdn.net/20180114144501802?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)图标，在弹出的窗口中选择SSH连接，然后填入Remote host IP及用户名。
+<li><pre><code> 点击![img](MobaXterm工具/SouthEast.png)图标，在弹出的窗口中选择SSH连接，然后填入Remote host IP及用户名。
 </code></pre>
 </li>
 </ol>
-<p><img src="https://img-blog.csdn.net/20180114144620259?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>2)      点击Advanced SSH settings，设置Remote environment为<br><img src="https://img-blog.csdn.net/20180114144809273?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>3)      点击确认后输入密码即可<br><img src="https://img-blog.csdn.net/20180114144734529?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><img src="/posts/6d977824/SouthEast-1752854841802-11.png" alt="这里写图片描述"><br>2)      点击Advanced SSH settings，设置Remote environment为<br><img src="/posts/6d977824/SouthEast-1752854847874-14.png" alt="这里写图片描述"><br>3)      点击确认后输入密码即可<br><img src="/posts/6d977824/SouthEast-1752854849764-17.png" alt="这里写图片描述"></p>
 <h2 id="1-2-串口登录"><a href="#1-2-串口登录" class="headerlink" title="1.2   串口登录"></a>1.2   串口登录</h2><ol>
 <li><pre><code> 点击![img](https://img-blog.csdn.net/20180114144501802?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)图标，在弹出的窗口中选择Serial连接，然后选择port和speed。
 </code></pre>
 </li>
 </ol>
-<p><img src="https://img-blog.csdn.net/20180114144921623?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><img src="/posts/6d977824/SouthEast-1752854852977-20.png" alt="这里写图片描述"></p>
 <ol start="2">
 <li><pre><code> 点击确认后即可
 </code></pre>
@@ -1456,23 +1456,23 @@ relatime
 </code></pre>
 </li>
 </ol>
-<p><img src="https://img-blog.csdn.net/20180114144944352?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"> </p>
+<p><img src="/posts/6d977824/SouthEast-1752854855480-23.png" alt="这里写图片描述"> </p>
 <ol start="2">
 <li><pre><code> TFTP
 </code></pre>
 </li>
 </ol>
-<p><img src="https://img-blog.csdn.net/20180114145000174?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
-<h1 id="2-查看文件、上传下载文件"><a href="#2-查看文件、上传下载文件" class="headerlink" title="2    查看文件、上传下载文件"></a>2    查看文件、上传下载文件</h1><p>当远程登录后，我们在左侧会出现文件列表，我们可以直接从windows上传文件，下载文件。<br><img src="https://img-blog.csdn.net/20180114145136940?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><img src="/posts/6d977824/SouthEast-1752854857627-26.png" alt="这里写图片描述"></p>
+<h1 id="2-查看文件、上传下载文件"><a href="#2-查看文件、上传下载文件" class="headerlink" title="2    查看文件、上传下载文件"></a>2    查看文件、上传下载文件</h1><p>当远程登录后，我们在左侧会出现文件列表，我们可以直接从windows上传文件，下载文件。<br><img src="/posts/6d977824/SouthEast-1752854859382-29.png" alt="这里写图片描述"></p>
 <h1 id="3-多窗口同时执行"><a href="#3-多窗口同时执行" class="headerlink" title="3    多窗口同时执行"></a>3    多窗口同时执行</h1><ol>
-<li>登录多个待同时执行的窗口后，点击<img src="https://img-blog.csdn.net/20180114145157349?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述">图标，如下：</li>
+<li>登录多个待同时执行的窗口后，点击<img src="/posts/6d977824/SouthEast-1752854863451-35.png" alt="这里写图片描述">图标，如下：</li>
 </ol>
-<p>   <img src="https://img-blog.csdn.net/20180114145455645?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>   <img src="/posts/6d977824/SouthEast-1752854861601-32.png" alt="这里写图片描述"></p>
 <ol start="2">
-<li>点击<img src="https://img-blog.csdn.net/20180114145509838?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述">按钮，可以退出多窗口模式。</li>
+<li>点击<img src="/posts/6d977824/SouthEast-1752854866112-38.png" alt="这里写图片描述">按钮，可以退出多窗口模式。</li>
 </ol>
-<h1 id="4-执行Linux下命令"><a href="#4-执行Linux下命令" class="headerlink" title="4    执行Linux下命令"></a>4    执行Linux下命令</h1><h2 id="4-1-gedit"><a href="#4-1-gedit" class="headerlink" title="4.1   gedit"></a>4.1   gedit</h2><h2 id="4-2-wireshark"><a href="#4-2-wireshark" class="headerlink" title="4.2   wireshark"></a>4.2   wireshark</h2><p>wireshark同样可以在这里执行，这样我们就可以在windows下查看Linux的抓包。<br><img src="https://img-blog.csdn.net/20180114145526807?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
-<h1 id="5-宏的使用"><a href="#5-宏的使用" class="headerlink" title="5   宏的使用"></a>5   宏的使用</h1><p>执行，MobaXterm具有录制宏、重放宏、编辑宏。如下图：<br><img src="https://img-blog.csdn.net/20180114212555461?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvanV5aW4yMDE1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<h1 id="4-执行Linux下命令"><a href="#4-执行Linux下命令" class="headerlink" title="4    执行Linux下命令"></a>4    执行Linux下命令</h1><h2 id="4-1-gedit"><a href="#4-1-gedit" class="headerlink" title="4.1   gedit"></a>4.1   gedit</h2><h2 id="4-2-wireshark"><a href="#4-2-wireshark" class="headerlink" title="4.2   wireshark"></a>4.2   wireshark</h2><p>wireshark同样可以在这里执行，这样我们就可以在windows下查看Linux的抓包。<br><img src="/posts/6d977824/SouthEast-1752854869514-41.png" alt="这里写图片描述"></p>
+<h1 id="5-宏的使用"><a href="#5-宏的使用" class="headerlink" title="5   宏的使用"></a>5   宏的使用</h1><p>执行，MobaXterm具有录制宏、重放宏、编辑宏。如下图：<br><img src="/posts/6d977824/SouthEast-1752854871664-44.png" alt="这里写图片描述"></p>
 <hr>
 ]]></content>
       <categories>

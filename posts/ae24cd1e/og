@@ -1,0 +1,200 @@
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c main 310: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleInit 368: Function sampleInit Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseInit 708: Function vThreadBaseInit Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseInit 716: Function vThreadBaseInit Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleInit 400: Function sampleInit Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleSetSeq 420: Function sampleSetSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleSetSeq 522: Total No. of Commands Chosen = 18
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleSetSeq 525: Function sampleSetSeq Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 560: Executing Creation of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadCreate 734: Function vThreadCreate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 651: Function sampleVThreadCallBack Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 654: Virtual Thread Created and processing for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 1 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 1 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 1 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 560: Executing Creation of Virtual Thread for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadCreate 734: Function vThreadCreate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 651: Function sampleVThreadCallBack Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 654: Virtual Thread Created and processing for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 2 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 2 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 2 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 1 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 1 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 579: Executing Deletion of Virtual Thread for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 2 Woken Up with Command Type 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 682: About to Destroy Thread 2 at Thread completion with value of pData as 22
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 685: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 782: Function vThreadDestroy Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 784: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 786: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 788: Function vThreadDestroy Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 694: Function sampleVThreadCallBack Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 1 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 1 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 579: Executing Deletion of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 1 Woken Up with Command Type 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 682: About to Destroy Thread 1 at Thread completion with value of pData as 24
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 685: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 782: Function vThreadDestroy Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 784: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 786: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 788: Function vThreadDestroy Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 694: Function sampleVThreadCallBack Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 560: Executing Creation of Virtual Thread for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadCreate 734: Function vThreadCreate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 651: Function sampleVThreadCallBack Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 654: Virtual Thread Created and processing for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 2 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 2 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 2 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 560: Executing Creation of Virtual Thread for Thread 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadCreate 734: Function vThreadCreate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 651: Function sampleVThreadCallBack Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 654: Virtual Thread Created and processing for Thread 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 3 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 560: Executing Creation of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadCreate 734: Function vThreadCreate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 651: Function sampleVThreadCallBack Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 654: Virtual Thread Created and processing for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 1 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 1 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 1 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 3 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 3 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 595: Executing Wakeup of Virtual Thread for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 2 Woken Up with Command Type 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 665: Virtual Thread 2 going to Sleep
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 809: Function vThreadSleep Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 611: Executing Kill of Virtual Thread for Thread 3
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 782: Function vThreadDestroy Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 784: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 786: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 788: Function vThreadDestroy Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 633: Function sampleHandleMsgSeq Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 579: Executing Deletion of Virtual Thread for Thread 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 2 Woken Up with Command Type 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 682: About to Destroy Thread 2 at Thread completion with value of pData as 23
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 685: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 782: Function vThreadDestroy Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 784: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 786: test
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadDestroy 788: Function vThreadDestroy Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 694: Function sampleVThreadCallBack Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 849: Function vThreadBaseUpdate Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadBaseUpdate 852: Function vThreadBaseUpdate Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 546: Function sampleHandleMsgSeq Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleHandleMsgSeq 579: Executing Deletion of Virtual Thread for Thread 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadWakeup 832: Function vThreadWakeup Entered
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c vThreadSleep 811: Function vThreadSleep Returns with 1
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 677: Virtual Thread 1 Woken Up with Command Type 2
+Apr 17 14:03:58 smart vthreadExample: vthreadExample.c sampleVThreadCallBack 682: About to Destroy Thread 1 at Thread completion with value of pData as 22

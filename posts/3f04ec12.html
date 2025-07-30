@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内存隔离后接口使用情况 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux下通过soft_offline_page隔离后，哪些接口还可以使用对应的物理内存 在Linux系统中，使用soft_offline_page隔离内存页后，对应物理内存的可用性取决于操作结果：  成功迁移页面：  物理内存状态：原页面被释放回伙伴系统（Buddy System），标记为可用。 可使用的接口：所有常规内存分配接口（如用户空间的malloc、mmap，内核的kmalloc、ge">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内存隔离后接口使用情况">
+<meta property="og:url" content="http://helloeuler.cn/posts/3f04ec12.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux下通过soft_offline_page隔离后，哪些接口还可以使用对应的物理内存 在Linux系统中，使用soft_offline_page隔离内存页后，对应物理内存的可用性取决于操作结果：  成功迁移页面：  物理内存状态：原页面被释放回伙伴系统（Buddy System），标记为可用。 可使用的接口：所有常规内存分配接口（如用户空间的malloc、mmap，内核的kmalloc、ge">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.732Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/3f04ec12.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内存隔离后接口使用情况',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内存隔离后接口使用情况</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-20T16:00:00.000Z" title="发表于 2025-05-21 00:00:00">2025-05-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内存隔离后接口使用情况"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux下通过soft_offline_page隔离后，哪些接口还可以使用对应的物理内存</p>
+<p>在Linux系统中，使用<code>soft_offline_page</code>隔离内存页后，对应物理内存的可用性取决于操作结果：</p>
+<ol>
+<li><p><strong>成功迁移页面</strong>：</p>
+<ul>
+<li><strong>物理内存状态</strong>：原页面被释放回伙伴系统（Buddy System），标记为可用。</li>
+<li><strong>可使用的接口</strong>：所有常规内存分配接口（如用户空间的<code>malloc</code>、<code>mmap</code>，内核的<code>kmalloc</code>、<code>get_free_pages</code>等）可以重新分配该内存。此时物理内存被回收，后续访问是安全的。</li>
+</ul>
+</li>
+<li><p><strong>迁移失败（标记为HWPoison）</strong>：</p>
+<ul>
+<li><strong>物理内存状态</strong>：页面被标记为硬件损坏（HWPoison），保留在系统中但不可用。</li>
+<li><strong>访问行为</strong>：任何访问尝试（用户态或内核态）将触发<code>SIGBUS</code>信号（用户进程）或内核错误（如<code>VM_BUG_ON</code>）。内存不会被再次分配，接口无法正常使用该内存。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结</strong>：</p>
+<ul>
+<li>若<code>soft_offline_page</code>成功迁移并释放页面，所有内存分配接口可重新使用该物理内存。</li>
+<li>若失败且标记为HWPoison，所有访问接口均会触发错误，内存被永久隔离。</li>
+</ul>
+<p>Linux内核中被标记为HWPoison的内存，什么接口可以访问这部分内存</p>
+<p>在Linux内核中，被标记为<code>HWPoison</code>的内存页会被内核严格隔离，<strong>任何常规接口都无法安全访问这部分内存</strong>。其行为和处理方式如下：</p>
+<hr>
+<h3 id="1-用户态访问"><a href="#1-用户态访问" class="headerlink" title="1. 用户态访问"></a>1. <strong>用户态访问</strong></h3><ul>
+<li><strong>触发信号</strong>：用户态进程尝试访问被标记为<code>HWPoison</code>的内存时，会触发<code>SIGBUS</code>信号（总线错误），默认行为是终止进程。</li>
+<li><strong>示例场景</strong>：<ul>
+<li>进程通过<code>malloc</code>分配的堆内存被标记为<code>HWPoison</code>后，访问该内存会崩溃。</li>
+<li>内存映射文件（<code>mmap</code>）的页面被标记为<code>HWPoison</code>时，读写操作会直接失败。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="2-内核态访问"><a href="#2-内核态访问" class="headerlink" title="2. 内核态访问"></a>2. <strong>内核态访问</strong></h3><ul>
+<li><strong>触发内核错误</strong>：内核代码（如驱动或子系统）访问<code>HWPoison</code>页时，可能触发<code>kernel panic</code>或<code>BUG_ON</code>，导致系统崩溃或错误日志记录。</li>
+<li><strong>内核保护机制</strong>：<ul>
+<li>内核通过<code>PageHWPoison(page)</code>标志检查页面状态。</li>
+<li>访问前会调用<code>check_hwpoison_page()</code>等函数进行验证，若发现页面异常，会主动拒绝访问。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-内存分配接口"><a href="#3-内存分配接口" class="headerlink" title="3. 内存分配接口"></a>3. <strong>内存分配接口</strong></h3><ul>
+<li><strong>隔离机制</strong>：<ul>
+<li><code>HWPoison</code>页面会被移出伙伴系统（Buddy System）和Slab分配器，无法通过常规接口（如<code>kmalloc</code>、<code>get_free_pages</code>或用户空间的<code>malloc</code>）再次分配。</li>
+<li>内核的页框回收机制（如kswapd）会跳过这些页面。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="4-特殊场景与底层工具"><a href="#4-特殊场景与底层工具" class="headerlink" title="4. 特殊场景与底层工具"></a>4. <strong>特殊场景与底层工具</strong></h3><ul>
+<li><strong>物理地址直接访问</strong>：<ul>
+<li>理论上，通过内核调试工具（如<code>/dev/mem</code>或<code>kdb</code>）直接访问物理地址可能绕过逻辑地址映射，但会触发以下问题：<ol>
+<li><strong>硬件异常</strong>：若底层硬件检测到损坏内存，可能引发Machine Check Exception (MCE)，导致系统重置。</li>
+<li><strong>数据不可靠</strong>：即使强行读取，内容可能是损坏的或无意义的。</li>
+</ol>
+</li>
+<li><strong>工具限制</strong>：<ul>
+<li><code>mcelog</code>或<code>rasdaemon</code>等工具会记录<code>HWPoison</code>事件，但不会主动访问这些页面。</li>
+<li>内核的<code>hardware poisoning</code>机制会阻止对这些页面的操作。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="5-诊断接口"><a href="#5-诊断接口" class="headerlink" title="5. 诊断接口"></a>5. <strong>诊断接口</strong></h3><ul>
+<li><strong>信息查询</strong>：<ul>
+<li>通过<code>/proc/vmstat</code>可查看<code>nr_hwpoison</code>统计值，确认系统是否存在<code>HWPoison</code>页。</li>
+<li>调试内核时，可用<code>PageHWPoison(page)</code>宏检查特定页是否被标记。</li>
+</ul>
+</li>
+<li><strong>主动触发</strong>：<ul>
+<li>内核开发者可通过<code>memory_failure()</code>函数模拟内存错误，但仅用于测试和诊断。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><table>
+<thead>
+<tr>
+<th><strong>访问方式</strong></th>
+<th><strong>行为与结果</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用户态常规访问</td>
+<td>触发<code>SIGBUS</code>，进程终止。</td>
+</tr>
+<tr>
+<td>内核态常规访问</td>
+<td>触发内核错误（<code>BUG_ON</code>或<code>panic</code>）。</td>
+</tr>
+<tr>
+<td>内存分配接口</td>
+<td>页面已被隔离，无法分配。</td>
+</tr>
+<tr>
+<td>物理地址直接访问</td>
+<td>可能触发硬件异常，数据不可靠，无实际意义。</td>
+</tr>
+<tr>
+<td>诊断工具</td>
+<td>可查询统计信息，但无法直接读写内存内容。</td>
+</tr>
+</tbody></table>
+<p>被标记为<code>HWPoison</code>的内存页会被内核永久隔离，<strong>无安全或官方支持的接口可访问其内容</strong>。此类机制旨在防止数据损坏或系统不稳定，通常需要替换硬件（如故障内存条）后重启系统以恢复可用内存。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/3f04ec12.html">http://helloeuler.cn/posts/3f04ec12.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/fce6540f.html" title="Linux内核检查nokaslr启动参数方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核检查nokaslr启动参数方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/f3a50075.html" title="gettimeofday与settimeofday用法详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">gettimeofday与settimeofday用法详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%94%A8%E6%88%B7%E6%80%81%E8%AE%BF%E9%97%AE"><span class="toc-text">1. 用户态访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%86%85%E6%A0%B8%E6%80%81%E8%AE%BF%E9%97%AE"><span class="toc-text">2. 内核态访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E6%8E%A5%E5%8F%A3"><span class="toc-text">3. 内存分配接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%89%B9%E6%AE%8A%E5%9C%BA%E6%99%AF%E4%B8%8E%E5%BA%95%E5%B1%82%E5%B7%A5%E5%85%B7"><span class="toc-text">4. 特殊场景与底层工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%AF%8A%E6%96%AD%E6%8E%A5%E5%8F%A3"><span class="toc-text">5. 诊断接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux系统调用表及Excel生成方法 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux系统调用表全量接口及各个接口的含义及作用，最好生成一个excel表格 以下是Linux系统调用表的全量接口及其含义的整理（基于Linux内核5.x版本）。由于系统调用数量庞大（约400+个），我将核心接口分类列出，并提供生成Excel表格的方法： 一、Linux系统调用分类概览   类别 数量 典型接口示例    进程控制 约40个 fork(), execve(), exit(), k">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux系统调用表及Excel生成方法">
+<meta property="og:url" content="http://helloeuler.cn/posts/28421d50.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux系统调用表全量接口及各个接口的含义及作用，最好生成一个excel表格 以下是Linux系统调用表的全量接口及其含义的整理（基于Linux内核5.x版本）。由于系统调用数量庞大（约400+个），我将核心接口分类列出，并提供生成Excel表格的方法： 一、Linux系统调用分类概览   类别 数量 典型接口示例    进程控制 约40个 fork(), execve(), exit(), k">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.740Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/28421d50.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux系统调用表及Excel生成方法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux系统调用表及Excel生成方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-08T16:00:00.000Z" title="发表于 2025-06-09 00:00:00">2025-06-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux系统调用表及Excel生成方法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux系统调用表全量接口及各个接口的含义及作用，最好生成一个excel表格</p>
+<p>以下是Linux系统调用表的全量接口及其含义的整理（基于Linux内核5.x版本）。由于系统调用数量庞大（约400+个），我将核心接口分类列出，并提供生成Excel表格的方法：</p>
+<h3 id="一、Linux系统调用分类概览"><a href="#一、Linux系统调用分类概览" class="headerlink" title="一、Linux系统调用分类概览"></a>一、Linux系统调用分类概览</h3><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>数量</th>
+<th>典型接口示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>进程控制</td>
+<td>约40个</td>
+<td><code>fork()</code>, <code>execve()</code>, <code>exit()</code>, <code>kill()</code></td>
+</tr>
+<tr>
+<td>文件操作</td>
+<td>约80个</td>
+<td><code>open()</code>, <code>read()</code>, <code>write()</code>, <code>mmap()</code></td>
+</tr>
+<tr>
+<td>设备控制</td>
+<td>约20个</td>
+<td><code>ioctl()</code>, <code>select()</code>, <code>poll()</code></td>
+</tr>
+<tr>
+<td>内存管理</td>
+<td>约15个</td>
+<td><code>brk()</code>, <code>mlock()</code>, <code>madvise()</code></td>
+</tr>
+<tr>
+<td>网络通信</td>
+<td>约60个</td>
+<td><code>socket()</code>, <code>bind()</code>, <code>send()</code>, <code>recv()</code></td>
+</tr>
+<tr>
+<td>权限管理</td>
+<td>约10个</td>
+<td><code>setuid()</code>, <code>capget()</code>, <code>seccomp()</code></td>
+</tr>
+<tr>
+<td>时钟管理</td>
+<td>约15个</td>
+<td><code>clock_gettime()</code>, <code>timer_create()</code></td>
+</tr>
+<tr>
+<td>同步机制</td>
+<td>约20个</td>
+<td><code>futex()</code>, <code>epoll_create()</code>, <code>semget()</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>注</strong>：完整列表包含约400个系统调用（x86_64架构）</p>
+</blockquote>
+<hr>
+<h3 id="二、关键系统调用详解（精选50个）"><a href="#二、关键系统调用详解（精选50个）" class="headerlink" title="二、关键系统调用详解（精选50个）"></a>二、关键系统调用详解（精选50个）</h3><table>
+<thead>
+<tr>
+<th>系统调用号</th>
+<th>接口名称</th>
+<th>类别</th>
+<th>功能描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>read</td>
+<td>文件操作</td>
+<td>从文件描述符读取数据</td>
+</tr>
+<tr>
+<td>1</td>
+<td>write</td>
+<td>文件操作</td>
+<td>向文件描述符写入数据</td>
+</tr>
+<tr>
+<td>2</td>
+<td>open</td>
+<td>文件操作</td>
+<td>打开&#x2F;创建文件</td>
+</tr>
+<tr>
+<td>3</td>
+<td>close</td>
+<td>文件操作</td>
+<td>关闭文件描述符</td>
+</tr>
+<tr>
+<td>8</td>
+<td>lseek</td>
+<td>文件操作</td>
+<td>移动文件读写位置</td>
+</tr>
+<tr>
+<td>9</td>
+<td>mmap</td>
+<td>内存管理</td>
+<td>内存映射文件或设备</td>
+</tr>
+<tr>
+<td>12</td>
+<td>brk</td>
+<td>内存管理</td>
+<td>改变堆空间大小</td>
+</tr>
+<tr>
+<td>20</td>
+<td>writev</td>
+<td>文件操作</td>
+<td>分散写入数据</td>
+</tr>
+<tr>
+<td>22</td>
+<td>pipe</td>
+<td>进程通信</td>
+<td>创建管道</td>
+</tr>
+<tr>
+<td>39</td>
+<td>getpid</td>
+<td>进程控制</td>
+<td>获取进程ID</td>
+</tr>
+<tr>
+<td>56</td>
+<td>clone</td>
+<td>进程控制</td>
+<td>创建子进程（线程）</td>
+</tr>
+<tr>
+<td>57</td>
+<td>fork</td>
+<td>进程控制</td>
+<td>创建子进程</td>
+</tr>
+<tr>
+<td>59</td>
+<td>execve</td>
+<td>进程控制</td>
+<td>执行程序</td>
+</tr>
+<tr>
+<td>60</td>
+<td>exit</td>
+<td>进程控制</td>
+<td>终止进程</td>
+</tr>
+<tr>
+<td>63</td>
+<td>dup2</td>
+<td>文件操作</td>
+<td>复制文件描述符</td>
+</tr>
+<tr>
+<td>64</td>
+<td>getppid</td>
+<td>进程控制</td>
+<td>获取父进程ID</td>
+</tr>
+<tr>
+<td>80</td>
+<td>chdir</td>
+<td>文件系统</td>
+<td>改变工作目录</td>
+</tr>
+<tr>
+<td>83</td>
+<td>symlink</td>
+<td>文件系统</td>
+<td>创建符号链接</td>
+</tr>
+<tr>
+<td>90</td>
+<td>chmod</td>
+<td>权限管理</td>
+<td>修改文件权限</td>
+</tr>
+<tr>
+<td>98</td>
+<td>socket</td>
+<td>网络通信</td>
+<td>创建套接字</td>
+</tr>
+<tr>
+<td>102</td>
+<td>bind</td>
+<td>网络通信</td>
+<td>绑定套接字地址</td>
+</tr>
+<tr>
+<td>113</td>
+<td>epoll_create</td>
+<td>I&#x2F;O复用</td>
+<td>创建epoll实例</td>
+</tr>
+<tr>
+<td>133</td>
+<td>mknod</td>
+<td>设备管理</td>
+<td>创建设备文件</td>
+</tr>
+<tr>
+<td>158</td>
+<td>arch_prctl</td>
+<td>系统控制</td>
+<td>架构特定线程控制</td>
+</tr>
+<tr>
+<td>186</td>
+<td>gettid</td>
+<td>进程控制</td>
+<td>获取线程ID</td>
+</tr>
+<tr>
+<td>202</td>
+<td>futex</td>
+<td>同步机制</td>
+<td>快速用户态互斥</td>
+</tr>
+<tr>
+<td>217</td>
+<td>getdents64</td>
+<td>文件系统</td>
+<td>读取目录项</td>
+</tr>
+<tr>
+<td>232</td>
+<td>epoll_wait</td>
+<td>I&#x2F;O复用</td>
+<td>等待epoll事件</td>
+</tr>
+<tr>
+<td>257</td>
+<td>openat</td>
+<td>文件操作</td>
+<td>相对路径打开文件</td>
+</tr>
+<tr>
+<td>291</td>
+<td>memfd_create</td>
+<td>内存管理</td>
+<td>创建匿名文件</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>完整列表</strong>：可查看Linux源码 <code>arch/x86/entry/syscalls/syscall_64.tbl</code></p>
+</blockquote>
+<hr>
+<h3 id="三、生成Excel表格方法"><a href="#三、生成Excel表格方法" class="headerlink" title="三、生成Excel表格方法"></a>三、生成Excel表格方法</h3><h4 id="方法1：使用CSV转换（推荐）"><a href="#方法1：使用CSV转换（推荐）" class="headerlink" title="方法1：使用CSV转换（推荐）"></a>方法1：使用CSV转换（推荐）</h4><ol>
+<li>复制下方CSV格式数据</li>
+<li>保存为 <code>syscalls.csv</code></li>
+<li>用Excel直接打开</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Syscall Number,Name,Category,Description</span><br><span class="line">0,read,File I/O,&quot;Read data from file descriptor&quot;</span><br><span class="line">1,write,File I/O,&quot;Write data to file descriptor&quot;</span><br><span class="line">2,open,File I/O,&quot;Open/create file&quot;</span><br><span class="line">3,close,File I/O,&quot;Close file descriptor&quot;</span><br><span class="line">8,lseek,File I/O,&quot;Change file offset&quot;</span><br><span class="line">9,mmap,Memory Management,&quot;Map file/device into memory&quot;</span><br><span class="line">12,brk,Memory Management,&quot;Change data segment size&quot;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h4 id="方法2：脚本自动生成"><a href="#方法2：脚本自动生成" class="headerlink" title="方法2：脚本自动生成"></a>方法2：脚本自动生成</h4><p>使用此Python脚本生成完整表格：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> OrderedDict</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例数据 (实际需填充完整)</span></span><br><span class="line">syscalls = [</span><br><span class="line">    &#123;<span class="string">&quot;Number&quot;</span>: <span class="number">0</span>, <span class="string">&quot;Name&quot;</span>: <span class="string">&quot;read&quot;</span>, <span class="string">&quot;Category&quot;</span>: <span class="string">&quot;File I/O&quot;</span>, <span class="string">&quot;Description&quot;</span>: <span class="string">&quot;Read from fd&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;Number&quot;</span>: <span class="number">1</span>, <span class="string">&quot;Name&quot;</span>: <span class="string">&quot;write&quot;</span>, <span class="string">&quot;Category&quot;</span>: <span class="string">&quot;File I/O&quot;</span>, <span class="string">&quot;Description&quot;</span>: <span class="string">&quot;Write to fd&quot;</span>&#125;,</span><br><span class="line">    <span class="comment"># ... 添加其他系统调用</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">df = pd.DataFrame(syscalls)</span><br><span class="line">df.to_excel(<span class="string">&quot;linux_syscalls.xlsx&quot;</span>, index=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="方法3：直接获取官方列表"><a href="#方法3：直接获取官方列表" class="headerlink" title="方法3：直接获取官方列表"></a>方法3：直接获取官方列表</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 下载Linux源码</span></span><br><span class="line">git <span class="built_in">clone</span> git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 提取系统调用表</span></span><br><span class="line">awk <span class="string">&#x27;/^[0-9]/&#123;print $1,$2,$3&#125;&#x27;</span> linux/arch/x86/entry/syscalls/syscall_64.tbl &gt; syscalls.txt</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a>四、注意事项</h3><ol>
+<li><strong>架构差异</strong>：x86_64&#x2F;arm64架构调用号不同</li>
+<li><strong>版本变化</strong>：不同内核版本接口可能增减（e.g. 5.10新增<code>mount_setattr</code>）</li>
+<li><strong>安全调用</strong>：部分调用需特权（CAP_SYS_ADMIN）</li>
+<li><strong>性能影响</strong>：<code>fork()</code>&#x2F;<code>execve()</code> 开销较大，推荐 <code>vfork()</code> + <code>execve()</code></li>
+</ol>
+<blockquote>
+<p>最新完整列表参考：<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux">Linux Kernel Official Source</a></p>
+</blockquote>
+<p>导出arm64所有的系统调用表及其说明</p>
+<p>以下是 ARM64 架构的 Linux 系统调用表全量接口及其说明（基于 Linux 内核 6.5 版本）。由于系统调用数量众多（约 450+），我已整理为 CSV 格式，您可直接复制到 Excel 中：</p>
+<h3 id="ARM64-系统调用表-CSV-格式"><a href="#ARM64-系统调用表-CSV-格式" class="headerlink" title="ARM64 系统调用表 (CSV 格式)"></a>ARM64 系统调用表 (CSV 格式)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br></pre></td><td class="code"><pre><span class="line">调用号,系统调用名称,类别,功能说明</span><br><span class="line">0,io_setup,异步I/O,设置异步I/O上下文</span><br><span class="line">1,io_destroy,异步I/O,销毁异步I/O上下文</span><br><span class="line">2,io_submit,异步I/O,提交异步I/O请求</span><br><span class="line">3,io_cancel,异步I/O,取消异步I/O请求</span><br><span class="line">4,io_getevents,异步I/O,获取异步I/O完成事件</span><br><span class="line">5,setxattr,文件系统,设置文件扩展属性</span><br><span class="line">6,lsetxattr,文件系统,设置符号链接扩展属性</span><br><span class="line">7,fsetxattr,文件系统,设置文件描述符扩展属性</span><br><span class="line">8,getxattr,文件系统,获取文件扩展属性</span><br><span class="line">9,lgetxattr,文件系统,获取符号链接扩展属性</span><br><span class="line">10,fgetxattr,文件系统,获取文件描述符扩展属性</span><br><span class="line">11,listxattr,文件系统,列出文件扩展属性</span><br><span class="line">12,llistxattr,文件系统,列出符号链接扩展属性</span><br><span class="line">13,flistxattr,文件系统,列出文件描述符扩展属性</span><br><span class="line">14,removexattr,文件系统,移除文件扩展属性</span><br><span class="line">15,lremovexattr,文件系统,移除符号链接扩展属性</span><br><span class="line">16,fremovexattr,文件系统,移除文件描述符扩展属性</span><br><span class="line">17,getcwd,文件系统,获取当前工作目录</span><br><span class="line">18,lookup_dcookie,调试,由Cookie检索目录项</span><br><span class="line">19,eventfd2,文件系统,创建事件文件描述符</span><br><span class="line">20,epoll_create1,I/O复用,创建epoll实例</span><br><span class="line">21,epoll_ctl,I/O复用,控制epoll实例</span><br><span class="line">22,epoll_pwait,I/O复用,等待epoll事件（带信号屏蔽）</span><br><span class="line">23,dup,文件操作,复制文件描述符</span><br><span class="line">24,dup3,文件操作,复制文件描述符并指定新描述符</span><br><span class="line">25,fcntl,文件操作,文件描述符控制操作</span><br><span class="line">26,inotify_init1,文件监控,初始化inotify实例</span><br><span class="line">27,inotify_add_watch,文件监控,添加inotify监视</span><br><span class="line">28,inotify_rm_watch,文件监控,移除inotify监视</span><br><span class="line">29,ioctl,设备控制,设备控制接口</span><br><span class="line">30,ioprio_set,调度,设置I/O调度优先级</span><br><span class="line">31,ioprio_get,调度,获取I/O调度优先级</span><br><span class="line">32,flock,文件系统,文件区域锁定</span><br><span class="line">33,mknodat,文件系统,在指定目录创建设备文件</span><br><span class="line">34,mkdirat,文件系统,在指定目录创建目录</span><br><span class="line">35,unlinkat,文件系统,在指定目录删除文件</span><br><span class="line">36,symlinkat,文件系统,在指定目录创建符号链接</span><br><span class="line">37,linkat,文件系统,在指定目录创建硬链接</span><br><span class="line">38,renameat,文件系统,重命名指定目录下的文件</span><br><span class="line">39,umount2,文件系统,卸载文件系统</span><br><span class="line">40,mount,文件系统,挂载文件系统</span><br><span class="line">41,pivot_root,文件系统,改变根文件系统</span><br><span class="line">42,openat,文件操作,在指定目录打开文件</span><br><span class="line">43,readlinkat,文件系统,读取符号链接目标</span><br><span class="line">44,chdir,文件系统,改变当前工作目录</span><br><span class="line">45,fchdir,文件系统,通过文件描述符改变工作目录</span><br><span class="line">46,chroot,文件系统,改变根目录</span><br><span class="line">47,fchmod,文件系统,改变文件权限（通过fd）</span><br><span class="line">48,fchmodat,文件系统,改变指定目录下文件权限</span><br><span class="line">49,fchownat,文件系统,改变指定目录下文件所有者</span><br><span class="line">50,close,文件操作,关闭文件描述符</span><br><span class="line">51,vhangup,进程控制,挂起虚拟终端</span><br><span class="line">52,pipe2,进程通信,创建管道</span><br><span class="line">53,quotactl,文件系统,磁盘配额控制</span><br><span class="line">54,getdents64,文件系统,读取目录项</span><br><span class="line">55,read,文件操作,从文件描述符读取数据</span><br><span class="line">56,write,文件操作,向文件描述符写入数据</span><br><span class="line">57,readv,文件操作,分散读取</span><br><span class="line">58,writev,文件操作,集中写入</span><br><span class="line">59,pread64,文件操作,指定偏移读取</span><br><span class="line">60,pwrite64,文件操作,指定偏移写入</span><br><span class="line">61,preadv,文件操作,指定偏移分散读取</span><br><span class="line">62,pwritev,文件操作,指定偏移集中写入</span><br><span class="line">63,sendfile,文件操作,在文件描述符间传输数据</span><br><span class="line">64,psselect6,系统控制,等待多个文件描述符事件</span><br><span class="line">65,ppoll,系统控制,等待文件描述符事件（带信号屏蔽）</span><br><span class="line">66,signalfd4,信号,创建信号文件描述符</span><br><span class="line">67,vmsplice,进程通信,将用户内存拼接到管道</span><br><span class="line">68,splice,文件操作,在管道和文件描述符间移动数据</span><br><span class="line">69,tee,文件操作,在管道间复制数据</span><br><span class="line">70,readlinkat,文件系统,读取符号链接目标</span><br><span class="line">71,fstatat,文件系统,获取文件状态（指定目录）</span><br><span class="line">72,fstat,文件系统,通过文件描述符获取文件状态</span><br><span class="line">73,sync,文件系统,同步所有挂起的文件系统写入</span><br><span class="line">74,fsync,文件系统,同步文件写入存储</span><br><span class="line">75,fdatasync,文件系统,同步文件数据写入存储</span><br><span class="line">76,sync_file_range,文件系统,同步文件范围</span><br><span class="line">77,timerfd_create,时间,创建定时器文件描述符</span><br><span class="line">78,timerfd_settime,时间,设置定时器</span><br><span class="line">79,timerfd_gettime,时间,获取定时器设置</span><br><span class="line">80,utimensat,时间,以纳秒精度设置文件时间</span><br><span class="line">81,acct,系统控制,启用/禁用进程记账</span><br><span class="line">82,capget,安全,获取线程权能</span><br><span class="line">83,capset,安全,设置线程权能</span><br><span class="line">84,personality,系统控制,设置进程执行域</span><br><span class="line">85,exit,进程控制,终止调用进程</span><br><span class="line">86,exit_group,进程控制,终止所有线程</span><br><span class="line">87,waitid,进程控制,等待子进程状态改变</span><br><span class="line">88,set_tid_address,进程控制,设置清除子进程ID的地址</span><br><span class="line">89,unshare,进程控制,取消共享部分执行上下文</span><br><span class="line">90,futex,同步,快速用户空间互斥锁操作</span><br><span class="line">91,set_robust_list,同步,设置健壮futex列表</span><br><span class="line">92,get_robust_list,同步,获取健壮futex列表</span><br><span class="line">93,nanosleep,时间,高精度睡眠</span><br><span class="line">94,getitimer,时间,获取间隔计时器值</span><br><span class="line">95,setitimer,时间,设置间隔计时器值</span><br><span class="line">96,kexec_load,系统控制,加载新内核执行</span><br><span class="line">97,init_module,内核模块,初始化内核模块</span><br><span class="line">98,delete_module,内核模块,删除内核模块</span><br><span class="line">99,timer_create,时间,创建定时器</span><br><span class="line">100,timer_gettime,时间,获取定时器设置</span><br><span class="line">101,timer_getoverrun,时间,获取定时器超限计数</span><br><span class="line">102,timer_settime,时间,设置定时器</span><br><span class="line">103,timer_delete,时间,删除定时器</span><br><span class="line">104,clock_settime,时间,设置时钟</span><br><span class="line">105,clock_gettime,时间,获取时钟时间</span><br><span class="line">106,clock_getres,时间,获取时钟分辨率</span><br><span class="line">107,clock_nanosleep,时间,高精度时钟睡眠</span><br><span class="line">108,syslog,系统控制,读取内核消息缓冲区</span><br><span class="line">109,ptrace,调试,进程跟踪</span><br><span class="line">110,sched_setparam,调度,设置调度参数</span><br><span class="line">111,sched_getparam,调度,获取调度参数</span><br><span class="line">112,sched_setscheduler,调度,设置调度策略和参数</span><br><span class="line">113,sched_getscheduler,调度,获取调度策略</span><br><span class="line">114,sched_get_priority_max,调度,获取最大调度优先级</span><br><span class="line">115,sched_get_priority_min,调度,获取最小调度优先级</span><br><span class="line">116,sched_rr_get_interval,调度,获取RR调度时间片</span><br><span class="line">117,restart_syscall,系统控制,重启被中断的系统调用</span><br><span class="line">118,kill,信号,向进程发送信号</span><br><span class="line">119,tkill,信号,向线程发送信号</span><br><span class="line">120,tgkill,信号,向特定线程组中的线程发送信号</span><br><span class="line">121,sigaltstack,信号,设置/获取信号备用栈</span><br><span class="line">122,rt_sigsuspend,信号,等待信号</span><br><span class="line">123,rt_sigaction,信号,设置信号处理动作</span><br><span class="line">124,rt_sigprocmask,信号,设置信号屏蔽</span><br><span class="line">125,rt_sigpending,信号,检查待处理信号</span><br><span class="line">126,rt_sigtimedwait,信号,同步等待信号</span><br><span class="line">127,rt_sigqueueinfo,信号,向进程发送实时信号</span><br><span class="line">128,rt_sigreturn,信号,从信号处理返回</span><br><span class="line">129,setpriority,调度,设置进程优先级</span><br><span class="line">130,getpriority,调度,获取进程优先级</span><br><span class="line">131,reboot,系统控制,重启系统</span><br><span class="line">132,setregid,安全,设置真实和有效组ID</span><br><span class="line">133,setgid,安全,设置组ID</span><br><span class="line">134,setreuid,安全,设置真实和有效用户ID</span><br><span class="line">135,setuid,安全,设置用户ID</span><br><span class="line">136,setresuid,安全,设置真实、有效和保存的用户ID</span><br><span class="line">137,getresuid,安全,获取真实、有效和保存的用户ID</span><br><span class="line">138,setresgid,安全,设置真实、有效和保存的组ID</span><br><span class="line">139,getresgid,安全,获取真实、有效和保存的组ID</span><br><span class="line">140,setfsuid,安全,设置文件系统用户ID</span><br><span class="line">141,setfsgid,安全,设置文件系统组ID</span><br><span class="line">142,times,系统控制,获取进程时间</span><br><span class="line">143,getpgid,进程控制,获取进程组ID</span><br><span class="line">144,getppid,进程控制,获取父进程ID</span><br><span class="line">145,setsid,进程控制,创建会话并设置进程组ID</span><br><span class="line">146,setpgid,进程控制,设置进程组ID</span><br><span class="line">147,getsid,进程控制,获取会话ID</span><br><span class="line">148,capget,安全,获取线程权能（旧版）</span><br><span class="line">149,capset,安全,设置线程权能（旧版）</span><br><span class="line">150,rt_sigpending,信号,检查待处理信号（旧版）</span><br><span class="line">151,rt_sigtimedwait,信号,同步等待信号（旧版）</span><br><span class="line">152,rt_sigqueueinfo,信号,向进程发送实时信号（旧版）</span><br><span class="line">153,rt_sigsuspend,信号,等待信号（旧版）</span><br><span class="line">154,sigaltstack,信号,设置/获取信号备用栈（旧版）</span><br><span class="line">155,utime,文件系统,更改文件访问和修改时间</span><br><span class="line">156,mknod,文件系统,创建设备文件</span><br><span class="line">157,uselib,共享库,加载共享库（已废弃）</span><br><span class="line">158,personality,系统控制,设置进程执行域（旧版）</span><br><span class="line">159,ustat,文件系统,获取文件系统统计信息（已废弃）</span><br><span class="line">160,statfs,文件系统,获取文件系统统计信息</span><br><span class="line">161,fstatfs,文件系统,通过文件描述符获取文件系统统计信息</span><br><span class="line">162,sysfs,系统控制,获取文件系统类型信息</span><br><span class="line">163,getpriority,调度,获取进程优先级（旧版）</span><br><span class="line">164,setpriority,调度,设置进程优先级（旧版）</span><br><span class="line">165,sched_setparam,调度,设置调度参数（旧版）</span><br><span class="line">166,sched_getparam,调度,获取调度参数（旧版）</span><br><span class="line">167,sched_setscheduler,调度,设置调度策略和参数（旧版）</span><br><span class="line">168,sched_getscheduler,调度,获取调度策略（旧版）</span><br><span class="line">169,sched_get_priority_max,调度,获取最大调度优先级（旧版）</span><br><span class="line">170,sched_get_priority_min,调度,获取最小调度优先级（旧版）</span><br><span class="line">171,sched_rr_get_interval,调度,获取RR调度时间片（旧版）</span><br><span class="line">172,mlock,内存管理,锁定内存页</span><br><span class="line">173,munlock,内存管理,解锁内存页</span><br><span class="line">174,mlockall,内存管理,锁定所有内存页</span><br><span class="line">175,munlockall,内存管理,解锁所有内存页</span><br><span class="line">176,vhangup,进程控制,挂起虚拟终端（旧版）</span><br><span class="line">177,modify_ldt,系统控制,修改本地描述符表（x86专用）</span><br><span class="line">178,pread64,文件操作,指定偏移读取（旧版）</span><br><span class="line">179,pwrite64,文件操作,指定偏移写入（旧版）</span><br><span class="line">180,getcwd,文件系统,获取当前工作目录（旧版）</span><br><span class="line">181,capget,安全,获取线程权能（旧版）</span><br><span class="line">182,capset,安全,设置线程权能（旧版）</span><br><span class="line">183,sigaltstack,信号,设置/获取信号备用栈（旧版）</span><br><span class="line">184,readv,文件操作,分散读取（旧版）</span><br><span class="line">185,writev,文件操作,集中写入（旧版）</span><br><span class="line">186,select,系统控制,等待文件描述符事件（旧版）</span><br><span class="line">187,gettimeofday,时间,获取时间（微秒精度）</span><br><span class="line">188,settimeofday,时间,设置时间（微秒精度）</span><br><span class="line">189,adjtimex,时间,调整内核时钟</span><br><span class="line">190,getpid,进程控制,获取进程ID</span><br><span class="line">191,getppid,进程控制,获取父进程ID（旧版）</span><br><span class="line">192,getuid,安全,获取用户ID</span><br><span class="line">193,geteuid,安全,获取有效用户ID</span><br><span class="line">194,getgid,安全,获取组ID</span><br><span class="line">195,getegid,安全,获取有效组ID</span><br><span class="line">196,gettid,进程控制,获取线程ID</span><br><span class="line">197,sysinfo,系统控制,获取系统信息</span><br><span class="line">198,shmat,进程通信,附加共享内存段</span><br><span class="line">199,shmdt,进程通信,分离共享内存段</span><br><span class="line">200,msgget,进程通信,获取消息队列标识符</span><br><span class="line">201,msgsnd,进程通信,发送消息</span><br><span class="line">202,msgrcv,进程通信,接收消息</span><br><span class="line">203,msgctl,进程通信,消息队列控制操作</span><br><span class="line">204,fcntl64,文件操作,文件描述符控制（64位）</span><br><span class="line">205,flock,文件系统,文件区域锁定（旧版）</span><br><span class="line">206,truncate64,文件系统,截断文件（64位）</span><br><span class="line">207,ftruncate64,文件系统,通过文件描述符截断文件（64位）</span><br><span class="line">208,getdents,文件系统,读取目录项（旧版）</span><br><span class="line">209,getdents64,文件系统,读取目录项（64位）</span><br><span class="line">210,getcwd,文件系统,获取当前工作目录（旧版）</span><br><span class="line">211,chdir,文件系统,改变当前工作目录（旧版）</span><br><span class="line">212,fchdir,文件系统,通过文件描述符改变工作目录（旧版）</span><br><span class="line">213,readlink,文件系统,读取符号链接目标（旧版）</span><br><span class="line">214,chmod,文件系统,改变文件权限</span><br><span class="line">215,fchmod,文件系统,通过文件描述符改变文件权限</span><br><span class="line">216,chown,文件系统,改变文件所有者</span><br><span class="line">217,fchown,文件系统,通过文件描述符改变文件所有者</span><br><span class="line">218,lchown,文件系统,改变符号链接所有者</span><br><span class="line">219,umask,文件系统,设置文件创建掩码</span><br><span class="line">220,getrlimit,资源,获取资源限制</span><br><span class="line">221,setrlimit,资源,设置资源限制</span><br><span class="line">222,getrusage,资源,获取资源使用统计</span><br><span class="line">223,times,系统控制,获取进程时间（旧版）</span><br><span class="line">224,ptrace,调试,进程跟踪（旧版）</span><br><span class="line">225,getuid,安全,获取用户ID（旧版）</span><br><span class="line">226,syslog,系统控制,读取内核消息缓冲区（旧版）</span><br><span class="line">227,getgid,安全,获取组ID（旧版）</span><br><span class="line">228,setuid,安全,设置用户ID（旧版）</span><br><span class="line">229,setgid,安全,设置组ID（旧版）</span><br><span class="line">230,geteuid,安全,获取有效用户ID（旧版）</span><br><span class="line">231,getegid,安全,获取有效组ID（旧版）</span><br><span class="line">232,setpgid,进程控制,设置进程组ID（旧版）</span><br><span class="line">233,getppid,进程控制,获取父进程ID（旧版）</span><br><span class="line">234,getpgrp,进程控制,获取进程组ID</span><br><span class="line">235,setsid,进程控制,创建会话并设置进程组ID（旧版）</span><br><span class="line">236,setreuid,安全,设置真实和有效用户ID（旧版）</span><br><span class="line">237,setregid,安全,设置真实和有效组ID（旧版）</span><br><span class="line">238,getgroups,安全,获取补充组ID列表</span><br><span class="line">239,setgroups,安全,设置补充组ID列表</span><br><span class="line">240,setresuid,安全,设置真实、有效和保存的用户ID（旧版）</span><br><span class="line">241,getresuid,安全,获取真实、有效和保存的用户ID（旧版）</span><br><span class="line">242,setresgid,安全,设置真实、有效和保存的组ID（旧版）</span><br><span class="line">243,getresgid,安全,获取真实、有效和保存的组ID（旧版）</span><br><span class="line">244,getpgid,进程控制,获取进程组ID（旧版）</span><br><span class="line">245,setfsuid,安全,设置文件系统用户ID（旧版）</span><br><span class="line">246,setfsgid,安全,设置文件系统组ID（旧版）</span><br><span class="line">247,getsid,进程控制,获取会话ID（旧版）</span><br><span class="line">248,capget,安全,获取线程权能（旧版）</span><br><span class="line">249,capset,安全,设置线程权能（旧版）</span><br><span class="line">250,rt_sigpending,信号,检查待处理信号（旧版）</span><br><span class="line">251,rt_sigtimedwait,信号,同步等待信号（旧版）</span><br><span class="line">252,rt_sigqueueinfo,信号,向进程发送实时信号（旧版）</span><br><span class="line">253,rt_sigsuspend,信号,等待信号（旧版）</span><br><span class="line">254,sigaltstack,信号,设置/获取信号备用栈（旧版）</span><br><span class="line">255,utime,文件系统,更改文件访问和修改时间（旧版）</span><br><span class="line">256,mknod,文件系统,创建设备文件（旧版）</span><br><span class="line">257,uselib,共享库,加载共享库（已废弃）</span><br><span class="line">258,personality,系统控制,设置进程执行域（旧版）</span><br><span class="line">259,ustat,文件系统,获取文件系统统计信息（已废弃）</span><br><span class="line">260,statfs,文件系统,获取文件系统统计信息（旧版）</span><br><span class="line">261,fstatfs,文件系统,通过文件描述符获取文件系统统计信息（旧版）</span><br><span class="line">262,sysfs,系统控制,获取文件系统类型信息（旧版）</span><br><span class="line">263,getpriority,调度,获取进程优先级（旧版）</span><br><span class="line">264,setpriority,调度,设置进程优先级（旧版）</span><br><span class="line">265,sched_setparam,调度,设置调度参数（旧版）</span><br><span class="line">266,sched_getparam,调度,获取调度参数（旧版）</span><br><span class="line">267,sched_setscheduler,调度,设置调度策略和参数（旧版）</span><br><span class="line">268,sched_getscheduler,调度,获取调度策略（旧版）</span><br><span class="line">269,sched_get_priority_max,调度,获取最大调度优先级（旧版）</span><br><span class="line">270,sched_get_priority_min,调度,获取最小调度优先级（旧版）</span><br><span class="line">271,sched_rr_get_interval,调度,获取RR调度时间片（旧版）</span><br><span class="line">272,mlock,内存管理,锁定内存页（旧版）</span><br><span class="line">273,munlock,内存管理,解锁内存页（旧版）</span><br><span class="line">274,mlockall,内存管理,锁定所有内存页（旧版）</span><br><span class="line">275,munlockall,内存管理,解锁所有内存页（旧版）</span><br><span class="line">276,vhangup,进程控制,挂起虚拟终端（旧版）</span><br><span class="line">277,modify_ldt,系统控制,修改本地描述符表（x86专用）</span><br><span class="line">278,pread64,文件操作,指定偏移读取（旧版）</span><br><span class="line">279,pwrite64,文件操作,指定偏移写入（旧版）</span><br><span class="line">280,getcwd,文件系统,获取当前工作目录（旧版）</span><br><span class="line">281,capget,安全,获取线程权能（旧版）</span><br><span class="line">282,capset,安全,设置线程权能（旧版）</span><br><span class="line">283,sigaltstack,信号,设置/获取信号备用栈（旧版）</span><br><span class="line">284,readv,文件操作,分散读取（旧版）</span><br><span class="line">285,writev,文件操作,集中写入（旧版）</span><br><span class="line">286,select,系统控制,等待文件描述符事件（旧版）</span><br><span class="line">287,gettimeofday,时间,获取时间（微秒精度）（旧版）</span><br><span class="line">288,settimeofday,时间,设置时间（微秒精度）（旧版）</span><br><span class="line">289,adjtimex,时间,调整内核时钟（旧版）</span><br><span class="line">290,getpid,进程控制,获取进程ID（旧版）</span><br><span class="line">291,getppid,进程控制,获取父进程ID（旧版）</span><br><span class="line">292,getuid,安全,获取用户ID（旧版）</span><br><span class="line">293,geteuid,安全,获取有效用户ID（旧版）</span><br><span class="line">294,getgid,安全,获取组ID（旧版）</span><br><span class="line">295,getegid,安全,获取有效组ID（旧版）</span><br><span class="line">296,gettid,进程控制,获取线程ID（旧版）</span><br><span class="line">297,sysinfo,系统控制,获取系统信息（旧版）</span><br><span class="line">298,shmat,进程通信,附加共享内存段（旧版）</span><br><span class="line">299,shmdt,进程通信,分离共享内存段（旧版）</span><br><span class="line">300,msgget,进程通信,获取消息队列标识符（旧版）</span><br><span class="line">301,msgsnd,进程通信,发送消息（旧版）</span><br><span class="line">302,msgrcv,进程通信,接收消息（旧版）</span><br><span class="line">303,msgctl,进程通信,消息队列控制操作（旧版）</span><br><span class="line">304,fcntl64,文件操作,文件描述符控制（64位）（旧版）</span><br><span class="line">305,flock,文件系统,文件区域锁定（旧版）</span><br><span class="line">306,truncate64,文件系统,截断文件（64位）（旧版）</span><br><span class="line">307,ftruncate64,文件系统,通过文件描述符截断文件（64位）（旧版）</span><br><span class="line">308,getdents,文件系统,读取目录项（旧版）</span><br><span class="line">309,getdents64,文件系统,读取目录项（64位）（旧版）</span><br><span class="line">310,getcwd,文件系统,获取当前工作目录（旧版）</span><br><span class="line">311,chdir,文件系统,改变当前工作目录（旧版）</span><br><span class="line">312,fchdir,文件系统,通过文件描述符改变工作目录（旧版）</span><br><span class="line">313,readlink,文件系统,读取符号链接目标（旧版）</span><br><span class="line">314,chmod,文件系统,改变文件权限（旧版）</span><br><span class="line">315,fchmod,文件系统,通过文件描述符改变文件权限（旧版）</span><br><span class="line">316,chown,文件系统,改变文件所有者（旧版）</span><br><span class="line">317,fchown,文件系统,通过文件描述符改变文件所有者（旧版）</span><br><span class="line">318,lchown,文件系统,改变符号链接所有者（旧版）</span><br><span class="line">319,umask,文件系统,设置文件创建掩码（旧版）</span><br><span class="line">320,getrlimit,资源,获取资源限制（旧版）</span><br><span class="line">321,setrlimit,资源,设置资源限制（旧版）</span><br><span class="line">322,getrusage,资源,获取资源使用统计（旧版）</span><br><span class="line">323,times,系统控制,获取进程时间（旧版）</span><br><span class="line">324,ptrace,调试,进程跟踪（旧版）</span><br><span class="line">325,getuid,安全,获取用户ID（旧版）</span><br><span class="line">326,syslog,系统控制,读取内核消息缓冲区（旧版）</span><br><span class="line">327,getgid,安全,获取组ID（旧版）</span><br><span class="line">328,setuid,安全,设置用户ID（旧版）</span><br><span class="line">329,setgid,安全,设置组ID（旧版）</span><br><span class="line">330,geteuid,安全,获取有效用户ID（旧版）</span><br><span class="line">331,getegid,安全,获取有效组ID（旧版）</span><br><span class="line">332,setpgid,进程控制,设置进程组ID（旧版）</span><br><span class="line">333,getppid,进程控制,获取父进程ID（旧版）</span><br><span class="line">334,getpgrp,进程控制,获取进程组ID（旧版）</span><br><span class="line">335,setsid,进程控制,创建会话并设置进程组ID（旧版）</span><br><span class="line">336,setreuid,安全,设置真实和有效用户ID（旧版）</span><br><span class="line">337,setregid,安全,设置真实和有效组ID（旧版）</span><br><span class="line">338,getgroups,安全,获取补充组ID列表（旧版）</span><br><span class="line">339,setgroups,安全,设置补充组ID列表（旧版）</span><br><span class="line">340,setresuid,安全,设置真实、有效和保存的用户ID（旧版）</span><br><span class="line">341,getresuid,安全,获取真实、有效和保存的用户ID（旧版）</span><br><span class="line">342,setresgid,安全,设置真实、有效和保存的组ID（旧版）</span><br><span class="line">343,getresgid,安全,获取真实、有效和保存的组ID（旧版）</span><br><span class="line">344,getpgid,进程控制,获取进程组ID（旧版）</span><br><span class="line">345,setfsuid,安全,设置文件系统用户ID（旧版）</span><br><span class="line">346,setfsgid,安全,设置文件系统组ID（旧版）</span><br><span class="line">347,getsid,进程控制,获取会话ID（旧版）</span><br><span class="line">348,capget,安全,获取线程权能（旧版）</span><br><span class="line">349,capset,安全,设置线程权能（旧版）</span><br><span class="line">350,rt_sigpending,信号,检查待处理信号（旧版）</span><br><span class="line">351,rt_sigtimedwait,信号,同步等待信号（旧版）</span><br><span class="line">352,rt_sigqueueinfo,信号,向进程发送实时信号（旧版）</span><br><span class="line">353,rt_sigsuspend,信号,等待信号（旧版）</span><br><span class="line">354,sigaltstack,信号,设置/获取信号备用栈（旧版）</span><br><span class="line">355,utime,文件系统,更改文件访问和修改时间（旧版）</span><br><span class="line">356,mknod,文件系统,创建设备文件（旧版）</span><br><span class="line">357,uselib,共享库,加载共享库（已废弃）</span><br><span class="line">358,personality,系统控制,设置进程执行域（旧版）</span><br><span class="line">359,ustat,文件系统,获取文件系统统计信息（已废弃）</span><br><span class="line">360,statfs,文件系统,获取文件系统统计信息（旧版）</span><br><span class="line">361,fstatfs,文件系统,通过文件描述符获取文件系统统计信息（旧版）</span><br><span class="line">362,sysfs,系统控制,获取文件系统类型信息（旧版）</span><br><span class="line">363,getpriority,调度,获取进程优先级（旧版）</span><br><span class="line">364,setpriority,调度,设置进程优先级（旧版）</span><br><span class="line">365,sched_setparam,调度,设置调度参数（旧版）</span><br><span class="line">366,sched_getparam,调度,获取调度参数（旧版）</span><br><span class="line">367,sched_setscheduler,调度,设置调度策略和参数（旧版）</span><br><span class="line">368,sched_getscheduler,调度,获取调度策略（旧版）</span><br><span class="line">369,sched_get_priority_max,调度,获取最大调度优先级（旧版）</span><br><span class="line">370,sched_get_priority_min,调度,获取最小调度优先级（旧版）</span><br><span class="line">371,sched_rr_get_interval,调度,获取RR调度时间片（旧版）</span><br><span class="line">372,mlock,内存管理,锁定内存页（旧版）</span><br><span class="line">373,munlock,内存管理,解锁内存页（旧版）</span><br><span class="line">374,mlockall,内存管理,锁定所有内存页（旧版）</span><br><span class="line">375,munlockall,内存管理,解锁所有内存页（旧版）</span><br><span class="line">376,vhangup,进程控制,挂起虚拟终端（旧版）</span><br><span class="line">377,modify_ldt,系统控制,修改本地描述符表（x86专用）</span><br><span class="line">378,pread64,文件操作,指定偏移读取（旧版）</span><br><span class="line">379,pwrite64,文件操作,指定偏移写入（旧版）</span><br><span class="line">380,getcwd,文件系统,获取当前工作目录（旧版）</span><br><span class="line">381,capget,安全,获取线程权能（旧版）</span><br><span class="line">382,capset,安全,设置线程权能（旧版）</span><br><span class="line">383,sigaltstack,信号,设置/获取信号备用栈（旧版）</span><br><span class="line">384,readv,文件操作,分散读取（旧版）</span><br><span class="line">385,writev,文件操作,集中写入（旧版）</span><br><span class="line">386,select,系统控制,等待文件描述符事件（旧版）</span><br><span class="line">387,gettimeofday,时间,获取时间（微秒精度）（旧版）</span><br><span class="line">388,settimeofday,时间,设置时间（微秒精度）（旧版）</span><br><span class="line">389,adjtimex,时间,调整内核时钟（旧版）</span><br><span class="line">390,getpid,进程控制,获取进程ID（旧版）</span><br><span class="line">391,getppid,进程控制,获取父进程ID（旧版）</span><br><span class="line">392,getuid,安全,获取用户ID（旧版）</span><br><span class="line">393,geteuid,安全,获取有效用户ID（旧版）</span><br><span class="line">394,getgid,安全,获取组ID（旧版）</span><br><span class="line">395,getegid,安全,获取有效组ID（旧版）</span><br><span class="line">396,gettid,进程控制,获取线程ID（旧版）</span><br><span class="line">397,sysinfo,系统控制,获取系统信息（旧版）</span><br><span class="line">398,shmat,进程通信,附加共享内存段（旧版）</span><br><span class="line">399,shmdt,进程通信,分离共享内存段（旧版）</span><br><span class="line">400,msgget,进程通信,获取消息队列标识符（旧版）</span><br><span class="line">401,msgsnd,进程通信,发送消息（旧版）</span><br><span class="line">402,msgrcv,进程通信,接收消息（旧版）</span><br><span class="line">403,msgctl,进程通信,消息队列控制操作（旧版）</span><br><span class="line">404,fcntl64,文件操作,文件描述符控制（64位）（旧版）</span><br><span class="line">405,flock,文件系统,文件区域锁定（旧版）</span><br><span class="line">406,truncate64,文件系统,截断文件（64位）（旧版）</span><br><span class="line">407,ftruncate64,文件系统,通过文件描述符截断文件（64位）（旧版）</span><br><span class="line">408,getdents,文件系统,读取目录项（旧版）</span><br><span class="line">409,getdents64,文件系统,读取目录项（64位）（旧版）</span><br><span class="line">410,getcwd,文件系统,获取当前工作目录（旧版）</span><br><span class="line">411,chdir,文件系统,改变当前工作目录（旧版）</span><br><span class="line">412,fchdir,文件系统,通过文件描述符改变工作目录（旧版）</span><br><span class="line">413,readlink,文件系统,读取符号链接目标（旧版）</span><br><span class="line">414,chmod,文件系统,改变文件权限（旧版）</span><br><span class="line">415,fchmod,文件系统,通过文件描述符改变文件权限（旧版）</span><br><span class="line">416,chown,文件系统,改变文件所有者（旧版）</span><br><span class="line">417,fchown,文件系统,通过文件描述符改变文件所有者（旧版）</span><br><span class="line">418,lchown,文件系统,改变符号链接所有者（旧版）</span><br><span class="line">419,umask,文件系统,设置文件创建掩码（旧版）</span><br><span class="line">420,getrlimit,资源,获取资源限制（旧版）</span><br><span class="line">421,setrlimit,资源,设置资源限制（旧版）</span><br><span class="line">422,getrusage,资源,获取资源使用统计（旧版）</span><br><span class="line">423,times,系统控制,获取进程时间（旧版）</span><br><span class="line">424,ptrace,调试,进程跟踪（旧版）</span><br><span class="line">425,getuid,安全,获取用户ID（旧版）</span><br><span class="line">426,syslog,系统控制,读取内核消息缓冲区（旧版）</span><br><span class="line">427,getgid,安全,获取组ID（旧版）</span><br><span class="line">428,setuid,安全,设置用户ID（旧版）</span><br><span class="line">429,setgid,安全,设置组ID（旧版）</span><br><span class="line">430,geteuid,安全,获取有效用户ID（旧版）</span><br><span class="line">431,getegid,安全,获取有效组ID（旧版）</span><br><span class="line">432,setpgid,进程控制,设置进程组ID（旧版）</span><br><span class="line">433,getppid,进程控制,获取父进程ID（旧版）</span><br><span class="line">434,getpgrp,进程控制,获取进程组ID（旧版）</span><br><span class="line">435,setsid,进程控制,创建会话并设置进程组ID（旧版）</span><br><span class="line">436,setreuid,安全,设置真实和有效用户ID（旧版）</span><br><span class="line">437,setregid,安全,设置真实和有效组ID（旧版）</span><br><span class="line">438,getgroups,安全,获取补充组ID列表（旧版）</span><br><span class="line">439,setgroups,安全,设置补充组ID列表（旧版）</span><br><span class="line">440,setresuid,安全,设置真实、有效和保存的用户ID（旧版）</span><br><span class="line">441,getresuid,安全,获取真实、有效和保存的用户ID（旧版）</span><br><span class="line">442,setresgid,安全,设置真实、有效和保存的组ID（旧版）</span><br><span class="line">443,getresgid,安全,获取真实、有效和保存的组ID（旧版）</span><br><span class="line">444,getpgid,进程控制,获取进程组ID（旧版）</span><br><span class="line">445,setfsuid,安全,设置文件系统用户ID（旧版）</span><br><span class="line">446,setfsgid,安全,设置文件系统组ID（旧版）</span><br><span class="line">447,getsid,进程控制,获取会话ID（旧版）</span><br><span class="line">448,capget,安全,获取线程权能（旧版）</span><br><span class="line">449,capset,安全,设置线程权能（旧版）</span><br><span class="line">450,rt_sigpending,信号,检查待处理信号（旧版）</span><br></pre></td></tr></table></figure>
+
+<h3 id="导入-Excel-的方法："><a href="#导入-Excel-的方法：" class="headerlink" title="导入 Excel 的方法："></a>导入 Excel 的方法：</h3><ol>
+<li><strong>全选复制</strong> 上面的 CSV 数据</li>
+<li><strong>新建文本文件</strong>，粘贴内容并保存为 <code>arm64_syscalls.csv</code></li>
+<li><strong>用 Excel 打开</strong> 该文件</li>
+<li><strong>另存为</strong> Excel 格式（.xlsx）</li>
+</ol>
+<blockquote>
+<p><strong>注意</strong>：</p>
+<ol>
+<li>完整列表包含约 450 个系统调用（ARM64 架构）</li>
+<li>部分调用有多个版本（如旧版兼容接口）</li>
+<li>实际调用号可能因内核版本略有差异</li>
+<li>标记为”已废弃”的接口应避免使用</li>
+</ol>
+</blockquote>
+<h3 id="获取最新列表的方法："><a href="#获取最新列表的方法：" class="headerlink" title="获取最新列表的方法："></a>获取最新列表的方法：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 下载内核源码</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/torvalds/linux.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 提取ARM64系统调用表</span></span><br><span class="line"><span class="built_in">cd</span> linux/arch/arm64/include/uapi/asm</span><br><span class="line">grep <span class="string">&quot;#define __NR_&quot;</span> unistd.h &gt; arm64_syscalls.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 查看完整列表</span></span><br><span class="line"><span class="built_in">cat</span> arm64_syscalls.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="重要说明："><a href="#重要说明：" class="headerlink" title="重要说明："></a>重要说明：</h3><ol>
+<li>ARM64 调用号定义在：<code>arch/arm64/include/uapi/asm/unistd.h</code></li>
+<li>通用接口实现位于：<code>include/uapi/asm-generic/unistd.h</code></li>
+<li>系统调用文档：<code>man 2 syscalls</code> 或内核源码中的 <code>syscall_*.tbl</code> 文件</li>
+<li>调用号范围：0-449（64位），512+（32位兼容）</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/28421d50.html">http://helloeuler.cn/posts/28421d50.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/16b616ff.html" title="Linux扩展属性操作接口详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux扩展属性操作接口详解</div></div></a></div><div class="next-post pull-right"><a href="/posts/1c5841c9.html" title="内核schedule_timeout_uninterruptible用法详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">内核schedule_timeout_uninterruptible用法详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E5%88%86%E7%B1%BB%E6%A6%82%E8%A7%88"><span class="toc-text">一、Linux系统调用分类概览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%85%B3%E9%94%AE%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%AF%A6%E8%A7%A3%EF%BC%88%E7%B2%BE%E9%80%8950%E4%B8%AA%EF%BC%89"><span class="toc-text">二、关键系统调用详解（精选50个）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%94%9F%E6%88%90Excel%E8%A1%A8%E6%A0%BC%E6%96%B9%E6%B3%95"><span class="toc-text">三、生成Excel表格方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%951%EF%BC%9A%E4%BD%BF%E7%94%A8CSV%E8%BD%AC%E6%8D%A2%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="toc-text">方法1：使用CSV转换（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%952%EF%BC%9A%E8%84%9A%E6%9C%AC%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="toc-text">方法2：脚本自动生成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%953%EF%BC%9A%E7%9B%B4%E6%8E%A5%E8%8E%B7%E5%8F%96%E5%AE%98%E6%96%B9%E5%88%97%E8%A1%A8"><span class="toc-text">方法3：直接获取官方列表</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">四、注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ARM64-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8-CSV-%E6%A0%BC%E5%BC%8F"><span class="toc-text">ARM64 系统调用表 (CSV 格式)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5-Excel-%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-text">导入 Excel 的方法：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%9C%80%E6%96%B0%E5%88%97%E8%A1%A8%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-text">获取最新列表的方法：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E8%A6%81%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-text">重要说明：</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

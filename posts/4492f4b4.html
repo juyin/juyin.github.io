@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>abort函数用法及示例详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="abort函数用法及示例 abort() 函数的用法因编程语言或框架而异，以下是两种常见场景的说明及示例：  一、C&#x2F;C++ 中的 abort() 函数作用：立即终止程序，引发异常终止（不执行清理工作，如关闭文件、释放内存等）。头文件：#include &lt;stdlib.h&gt;函数原型：void abort(void); 示例代码12345678910111213#include">
+<meta property="og:type" content="article">
+<meta property="og:title" content="abort函数用法及示例详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/4492f4b4.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="abort函数用法及示例 abort() 函数的用法因编程语言或框架而异，以下是两种常见场景的说明及示例：  一、C&#x2F;C++ 中的 abort() 函数作用：立即终止程序，引发异常终止（不执行清理工作，如关闭文件、释放内存等）。头文件：#include &lt;stdlib.h&gt;函数原型：void abort(void); 示例代码12345678910111213#include">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.731Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/4492f4b4.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'abort函数用法及示例详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">abort函数用法及示例详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-18T16:00:00.000Z" title="发表于 2025-05-19 00:00:00">2025-05-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="abort函数用法及示例详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>abort函数用法及示例</p>
+<p><code>abort()</code> 函数的用法因编程语言或框架而异，以下是两种常见场景的说明及示例：</p>
+<hr>
+<h3 id="一、C-C-中的-abort-函数"><a href="#一、C-C-中的-abort-函数" class="headerlink" title="一、C&#x2F;C++ 中的 abort() 函数"></a>一、C&#x2F;C++ 中的 <code>abort()</code> 函数</h3><p><strong>作用</strong>：立即终止程序，引发异常终止（不执行清理工作，如关闭文件、释放内存等）。<br><strong>头文件</strong>：<code>#include &lt;stdlib.h&gt;</code><br><strong>函数原型</strong>：<code>void abort(void);</code></p>
+<h4 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    FILE *file = fopen(<span class="string">&quot;nonexistent.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (file == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;文件打开失败！\n&quot;</span>);</span><br><span class="line">        <span class="built_in">abort</span>(); <span class="comment">// 终止程序</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 后续代码不会执行</span></span><br><span class="line">    fclose(file);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">文件打开失败！</span><br><span class="line">程序终止（可能生成 core 文件）</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><ol>
+<li><strong>与 <code>exit()</code> 的区别</strong>：<ul>
+<li><code>exit()</code>：正常终止程序，执行 <code>atexit()</code> 注册的函数。</li>
+<li><code>abort()</code>：立即终止程序，可能触发 <code>SIGABRT</code> 信号，默认生成核心转储（core dump）。</li>
+</ul>
+</li>
+<li><strong>资源清理</strong>：不会自动关闭文件或释放动态内存，需提前手动处理。</li>
+</ol>
+<hr>
+<h3 id="二、Python-Flask-框架中的-abort"><a href="#二、Python-Flask-框架中的-abort" class="headerlink" title="二、Python Flask 框架中的 abort()"></a>二、Python Flask 框架中的 <code>abort()</code></h3><p><strong>作用</strong>：在 Web 请求处理中立即终止并返回指定的 HTTP 错误码（如 404、500）。<br><strong>模块</strong>：<code>from flask import abort</code></p>
+<h4 id="示例代码-1"><a href="#示例代码-1" class="headerlink" title="示例代码"></a>示例代码</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, abort</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/user/&lt;int:user_id&gt;&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_user</span>(<span class="params">user_id</span>):</span><br><span class="line">    users = &#123;<span class="number">1</span>: <span class="string">&quot;Alice&quot;</span>, <span class="number">2</span>: <span class="string">&quot;Bob&quot;</span>&#125;</span><br><span class="line">    <span class="keyword">if</span> user_id <span class="keyword">not</span> <span class="keyword">in</span> users:</span><br><span class="line">        abort(<span class="number">404</span>)  <span class="comment"># 返回 404 页面</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;用户: <span class="subst">&#123;users[user_id]&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
+
+<h4 id="运行结果-1"><a href="#运行结果-1" class="headerlink" title="运行结果"></a>运行结果</h4><ul>
+<li>访问 <code>/user/3</code> 会返回 Flask 默认的 404 错误页面。</li>
+</ul>
+<h4 id="自定义错误页面"><a href="#自定义错误页面" class="headerlink" title="自定义错误页面"></a>自定义错误页面</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.errorhandler(<span class="params"><span class="number">404</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">page_not_found</span>(<span class="params">error</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;自定义 404 页面&quot;</span>, <span class="number">404</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、其他场景"><a href="#三、其他场景" class="headerlink" title="三、其他场景"></a>三、其他场景</h3><ol>
+<li><strong>数据库事务</strong>：如 SQL 中的 <code>ABORT</code> 命令用于回滚事务。</li>
+<li><strong>多线程&#x2F;进程</strong>：终止线程或进程（需谨慎使用，避免资源泄漏）。</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>**C&#x2F;C++**：用于不可恢复的错误（如内存损坏），需手动处理资源。</li>
+<li><strong>Flask</strong>：快速返回 HTTP 错误响应，结合错误处理提升用户体验。</li>
+<li><strong>通用原则</strong>：在严重错误且无法安全继续运行时使用 <code>abort()</code>。</li>
+</ul>
+<p>raise函数的用法示例</p>
+<p><code>raise</code> 是编程中用于 <strong>主动触发异常</strong> 的关键字（如 Python）或函数（如部分语言）。以下是不同场景下的用法示例：</p>
+<hr>
+<h3 id="一、Python-中的-raise"><a href="#一、Python-中的-raise" class="headerlink" title="一、Python 中的 raise"></a>一、Python 中的 <code>raise</code></h3><p><strong>作用</strong>：手动触发异常，常用于错误处理或强制中断程序流程。</p>
+<h4 id="1-基本用法：抛出内置异常"><a href="#1-基本用法：抛出内置异常" class="headerlink" title="1. 基本用法：抛出内置异常"></a>1. 基本用法：抛出内置异常</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">divide</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">if</span> b == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;除数不能为零&quot;</span>)  <span class="comment"># 触发异常</span></span><br><span class="line">    <span class="keyword">return</span> a / b</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    result = divide(<span class="number">10</span>, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">except</span> ValueError <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;错误: <span class="subst">&#123;e&#125;</span>&quot;</span>)  <span class="comment"># 输出：错误: 除数不能为零</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-重新抛出异常（传递异常）"><a href="#2-重新抛出异常（传递异常）" class="headerlink" title="2. 重新抛出异常（传递异常）"></a>2. 重新抛出异常（传递异常）</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">process_file</span>(<span class="params">filename</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            data = f.read()</span><br><span class="line">    <span class="keyword">except</span> FileNotFoundError:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;文件未找到，重新抛出异常&quot;</span>)</span><br><span class="line">        <span class="keyword">raise</span>  <span class="comment"># 不处理异常，直接向上传递</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    process_file(<span class="string">&quot;nonexistent.txt&quot;</span>)</span><br><span class="line"><span class="keyword">except</span> FileNotFoundError:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;外层捕获到文件未找到错误&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-自定义异常类"><a href="#3-自定义异常类" class="headerlink" title="3. 自定义异常类"></a>3. 自定义异常类</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyCustomError</span>(<span class="title class_ inherited__">Exception</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, message=<span class="string">&quot;自定义错误&quot;</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__(message)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">check_value</span>(<span class="params">value</span>):</span><br><span class="line">    <span class="keyword">if</span> value &lt; <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">raise</span> MyCustomError(<span class="string">&quot;值不能为负数&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    check_value(-<span class="number">5</span>)</span><br><span class="line"><span class="keyword">except</span> MyCustomError <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(e)  <span class="comment"># 输出：值不能为负数</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-触发异常链（Python-3-11-）"><a href="#4-触发异常链（Python-3-11-）" class="headerlink" title="4. 触发异常链（Python 3.11+）"></a>4. 触发异常链（Python 3.11+）</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="number">1</span> / <span class="number">0</span></span><br><span class="line"><span class="keyword">except</span> ZeroDivisionError <span class="keyword">as</span> e:</span><br><span class="line">    <span class="keyword">raise</span> RuntimeError(<span class="string">&quot;计算失败&quot;</span>) <span class="keyword">from</span> e</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出异常链：</span></span><br><span class="line"><span class="comment"># ZeroDivisionError -&gt; RuntimeError</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="二、其他语言中的类似用法"><a href="#二、其他语言中的类似用法" class="headerlink" title="二、其他语言中的类似用法"></a>二、其他语言中的类似用法</h3><h4 id="1-JavaScript：throw"><a href="#1-JavaScript：throw" class="headerlink" title="1. JavaScript：throw"></a>1. JavaScript：<code>throw</code></h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">checkAge</span>(<span class="params">age</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (age &lt; <span class="number">18</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;年龄必须≥18岁&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="title function_">checkAge</span>(<span class="number">15</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(e.<span class="property">message</span>);  <span class="comment">// 输出：年龄必须≥18岁</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-C-：throw"><a href="#2-C-：throw" class="headerlink" title="2. C++：throw"></a>2. C++：<code>throw</code></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdexcept&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">validate</span><span class="params">(<span class="type">int</span> value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (value &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> std::<span class="built_in">invalid_argument</span>(<span class="string">&quot;值不能为负数&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="built_in">validate</span>(<span class="number">-5</span>);</span><br><span class="line">    &#125; <span class="built_in">catch</span> (<span class="type">const</span> std::exception&amp; e) &#123;</span><br><span class="line">        std::cerr &lt;&lt; <span class="string">&quot;错误: &quot;</span> &lt;&lt; e.<span class="built_in">what</span>() &lt;&lt; std::endl;  <span class="comment">// 输出：错误: 值不能为负数</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、核心原则与注意事项"><a href="#三、核心原则与注意事项" class="headerlink" title="三、核心原则与注意事项"></a>三、核心原则与注意事项</h3><ol>
+<li><strong>明确异常类型</strong>：优先使用内置异常（如 <code>ValueError</code>、<code>TypeError</code>），必要时自定义异常。</li>
+<li><strong>异常信息清晰</strong>：在异常消息中说明具体错误原因（如 <code>raise ValueError(&quot;输入必须为正整数&quot;)</code>）。</li>
+<li><strong>避免滥用</strong>：<ul>
+<li>不要用异常处理常规逻辑（如 <code>if-else</code> 更合适）。</li>
+<li>不要抛出过于宽泛的异常（如直接 <code>raise Exception</code>）。</li>
+</ul>
+</li>
+<li><strong>资源安全</strong>：确保异常触发前释放关键资源（如关闭文件、数据库连接）。</li>
+</ol>
+<hr>
+<h3 id="四、常见内置异常类型（Python）"><a href="#四、常见内置异常类型（Python）" class="headerlink" title="四、常见内置异常类型（Python）"></a>四、常见内置异常类型（Python）</h3><table>
+<thead>
+<tr>
+<th>异常类型</th>
+<th>触发场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ValueError</code></td>
+<td>值无效（如类型正确但内容非法）</td>
+</tr>
+<tr>
+<td><code>TypeError</code></td>
+<td>类型错误（如字符串+整数）</td>
+</tr>
+<tr>
+<td><code>IndexError</code></td>
+<td>索引越界（如列表访问越界）</td>
+</tr>
+<tr>
+<td><code>KeyError</code></td>
+<td>字典键不存在</td>
+</tr>
+<tr>
+<td><code>FileNotFoundError</code></td>
+<td>文件未找到</td>
+</tr>
+</tbody></table>
+<hr>
+<p>通过 <code>raise</code>，开发者可以精准控制错误处理流程，提升代码的健壮性和可维护性。</p>
+<p>c语言raise函数的用法示例</p>
+<p>在 C 语言中，**<code>raise()</code> 函数用于向当前程序发送指定的信号**（signal），触发对应的信号处理机制。与 Python 的 <code>raise</code> 不同，它不是用来抛出异常，而是与操作系统的信号系统交互。</p>
+<hr>
+<h3 id="一、函数原型及头文件"><a href="#一、函数原型及头文件" class="headerlink" title="一、函数原型及头文件"></a>一、函数原型及头文件</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span>  <span class="comment">// 头文件</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">raise</span><span class="params">(<span class="type">int</span> sig)</span>;  <span class="comment">// 函数原型</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数</strong>：<code>sig</code> 为信号编号（如 <code>SIGINT</code>、<code>SIGSEGV</code>）。</li>
+<li><strong>返回值</strong>：成功返回 0，失败返回非 0。</li>
+</ul>
+<hr>
+<h3 id="二、基本用法示例"><a href="#二、基本用法示例" class="headerlink" title="二、基本用法示例"></a>二、基本用法示例</h3><h4 id="示例-1：触发自定义信号处理"><a href="#示例-1：触发自定义信号处理" class="headerlink" title="示例 1：触发自定义信号处理"></a>示例 1：触发自定义信号处理</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义信号处理函数</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">handle_signal</span><span class="params">(<span class="type">int</span> sig)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;捕获到信号: %d\n&quot;</span>, sig);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);  <span class="comment">// 退出程序</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 注册信号处理函数（捕获 SIGUSR1）</span></span><br><span class="line">    signal(SIGUSR1, handle_signal);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;发送自定义信号 SIGUSR1...\n&quot;</span>);</span><br><span class="line">    raise(SIGUSR1);  <span class="comment">// 主动发送信号</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 以下代码不会执行</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;这行不会输出\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>输出</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">发送自定义信号 SIGUSR1...</span><br><span class="line">捕获到信号: 10</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="示例-2：模拟程序错误（如除零错误）"><a href="#示例-2：模拟程序错误（如除零错误）" class="headerlink" title="示例 2：模拟程序错误（如除零错误）"></a>示例 2：模拟程序错误（如除零错误）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">handle_div_zero</span><span class="params">(<span class="type">int</span> sig)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;错误：除零操作！\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    signal(SIGFPE, handle_div_zero);  <span class="comment">// 注册浮点异常处理</span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>, b = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 人为触发除零错误（通常由硬件检测）</span></span><br><span class="line">    raise(SIGFPE);  <span class="comment">// 等价于执行 a/b</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>输出</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">错误：除零操作！</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、常用信号类型"><a href="#三、常用信号类型" class="headerlink" title="三、常用信号类型"></a>三、常用信号类型</h3><table>
+<thead>
+<tr>
+<th>信号常量</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SIGINT</code></td>
+<td>2</td>
+<td>中断（如 Ctrl+C）</td>
+</tr>
+<tr>
+<td><code>SIGSEGV</code></td>
+<td>11</td>
+<td>非法内存访问（段错误）</td>
+</tr>
+<tr>
+<td><code>SIGFPE</code></td>
+<td>8</td>
+<td>算术错误（如除零）</td>
+</tr>
+<tr>
+<td><code>SIGABRT</code></td>
+<td>6</td>
+<td>程序调用 <code>abort()</code></td>
+</tr>
+<tr>
+<td><code>SIGUSR1</code></td>
+<td>10</td>
+<td>用户自定义信号 1</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a>四、注意事项</h3><ol>
+<li><strong>信号处理限制</strong>：<ul>
+<li>某些信号（如 <code>SIGKILL</code>、<code>SIGSTOP</code>）无法被捕获或忽略。</li>
+<li>信号处理函数中应避免调用非异步安全函数（如 <code>printf</code>、<code>malloc</code>）。</li>
+</ul>
+</li>
+<li><strong>与 <code>abort()</code> 的区别</strong>：<ul>
+<li><code>abort()</code> 会强制终止程序并生成核心转储（core dump）。</li>
+<li><code>raise(SIGABRT)</code> 与 <code>abort()</code> 效果类似，但 <code>abort()</code> 更直接。</li>
+</ul>
+</li>
+<li><strong>多线程环境</strong>：<ul>
+<li><code>raise()</code> 在多线程中向当前线程发送信号，需谨慎处理线程同步。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="五、高级用法：模拟段错误"><a href="#五、高级用法：模拟段错误" class="headerlink" title="五、高级用法：模拟段错误"></a>五、高级用法：模拟段错误</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">handle_segv</span><span class="params">(<span class="type">int</span> sig)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;捕获到段错误！\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    signal(SIGSEGV, handle_segv);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;模拟段错误...\n&quot;</span>);</span><br><span class="line">    raise(SIGSEGV);  <span class="comment">// 主动触发段错误信号</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>输出</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">模拟段错误...</span><br><span class="line">捕获到段错误！</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="六、适用场景"><a href="#六、适用场景" class="headerlink" title="六、适用场景"></a>六、适用场景</h3><ol>
+<li><strong>调试</strong>：模拟特定错误条件（如内存错误、算术异常）。</li>
+<li><strong>自定义信号处理</strong>：实现程序的自定义退出逻辑。</li>
+<li><strong>多进程通信</strong>：通过信号与父子进程交互（需结合 <code>fork()</code> 使用）。</li>
+</ol>
+<hr>
+<p>通过 <code>raise()</code>，可以在 C 语言中主动触发信号，但需结合信号处理函数（<code>signal()</code> 或 <code>sigaction()</code>）实现完整逻辑。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/4492f4b4.html">http://helloeuler.cn/posts/4492f4b4.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/ec0a323e.html" title="Linux内核命令行参数获取方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核命令行参数获取方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/4697fe47.html" title="Linux echo写/proc耗时优化方案"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux echo写/proc耗时优化方案</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81C-C-%E4%B8%AD%E7%9A%84-abort-%E5%87%BD%E6%95%B0"><span class="toc-text">一、C&#x2F;C++ 中的 abort() 函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="toc-text">运行结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Python-Flask-%E6%A1%86%E6%9E%B6%E4%B8%AD%E7%9A%84-abort"><span class="toc-text">二、Python Flask 框架中的 abort()</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81-1"><span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C-1"><span class="toc-text">运行结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF%E9%A1%B5%E9%9D%A2"><span class="toc-text">自定义错误页面</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%85%B6%E4%BB%96%E5%9C%BA%E6%99%AF"><span class="toc-text">三、其他场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Python-%E4%B8%AD%E7%9A%84-raise"><span class="toc-text">一、Python 中的 raise</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%EF%BC%9A%E6%8A%9B%E5%87%BA%E5%86%85%E7%BD%AE%E5%BC%82%E5%B8%B8"><span class="toc-text">1. 基本用法：抛出内置异常</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%87%8D%E6%96%B0%E6%8A%9B%E5%87%BA%E5%BC%82%E5%B8%B8%EF%BC%88%E4%BC%A0%E9%80%92%E5%BC%82%E5%B8%B8%EF%BC%89"><span class="toc-text">2. 重新抛出异常（传递异常）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E7%B1%BB"><span class="toc-text">3. 自定义异常类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%A7%A6%E5%8F%91%E5%BC%82%E5%B8%B8%E9%93%BE%EF%BC%88Python-3-11-%EF%BC%89"><span class="toc-text">4. 触发异常链（Python 3.11+）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%85%B6%E4%BB%96%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E7%B1%BB%E4%BC%BC%E7%94%A8%E6%B3%95"><span class="toc-text">二、其他语言中的类似用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-JavaScript%EF%BC%9Athrow"><span class="toc-text">1. JavaScript：throw</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-C-%EF%BC%9Athrow"><span class="toc-text">2. C++：throw</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99%E4%B8%8E%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">三、核心原则与注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E8%A7%81%E5%86%85%E7%BD%AE%E5%BC%82%E5%B8%B8%E7%B1%BB%E5%9E%8B%EF%BC%88Python%EF%BC%89"><span class="toc-text">四、常见内置异常类型（Python）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B%E5%8F%8A%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="toc-text">一、函数原型及头文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E7%A4%BA%E4%BE%8B"><span class="toc-text">二、基本用法示例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1%EF%BC%9A%E8%A7%A6%E5%8F%91%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86"><span class="toc-text">示例 1：触发自定义信号处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-2%EF%BC%9A%E6%A8%A1%E6%8B%9F%E7%A8%8B%E5%BA%8F%E9%94%99%E8%AF%AF%EF%BC%88%E5%A6%82%E9%99%A4%E9%9B%B6%E9%94%99%E8%AF%AF%EF%BC%89"><span class="toc-text">示例 2：模拟程序错误（如除零错误）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%B8%B8%E7%94%A8%E4%BF%A1%E5%8F%B7%E7%B1%BB%E5%9E%8B"><span class="toc-text">三、常用信号类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">四、注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95%EF%BC%9A%E6%A8%A1%E6%8B%9F%E6%AE%B5%E9%94%99%E8%AF%AF"><span class="toc-text">五、高级用法：模拟段错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">六、适用场景</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

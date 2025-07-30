@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核LSM机制详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核LSM机制介绍 Linux 内核的 LSM (Linux Security Module) 机制是一个安全框架，它允许不同的强制访问控制 (MAC) 安全模型以可加载内核模块的形式实现，并将其钩子（hooks）集成到内核的各种关键操作中。 核心目标和解决的问题 提供灵活性： 在 LSM 之前，想要在内核中实现不同的安全策略（如 SELinux、AppArmor 等）需要大规模修改内核">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核LSM机制详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/60b6c0af.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核LSM机制介绍 Linux 内核的 LSM (Linux Security Module) 机制是一个安全框架，它允许不同的强制访问控制 (MAC) 安全模型以可加载内核模块的形式实现，并将其钩子（hooks）集成到内核的各种关键操作中。 核心目标和解决的问题 提供灵活性： 在 LSM 之前，想要在内核中实现不同的安全策略（如 SELinux、AppArmor 等）需要大规模修改内核">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.737Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/60b6c0af.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核LSM机制详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核LSM机制详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-04T16:00:00.000Z" title="发表于 2025-06-05 00:00:00">2025-06-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核LSM机制详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核LSM机制介绍</p>
+<p>Linux 内核的 <strong>LSM (Linux Security Module)</strong> 机制是一个<strong>安全框架</strong>，它允许不同的<strong>强制访问控制 (MAC)</strong> 安全模型以可加载内核模块的形式实现，并将其钩子（hooks）集成到内核的各种关键操作中。</p>
+<h2 id="核心目标和解决的问题"><a href="#核心目标和解决的问题" class="headerlink" title="核心目标和解决的问题"></a>核心目标和解决的问题</h2><ol>
+<li><strong>提供灵活性：</strong> 在 LSM 之前，想要在内核中实现不同的安全策略（如 SELinux、AppArmor 等）需要大规模修改内核源码，难以维护且相互冲突。LSM 提供了一套标准的接口，使得不同的安全模块可以独立开发和加载，无需修改内核核心代码。</li>
+<li><strong>实现强制访问控制：</strong> 补充传统的 UNIX **自主访问控制 (DAC)**。DAC（如用户&#x2F;组&#x2F;文件权限）由资源所有者决定谁可以访问。MAC 则由系统管理员定义的安全策略强制决定，无论资源所有者意愿如何，提供更细粒度和更严格的安全控制。</li>
+<li><strong>标准化钩子点：</strong> 在内核执行对安全敏感的操作之前（如打开文件、创建进程、网络操作、访问 IPC 对象等），LSM 框架定义了标准的“钩子点”。安全模块可以在这些点上注册回调函数，由内核在操作执行前调用，让模块决定是否允许该操作。</li>
+</ol>
+<h2 id="LSM-的工作原理"><a href="#LSM-的工作原理" class="headerlink" title="LSM 的工作原理"></a>LSM 的工作原理</h2><ol>
+<li><p><strong>钩子点：</strong> 内核开发者在关键的内核函数路径上放置了 LSM 钩子调用。例如：</p>
+<ul>
+<li><code>file_open</code>： 在打开文件之前。</li>
+<li><code>inode_permission</code>： 在检查文件权限之后、DAC 权限之后。</li>
+<li><code>task_alloc</code> &#x2F; <code>cred_prepare</code>： 在创建新进程或修改进程凭证之前。</li>
+<li><code>socket_bind</code> &#x2F; <code>socket_connect</code>： 在绑定或连接 socket 之前。</li>
+<li><code>sb_mount</code>： 在挂载文件系统之前。</li>
+<li><code>bprm_check_security</code>： 在执行程序之前。</li>
+<li><code>ptrace_access_check</code>： 在进行 ptrace 操作之前。</li>
+<li>还有很多其他钩子点覆盖了内核的各个子系统（IPC, 模块加载, 任务调度, 网络等）。</li>
+</ul>
+</li>
+<li><p><strong>安全模块注册：</strong> 一个安全模块（如 <code>selinux</code>, <code>apparmor</code>, <code>tomoyo</code>）在初始化时，向 LSM 框架注册自己，并提供其实现的钩子函数集合（一个包含函数指针的结构体）。</p>
+</li>
+<li><p><strong>钩子调用：</strong> 当内核执行到一个设置了 LSM 钩子的操作时：</p>
+<ul>
+<li>内核会先执行传统的 DAC 检查。如果 DAC 拒绝，操作直接失败。</li>
+<li>如果 DAC 允许，内核会遍历所有已注册并启用的安全模块（按照编译或启动时确定的顺序），调用该操作对应的钩子函数。</li>
+<li>每个被调用的钩子函数根据其模块内部的安全策略（策略规则）检查当前操作（主体 - 通常是进程&#x2F;用户，客体 - 文件&#x2F;socket&#x2F;IPC 对象，操作 - 读&#x2F;写&#x2F;执行等）是否被允许。</li>
+<li>如果某个钩子函数返回一个错误（非零值），表示该安全模块拒绝此次操作，内核会中止操作并返回权限错误（如 <code>-EACCES</code>）。</li>
+<li>如果所有被调用的钩子函数都返回 0（允许），内核则继续执行该操作。</li>
+</ul>
+</li>
+<li><p><strong>安全域：</strong> 安全模块通常会给主体（进程）和客体（文件、socket 等）打上“安全标签”或“安全上下文”（如 SELinux 的 <code>user:role:type:level</code> 或 AppArmor 的路径规则）。钩子函数就是基于这些标签和操作类型来查询策略数据库做出决策。</p>
+</li>
+</ol>
+<h2 id="主要特点"><a href="#主要特点" class="headerlink" title="主要特点"></a>主要特点</h2><ul>
+<li><strong>模块化：</strong> 核心特性，不同的安全模型作为独立模块存在。</li>
+<li><strong>补充 DAC：</strong> LSM 钩子在 DAC 检查<em>之后</em>调用。如果 DAC 拒绝，LSM 不会被调用。LSM 提供额外的、更严格的检查。</li>
+<li><strong>堆叠：</strong> 较新的内核版本（大约 4.2 之后）支持有限度的 LSM 堆叠，允许多个安全模块同时生效。内核按预定义的顺序依次调用每个模块的钩子。如果任何一个模块拒绝，操作即被拒绝。常见的堆叠模式是将一个主要的 MAC 模块（如 SELinux 或 AppArmor）与一些更小的、功能特定的模块（如 <code>Yama</code> - 限制 <code>ptrace</code>，<code>LoadPin</code> - 限制模块&#x2F;固件加载路径，<code>Lockdown</code> - 内核锁定）一起使用。但像 SELinux 和 AppArmor 这样的全功能 MAC 模块通常不能同时启用。</li>
+<li><strong>性能：</strong> 添加钩子调用必然带来开销。安全模块的策略查找复杂度是主要性能因素。现代内核通过优化（如通过 <code>static_call</code> 等技术减少间接调用开销）和模块自身优化（如 SELinux 的 AVC 缓存）来减轻影响。未启用安全模块时，LSM 框架自身的开销非常小。</li>
+<li><strong>最小权限原则：</strong> LSM 实现的 MAC 模型（如 SELinux, AppArmor）的核心目标是强制执行最小权限原则，即使进程以 root 身份运行，也只能执行策略明确允许的操作。</li>
+</ul>
+<h2 id="常见的内置-LSM-模块"><a href="#常见的内置-LSM-模块" class="headerlink" title="常见的内置 LSM 模块"></a>常见的内置 LSM 模块</h2><ol>
+<li><strong>SELinux：</strong> 由 NSA 开发，使用基于类型强制（TE）、角色访问控制（RBAC）和多级安全（MLS&#x2F;MCS）的复杂标签系统。策略灵活强大，但配置复杂。广泛用于企业级 Linux 发行版（RHEL, Fedora）和 Android。</li>
+<li><strong>AppArmor：</strong> 由 Novell&#x2F;SUSE 开发，使用基于路径名的配置文件和规则。配置相对直观（通常通过路径和程序名）。广泛用于桌面和服务器 Linux 发行版（Ubuntu, openSUSE）。</li>
+<li><strong>Smack：</strong> 简单强制访问控制内核。设计目标是在嵌入式场景中保持简单性。标签相对简单（直接附加到文件 inode 和任务结构上）。</li>
+<li><strong>TOMOYO：</strong> 起源于日本，采用基于路径名的策略，特点是其“学习模式”可以生成初始策略配置。</li>
+<li><strong>Yama：</strong> 专注于限制 <code>ptrace</code> 系统调用，防止非特权用户调试敏感进程（增强沙盒逃逸防护）。常与其他模块堆叠使用。</li>
+<li><strong>LoadPin：</strong> 强制要求所有内核模块和固件必须从同一个文件系统加载（通常是只读的），防止加载被篡改的模块。</li>
+<li><strong>Lockdown：</strong> 随着 UEFI Secure Boot 发展而来，在内核运行时限制对某些敏感内核功能的访问（如修改运行中内核、访问原始内存、加载未签名模块等），保护内核完整性。在启用 Secure Boot 的系统中通常处于 <code>integrity</code> 或 <code>confidentiality</code> 模式。</li>
+<li><strong>BPF LSM：</strong> 允许使用 eBPF 程序来实现安全策略逻辑，提供了极大的灵活性来动态定义安全行为。是一个强大的新兴方向。</li>
+</ol>
+<h2 id="配置和使用"><a href="#配置和使用" class="headerlink" title="配置和使用"></a>配置和使用</h2><ul>
+<li>通常在内核编译时配置哪些 LSM 模块被编译（<code>CONFIG_SECURITY_XXX=y/m</code>）。</li>
+<li>系统启动时通过内核引导参数 <code>security=</code> 指定启用的主要模块（如 <code>security=selinux</code>, <code>security=apparmor</code>）。对于堆叠，顺序也由该参数或内核默认顺序决定。</li>
+<li>各个模块有自己的用户态工具来管理策略（<code>semodule</code>&#x2F;<code>semanage</code>&#x2F;<code>setools</code> for SELinux, <code>aa-genprof</code>&#x2F;<code>aa-enforce</code>&#x2F;<code>apparmor_parser</code> for AppArmor）。</li>
+<li>可以通过 <code>/sys/kernel/security/lsm</code> 查看当前启用的 LSM 模块及其顺序。</li>
+<li>可以通过 <code>/proc/self/attr/current</code> (SELinux) 或 <code>/proc/self/attr/apparmor/current</code> (AppArmor) 查看进程的安全上下文。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>LSM 是 Linux 内核安全架构的基石。它通过提供标准化的钩子框架，使得强大的强制访问控制安全模型（如 SELinux 和 AppArmor）以及其他安全增强功能能够以模块化、可扩展的方式集成到内核中，极大地提升了 Linux 系统应对安全威胁的能力，特别是在实现最小权限原则和系统加固方面。理解 LSM 对于进行 Linux 系统安全管理和开发安全应用程序至关重要。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/60b6c0af.html">http://helloeuler.cn/posts/60b6c0af.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/9ac706c6.html" title="CPU die的定义与作用解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CPU die的定义与作用解析</div></div></a></div><div class="next-post pull-right"><a href="/posts/c64e0ccc.html" title="Linux内核SEA处理流程详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核SEA处理流程详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%9B%AE%E6%A0%87%E5%92%8C%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">核心目标和解决的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LSM-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">LSM 的工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E7%89%B9%E7%82%B9"><span class="toc-text">主要特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%86%85%E7%BD%AE-LSM-%E6%A8%A1%E5%9D%97"><span class="toc-text">常见的内置 LSM 模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="toc-text">配置和使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

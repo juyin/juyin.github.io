@@ -1,0 +1,259 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核put_user函数用法详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核put_user的用法 put_user 是 Linux 内核中用于将内核空间的数据安全复制到用户空间的关键函数。它在系统调用、设备驱动等场景中广泛使用，确保内核数据能安全传递给用户态程序。以下是详细用法指南：  函数原型1int put_user(type val, type __user *addr);  **val**：要写入的内核数据（标量类型：char、int、long 等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核put_user函数用法详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/a076b5a3.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核put_user的用法 put_user 是 Linux 内核中用于将内核空间的数据安全复制到用户空间的关键函数。它在系统调用、设备驱动等场景中广泛使用，确保内核数据能安全传递给用户态程序。以下是详细用法指南：  函数原型1int put_user(type val, type __user *addr);  **val**：要写入的内核数据（标量类型：char、int、long 等">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.764Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/a076b5a3.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核put_user函数用法详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核put_user函数用法详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-28T16:00:00.000Z" title="发表于 2025-07-29 00:00:00">2025-07-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核put_user函数用法详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核put_user的用法</p>
+<p><code>put_user</code> 是 Linux 内核中用于<strong>将内核空间的数据安全复制到用户空间</strong>的关键函数。它在系统调用、设备驱动等场景中广泛使用，确保内核数据能安全传递给用户态程序。以下是详细用法指南：</p>
+<hr>
+<h3 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a><strong>函数原型</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">put_user</span><span class="params">(type val, type __user *addr)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>**<code>val</code>**：要写入的内核数据（标量类型：<code>char</code>、<code>int</code>、<code>long</code> 等）。</li>
+<li>**<code>addr</code>**：目标用户空间地址（需用 <code>__user</code> 标记，用于静态检查）。</li>
+<li><strong>返回值</strong>：成功返回 <code>0</code>；失败返回 <code>-EFAULT</code>（地址无效）。</li>
+</ul>
+<hr>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a><strong>使用场景</strong></h3><p>在需要向用户空间传递数据的场景中使用，例如：</p>
+<ul>
+<li>系统调用实现（如 <code>read</code> 处理函数）。</li>
+<li>设备驱动中的 <code>ioctl</code> 或 <code>read</code> 方法。</li>
+<li>内核模块与用户程序交互时。</li>
+</ul>
+<hr>
+<h3 id="使用步骤与示例"><a href="#使用步骤与示例" class="headerlink" title="使用步骤与示例"></a><strong>使用步骤与示例</strong></h3><h4 id="示例：将内核整型变量写入用户空间"><a href="#示例：将内核整型变量写入用户空间" class="headerlink" title="示例：将内核整型变量写入用户空间"></a>示例：将内核整型变量写入用户空间</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/uaccess.h&gt;</span> <span class="comment">// 必需头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">long</span> <span class="title function_">my_syscall</span><span class="params">(<span class="type">int</span> __user *user_ptr)</span> &#123;</span><br><span class="line">    <span class="type">int</span> kernel_data = <span class="number">42</span>; <span class="comment">// 内核空间数据</span></span><br><span class="line">    <span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 kernel_data 写入 user_ptr 指向的用户空间</span></span><br><span class="line">    ret = put_user(kernel_data, user_ptr);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Failed to write to user space!\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -EFAULT; <span class="comment">// 返回错误码</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 成功</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键注意事项"><a href="#关键注意事项" class="headerlink" title="关键注意事项"></a><strong>关键注意事项</strong></h3><ol>
+<li><p><strong>地址有效性检查</strong>：</p>
+<ul>
+<li><code>put_user</code> <strong>内部自动检查</strong>用户地址是否有效（可写且在用户空间）。</li>
+<li>无需手动调用 <code>access_ok()</code>，但复杂场景建议前置检查：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!access_ok(VERIFY_WRITE, addr, <span class="keyword">sizeof</span>(<span class="type">int</span>)))</span><br><span class="line">    <span class="keyword">return</span> -EFAULT;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>支持的数据类型</strong>：</p>
+<ul>
+<li>支持基本标量类型（1&#x2F;2&#x2F;4&#x2F;8 字节）：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span>, <span class="type">short</span>, <span class="type">int</span>, <span class="type">long</span>, <span class="type">long</span> <span class="type">long</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>不支持结构体&#x2F;数组</strong>！需改用 <code>copy_to_user()</code>。</li>
+</ul>
+</li>
+<li><p><strong>原子性</strong>：</p>
+<ul>
+<li>可在中断上下文安全使用（不睡眠）。</li>
+</ul>
+</li>
+<li><p><strong>错误处理</strong>：</p>
+<ul>
+<li>必须检查返回值，失败时返回 <code>-EFAULT</code>。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="与-copy-to-user-的区别"><a href="#与-copy-to-user-的区别" class="headerlink" title="与 copy_to_user() 的区别"></a><strong>与 <code>copy_to_user()</code> 的区别</strong></h3><table>
+<thead>
+<tr>
+<th><strong>函数</strong></th>
+<th><strong>适用场景</strong></th>
+<th><strong>性能</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>put_user(x, ptr)</code></td>
+<td>单个标量数据（如 <code>int</code>, <code>char</code>）</td>
+<td>高效（内联汇编）</td>
+</tr>
+<tr>
+<td><code>copy_to_user()</code></td>
+<td>结构体、数组等大数据块</td>
+<td>相对较慢</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="常见错误"><a href="#常见错误" class="headerlink" title="常见错误"></a><strong>常见错误</strong></h3><ol>
+<li><p><strong>未检查返回值</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">put_user(data, addr); <span class="comment">// 错误！未处理可能的失败</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>传递内核地址</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *kernel_ptr = kmalloc(...);</span><br><span class="line">put_user(*kernel_ptr, user_ptr); <span class="comment">// 正确：解引用后传值</span></span><br><span class="line">put_user(kernel_ptr, user_ptr);  <span class="comment">// 错误！传递的是内核地址</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>误用结构体</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">my_struct</span> <span class="title">s</span>;</span></span><br><span class="line">put_user(s, user_ptr); <span class="comment">// 错误！不支持结构体</span></span><br><span class="line">copy_to_user(user_ptr, &amp;s, <span class="keyword">sizeof</span>(s)); <span class="comment">// 正确</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="内部机制"><a href="#内部机制" class="headerlink" title="内部机制"></a><strong>内部机制</strong></h3><p><code>put_user</code> 通过内联汇编实现，核心步骤：</p>
+<ol>
+<li>检查用户地址是否属于用户空间（非内核地址）。</li>
+<li>触发页面错误异常处理（若地址未映射）。</li>
+<li>通过特殊指令（如 x86 的 <code>mov</code>）执行数据复制。</li>
+<li>捕获错误并返回状态码。</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><ul>
+<li><strong>何时使用</strong>：向用户空间传递<strong>单个标量值</strong>（整数、字符等）。</li>
+<li><strong>必须操作</strong>：<ol>
+<li>包含头文件 <code>&lt;linux/uaccess.h&gt;</code>。</li>
+<li>检查返回值并处理 <code>-EFAULT</code>。</li>
+<li>确保目标地址用 <code>__user</code> 标记。</li>
+</ol>
+</li>
+<li><strong>替代方案</strong>：复制大数据块时使用 <code>copy_to_user()</code>。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/a076b5a3.html">http://helloeuler.cn/posts/a076b5a3.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/563cd39f.html" title="Linux内核copy_string_kernel接口作用解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核copy_string_kernel接口作用解析</div></div></a></div><div class="next-post pull-right"><a href="/posts/b2f5535c.html" title="Linux内核获取子进程启动参数方案"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核获取子进程启动参数方案</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-text">函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4%E4%B8%8E%E7%A4%BA%E4%BE%8B"><span class="toc-text">使用步骤与示例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%B0%86%E5%86%85%E6%A0%B8%E6%95%B4%E5%9E%8B%E5%8F%98%E9%87%8F%E5%86%99%E5%85%A5%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4"><span class="toc-text">示例：将内核整型变量写入用户空间</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">关键注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E-copy-to-user-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">与 copy_to_user() 的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF"><span class="toc-text">常见错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E6%9C%BA%E5%88%B6"><span class="toc-text">内部机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>SRAM与DRAM的区别与应用 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="SRAM和DRAM SRAM（静态随机存取存储器）和DRAM（动态随机存取存储器）是计算机中两种主要的易失性半导体存储器（断电后数据丢失），它们在工作原理、性能、结构、成本和用途上存在关键区别： 下表总结了 SRAM 和 DRAM 的主要区别：    特性 SRAM (静态随机存取存储器) DRAM (动态随机存取存储器)    存储单元原理 6个晶体管组成的双稳态触发器电路 1个晶体管 + 1个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SRAM与DRAM的区别与应用">
+<meta property="og:url" content="http://helloeuler.cn/posts/f4891752.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="SRAM和DRAM SRAM（静态随机存取存储器）和DRAM（动态随机存取存储器）是计算机中两种主要的易失性半导体存储器（断电后数据丢失），它们在工作原理、性能、结构、成本和用途上存在关键区别： 下表总结了 SRAM 和 DRAM 的主要区别：    特性 SRAM (静态随机存取存储器) DRAM (动态随机存取存储器)    存储单元原理 6个晶体管组成的双稳态触发器电路 1个晶体管 + 1个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.749Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/f4891752.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'SRAM与DRAM的区别与应用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">SRAM与DRAM的区别与应用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-01T16:00:00.000Z" title="发表于 2025-07-02 00:00:00">2025-07-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="SRAM与DRAM的区别与应用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>SRAM和DRAM</p>
+<p>SRAM（静态随机存取存储器）和DRAM（动态随机存取存储器）是计算机中两种主要的<strong>易失性</strong>半导体存储器（断电后数据丢失），它们在<strong>工作原理、性能、结构、成本和用途</strong>上存在关键区别：</p>
+<p>下表总结了 SRAM 和 DRAM 的主要区别：</p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>特性</strong></th>
+<th align="left"><strong>SRAM (静态随机存取存储器)</strong></th>
+<th align="left"><strong>DRAM (动态随机存取存储器)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>存储单元原理</strong></td>
+<td align="left">6个晶体管组成的双稳态触发器电路</td>
+<td align="left">1个晶体管 + 1个电容器</td>
+</tr>
+<tr>
+<td align="left"><strong>刷新需求</strong></td>
+<td align="left">不需要刷新</td>
+<td align="left">需要定期刷新（约每64ms一次）</td>
+</tr>
+<tr>
+<td align="left"><strong>访问速度</strong></td>
+<td align="left"><strong>极快</strong> (纳秒级别，通常10ns以下)</td>
+<td align="left"><strong>较慢</strong> (通常50ns以上)</td>
+</tr>
+<tr>
+<td align="left"><strong>存储密度</strong></td>
+<td align="left"><strong>低</strong> (单元复杂，占用芯片面积大)</td>
+<td align="left"><strong>高</strong> (单元简单，可密集排列)</td>
+</tr>
+<tr>
+<td align="left"><strong>功耗</strong></td>
+<td align="left"><strong>静态功耗低</strong>，工作时功耗中等</td>
+<td align="left"><strong>静态功耗低</strong>，刷新和工作时<strong>动态功耗高</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>成本</strong></td>
+<td align="left"><strong>高</strong> (每个比特成本高)</td>
+<td align="left"><strong>低</strong> (每个比特成本低)</td>
+</tr>
+<tr>
+<td align="left"><strong>主要用途</strong></td>
+<td align="left">CPU高速缓存(L1, L2, L3 Cache)</td>
+<td align="left">主内存(RAM)</td>
+</tr>
+<tr>
+<td align="left"><strong>复杂性</strong></td>
+<td align="left">接口简单(无需刷新电路)</td>
+<td align="left">接口复杂(需刷新控制器和地址复用)</td>
+</tr>
+</tbody></table>
+<h2 id="深入解析"><a href="#深入解析" class="headerlink" title="深入解析"></a>深入解析</h2><ol>
+<li><p><strong>存储单元结构与工作原理:</strong></p>
+<ul>
+<li><strong>SRAM:</strong><ul>
+<li>每个存储位（Bit）由<strong>6个晶体管</strong>（通常是CMOS工艺）组成一个<strong>双稳态触发器电路</strong>。</li>
+<li>只要保持供电，触发器的两个稳定状态（代表0或1）就能<strong>一直保持</strong>，不需要任何外部操作。</li>
+<li><strong>不需要刷新</strong>。</li>
+</ul>
+</li>
+<li><strong>DRAM:</strong><ul>
+<li>每个存储位（Bit）由<strong>1个晶体管和1个电容器</strong>组成。</li>
+<li>数据以电荷的形式存储在<strong>电容器</strong>上。电荷的有无代表0或1。</li>
+<li>电容器会<strong>自然漏电</strong>，导致存储的电荷（即数据）在几毫秒到几十毫秒内就会消失。</li>
+<li><strong>需要定期刷新</strong>：DRAM控制器必须周期性地（通常是每64ms一次）读取每个存储单元的内容（这会放大微弱的电荷）并立即将其写回（重新充满电容器），以维持数据。这是“动态”（Dynamic）一词的由来。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>速度:</strong></p>
+<ul>
+<li><strong>SRAM 快得多:</strong> 由于是触发器直接输出状态，SRAM的<strong>访问时间（读写延迟）非常短</strong>，通常在几纳秒到十几纳秒级别。这使得它非常适合作为需要与CPU高速同步的缓存。</li>
+<li><strong>DRAM 较慢:</strong><ul>
+<li>访问需要先<strong>激活（打开）</strong> 包含目标电容器的行（Row），然后读取或写入列（Column）上的数据。这个过程本身比SRAM的触发器访问慢。</li>
+<li><strong>地址复用:</strong> DRAM为了减少引脚数量，采用行地址和列地址分时复用的方式传输，这增加了访问延迟。</li>
+<li>访问时间通常在几十纳秒到一百多纳秒级别。</li>
+<li><strong>刷新开销:</strong> 刷新操作会占用正常的读写时间窗口，进一步降低有效带宽和增加潜在延迟。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>密度（存储容量）与成本:</strong></p>
+<ul>
+<li><strong>DRAM 密度高、成本低:</strong> 一个DRAM单元只需要1个晶体管和1个电容器（1T1C），结构非常简单，可以做得非常小，在相同面积的硅片上能集成<strong>多得多的存储单元</strong>。因此，<strong>DRAM的每比特成本远低于SRAM</strong>，成为制造大容量主内存（如你电脑里的8GB, 16GB RAM）的经济选择。</li>
+<li><strong>SRAM 密度低、成本高:</strong> 一个SRAM单元至少需要6个晶体管（6T），结构复杂，占用硅片面积大。在相同工艺下，SRAM的存储密度远低于DRAM。因此，<strong>SRAM的每比特成本远高于DRAM</strong>。这限制了它只能用于需要高速但容量相对较小的场合（如CPU缓存）。</li>
+</ul>
+</li>
+<li><p><strong>功耗:</strong></p>
+<ul>
+<li><strong>SRAM 静态功耗低:</strong> 在保持数据状态（待机）时，CMOS SRAM的<strong>静态功耗非常低</strong>（主要是漏电流）。只有在读写切换状态时功耗较高。</li>
+<li><strong>DRAM 刷新功耗显著:</strong><ul>
+<li>虽然单个DRAM单元的静态功耗也低，但由于<strong>需要持续不断的刷新操作</strong>（涉及激活大量行并读取&#x2F;重写数据），整个DRAM芯片的<strong>动态功耗（尤其是刷新功耗）相当可观</strong>，成为系统功耗的一个重要组成部分。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>复杂性:</strong></p>
+<ul>
+<li><strong>SRAM 接口简单:</strong> SRAM通常有独立的地址线和数据线，控制逻辑相对简单，不需要额外的刷新控制电路。</li>
+<li><strong>DRAM 接口复杂:</strong> DRAM需要复杂的控制器（通常在CPU内置或主板芯片组中）来管理地址复用、行激活&#x2F;预充电时序以及最重要的<strong>刷新操作</strong>。这使得DRAM系统设计更复杂。</li>
+</ul>
+</li>
+</ol>
+<h2 id="总结与应用场景"><a href="#总结与应用场景" class="headerlink" title="总结与应用场景"></a>总结与应用场景</h2><ul>
+<li><strong>SRAM &#x3D; 快 + 贵 + 省电(待机) + 省事(免刷新) -&gt; 用于需要极快速度的小容量缓存：</strong> CPU的L1, L2, L3高速缓存。</li>
+<li><strong>DRAM &#x3D; 慢 + 便宜 + 耗电(刷新) + 麻烦(需刷新控制器) -&gt; 用于需要大容量的主内存：</strong> 计算机、手机、游戏机等设备中的系统主内存 (就是我们常说的“内存条”或“RAM”)。</li>
+</ul>
+<p><strong>简单记忆：</strong> 你电脑里 <strong>CPU 内部几MB到几十MB的高速缓存是 SRAM</strong>；而插在主板上的 <strong>几GB到几十GB的内存条是 DRAM</strong>。前者是CPU的“贴身小秘书”，追求极致速度；后者是“大型仓库”，追求容量和成本效益。</p>
+<p><strong>未来趋势：</strong> 随着技术发展，一些新型存储器（如STT-MRAM, ReRAM, PCM等）试图结合两者的优点（SRAM的速度和DRAM的非易失性&#x2F;密度），但目前主流系统架构中，SRAM和DRAM的分工依然明确且不可替代。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/f4891752.html">http://helloeuler.cn/posts/f4891752.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/74a46fca.html" title="Linux物理地址区分用户态内核态方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux物理地址区分用户态内核态方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/422764a9.html" title="mmap和munmap接口详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">mmap和munmap接口详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90"><span class="toc-text">深入解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">总结与应用场景</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux跟踪钩子注册注销原型 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux中trace钩子register和unregister的原型 在 Linux 内核中，跟踪钩子（trace hooks）的注册和注销函数原型取决于具体的跟踪机制。以下是几种常见机制的示例：  1. Tracepoints（静态跟踪点）Tracepoints 是内核中预定义的静态跟踪点，需通过宏生成注册函数。 注册函数原型：1234int register_trace_&lt;tracep">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux跟踪钩子注册注销原型">
+<meta property="og:url" content="http://helloeuler.cn/posts/cd310070.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux中trace钩子register和unregister的原型 在 Linux 内核中，跟踪钩子（trace hooks）的注册和注销函数原型取决于具体的跟踪机制。以下是几种常见机制的示例：  1. Tracepoints（静态跟踪点）Tracepoints 是内核中预定义的静态跟踪点，需通过宏生成注册函数。 注册函数原型：1234int register_trace_&lt;tracep">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.735Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/cd310070.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux跟踪钩子注册注销原型',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux跟踪钩子注册注销原型</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-27T16:00:00.000Z" title="发表于 2025-05-28 00:00:00">2025-05-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux跟踪钩子注册注销原型"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux中trace钩子register和unregister的原型</p>
+<p>在 Linux 内核中，跟踪钩子（trace hooks）的注册和注销函数原型取决于具体的跟踪机制。以下是几种常见机制的示例：</p>
+<hr>
+<h3 id="1-Tracepoints（静态跟踪点）"><a href="#1-Tracepoints（静态跟踪点）" class="headerlink" title="1. Tracepoints（静态跟踪点）"></a>1. <strong>Tracepoints（静态跟踪点）</strong></h3><p>Tracepoints 是内核中预定义的静态跟踪点，需通过宏生成注册函数。</p>
+<h4 id="注册函数原型："><a href="#注册函数原型：" class="headerlink" title="注册函数原型："></a>注册函数原型：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> register_trace_&lt;tracepoint_name&gt;(</span><br><span class="line">    <span class="type">void</span> (*probe)(<span class="type">void</span> *__data, [函数参数列表]),</span><br><span class="line">    <span class="type">void</span> *data</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h4 id="注销函数原型："><a href="#注销函数原型：" class="headerlink" title="注销函数原型："></a>注销函数原型：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> unregister_trace_&lt;tracepoint_name&gt;(</span><br><span class="line">    <span class="type">void</span> (*probe)(<span class="type">void</span> *__data, [函数参数列表]),</span><br><span class="line">    <span class="type">void</span> *data</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h4 id="示例（调度器切换跟踪点-sched-switch）："><a href="#示例（调度器切换跟踪点-sched-switch）：" class="headerlink" title="示例（调度器切换跟踪点 sched_switch）："></a>示例（调度器切换跟踪点 <code>sched_switch</code>）：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注册</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">register_trace_sched_switch</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="type">void</span> (*probe)(<span class="type">void</span> *, <span class="keyword">struct</span> task_struct *prev, <span class="keyword">struct</span> task_struct *next),</span></span><br><span class="line"><span class="params">    <span class="type">void</span> *data</span></span><br><span class="line"><span class="params">)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注销</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">unregister_trace_sched_switch</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="type">void</span> (*probe)(<span class="type">void</span> *, <span class="keyword">struct</span> task_struct *prev, <span class="keyword">struct</span> task_struct *next),</span></span><br><span class="line"><span class="params">    <span class="type">void</span> *data</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-Kprobes（动态跟踪内核函数）"><a href="#2-Kprobes（动态跟踪内核函数）" class="headerlink" title="2. Kprobes（动态跟踪内核函数）"></a>2. <strong>Kprobes（动态跟踪内核函数）</strong></h3><p>用于动态插桩任意内核函数。</p>
+<h4 id="注册-注销原型："><a href="#注册-注销原型：" class="headerlink" title="注册&#x2F;注销原型："></a>注册&#x2F;注销原型：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/kprobes.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">register_kprobe</span><span class="params">(<span class="keyword">struct</span> kprobe *kp)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注销</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">unregister_kprobe</span><span class="params">(<span class="keyword">struct</span> kprobe *kp)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="结构体定义："><a href="#结构体定义：" class="headerlink" title="结构体定义："></a>结构体定义：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">kprobe</span> &#123;</span></span><br><span class="line">    <span class="type">kprobe_opcode_t</span> *addr;  <span class="comment">// 目标函数地址</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *symbol_name; <span class="comment">// 或通过符号名查找</span></span><br><span class="line">    <span class="type">int</span> offset;</span><br><span class="line">    <span class="comment">// 回调函数</span></span><br><span class="line">    <span class="type">int</span> (*pre_handler)(<span class="keyword">struct</span> kprobe *, <span class="keyword">struct</span> pt_regs *);</span><br><span class="line">    <span class="type">void</span> (*post_handler)(<span class="keyword">struct</span> kprobe *, <span class="keyword">struct</span> pt_regs *, <span class="type">unsigned</span> <span class="type">long</span> flags);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-Ftrace-函数钩子"><a href="#3-Ftrace-函数钩子" class="headerlink" title="3. Ftrace 函数钩子"></a>3. <strong>Ftrace 函数钩子</strong></h3><p>用于动态跟踪函数调用，通过 <code>ftrace_ops</code> 结构体管理回调。</p>
+<h4 id="注册-注销原型：-1"><a href="#注册-注销原型：-1" class="headerlink" title="注册&#x2F;注销原型："></a>注册&#x2F;注销原型：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/ftrace.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">register_ftrace_function</span><span class="params">(<span class="keyword">struct</span> ftrace_ops *ops)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注销</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">unregister_ftrace_function</span><span class="params">(<span class="keyword">struct</span> ftrace_ops *ops)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="结构体定义：-1"><a href="#结构体定义：-1" class="headerlink" title="结构体定义："></a>结构体定义：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ftrace_ops</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> (*func)(<span class="type">unsigned</span> <span class="type">long</span> ip, <span class="type">unsigned</span> <span class="type">long</span> parent_ip, <span class="keyword">struct</span> ftrace_ops *ops);</span><br><span class="line">    <span class="type">int</span> flags; <span class="comment">// 如 FTRACE_OPS_FL_SAVE_REGS</span></span><br><span class="line">    <span class="comment">// 其他字段...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-Event-Tracing（事件跟踪）"><a href="#4-Event-Tracing（事件跟踪）" class="headerlink" title="4. Event Tracing（事件跟踪）"></a>4. <strong>Event Tracing（事件跟踪）</strong></h3><p>通过 <code>TRACE_EVENT</code> 宏定义的事件，通常通过 <code>tracefs</code> 接口或专用 API 注册。</p>
+<h4 id="示例（自定义事件）："><a href="#示例（自定义事件）：" class="headerlink" title="示例（自定义事件）："></a>示例（自定义事件）：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义事件后，生成的注册函数可能为：</span></span><br><span class="line"><span class="type">int</span> trace_event_reg_func_&lt;event_name&gt;(</span><br><span class="line">    <span class="keyword">struct</span> trace_event_call *event,</span><br><span class="line">    <span class="keyword">enum</span> trace_reg type,</span><br><span class="line">    <span class="type">void</span> *data</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注销通常通过反向操作或卸载模块实现。</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ul>
+<li><strong>内核版本差异</strong>：不同内核版本的 API 可能变化，需参考对应版本的源码（如 <code>/include/linux/tracepoint.h</code>）。</li>
+<li><strong>安全性与稳定性</strong>：钩子函数需遵守内核编程规范，避免阻塞或内存泄漏。</li>
+<li><strong>调试支持</strong>：可通过 <code>dmesg</code> 或 <code>tracefs</code>（如 <code>/sys/kernel/tracing</code>）查看跟踪输出。</li>
+</ul>
+<p>建议根据具体需求选择跟踪机制，并查阅内核文档（如 <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/trace/">Kernel Tracing</a>）获取详细信息。</p>
+<p>给一个注册trace钩子的示例</p>
+<p>以下是一个使用 <strong>Tracepoints</strong> 注册内核跟踪钩子的完整示例，以监控进程调度事件 <code>sched_switch</code> 为例：</p>
+<hr>
+<h3 id="示例代码-sched-hook-c"><a href="#示例代码-sched-hook-c" class="headerlink" title="示例代码 (sched_hook.c)"></a><strong>示例代码</strong> (<code>sched_hook.c</code>)</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/sched.h&gt;</span>      <span class="comment">// 定义 struct task_struct</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/tracepoint.h&gt;</span> <span class="comment">// Tracepoint API</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义跟踪回调函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">trace_sched_switch_handler</span><span class="params">(<span class="type">void</span> *data, </span></span><br><span class="line"><span class="params">                                      <span class="keyword">struct</span> task_struct *prev,</span></span><br><span class="line"><span class="params">                                      <span class="keyword">struct</span> task_struct *next)</span> &#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;sched_switch: prev_pid=%d, next_pid=%d\n&quot;</span>,</span><br><span class="line">           prev-&gt;pid, next-&gt;pid);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明跟踪点操作结构</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">tracepoint</span> *<span class="title">sched_switch_tp</span>;</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">tracepoint_func</span> <span class="title">sched_switch_probe</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块初始化</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">hook_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="comment">// 获取名为 &quot;sched_switch&quot; 的 Tracepoint</span></span><br><span class="line">    sched_switch_tp = tracepoint_find(<span class="string">&quot;sched&quot;</span>, <span class="string">&quot;sched_switch&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!sched_switch_tp) &#123;</span><br><span class="line">        printk(KERN_ERR <span class="string">&quot;Failed to find sched_switch tracepoint\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOENT;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化跟踪点回调</span></span><br><span class="line">    sched_switch_probe.func = trace_sched_switch_handler;</span><br><span class="line">    sched_switch_probe.data = <span class="literal">NULL</span>; <span class="comment">// 无额外数据传递</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册跟踪钩子</span></span><br><span class="line">    tracepoint_probe_register(sched_switch_tp, sched_switch_probe.func, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;sched_switch hook registered\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块卸载</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">hook_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (sched_switch_tp) &#123;</span><br><span class="line">        <span class="comment">// 注销跟踪钩子</span></span><br><span class="line">        tracepoint_probe_unregister(sched_switch_tp, sched_switch_probe.func, <span class="literal">NULL</span>);</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;sched_switch hook unregistered\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(hook_init);</span><br><span class="line">module_exit(hook_exit);</span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;YourName&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;Tracepoint example for sched_switch&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键步骤解析"><a href="#关键步骤解析" class="headerlink" title="关键步骤解析"></a><strong>关键步骤解析</strong></h3><ol>
+<li><p><strong>包含头文件</strong>：</p>
+<ul>
+<li><code>&lt;linux/tracepoint.h&gt;</code>：提供 Tracepoint API。</li>
+<li><code>&lt;linux/sched.h&gt;</code>：定义进程结构体 <code>struct task_struct</code>。</li>
+</ul>
+</li>
+<li><p><strong>定义回调函数</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">trace_sched_switch_handler</span><span class="params">(<span class="type">void</span> *data, <span class="keyword">struct</span> task_struct *prev, <span class="keyword">struct</span> task_struct *next)</span> &#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;sched_switch: prev_pid=%d, next_pid=%d\n&quot;</span>, prev-&gt;pid, next-&gt;pid);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>当 <code>sched_switch</code> 事件触发时，打印切换进程的 PID。</li>
+</ul>
+</li>
+<li><p><strong>查找 Tracepoint</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sched_switch_tp = tracepoint_find(<span class="string">&quot;sched&quot;</span>, <span class="string">&quot;sched_switch&quot;</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过子系统名（<code>sched</code>）和事件名（<code>sched_switch</code>）查找 Tracepoint。</li>
+</ul>
+</li>
+<li><p><strong>注册&#x2F;注销钩子</strong>：</p>
+<ul>
+<li>使用 <code>tracepoint_probe_register</code> 注册回调函数。</li>
+<li>使用 <code>tracepoint_probe_unregister</code> 在模块卸载时注销。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="编译与测试"><a href="#编译与测试" class="headerlink" title="编译与测试"></a><strong>编译与测试</strong></h3><ol>
+<li><p><strong>编译内核模块</strong>：<br>编写 <code>Makefile</code>：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">obj-m += sched_hook.o</span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<p>执行编译：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>加载模块并观察输出</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> insmod sched_hook.o    <span class="comment"># 加载模块</span></span><br><span class="line">dmesg                       <span class="comment"># 查看内核日志输出</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>验证跟踪效果</strong>：</p>
+<ul>
+<li>执行进程切换操作（如运行多任务），观察 <code>dmesg</code> 输出的进程 PID 变化。</li>
+</ul>
+</li>
+<li><p><strong>卸载模块</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> rmmod sched_hook       <span class="comment"># 卸载模块</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><p><strong>内核版本兼容性</strong>：</p>
+<ul>
+<li>Tracepoint 名称和参数可能随内核版本变化，需参考内核源码（如 <code>include/trace/events/sched.h</code>）。</li>
+<li>高版本内核（≥5.11）可能使用更安全的 <code>tracepoint_probe_add/del</code> 替代 <code>tracepoint_probe_register/unregister</code>。</li>
+</ul>
+</li>
+<li><p><strong>安全性</strong>：</p>
+<ul>
+<li>回调函数需简短且非阻塞，避免影响内核调度。</li>
+</ul>
+</li>
+<li><p><strong>调试工具</strong>：</p>
+<ul>
+<li>使用 <code>perf list</code> 查看可用 Tracepoints。</li>
+<li>通过 <code>trace-cmd</code> 工具动态启用&#x2F;禁用 Tracepoints：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trace-cmd record -e sched_switch</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>通过此示例，您可以快速实现一个内核跟踪钩子，监控进程调度事件。若需动态跟踪任意函数（如未定义 Tracepoint），可改用 <strong>Kprobes</strong> 或 <strong>Ftrace</strong>。</p>
+<p>写一个sched_process_exec钩子的使用示例</p>
+<p>以下是一个使用 <strong><code>sched_process_exec</code> Tracepoint</strong> 监控进程执行（exec）事件的完整内核模块示例。该示例会捕获进程通过 <code>exec</code> 系列函数（如 <code>execve</code>）执行新程序的事件，并记录相关信息（如文件名、进程 PID）。</p>
+<hr>
+<h3 id="示例代码-exec-hook-c"><a href="#示例代码-exec-hook-c" class="headerlink" title="示例代码 (exec_hook.c)"></a><strong>示例代码</strong> (<code>exec_hook.c</code>)</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/sched.h&gt;</span>       <span class="comment">// 定义 struct task_struct</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/tracepoint.h&gt;</span>  <span class="comment">// Tracepoint API</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span>          <span class="comment">// 文件路径处理</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义跟踪回调函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">trace_sched_process_exec_handler</span><span class="params">(<span class="type">void</span> *data,</span></span><br><span class="line"><span class="params">                                            <span class="keyword">struct</span> task_struct *task,</span></span><br><span class="line"><span class="params">                                            <span class="type">const</span> <span class="type">char</span> *filename)</span> &#123;</span><br><span class="line">    <span class="type">char</span> path_buffer[<span class="number">256</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="type">char</span> *file_path = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取完整的可执行文件路径（需处理潜在的空指针）</span></span><br><span class="line">    <span class="keyword">if</span> (filename) &#123;</span><br><span class="line">        <span class="comment">// 将内核路径转换为用户态可读的字符串（简化处理）</span></span><br><span class="line">        file_path = d_path(&amp;task-&gt;mm-&gt;exe_file-&gt;f_path, path_buffer, <span class="keyword">sizeof</span>(path_buffer));</span><br><span class="line">        <span class="keyword">if</span> (!IS_ERR(file_path)) &#123;</span><br><span class="line">            printk(KERN_INFO <span class="string">&quot;exec: pid=%d, comm=%s, filename=%s, path=%s\n&quot;</span>,</span><br><span class="line">                   task-&gt;pid, task-&gt;comm, filename, file_path);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            printk(KERN_INFO <span class="string">&quot;exec: pid=%d, comm=%s, filename=%s (path error)\n&quot;</span>,</span><br><span class="line">                   task-&gt;pid, task-&gt;comm, filename);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明跟踪点操作结构</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">tracepoint</span> *<span class="title">sched_process_exec_tp</span>;</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">tracepoint_func</span> <span class="title">sched_process_exec_probe</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块初始化</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">hook_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="comment">// 查找名为 &quot;sched_process_exec&quot; 的 Tracepoint（可能位于 sched 子系统）</span></span><br><span class="line">    sched_process_exec_tp = tracepoint_find(<span class="string">&quot;sched&quot;</span>, <span class="string">&quot;sched_process_exec&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!sched_process_exec_tp) &#123;</span><br><span class="line">        printk(KERN_ERR <span class="string">&quot;Failed to find sched_process_exec tracepoint\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOENT;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化跟踪点回调</span></span><br><span class="line">    sched_process_exec_probe.func = trace_sched_process_exec_handler;</span><br><span class="line">    sched_process_exec_probe.data = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册跟踪钩子</span></span><br><span class="line">    tracepoint_probe_register(sched_process_exec_tp,</span><br><span class="line">                              sched_process_exec_probe.func,</span><br><span class="line">                              <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;sched_process_exec hook registered\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块卸载</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">hook_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (sched_process_exec_tp) &#123;</span><br><span class="line">        <span class="comment">// 注销跟踪钩子</span></span><br><span class="line">        tracepoint_probe_unregister(sched_process_exec_tp,</span><br><span class="line">                                   sched_process_exec_probe.func,</span><br><span class="line">                                   <span class="literal">NULL</span>);</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;sched_process_exec hook unregistered\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(hook_init);</span><br><span class="line">module_exit(hook_exit);</span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;YourName&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;Tracepoint example for sched_process_exec&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键步骤解析-1"><a href="#关键步骤解析-1" class="headerlink" title="关键步骤解析"></a><strong>关键步骤解析</strong></h3><ol>
+<li><p><strong>回调函数参数</strong>：</p>
+<ul>
+<li><code>struct task_struct *task</code>：触发 <code>exec</code> 的进程的 <code>task_struct</code>。</li>
+<li><code>const char *filename</code>：被执行的新程序的文件名（可能为相对路径）。</li>
+<li>通过 <code>task-&gt;mm-&gt;exe_file-&gt;f_path</code> 获取完整的可执行文件路径（需处理内核路径转换）。</li>
+</ul>
+</li>
+<li><p><strong>路径处理</strong>：</p>
+<ul>
+<li>使用 <code>d_path()</code> 将内核的 <code>struct path</code> 转换为用户态可读的字符串。</li>
+<li>注意：实际代码中需处理路径缓冲区溢出和空指针错误（此处为简化示例）。</li>
+</ul>
+</li>
+<li><p><strong>Tracepoint 查找</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sched_process_exec_tp = tracepoint_find(<span class="string">&quot;sched&quot;</span>, <span class="string">&quot;sched_process_exec&quot;</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>若内核版本中该 Tracepoint 位于其他子系统（如 <code>task</code>），需调整参数。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="编译与测试-1"><a href="#编译与测试-1" class="headerlink" title="编译与测试"></a><strong>编译与测试</strong></h3><ol>
+<li><p><strong>编译内核模块</strong>：<br>编写 <code>Makefile</code>：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">obj-m += exec_hook.o</span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+<p>执行编译：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>加载模块并观察输出</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> insmod exec_hook.o    <span class="comment"># 加载模块</span></span><br><span class="line">dmesg -w                  <span class="comment"># 实时查看内核日志</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>触发测试</strong>：</p>
+<ul>
+<li>在终端执行任意命令（如 <code>ls</code>、<code>echo</code>），观察 <code>dmesg</code> 输出：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec: pid=1234, comm=bash, filename=ls, path=/usr/bin/ls</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>卸载模块</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> rmmod exec_hook</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="注意事项-2"><a href="#注意事项-2" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><p><strong>内核版本兼容性</strong>：</p>
+<ul>
+<li><code>sched_process_exec</code> Tracepoint 的参数可能因内核版本不同而变化。例如：<ul>
+<li>旧版内核：参数为 <code>(struct task_struct *task, const char *filename)</code>。</li>
+<li>新版内核：可能增加更多字段（如 <code>int flags</code>）。</li>
+</ul>
+</li>
+<li>若编译时提示参数不匹配，请参考内核源码 <code>include/trace/events/sched.h</code> 确认参数列表。</li>
+</ul>
+</li>
+<li><p><strong>替代方案</strong>：</p>
+<ul>
+<li>如果 <code>sched_process_exec</code> 不存在，可改用 <strong>Kprobes</strong> 挂钩 <code>execve</code> 系统调用：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/kprobes.h&gt;</span></span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">kprobe</span> <span class="title">exec_kp</span> =</span> &#123;</span><br><span class="line">    .symbol_name = <span class="string">&quot;do_execve&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">handler_pre</span><span class="params">(<span class="keyword">struct</span> kprobe *kp, <span class="keyword">struct</span> pt_regs *regs)</span> &#123;</span><br><span class="line">    <span class="comment">// 从寄存器中提取参数（需适配架构，如 x86_64）</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *filename = (<span class="type">const</span> <span class="type">char</span> *)regs-&gt;di;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;execve: filename=%s\n&quot;</span>, filename);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>安全性与稳定性</strong>：</p>
+<ul>
+<li>回调函数中避免阻塞操作（如睡眠）。</li>
+<li>使用 <code>try_module_get(THIS_MODULE)</code> 和 <code>module_put(THIS_MODULE)</code> 防止模块意外卸载。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="验证-Tracepoint-是否存在"><a href="#验证-Tracepoint-是否存在" class="headerlink" title="验证 Tracepoint 是否存在"></a><strong>验证 Tracepoint 是否存在</strong></h3><ol>
+<li><p><strong>通过 <code>perf</code> 工具</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perf list | grep sched_process_exec</span><br></pre></td></tr></table></figure>
+<ul>
+<li>若输出包含 <code>sched:sched_process_exec</code>，则 Tracepoint 存在。</li>
+</ul>
+</li>
+<li><p><strong>通过内核源码</strong>：</p>
+<ul>
+<li>检查 <code>include/trace/events/sched.h</code> 中是否有以下宏：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TRACE_EVENT(sched_process_exec,</span><br><span class="line">    TP_PROTO(...),</span><br><span class="line">    TP_ARGS(...),</span><br><span class="line">    ...</span><br><span class="line">);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>通过此示例，您可以监控系统中所有通过 <code>exec</code> 执行新程序的事件，适用于行为监控、安全审计等场景。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/cd310070.html">http://helloeuler.cn/posts/cd310070.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/b237e809.html" title="Linux创建文件API接口详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux创建文件API接口详解</div></div></a></div><div class="next-post pull-right"><a href="/posts/81a3d319.html" title="Linux内核线程命名方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核线程命名方法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Tracepoints%EF%BC%88%E9%9D%99%E6%80%81%E8%B7%9F%E8%B8%AA%E7%82%B9%EF%BC%89"><span class="toc-text">1. Tracepoints（静态跟踪点）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B%EF%BC%9A"><span class="toc-text">注册函数原型：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E9%94%80%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B%EF%BC%9A"><span class="toc-text">注销函数原型：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%88%E8%B0%83%E5%BA%A6%E5%99%A8%E5%88%87%E6%8D%A2%E8%B7%9F%E8%B8%AA%E7%82%B9-sched-switch%EF%BC%89%EF%BC%9A"><span class="toc-text">示例（调度器切换跟踪点 sched_switch）：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Kprobes%EF%BC%88%E5%8A%A8%E6%80%81%E8%B7%9F%E8%B8%AA%E5%86%85%E6%A0%B8%E5%87%BD%E6%95%B0%EF%BC%89"><span class="toc-text">2. Kprobes（动态跟踪内核函数）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C-%E6%B3%A8%E9%94%80%E5%8E%9F%E5%9E%8B%EF%BC%9A"><span class="toc-text">注册&#x2F;注销原型：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E5%AE%9A%E4%B9%89%EF%BC%9A"><span class="toc-text">结构体定义：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Ftrace-%E5%87%BD%E6%95%B0%E9%92%A9%E5%AD%90"><span class="toc-text">3. Ftrace 函数钩子</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C-%E6%B3%A8%E9%94%80%E5%8E%9F%E5%9E%8B%EF%BC%9A-1"><span class="toc-text">注册&#x2F;注销原型：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E5%AE%9A%E4%B9%89%EF%BC%9A-1"><span class="toc-text">结构体定义：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Event-Tracing%EF%BC%88%E4%BA%8B%E4%BB%B6%E8%B7%9F%E8%B8%AA%EF%BC%89"><span class="toc-text">4. Event Tracing（事件跟踪）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%88%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BA%8B%E4%BB%B6%EF%BC%89%EF%BC%9A"><span class="toc-text">示例（自定义事件）：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81-sched-hook-c"><span class="toc-text">示例代码 (sched_hook.c)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%AD%A5%E9%AA%A4%E8%A7%A3%E6%9E%90"><span class="toc-text">关键步骤解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E4%B8%8E%E6%B5%8B%E8%AF%95"><span class="toc-text">编译与测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81-exec-hook-c"><span class="toc-text">示例代码 (exec_hook.c)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%AD%A5%E9%AA%A4%E8%A7%A3%E6%9E%90-1"><span class="toc-text">关键步骤解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E4%B8%8E%E6%B5%8B%E8%AF%95-1"><span class="toc-text">编译与测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-2"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81-Tracepoint-%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8"><span class="toc-text">验证 Tracepoint 是否存在</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

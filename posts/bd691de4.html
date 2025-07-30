@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核内存属性修改指南 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核修改内存属性 在 Linux 内核中修改内存属性通常涉及对页表（Page Tables）的操作，主要应用场景包括设置内存区域的读写&#x2F;执行权限、缓存策略等。以下是常见的实现方式和注意事项：  一、常见内存属性修改场景 设置内存只读&#x2F;可写（RO&#x2F;RW） 禁用&#x2F;启用执行权限（NX&#x2F;Execute） 修改缓存属性（如 Uncached、Wri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核内存属性修改指南">
+<meta property="og:url" content="http://helloeuler.cn/posts/bd691de4.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核修改内存属性 在 Linux 内核中修改内存属性通常涉及对页表（Page Tables）的操作，主要应用场景包括设置内存区域的读写&#x2F;执行权限、缓存策略等。以下是常见的实现方式和注意事项：  一、常见内存属性修改场景 设置内存只读&#x2F;可写（RO&#x2F;RW） 禁用&#x2F;启用执行权限（NX&#x2F;Execute） 修改缓存属性（如 Uncached、Wri">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.725Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/bd691de4.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核内存属性修改指南',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核内存属性修改指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-07T16:00:00.000Z" title="发表于 2025-05-08 00:00:00">2025-05-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核内存属性修改指南"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核修改内存属性</p>
+<p>在 Linux 内核中修改内存属性通常涉及对页表（Page Tables）的操作，主要应用场景包括设置内存区域的读写&#x2F;执行权限、缓存策略等。以下是常见的实现方式和注意事项：</p>
+<hr>
+<h3 id="一、常见内存属性修改场景"><a href="#一、常见内存属性修改场景" class="headerlink" title="一、常见内存属性修改场景"></a><strong>一、常见内存属性修改场景</strong></h3><ol>
+<li><strong>设置内存只读&#x2F;可写</strong>（RO&#x2F;RW）</li>
+<li><strong>禁用&#x2F;启用执行权限</strong>（NX&#x2F;Execute）</li>
+<li><strong>修改缓存属性</strong>（如 Uncached、Write-Combined）</li>
+<li><strong>内存保护</strong>（如防止代码注入）</li>
+</ol>
+<hr>
+<h3 id="二、内核提供的-API"><a href="#二、内核提供的-API" class="headerlink" title="二、内核提供的 API"></a><strong>二、内核提供的 API</strong></h3><p>Linux 内核提供了一组函数用于修改内存属性，主要位于 <code>asm/pgtable.h</code> 和 <code>asm/set_memory.h</code>：</p>
+<h4 id="1-修改读写-执行权限"><a href="#1-修改读写-执行权限" class="headerlink" title="1. 修改读写&#x2F;执行权限"></a>1. <strong>修改读写&#x2F;执行权限</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;asm/set_memory.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置为只读（Read-Only）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_memory_ro</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">int</span> num_pages)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置为可写（Read-Write）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_memory_rw</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">int</span> num_pages)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 禁用执行权限（NX）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_memory_nx</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">int</span> num_pages)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 启用执行权限（X）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_memory_x</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">int</span> num_pages)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-修改缓存属性"><a href="#2-修改缓存属性" class="headerlink" title="2. 修改缓存属性"></a>2. <strong>修改缓存属性</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置内存为不可缓存（Uncached）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_memory_uc</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">int</span> num_pages)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置内存为写合并（Write-Combined）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_memory_wc</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">int</span> num_pages)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 恢复默认缓存属性（Write-Back）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_memory_wb</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">int</span> num_pages)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-直接操作页表项（PTE）"><a href="#3-直接操作页表项（PTE）" class="headerlink" title="3. 直接操作页表项（PTE）"></a>3. <strong>直接操作页表项（PTE）</strong></h4><p>对于高级需求，可直接操作页表项，但需谨慎：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;asm/pgtable.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取 PTE</span></span><br><span class="line"><span class="type">pte_t</span> *pte = lookup_address(addr, &amp;level);</span><br><span class="line"><span class="keyword">if</span> (pte) &#123;</span><br><span class="line">    <span class="comment">// 修改权限（例如清除可写位）</span></span><br><span class="line">    pte_val(*pte) &amp;= ~_PAGE_RW;</span><br><span class="line">    <span class="comment">// 刷新 TLB</span></span><br><span class="line">    __flush_tlb_one_kernel(addr);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、使用示例"><a href="#三、使用示例" class="headerlink" title="三、使用示例"></a><strong>三、使用示例</strong></h3><h4 id="示例-1：将内核模块代码设为只读"><a href="#示例-1：将内核模块代码设为只读" class="headerlink" title="示例 1：将内核模块代码设为只读"></a>示例 1：将内核模块代码设为只读</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 假设代码区域地址为 addr，大小为 size</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> addr = (<span class="type">unsigned</span> <span class="type">long</span>)your_function;</span><br><span class="line"><span class="type">int</span> num_pages = PFN_UP(size);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置为只读</span></span><br><span class="line">set_memory_ro(addr, num_pages);</span><br></pre></td></tr></table></figure>
+
+<h4 id="示例-2：禁用某内存区域的执行权限"><a href="#示例-2：禁用某内存区域的执行权限" class="headerlink" title="示例 2：禁用某内存区域的执行权限"></a>示例 2：禁用某内存区域的执行权限</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 禁用执行权限（防漏洞利用）</span></span><br><span class="line">set_memory_nx(addr, num_pages);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a><strong>四、注意事项</strong></h3><ol>
+<li><p><strong>地址对齐</strong><br>地址需按页对齐（<code>PAGE_SIZE</code>），可通过 <code>virt_to_page()</code> 或 <code>PFN_ALIGN</code> 处理。</p>
+</li>
+<li><p><strong>TLB 刷新</strong><br>修改页表后需刷新 TLB，内核 API 通常自动处理，直接操作 PTE 时需手动调用 <code>__flush_tlb_one_kernel()</code>。</p>
+</li>
+<li><p><strong>安全风险</strong>  </p>
+<ul>
+<li>修改内核内存属性可能导致系统不稳定。</li>
+<li>禁用执行权限（NX）需硬件支持（如 x86 的 NX 位、ARM 的 XN 位）。</li>
+</ul>
+</li>
+<li><p><strong>权限限制</strong><br>部分操作需要内核配置（如 <code>CONFIG_STRICT_KERNEL_RWX</code> 是否启用）。</p>
+</li>
+<li><p><strong>模块签名</strong><br>修改内核代码段可能导致模块签名验证失败（Secure Boot 环境）。</p>
+</li>
+</ol>
+<hr>
+<h3 id="五、调试与验证"><a href="#五、调试与验证" class="headerlink" title="五、调试与验证"></a><strong>五、调试与验证</strong></h3><ul>
+<li><strong>检查页表属性</strong><br>通过 <code>/proc/kpageflags</code> 或 <code>crash</code> 工具分析内存属性。</li>
+<li><strong>内核日志</strong><br>使用 <code>dmesg</code> 查看可能的警告或错误。</li>
+</ul>
+<hr>
+<h3 id="六、高级场景"><a href="#六、高级场景" class="headerlink" title="六、高级场景"></a><strong>六、高级场景</strong></h3><ul>
+<li><strong>动态修改用户空间内存</strong><br>需结合 <code>get_user_pages()</code> 和 <code>set_page_attributes()</code>。</li>
+<li><strong>KVM 虚拟化</strong><br>修改客户机内存属性需操作 EPT&#x2F;NPT。</li>
+</ul>
+<hr>
+<h3 id="七、完整代码示例（内核模块）"><a href="#七、完整代码示例（内核模块）" class="headerlink" title="七、完整代码示例（内核模块）"></a><strong>七、完整代码示例（内核模块）</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;asm/set_memory.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">my_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    printk(<span class="string">&quot;Module unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">my_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> addr = (<span class="type">unsigned</span> <span class="type">long</span>)my_init; <span class="comment">// 测试地址</span></span><br><span class="line">    <span class="type">int</span> num_pages = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将当前模块的 init 函数设为只读</span></span><br><span class="line">    <span class="keyword">if</span> (set_memory_ro(addr, num_pages)) &#123;</span><br><span class="line">        printk(<span class="string">&quot;Failed to set memory RO\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    printk(<span class="string">&quot;Memory set to read-only\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(my_init);</span><br><span class="line">module_exit(my_exit);</span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="八、参考资料"><a href="#八、参考资料" class="headerlink" title="八、参考资料"></a><strong>八、参考资料</strong></h3><ul>
+<li>Linux 内核源码：<code>arch/x86/mm/pat/set_memory.c</code></li>
+<li>内核文档：<code>Documentation/x86/pat.txt</code></li>
+<li>《Understanding the Linux Kernel》（内存管理章节）</li>
+</ul>
+<p>通过上述方法，您可以安全地修改内存属性，但请务必在开发环境中充分测试！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/bd691de4.html">http://helloeuler.cn/posts/bd691de4.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/c44fcd62.html" title="Linux内核伙伴系统页框操作指南"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核伙伴系统页框操作指南</div></div></a></div><div class="next-post pull-right"><a href="/posts/8c319781.html" title="Linux内核定时器调用可睡眠函数方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核定时器调用可睡眠函数方法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%B8%B8%E8%A7%81%E5%86%85%E5%AD%98%E5%B1%9E%E6%80%A7%E4%BF%AE%E6%94%B9%E5%9C%BA%E6%99%AF"><span class="toc-text">一、常见内存属性修改场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%86%85%E6%A0%B8%E6%8F%90%E4%BE%9B%E7%9A%84-API"><span class="toc-text">二、内核提供的 API</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9%E8%AF%BB%E5%86%99-%E6%89%A7%E8%A1%8C%E6%9D%83%E9%99%90"><span class="toc-text">1. 修改读写&#x2F;执行权限</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9%E7%BC%93%E5%AD%98%E5%B1%9E%E6%80%A7"><span class="toc-text">2. 修改缓存属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%9B%B4%E6%8E%A5%E6%93%8D%E4%BD%9C%E9%A1%B5%E8%A1%A8%E9%A1%B9%EF%BC%88PTE%EF%BC%89"><span class="toc-text">3. 直接操作页表项（PTE）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="toc-text">三、使用示例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1%EF%BC%9A%E5%B0%86%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E4%BB%A3%E7%A0%81%E8%AE%BE%E4%B8%BA%E5%8F%AA%E8%AF%BB"><span class="toc-text">示例 1：将内核模块代码设为只读</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-2%EF%BC%9A%E7%A6%81%E7%94%A8%E6%9F%90%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%9D%83%E9%99%90"><span class="toc-text">示例 2：禁用某内存区域的执行权限</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">四、注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%B0%83%E8%AF%95%E4%B8%8E%E9%AA%8C%E8%AF%81"><span class="toc-text">五、调试与验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E9%AB%98%E7%BA%A7%E5%9C%BA%E6%99%AF"><span class="toc-text">六、高级场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%EF%BC%88%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%EF%BC%89"><span class="toc-text">七、完整代码示例（内核模块）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">八、参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux签名证书存储位置解析 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux 签名的证书是放在vmlinux的哪个位置 在 Linux 内核中，签名相关的证书（如用于验证内核模块或支持安全启动的证书）通常存储在 特定的 ELF 段 中。以下是具体位置和验证方法：  1. 证书的存储位置 模块签名证书：当内核启用 **CONFIG_MODULE_SIG**（模块签名验证）时，用于验证模块的公钥证书会被编译到内核的 .rodata 或 .certs 段 中。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux签名证书存储位置解析">
+<meta property="og:url" content="http://helloeuler.cn/posts/82fbe864.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux 签名的证书是放在vmlinux的哪个位置 在 Linux 内核中，签名相关的证书（如用于验证内核模块或支持安全启动的证书）通常存储在 特定的 ELF 段 中。以下是具体位置和验证方法：  1. 证书的存储位置 模块签名证书：当内核启用 **CONFIG_MODULE_SIG**（模块签名验证）时，用于验证模块的公钥证书会被编译到内核的 .rodata 或 .certs 段 中。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.733Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/82fbe864.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux签名证书存储位置解析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux签名证书存储位置解析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-23T16:00:00.000Z" title="发表于 2025-05-24 00:00:00">2025-05-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux签名证书存储位置解析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux 签名的证书是放在vmlinux的哪个位置</p>
+<p>在 Linux 内核中，签名相关的证书（如用于验证内核模块或支持安全启动的证书）通常存储在 <strong>特定的 ELF 段</strong> 中。以下是具体位置和验证方法：</p>
+<hr>
+<h3 id="1-证书的存储位置"><a href="#1-证书的存储位置" class="headerlink" title="1. 证书的存储位置"></a>1. <strong>证书的存储位置</strong></h3><ul>
+<li><p><strong>模块签名证书</strong>：<br>当内核启用 **<code>CONFIG_MODULE_SIG</code>**（模块签名验证）时，用于验证模块的公钥证书会被编译到内核的 <strong><code>.rodata</code> 或 <code>.certs</code> 段</strong> 中。  </p>
+<ul>
+<li>使用 <code>readelf</code> 或 <code>objdump</code> 查看：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -S vmlinux | grep -E <span class="string">&quot;certs|rodata&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li>证书通常以 <strong>PEM 格式</strong> 嵌入，可通过 <code>hexdump</code> 或内核符号表查找具体位置。</li>
+</ul>
+</li>
+<li><p><strong>安全启动证书（Secure Boot）</strong>：<br>若内核通过 UEFI 安全启动签名（如使用 <code>sbsign</code> 工具），签名信息（证书、签名本身）会附加在 <strong>PE&#x2F;COFF 格式的尾部</strong>（如 <code>vmlinuz</code> 文件），而非原始的 ELF 格式 <code>vmlinux</code>。</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-验证方法"><a href="#2-验证方法" class="headerlink" title="2. 验证方法"></a>2. <strong>验证方法</strong></h3><ul>
+<li><p><strong>查看证书段</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -x .certs vmlinux   <span class="comment"># 提取 .certs 段的十六进制内容</span></span><br></pre></td></tr></table></figure></li>
+<li><p><strong>提取证书</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">objcopy -O binary -j .certs vmlinux certs.bin</span><br><span class="line">openssl x509 -<span class="keyword">in</span> certs.bin -inform der -text  <span class="comment"># 若为 DER 格式</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>查找内核符号</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nm vmlinux | grep <span class="string">&quot; cert_&quot;</span></span><br><span class="line"><span class="comment"># 可能输出如：certs_signing_key_cert</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="3-关键配置选项"><a href="#3-关键配置选项" class="headerlink" title="3. 关键配置选项"></a>3. <strong>关键配置选项</strong></h3><ul>
+<li>**<code>CONFIG_MODULE_SIG</code>**：启用模块签名验证。</li>
+<li>**<code>CONFIG_SYSTEM_TRUSTED_KEYS</code>**：指定编译时嵌入的信任证书路径。</li>
+<li>**<code>CONFIG_EFI_STUB</code>**：启用 EFI 启动支持（影响安全启动签名位置）。</li>
+</ul>
+<hr>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. <strong>总结</strong></h3><ul>
+<li><strong>模块签名证书</strong>：存储在 <code>vmlinux</code> 的 <code>.certs</code> 或 <code>.rodata</code> 段。</li>
+<li><strong>安全启动签名</strong>：附加在 <code>vmlinuz</code>（PE&#x2F;COFF 格式）尾部，不直接存在于 <code>vmlinux</code>。</li>
+</ul>
+<p>通过工具分析 ELF 结构或检查编译配置，可准确定位证书位置。</p>
+<p>Linux内核证书是否放在vmlinux的后面？</p>
+<p>Linux 内核的证书存储位置取决于证书类型和内核配置，但 <strong>证书不会直接附加在 <code>vmlinux</code> 文件的末尾</strong>。以下是关键细节：</p>
+<hr>
+<h3 id="1-证书的位置与文件类型的关系"><a href="#1-证书的位置与文件类型的关系" class="headerlink" title="1. 证书的位置与文件类型的关系"></a>1. <strong>证书的位置与文件类型的关系</strong></h3><ul>
+<li><p>**<code>vmlinux</code>**（原始未压缩的 ELF 内核文件）：<br>证书（如模块签名证书）被嵌入到 <strong>特定的 ELF 段</strong>（例如 <code>.certs</code>、<code>.rodata</code>）中，这些段位于 ELF 结构的内部，而非文件末尾。  </p>
+<ul>
+<li>验证方法：  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">readelf -S vmlinux | grep <span class="string">&quot;certs&quot;</span>  <span class="comment"># 查看证书段</span></span><br><span class="line">objdump -s -j .certs vmlinux      <span class="comment"># 提取证书内容</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>**<code>vmlinuz</code>**（压缩后的启动镜像，如 <code>bzImage</code>）：<br>若启用了 <strong>UEFI 安全启动</strong>，签名（包含证书和签名数据）会附加在 <code>vmlinuz</code>（PE&#x2F;COFF 格式）的尾部。此时签名信息位于文件末尾。  </p>
+<ul>
+<li>验证方法：  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbverify --list vmlinuz  <span class="comment"># 查看安全启动签名信息</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="2-证书类型与存储方式"><a href="#2-证书类型与存储方式" class="headerlink" title="2. 证书类型与存储方式"></a>2. <strong>证书类型与存储方式</strong></h3><ul>
+<li><p><strong>模块签名证书</strong>：<br>当启用 <code>CONFIG_MODULE_SIG</code> 时，用于验证内核模块的公钥证书被编译到 <code>vmlinux</code> 的 <code>.certs</code> 段中。  </p>
+<ul>
+<li>证书来源由 <code>CONFIG_SYSTEM_TRUSTED_KEYS</code> 配置项指定（通常为 DER 或 PEM 格式）。</li>
+</ul>
+</li>
+<li><p><strong>安全启动证书</strong>：<br>UEFI 安全启动的签名是对 <code>vmlinuz</code>（而非 <code>vmlinux</code>）进行的，签名信息附加在文件末尾。  </p>
+<ul>
+<li>签名工具（如 <code>sbsign</code>）会在 <code>vmlinuz</code> 尾部添加证书和签名数据。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-关键区别"><a href="#3-关键区别" class="headerlink" title="3. 关键区别"></a>3. <strong>关键区别</strong></h3><table>
+<thead>
+<tr>
+<th>文件类型</th>
+<th>证书类型</th>
+<th>存储位置</th>
+<th>附加到文件末尾？</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>vmlinux</code></td>
+<td>模块签名证书</td>
+<td>ELF 段（如 <code>.certs</code>）</td>
+<td>否</td>
+</tr>
+<tr>
+<td><code>vmlinuz</code></td>
+<td>安全启动签名</td>
+<td>PE&#x2F;COFF 尾部</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="4-验证示例"><a href="#4-验证示例" class="headerlink" title="4. 验证示例"></a>4. <strong>验证示例</strong></h3><ul>
+<li><p><strong>检查 <code>vmlinux</code> 的证书段</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 ELF 段信息</span></span><br><span class="line">readelf -S vmlinux | grep -E <span class="string">&quot;certs|rodata&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 提取证书内容（若为 DER 格式）</span></span><br><span class="line">objcopy -O binary -j .certs vmlinux certs.der</span><br><span class="line">openssl x509 -<span class="keyword">in</span> certs.der -inform der -text</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>检查 <code>vmlinuz</code> 的安全启动签名</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看签名信息</span></span><br><span class="line">sbverify --list vmlinuz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提取尾部签名数据（需解析 PE 结构）</span></span><br><span class="line"><span class="built_in">tail</span> -c 256 vmlinuz &gt; signature.bin  <span class="comment"># 示例（实际长度依赖签名）</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. <strong>总结</strong></h3><ul>
+<li><p><strong><code>vmlinux</code> 的证书</strong>：<br>存储在 ELF 文件内部的特定段（如 <code>.certs</code>），<strong>不在文件末尾</strong>。</p>
+</li>
+<li><p><strong><code>vmlinuz</code> 的安全启动签名</strong>：<br>附加在文件末尾（PE&#x2F;COFF 格式的签名区域），但这是针对压缩后的启动镜像，而非原始的 <code>vmlinux</code>。</p>
+</li>
+</ul>
+<p>若需操作证书，需根据目标文件类型（<code>vmlinux</code> 或 <code>vmlinuz</code>）选择对应工具和方法。</p>
+<p>vmlinux中，证书是放在哪个位置</p>
+<p>在 Linux 内核的 **<code>vmlinux</code>**（未压缩的 ELF 内核文件）中，证书通常存储在 <strong>特定的 ELF 段（Section）</strong> 中，具体位置由内核的编译配置决定。以下是详细说明：</p>
+<hr>
+<h3 id="1-证书的存储位置-1"><a href="#1-证书的存储位置-1" class="headerlink" title="1. 证书的存储位置"></a>1. <strong>证书的存储位置</strong></h3><ul>
+<li><p><strong>默认段名</strong>：<br>证书通常被嵌入到 <strong><code>.certs</code> 段</strong>（专门用于存储证书的段）或 <strong><code>.rodata</code> 段</strong>（只读数据段）。  </p>
+<ul>
+<li>通过内核配置项 <code>CONFIG_SYSTEM_TRUSTED_KEYS</code> 或 <code>CONFIG_MODULE_SIG_KEY</code> 指定的证书会被编译到这些段中。</li>
+</ul>
+</li>
+<li><p><strong>验证方法</strong>：<br>使用 <code>readelf</code> 或 <code>objdump</code> 工具查看 ELF 文件结构：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">readelf -S vmlinux | grep <span class="string">&quot;certs&quot;</span>  <span class="comment"># 查看 .certs 段是否存在</span></span><br><span class="line">readelf -S vmlinux | grep <span class="string">&quot;rodata&quot;</span> <span class="comment"># 检查是否在 .rodata 段</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="2-证书的类型"><a href="#2-证书的类型" class="headerlink" title="2. 证书的类型"></a>2. <strong>证书的类型</strong></h3><ul>
+<li><strong>模块签名证书</strong>（<code>CONFIG_MODULE_SIG</code>）：<br>用于验证内核模块签名的公钥证书（如 <code>signing_key.x509</code>），存储在 <code>.certs</code> 段中。</li>
+<li><strong>系统信任证书</strong>（<code>CONFIG_SYSTEM_TRUSTED_KEYS</code>）：<br>系统信任的根证书（如 UEFI 安全启动、固件证书），也可能嵌入到 <code>.certs</code> 段。</li>
+</ul>
+<hr>
+<h3 id="3-如何提取证书"><a href="#3-如何提取证书" class="headerlink" title="3. 如何提取证书"></a>3. <strong>如何提取证书</strong></h3><ul>
+<li><p><strong>步骤 1：提取 <code>.certs</code> 段内容</strong><br>使用 <code>objcopy</code> 工具从 <code>vmlinux</code> 中提取证书段：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objcopy -O binary -j .certs vmlinux certs.bin</span><br></pre></td></tr></table></figure>
+<p>如果 <code>.certs</code> 段不存在，可以尝试从 <code>.rodata</code> 段提取：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objcopy -O binary -j .rodata vmlinux rodata.bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>步骤 2：解析证书内容</strong><br>如果证书以 <strong>DER 格式</strong> 存储：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -inform der -<span class="keyword">in</span> certs.bin -text</span><br></pre></td></tr></table></figure>
+<p>如果以 <strong>PEM 格式</strong> 存储：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -inform pem -<span class="keyword">in</span> certs.bin -text</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="4-内核配置的影响"><a href="#4-内核配置的影响" class="headerlink" title="4. 内核配置的影响"></a>4. <strong>内核配置的影响</strong></h3><ul>
+<li><p><strong>关键配置选项</strong>：  </p>
+<ul>
+<li><code>CONFIG_MODULE_SIG</code>：启用模块签名，要求编译时将证书嵌入 <code>.certs</code> 段。  </li>
+<li><code>CONFIG_SYSTEM_TRUSTED_KEYS</code>：指定系统信任证书的路径（默认在 <code>certs/</code> 目录）。  </li>
+<li><code>CONFIG_IKCONFIG</code>：如果启用，可通过 <code>/proc/config.gz</code> 查看当前内核的配置。</li>
+</ul>
+</li>
+<li><p><strong>编译时的证书嵌入</strong>：<br>证书在编译阶段被转换为二进制格式，并链接到内核的 ELF 文件中。例如，<code>x509_certificate_list</code> 符号会指向证书数据。</p>
+</li>
+</ul>
+<hr>
+<h3 id="5-证书的符号定位"><a href="#5-证书的符号定位" class="headerlink" title="5. 证书的符号定位"></a>5. <strong>证书的符号定位</strong></h3><p>   通过内核符号表可以找到证书的地址：<br>   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nm vmlinux | grep <span class="string">&quot; cert_&quot;</span></span><br><span class="line"><span class="comment"># 示例输出：</span></span><br><span class="line"><span class="comment"># ffffffff81a2c000 R certs_certificate_list</span></span><br><span class="line"><span class="comment"># ffffffff81a2d000 R certs_certificate_list_end</span></span><br></pre></td></tr></table></figure></p>
+<hr>
+<h3 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. <strong>总结</strong></h3><ul>
+<li><strong>物理位置</strong>：证书存储在 <code>vmlinux</code> 的 <strong><code>.certs</code> 段</strong>（或 <code>.rodata</code> 段），而非文件末尾。</li>
+<li><strong>逻辑位置</strong>：证书在内核启动时会被加载到内存的只读区域，用于验证模块或固件的合法性。</li>
+<li><strong>操作工具</strong>：通过 <code>readelf</code>、<code>objcopy</code>、<code>openssl</code> 等工具可以提取和分析证书。</li>
+</ul>
+<hr>
+<h3 id="附录：快速验证命令"><a href="#附录：快速验证命令" class="headerlink" title="附录：快速验证命令"></a>附录：快速验证命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 查看 ELF 段信息</span></span><br><span class="line">readelf -S vmlinux | grep -E <span class="string">&quot;certs|rodata&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 提取证书段</span></span><br><span class="line">objcopy -O binary -j .certs vmlinux certs.bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 查看证书内容（假设为 DER 格式）</span></span><br><span class="line">openssl x509 -inform der -<span class="keyword">in</span> certs.bin -text</span><br></pre></td></tr></table></figure>
+
+<p>通过以上方法，可以准确定位并分析 <code>vmlinux</code> 中嵌入的证书。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/82fbe864.html">http://helloeuler.cn/posts/82fbe864.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/defac06b.html" title="Linux vmlinux二进制布局解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux vmlinux二进制布局解析</div></div></a></div><div class="next-post pull-right"><a href="/posts/cff64970.html" title="modprobe参数及使用方法详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">modprobe参数及使用方法详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AF%81%E4%B9%A6%E7%9A%84%E5%AD%98%E5%82%A8%E4%BD%8D%E7%BD%AE"><span class="toc-text">1. 证书的存储位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95"><span class="toc-text">2. 验证方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%B3%E9%94%AE%E9%85%8D%E7%BD%AE%E9%80%89%E9%A1%B9"><span class="toc-text">3. 关键配置选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%80%BB%E7%BB%93"><span class="toc-text">4. 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AF%81%E4%B9%A6%E7%9A%84%E4%BD%8D%E7%BD%AE%E4%B8%8E%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-text">1. 证书的位置与文件类型的关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%AF%81%E4%B9%A6%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">2. 证书类型与存储方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%B3%E9%94%AE%E5%8C%BA%E5%88%AB"><span class="toc-text">3. 关键区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%AA%8C%E8%AF%81%E7%A4%BA%E4%BE%8B"><span class="toc-text">4. 验证示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%80%BB%E7%BB%93"><span class="toc-text">5. 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AF%81%E4%B9%A6%E7%9A%84%E5%AD%98%E5%82%A8%E4%BD%8D%E7%BD%AE-1"><span class="toc-text">1. 证书的存储位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%AF%81%E4%B9%A6%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="toc-text">2. 证书的类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%A6%82%E4%BD%95%E6%8F%90%E5%8F%96%E8%AF%81%E4%B9%A6"><span class="toc-text">3. 如何提取证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%86%85%E6%A0%B8%E9%85%8D%E7%BD%AE%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">4. 内核配置的影响</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%AF%81%E4%B9%A6%E7%9A%84%E7%AC%A6%E5%8F%B7%E5%AE%9A%E4%BD%8D"><span class="toc-text">5. 证书的符号定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%80%BB%E7%BB%93"><span class="toc-text">6. 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%84%E5%BD%95%EF%BC%9A%E5%BF%AB%E9%80%9F%E9%AA%8C%E8%AF%81%E5%91%BD%E4%BB%A4"><span class="toc-text">附录：快速验证命令</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

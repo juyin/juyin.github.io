@@ -53,7 +53,7 @@
   isHome: true,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2025-07-19 00:13:01'
+  postUpdate: '2025-07-30 23:26:48'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -157,110 +157,291 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">84</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><hr class="custom-hr"/></div></div><div class="page" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/884a2bdc.html" title="深入解析Linux 常用命令--cat">深入解析Linux 常用命令--cat</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-21T16:00:00.000Z" title="发表于 2017-12-22 00:00:00">2017-12-22</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述cat常用于查看文件内容。
-2.显示文件内容（显示字符）cat  -A  显示文件内容，包括结束符、TAB。其中结束符以$显示，TAB以^I显示，空格不显示。
-[root@smart Desktop]# cat test.md
-AUTHOR
-       Written by Richard M. Stallman and David MacKenzie.
-[root@smart Desktop]# cat -A test.md
-AUTHOR$
-^IWritten by Richard M. Stallman and David MacKenzie.$
-$
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="page" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/7738a70c.html" title="Linux内核trace钩子使用注意事项">Linux内核trace钩子使用注意事项</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">Linux内核trace钩子使用注意事项
+在 Linux 内核中使用 trace 钩子（Tracepoints、kprobes&#x2F;uprobes、BPF 挂载点等）是进行深度系统分析、性能调优和故障排查的利器，但也需要格外谨慎。以下是关键的注意事项：
+🛡 一、核心原则与安全
+最小化与无副作用原则：
 
-3.显示行号cat -b  显示非空行行号
-cat -n  显示所有行行号
-[root@smart Desktop]# cat -b test.md
-     1	AUTHOR
-     2	       Written by Richard M. Stallman and David MacKenzie.
+代码必须极简： 钩子函数（尤其是 tracepoint 回调、kprobe 处理函数）的执行路径应尽可能短、快、简单。避免复杂逻辑、循环、阻塞操作（如获取锁🔒、I&#x2F;O、内存分配）。
+绝对禁止副作用： 钩子函数绝不能修改系统的运行状态（修改全局变量、数据结构、释放资源、改变控制流等）。它们应该是只读的、被动的观察者。任何修改都可能导致数据损坏、死锁或不可预测的系统行为。这是最重要的原则！
 
-     3	REPORTING BUGS
-     4	       Report ls bugs to bug ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/20036.html" title="深入解析Linux 常用命令--arping">深入解析Linux 常用命令--arping</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-20T16:00:00.000Z" title="发表于 2017-12-21 00:00:00">2017-12-21</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述arping常用于检测IP是否已经存在、某个IP的MAC的地址等。
-2.arping各参数含义a.无参数，持续的向特定IP地址请求arp
-12345[root@smart Desktop]# arping 192.168.1.105 ARPING 192.168.1.105 from 192.168.1.120 eth0Unicast reply from 192.168.1.105 [3C:BD:3E:61:13:08]  1.324msUnicast reply from 192.168.1.105 [3C:BD:3E:61:13:08]  104.092msUnicast reply from 192.168.1.105 [3C:BD:3E:61:13:08]  8.286ms
 
-b. -c   count，发送arp包个数
-12345678910111213141516171819[root@smart Desktop]# arping -c 1 192.168.1.105 ARPING 192.168.1.105 from 192.168.1.120 eth0Unic ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/dd4482f2.html" title="深入解析Linux 常用命令--ip">深入解析Linux 常用命令--ip</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-20T16:00:00.000Z" title="发表于 2017-12-21 00:00:00">2017-12-21</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述ip命令用于显示&#x2F;操作路由、设备、策略、隧道等信息。
-2.用法 ip [ OPTIONS ] OBJECT { COMMAND | help }
-OPTIONS := &#123; -V[ersion] | -s[tatistics] | -r[esolve] | -f[amily] &#123; inet
-       | inet6 | ipx | dnet | link &#125; | -o[neline] &#125;
-      
-OBJECT := &#123; link | addr | addrlabel | route | rule | neigh | tunnel |
-           maddr | mroute | monitor &#125;
-COMMAND :=&#123; add | del |show | list&#125;	       
+上下文意识：
 
-a.Options-V   打印ip的版本号
--s    输出详细的统计信息
-b.Objectlink   网络设备
-address&#x2F;addr   设备ip地址
-neighbor ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/72ab9cb0.html" title="深入解析Linux 常用命令--ping">深入解析Linux 常用命令--ping</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-19T16:00:00.000Z" title="发表于 2017-12-20 00:00:00">2017-12-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux%E5%91%BD%E4%BB%A4/">Linux命令</a></span></div><div class="content">1.概述ping常用于检测网络状况。
-2.各参数含义-c   count，当ping到一定数量后终止ping。
--i    interval ，ping包间隔
--I    interface address，网卡,IP所在网卡ping出
--s    packetsize，包大小，包含8字节icmp头
--S    指定源地址
-12345678910111213141516171819202122232425262728293031323334353637383940414243[root@smart Desktop]# ping 192.168.1.1PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.576 ms64 bytes from 192.168.1.1: icmp_seq=2 ttl=64 time=0.790 ms^C--- 192.168.1.1 ping statistics ---2 packets transmi ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/ae24cd1e.html" title="CentOS OOM问题分析">CentOS OOM问题分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-18T17:55:42.000Z" title="发表于 2017-12-19 01:55:42">2017-12-19</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">经验总结</a></span></div><div class="content">
-近日，部署应用程序的CentOS操作系统频繁kill应用进程，感到非常意外。通过对系统日志进行分析，发现syslog中输出out of memery，LowMem不足。
-经过查阅大量的资料，分析发现是由于32位系统寻址空间的限制。32位linux将内存空间分为三部分：DMA、Normal（LowMem）、HighMem。其范围如下： Zone PFN ranges: DMA           0x00000000 -&gt; 0x00FFFFFF       16M Normal       0x01000000 -&gt; 0x37FFFFFF        880M HighMem   0x38000000 -&gt; 
-其中，DMA为系统直接存储器空间，LowMem为系统低端内存，主要为Linux内核使用，HighMem为通用内存。（注：64位系统基本都是LowMem）
-一般情况下，16G内存的IBM服务器LowMem约700M，系统启动后剩余约600M。
-经过对各个进程进行分析后发现，有一个进程会对内核协议栈参数进行优化，使得socket缓冲过大，从而导致LowMem耗尽， ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/c3b51e8d.html" title="TensorFlow深度学习笔记-11">TensorFlow深度学习笔记-11</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-15T16:00:00.000Z" title="发表于 2017-12-16 00:00:00">2017-12-16</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">Inception是Google训练好的一个图像识别模型，我们可以利用它来对我们的图像进行识别。
-123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899# coding: utf-8import tensorflow as tfimport osimport numpy as npimport refrom PIL import Imageimport matplotlib.pyplot as pltclass NodeLookup(object):    def __init__(self):          label_lookup_path = &#x27;inception_model/imagenet_2012_challenge_label_map_pr ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b4b22e1b.html" title="TensorFlow深度学习笔记-10">TensorFlow深度学习笔记-10</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-09T16:00:00.000Z" title="发表于 2017-12-10 00:00:00">2017-12-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
-在深度学习过程中我们会训练很多的模型，有些模型的训练很费时间。是否可以保存已经训练好的模型应用于后续的图像识别呢？答案自然是肯定的，本节我们来讲述模型的保存与载入。
+中断上下文： 明确你的钩子可能在哪个上下文中执行（进程上下文、中断上下文 - 硬中断、软中断&#x2F;tasklet、不可屏蔽中断 NMI）。在中断上下文中，限制更加严格：
+禁止睡眠&#x2F;阻塞： 绝对不允许调用任何可能睡眠的函数（如 kmalloc(GFP_ ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/3026841.html" title="Linux内核进程管理导出符号接口">Linux内核进程管理导出符号接口</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">Linux内核中创建进程、进程退出、修改进程属性的导出符号接口
+在 Linux 内核中，进程管理是核心功能之一。内核提供了许多函数（作为导出符号 EXPORT_SYMBOL 或 EXPORT_SYMBOL_GPL）供其他内核模块使用，用于创建进程、处理进程退出和修改进程属性。以下是一些关键的接口：
 
-1.模型的保存模型的保存有两个步骤：
-a.创建saver对象
-​	saver &#x3D; tf.train.Saver()
-b.训练完成后，保存模型
-​	 saver.save(sess,’net&#x2F;my_net.ckpt’)
-代码如下：
-123456789101112131415161718192021222324252627282930313233343536373839404142434445464748# coding: utf-8import tensorflow as tffrom tensorflow.examples.tutorials.mnist import input_data#载入数据集mnist = input_data.read_data_sets(&quot;MNIST_data&quot;,one_hot=True)#每个批次100张照片batch_size = 100#计算一 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b821d4d8.html" title="TensorFlow深度学习笔记-9">TensorFlow深度学习笔记-9</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-07T16:00:00.000Z" title="发表于 2017-12-08 00:00:00">2017-12-08</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">1.传统神经网络缺陷：权值太多，计算量太大，需要大量样本进行训练 .
-2.卷积神经网络，是一种前馈神经网络，人工神经元可以响应周围单元，可以大型图像处理。卷积神经网络包括卷积层和池化层。
-   卷积操作是利用卷积核对图像的关键信息进行提取。
-   卷积层：将图像与卷积核做卷积的过程。
-​    池化层：对不同位置的特征进行聚合的过程。
+1. 创建进程
+kernel_thread (传统方式，逐渐被替代):
 
-在深度学习中，利用多个卷积、池化操作来对图像进行分类。
-1.卷积卷积操作有两种模式：
- a.Same padding模式
-​     给平面补0
-b.valid padding 
-   不会超出平面外部。
-2.池化池化操作有两种模式，与卷积类似：
- a.Same padding模式
-​     给平面补0
-b.valid padding 
-   不会超出平面外部。
-12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/cf26e44e.html" title="TensorFlow深度学习笔记-8">TensorFlow深度学习笔记-8</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-04T16:00:00.000Z" title="发表于 2017-12-05 00:00:00">2017-12-05</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
-tensorboard可以以图形的方式观察训练过程，直观的显示训练情况。下面采用之前的代码，再加上tensorboard相关代码。本文主要介绍MNIST训练集的tensorboard的输入可视化。
-123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116# coding: utf-8import tensorflow as tffrom tensorflow.examples.tutorials.mnist import input_datafrom tensorflow.contrib.tensorboard.plugins import projector#载入数 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/5f99f9df.html" title="TensorFlow深度学习笔记-7">TensorFlow深度学习笔记-7</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-12-03T16:00:00.000Z" title="发表于 2017-12-04 00:00:00">2017-12-04</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
-tensorboard可以以图形的方式观察训练过程，直观的显示训练情况。下面采用之前的代码，再加上tensorboard相关代码。
-12345678910111213141516171819202122232425262728293031323334353637383940# coding: utf-8import tensorflow as tfimport numpy as np#使用numpy随机产生100个随机点x_data=np.random.rand(100)y_data = x_data*0.1+0.3#构造一个线性模型with tf.name_scope(&#x27;input&#x27;):    b= tf.Variable(0.,name=&#x27;b-input&#x27;)    k= tf.Variable(0.,name=&#x27;k-input&#x27;)y= k*x_data +b#二次代价函数with tf.name_scope(&#x27;loss&#x27;):    loss = tf.reduce_mean(tf.square(y_d ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b19798f3.html" title="TensorFlow深度学习笔记-5">TensorFlow深度学习笔记-5</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-30T16:00:00.000Z" title="发表于 2017-12-01 00:00:00">2017-12-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">MNIST的结果是0-9，常用softmax函数进行分类，输出结果。
-softmax函数常用于分类，定义如下：
-​                   $$softmax(x_i)&#x3D;\frac{exp(x_i)}{\sum_jexp(x)}$$
-123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119120121122123124125126127128129130131132133134135136137138139140141142143144145146147148149150151152153154155156157158159160 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/289ec949.html" title="TensorFlow深度学习笔记-6">TensorFlow深度学习笔记-6</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-30T16:00:00.000Z" title="发表于 2017-12-01 00:00:00">2017-12-01</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">代价函数在有些地方也称损失函数，目前常用的几种代价函数有二次代价函数、交叉熵代价函数、对数释然函数等。
-二次代价函数为基本的用来计算结果与预测值之间的差异。
-交叉熵代价函数可以解决二次函数导致学习慢问题
-对数释然函数常用来作为softmax回归的代价函数，如果输出层神经元是sigmoid函数，可以采用交叉熵代价函数。而深度学习中更普遍的做法是将softmax作为最后一层，此时常用的代价函数是对数释然代价函数 
-</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/c690a865.html" title="TensorFlow深度学习笔记-4">TensorFlow深度学习笔记-4</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-29T16:00:00.000Z" title="发表于 2017-11-30 00:00:00">2017-11-30</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">本文主要分享一个利用神经网络来预测非线性回归的示例。
-首先，定义生成我们的测试数据，即y_data &#x3D; np.square(x_data) + noise，通过x_data的平方再加上噪声来生成y_data.
-然后，利用神经网络，将x_data作为输入，得到预测值。然后让预测值与y_data做比较，使其差异最小。
-x_data &#x3D;&#x3D;&gt;神经网络中间层&#x3D;&#x3D;&gt;神经网络输出层&#x3D;&#x3D;&gt;预测值
-1234567891011121314151617181920212223242526272829303132333435363738394041424344454647import tensorflow as tfimport numpy as npimport matplotlib.pyplot as plt# 使用numpy生成200个随机点，从-0.5到0.5生成200个点x_data = np.linspace(-0.5, 0.5, 200)[:, np.newaxis]#转成二维数据noise = np.ran ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/58f43dc6.html" title="TensorFlow深度学习笔记-3">TensorFlow深度学习笔记-3</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-11T16:00:00.000Z" title="发表于 2017-11-12 00:00:00">2017-11-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">本文主要引入一个简单的示例来阐述Tensorflow的应用。
-先来一段程序，它是采用梯度下降法来训练数据。
-123456789101112131415161718192021222324252627282930313233import  tensorflow as tfimport numpy as np #numpy库为数学计算库，若导入失败，请先安装（pip install numpy）#使用numpy随机产生100个随机点x_data=np.random.rand(100)y_data = x_data+1#构造一个线性模型b= tf.Variable(0.)k= tf.Variable(0.)y= k*x_data +b#损失函数loss = tf.reduce_mean(tf.square(y_data-y))#定义一个梯度下降法优化器optimizer = tf.train.GradientDescentOptimizer(0.03)#最小化代价函数train = optimizer.minimize(loss)#初始化全局变量init = tf.global_variab ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/2ff30d50.html" title="TensorFlow深度学习笔记-2">TensorFlow深度学习笔记-2</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2017-11-10T16:00:00.000Z" title="发表于 2017-11-11 00:00:00">2017-11-11</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span></div><div class="content">
-TensorFlow™ 是一个采用数据流图（data flow graphs），用于数值计算的开源软件库。节点（Nodes）在图中表示数学操作，图中的线（edges）则表示在节点间相互联系的多维数据数组，即张量（tensor）。
+函数：pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
+功能：创建一个新的内核线程。
+导出状态：EXPORT_SYMBOL(kernel_thread)
+注意：虽然仍在使用，但更推荐使用 kthread_create 系列函数，因为 kernel_thread 创建的线程在用户空间不可见（没有对应的 /proc/pid 条目），且资源清理不如 kthread 方便。
 
-1.Tensortensor [‘tɛnsɚ]，表示张量，在TensorFlow中常用Tensor来描述矩阵信息。如下表示创建一个tensor，并将其初始化为0（zeros函数表示初始化一个tensor，并将其所有成员置位为0，缺省类型为float32）。
-1234import tensorflow as tf #一般对导入库进行重命名，减少后续引用的复杂性a=tf.zeros(shape=[3,4])print(a)#输出 Tensor(&quot;zeros:0&quot;, shape=(3, 4), dtype=float32)
 
-2.常量格式：a&#x3D;tf.constant(shape)，shape可以为一维矩阵，也可为多维矩阵。如下所示：
-123456789101112131415b=tf.constant([[1]])c=tf.cons ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/4/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/#content-inner">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/#content-inner">6</a><a class="extend next" rel="next" href="/page/6/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">84</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/ff2589f3.html" title="Windows11下WSL安装openEuler2403SP1版本">Windows11下WSL安装openEuler2403SP1版本</a><time datetime="2025-07-17T16:00:00.000Z" title="发表于 2025-07-18 00:00:00">2025-07-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/a27665ae.html" title="virt_to_page函数">virt_to_page函数</a><time datetime="2025-06-30T04:00:00.000Z" title="发表于 2025-06-30 12:00:00">2025-06-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/c887f84f.html" title="根据物理地址获得虚拟地址">根据物理地址获得虚拟地址</a><time datetime="2025-06-30T04:00:00.000Z" title="发表于 2025-06-30 12:00:00">2025-06-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/6d8b47c5.html" title="openEuler上包构建">openEuler上包构建</a><time datetime="2025-02-14T16:00:00.000Z" title="发表于 2025-02-15 00:00:00">2025-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/f3a59a2.html" title="内存管理参考链接">内存管理参考链接</a><time datetime="2025-01-12T04:00:00.000Z" title="发表于 2025-01-12 12:00:00">2025-01-12</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+kthread_create &#x2F; kthread_run (推荐方式):
+
+函数：
+struct task_struct *kthread_crea ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/234cdb8.html" title="内核系统调用流程判断方法">内核系统调用流程判断方法</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">内核中判断是否在系统调用流程中
+在 Linux 内核中，判断当前是否处于系统调用流程中，可以通过检查当前进程的上下文状态和寄存器信息来实现。以下是几种常见的方法：
+
+1. 检查 pt_regs 中的系统调用号
+原理：当进程通过系统调用进入内核时，系统调用号会保存在 pt_regs 结构的 orig_ax（x86_64）或 syscallno（ARM）字段中。
+代码示例：123456789#include &lt;linux/ptrace.h&gt;struct pt_regs *regs = current_pt_regs();if (regs != NULL) &#123;    long syscall_nr = syscall_get_nr(current, regs);    if (syscall_nr &gt;= 0) &#123;        // 处于系统调用流程中    &#125;&#125;
+注意：syscall_get_nr() 返回非负数表示有效系统调用号，-1 表示不在系统调用中。
+
+
+2. 检查进程的 thread_info 标志
+原理：内核使用 thr ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/a9dd2cbd.html" title="卡诺图使用注意事项总结">卡诺图使用注意事项总结</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">kmap使用注意事项
+卡诺图（Karnaugh Map，简称 Kmap）是简化布尔代数表达式的强大工具，但要有效且正确地使用它，需要注意以下关键事项：
+
+变量顺序至关重要：
+
+行和列的变量顺序必须固定，并且使用格雷码（Gray Code） 排列。格雷码的特点是相邻的码组之间只有一位不同，这保证了卡诺图上物理相邻的单元在逻辑上也是相邻的（即只有一个变量发生变化）。
+错误示例： 对于两个变量 A, B，如果行用 A: 0, 1，列用 B: 0, 1（二进制顺序），那么 A=0,B=1 和 A=1,B=0 这两个单元在二进制上相邻，但在逻辑上它们有两个变量不同（A 和 B 都变了），它们在卡诺图上并不相邻（是对角线位置）！
+正确做法： 行用 A: 0, 1，列用 B: 0, 1（格雷码顺序，相邻单元只差一位）。对于更多变量，同样需要严格按照格雷码顺序排列行和列的值。
+
+
+正确填入真值表：
+
+仔细根据逻辑函数、真值表或最小项&#x2F;最大项列表，将对应的 1（对于 SOP）、0（对于 POS）或 X（无关项）准确地填入 Kmap 的每个单元格中。一个填错就会导致最终结果错误。
+
+
+画圈（分组 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b2235aa0.html" title="黄金奈李与翡翠奈李选择指南">黄金奈李与翡翠奈李选择指南</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">黄金奈李和翡翠奈李哪个更合适
+这完全取决于你的具体需求！黄金奈李和翡翠奈李是奈李的两个不同品种（或品系），各有特点，没有绝对的“更好”，只有“更适合”某种场景或偏好。
+以下是两者的主要区别，帮助你判断哪个更合适：
+1. 外观与口感
+黄金奈李：
+外观： 成熟时果皮呈现金黄色，有时带红晕，色泽诱人。
+口感： 果肉通常更软糯多汁，风味浓郁香甜，香气十足。甜度通常很高，酸度低。是传统上更受欢迎的风味类型。
+
+
+翡翠奈李：
+外观： 成熟后果皮保持青绿色或黄绿色，类似翡翠，故名。
+口感： 果肉质地通常更脆硬爽口，汁水中等。风味以清甜为主，酸味可能比黄金奈李稍明显一点点（但也属于甜的），口感更清爽。
+
+
+
+2. 耐储运性与货架期
+黄金奈李： 果肉相对软糯，皮相对薄一些，不耐挤压和长途运输，货架期相对较短，需要尽快食用或销售。
+翡翠奈李： 果肉硬脆，更耐储运，货架期相对更长。这对于电商销售、长途运输、超市货架摆放更有利。
+
+3. 种植与管理
+黄金奈李： 是传统品种，种植技术相对成熟，但可能对某些病虫害或环境条件更敏感。成熟期相对集中。
+翡翠奈李： 作为较新的选育品种（或特定品系），通常被认为抗病性、适 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/e8311a0e.html" title="Linux UMH模块作用与机制解析">Linux UMH模块作用与机制解析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-11T16:00:00.000Z" title="发表于 2025-07-12 00:00:00">2025-07-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">Linux UMH模块的作用
+Linux 内核中的 UMH (User Mode Helper) 并不是一个独立的、可加载的内核模块（像 .ko 文件那样）。相反，它是一种机制，是内核提供的一组函数接口，允许运行在内核空间的代码（例如内核本身、设备驱动、其他内核模块）启动并执行位于用户空间（User Space）的应用程序或脚本。
+简单来说，UMH 的作用就是让内核能够“调用”用户空间的程序。
+UMH 的核心作用和工作原理
+内核发起请求： 内核代码（驱动、子系统、核心功能）在需要执行一个用户空间任务时，会调用 UMH 接口函数（如 call_usermodehelper, call_usermodehelper_setup, call_usermodehelper_exec 等）。
+创建用户进程： UMH 机制接收到请求后，会在内核中创建一个新的进程上下文。
+执行用户程序：
+内核会在这个新创建的进程上下文中加载并执行指定的用户空间二进制文件（如 /sbin/modprobe, /sbin/hotplug, 自定义脚本等）。
+内核可以将参数传递给这个用户空间程序。
+内核可以选择等待（阻塞 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/647bd9f4.html" title="pfn_to_page函数使用注意事项总结">pfn_to_page函数使用注意事项总结</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-11T16:00:00.000Z" title="发表于 2025-07-12 00:00:00">2025-07-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">pfn_to_page函数使用注意事项
+pfn_to_page 是 Linux 内核中一个极其基础且重要的宏&#x2F;函数（定义在 &lt;linux/mm.h&gt; 或 &lt;linux/pfn.h&gt; 中），用于将物理页帧号（Physical Frame Number, pfn）转换为其对应的 struct page 结构体的指针。这个结构体是内核管理物理内存页的核心数据结构。
+正确使用 pfn_to_page 至关重要，否则会导致内核崩溃、数据损坏或难以调试的内存错误。以下是其关键使用注意事项：
+
+确保 pfn 是有效的且可用的：
+
+核心前提： 这是最重要的一点。传递给 pfn_to_page 的 pfn 必须代表一个实际存在的、可被内核使用的物理内存页帧。
+验证有效性： 在不确定 pfn 是否有效时，必须使用 pfn_valid(pfn) 进行验证。该函数检查 pfn 是否在系统物理内存映射范围内，并且不是位于内存空洞（mem_map 数组中无对应 struct page）中。
+何时需要验证？
+当你处理的 pfn 来自用户空间、DMA 映射（尤其是 dma_map_* ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/668bb861.html" title="seccomp接口用法及示例详解">seccomp接口用法及示例详解</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-10T16:00:00.000Z" title="发表于 2025-07-11 00:00:00">2025-07-11</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">seccomp接口用法及示例
+seccomp（Secure Computing Mode）是 Linux 内核的安全机制，用于限制进程可用的系统调用（syscall），增强应用程序的安全性。以下是详细用法及示例：
+
+核心接口
+prctl(PR_SET_SECCOMP, ...)传统模式，仅允许 read&#x2F;write&#x2F;exit&#x2F;sigreturn 四种系统调用。
+seccomp(SECCOMP_SET_MODE_FILTER, ...)基于 BPF（Berkeley Packet Filter）的高级模式，支持自定义过滤规则。
+
+
+示例 1：基础用法（C语言）123456789101112131415161718#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;#include &lt;unistd.h&gt;#include &lt;sys/prctl.h&gt;#include &lt;linux/seccomp.h&gt;#include &lt;linux/filter.h&gt;#include &l ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/d1eb54b6.html" title="APT缩写多领域含义解析">APT缩写多领域含义解析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-09T16:00:00.000Z" title="发表于 2025-07-10 00:00:00">2025-07-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">APT
+“APT” 是多个领域的缩写，最常见的有以下几种含义，需要根据上下文判断：
+
+网络安全领域：高级持续性威胁 (Advanced Persistent Threat)
+
+定义： 指由技术高超、资源充足的攻击者（通常与国家或大型犯罪组织相关）发起的长期、复杂的网络攻击活动。目标通常是窃取敏感信息（如政府机密、商业机密、知识产权）或破坏关键基础设施。
+特点： 隐蔽性强、持续时间长、目标明确、手段先进、难以检测和防御。
+
+
+生物化学领域：氨基丙基转移酶 (Aminopropyltransferase)
+
+定义： 一类催化将氨基丙基基团（来自S-腺苷甲硫氨酸）转移到受体分子（如腐胺、亚精胺）上的酶。在合成多胺（如亚精胺、精胺）过程中起关键作用。
+
+
+金融领域：美国凭证国债 (American Pass-Through)
+
+定义： 一种由政府国民抵押贷款协会发行的抵押贷款支持证券。其特点是“过手”性质，即抵押贷款的本金和利息在扣除服务费后，会按月“过手”给证券持有者。
+
+
+软件管理领域（特别是 Linux）：高级打包工具 (Advanced Packaging Tool)
+
+定义： Deb ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/c1ca85a8.html" title="BIOS、U-Boot、Bootloader区别解析">BIOS、U-Boot、Bootloader区别解析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-09T16:00:00.000Z" title="发表于 2025-07-10 00:00:00">2025-07-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">bios、u-boot、bootloader有啥区别
+理解 BIOS、U-Boot 和 Bootloader 的区别，关键在于它们在系统启动过程中扮演的不同角色和所处的层级：
+
+Bootloader (引导加载程序)
+
+角色： 这是最通用的概念。Bootloader 是系统上电后，在操作系统内核运行之前执行的第一段软件代码。
+核心任务：
+初始化硬件： 进行基础的硬件初始化（如内存控制器、时钟、串口等），为后续操作准备环境。
+加载操作系统内核： 从存储设备（如 eMMC, SD卡, SPI NOR Flash, 硬盘）中读取操作系统内核镜像（如 Linux 的 zImage 或 Image，或 uImage）到内存中。
+传递参数： 设置好必要的启动参数（如命令行参数 cmdline、设备树 DTB 地址等），并传递给内核。
+启动内核： 跳转到内核在内存中的入口地址，将控制权移交给操作系统。
+
+
+特点：
+通用术语： 所有系统（PC、服务器、嵌入式设备、手机）都有 Bootloader。
+种类繁多： 具体实现多种多样。在 PC 上常见的是 GRUB, LILO。在嵌入式系统中，U-Boot  ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/b94c538a.html" title="Linux文件类型及标识符详解">Linux文件类型及标识符详解</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-09T16:00:00.000Z" title="发表于 2025-07-10 00:00:00">2025-07-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">Linux文件类型有哪些
+在 Linux 系统中，“一切皆文件” 是其核心设计哲学之一。文件类型不仅指常规的数据文件，还包括目录、设备、管道等。可以通过 ls -l 命令的第一个字符来识别文件类型：
+
+
+
+标识符
+文件类型
+描述
+常见示例
+
+
+
+-
+普通文件
+存储数据（文本、二进制、图片、压缩包等）
+.txt, .jpg, .py, .zip
+
+
+d
+目录文件
+包含其他文件或子目录的容器
+/home, /etc, /var/log
+
+
+l
+符号链接文件
+指向另一个文件&#x2F;目录的快捷方式（软链接）
+/usr/bin/python -&gt; python3.11
+
+
+c
+字符设备文件
+以字符流形式访问的硬件设备（如终端、键盘）
+/dev/tty, /dev/null, /dev/input
+
+
+b
+块设备文件
+以数据块形式访问的硬件设备（如硬盘、USB）
+/dev/sda, /dev/nvme0n1
+
+
+p
+命名管道文件
+进程间通信（IPC）的 FIFO 队列
+通过 mkfifo 命令创建
+
+
+s
+套接字文件
+网络或本地进程间通信的接口
+/run/docker.sock, X11 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/37fbf2fa.html" title="seccomp函数用法及示例详解">seccomp函数用法及示例详解</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-09T16:00:00.000Z" title="发表于 2025-07-10 00:00:00">2025-07-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">seccomp函数用法及示例
+seccomp（Secure Computing Mode）是 Linux 内核的安全机制，用于限制进程可用的系统调用（syscall），从而减少攻击面。以下是详细用法和示例：
+
+核心概念
+两种模式：
+
+SECCOMP_MODE_STRICT：只允许 read, write, _exit, sigreturn 四个系统调用。
+SECCOMP_MODE_FILTER（推荐）：基于 BPF 规则自定义允许&#x2F;拒绝的系统调用。
+
+
+常用工具：
+
+系统调用：prctl() 或 seccomp()
+库：libseccomp（简化操作，推荐使用）
+
+
+
+
+使用 libseccomp 的步骤
+初始化过滤器设置默认动作（如拒绝非法 syscall）。
+1scmp_filter_ctx ctx = seccomp_init(SCMP_ACT_KILL); // 非法调用时杀死进程
+
+添加允许的规则明确允许需要的系统调用。
+123seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(read), 0);     // 允许 re ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/624610ff.html" title="查找文本文件">查找文本文件</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-09T16:00:00.000Z" title="发表于 2025-07-10 00:00:00">2025-07-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">查找文本文件
+要查找文本文件，具体方法取决于您的操作系统和查找需求。以下是不同场景下的操作指南：
+
+1. 按文件名查找Windows 系统：
+文件资源管理器：
+打开任意文件夹，点击右上角的搜索框。
+输入文件名（如 *.txt 查找所有文本文件）。
+按 Enter 键，结果会实时显示。
+
+
+命令提示符（CMD）：1dir /s *.txt  # 查找当前目录及子目录下所有.txt文件
+
+macOS&#x2F;Linux 系统：
+终端命令：1find /目标路径 -name &quot;*.txt&quot;  # 例如：find ~/Documents -name &quot;*.txt&quot;
+
+
+2. 按文件内容查找Windows：
+文件资源管理器：
+在搜索框中输入内容关键词（如 &quot;需要查找的文本&quot;）。
+搜索范围需设置为包含子目录（默认已开启）。
+
+
+PowerShell：1Select-String -Path &quot;C:\路径\*.txt&quot; -Pattern &quot;关键词&quot;
+
+macOS&#x2F;Linux：
+终端命令：1 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/49f90d7b.html" title="编译选项-rdynamic的作用与使用">编译选项-rdynamic的作用与使用</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-09T16:00:00.000Z" title="发表于 2025-07-10 00:00:00">2025-07-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">编译选项 -rdynamic的作用
+-rdynamic 是 GCC 编译器的一个链接器选项（通常传递给链接器 ld），它的主要作用是：
+将程序中的所有符号（函数名、全局变量名等）添加到动态符号表（.dynsym 段）中。
+这听起来有点抽象，让我们分解一下它的含义和主要用途：
+
+允许动态链接器解析更多符号：
+默认情况下，链接器在生成可执行文件时，为了优化文件大小和加载速度，只会将那些被动态链接库（共享库）实际使用到的符号放入动态符号表（.dynsym）中。
+-rdynamic 告诉链接器：“不要做这个优化，把所有全局符号（包括未被共享库显式使用的）都放进 .dynsym 表里”。
+
+
+
+-rdynamic 的主要应用场景：
+
+获取有意义的函数名回溯信息（Backtraces with Names）：
+
+这是最常用的目的。
+当你在程序中使用 backtrace() 和 backtrace_symbols() 函数（在 &lt;execinfo.h&gt; 中）来获取程序崩溃或特定点的调用堆栈（call stack）时，这些函数默认只能输出函数地址（十六进制地址）。
+-rdynamic 确保 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/posts/a8af16d9.html" title="Linux内核memremap设置为uncahche">Linux内核memremap设置为uncahche</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2025-07-08T16:00:00.000Z" title="发表于 2025-07-09 00:00:00">2025-07-09</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/deepseek/">deepseek</a></span></div><div class="content">Linux内核memremap设置为uncahche
+Linux内核memremap设置为uncache
+在Linux内核中，将内存映射设置为uncacheable（不可缓存）通常用于访问设备寄存器或需要严格内存顺序的场景。以下是实现方法和关键步骤：
+
+1. 使用 memremap API
+通过 memremap() 函数指定 MEMREMAP_UC 标志实现不可缓存映射：
+123#include &lt;linux/io.h&gt;void *addr = memremap(phys_addr, size, MEMREMAP_UC);
+
+参数说明：
+phys_addr: 要映射的物理地址起始位置
+size: 映射区域的大小
+MEMREMAP_UC: 映射为不可缓存（Uncacheable）
+
+
+
+
+返回值：
+
+成功：映射后的虚拟地址指针（void __iomem *类型）
+失败：NULL（需检查错误）
+
+
+解除映射：
+1memunmap(addr); // 使用后解除映射
+
+
+2. 使用 ioremap API（替代方案）
+ioremap() 默认映射为不可缓存（等效于 MEMREM ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/4/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/#content-inner">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/#content-inner">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/#content-inner">22</a><a class="extend next" rel="next" href="/page/6/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
             <i class="fas fa-folder-open"></i>
             <span>分类</span>
             <a class="card-more-btn" href="/categories/" title="查看更多">
     <i class="fas fa-angle-right"></i></a>
             </div>
             <ul class="card-category-list" id="aside-cat-list">
-            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/"><span class="card-category-list-name">Linux</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-Kernel/"><span class="card-category-list-name">Linux Kernel</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-kernel/"><span class="card-category-list-name">Linux kernel</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux%E5%91%BD%E4%BB%A4/"><span class="card-category-list-name">Linux命令</span><span class="card-category-list-count">20</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/openEuler/"><span class="card-category-list-name">openEuler</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%B8%AA%E4%BA%BA/"><span class="card-category-list-name">个人</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><span class="card-category-list-name">内存管理</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%89%E5%85%A8/"><span class="card-category-list-name">安全</span><span class="card-category-list-count">11</span></a></li>
-            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Linux/" style="font-size: 1.45em; color: rgb(38, 194, 200)">Linux</a><a href="/tags/SSH/" style="font-size: 1.15em; color: rgb(64, 83, 174)">SSH</a><a href="/tags/useradd/" style="font-size: 1.15em; color: rgb(15, 150, 193)">useradd</a><a href="/tags/vdso/" style="font-size: 1.15em; color: rgb(98, 68, 41)">vdso</a><a href="/tags/Linux-Kernel/" style="font-size: 1.15em; color: rgb(18, 49, 46)">Linux Kernel</a><a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" style="font-size: 1.15em; color: rgb(67, 190, 15)">内存管理</a><a href="/tags/virt-to-page/" style="font-size: 1.15em; color: rgb(17, 0, 155)">virt_to_page</a><a href="/tags/%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2/" style="font-size: 1.15em; color: rgb(75, 193, 33)">物理地址转换</a><a href="/tags/TensorFlow/" style="font-size: 1.36em; color: rgb(99, 60, 114)">TensorFlow</a><a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 1.36em; color: rgb(136, 51, 48)">深度学习</a><a href="/tags/openEuler/" style="font-size: 1.24em; color: rgb(170, 142, 110)">openEuler</a><a href="/tags/wsl/" style="font-size: 1.15em; color: rgb(9, 147, 103)">wsl</a><a href="/tags/openEuler-embedded/" style="font-size: 1.15em; color: rgb(197, 64, 84)">openEuler embedded</a><a href="/tags/qemu/" style="font-size: 1.15em; color: rgb(140, 123, 140)">qemu</a><a href="/tags/%E7%A4%BE%E5%8C%BA%E6%8F%90%E4%BA%A4/" style="font-size: 1.15em; color: rgb(169, 109, 22)">社区提交</a><a href="/tags/%E5%AE%89%E5%85%A8/" style="font-size: 1.32em; color: rgb(145, 51, 118)">安全</a><a href="/tags/LSM/" style="font-size: 1.19em; color: rgb(190, 165, 139)">LSM</a><a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.24em; color: rgb(20, 161, 49)">工具</a><a href="/tags/makefile/" style="font-size: 1.15em; color: rgb(200, 87, 98)">makefile</a><a href="/tags/glibc-musl/" style="font-size: 1.19em; color: rgb(111, 127, 170)">glibc, musl</a><a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7/" style="font-size: 1.15em; color: rgb(3, 155, 86)">一致性</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E4%BE%9D%E8%B5%96/" style="font-size: 1.15em; color: rgb(116, 192, 137)">软件依赖</a><a href="/tags/%E5%91%BD%E4%BB%A4/" style="font-size: 1.41em; color: rgb(41, 14, 163)">命令</a><a href="/tags/C/" style="font-size: 1.28em; color: rgb(161, 60, 115)">C</a><a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.15em; color: rgb(156, 78, 118)">调试</a><a href="/tags/libcli/" style="font-size: 1.15em; color: rgb(61, 162, 112)">libcli</a><a href="/tags/log4cplus/" style="font-size: 1.15em; color: rgb(68, 192, 40)">log4cplus</a><a href="/tags/%E7%94%9F%E9%95%BF%E5%9B%A0%E5%AD%90/" style="font-size: 1.15em; color: rgb(193, 114, 45)">生长因子</a><a href="/tags/GRE/" style="font-size: 1.15em; color: rgb(131, 10, 111)">GRE</a><a href="/tags/%E5%8D%8F%E8%AE%AE/" style="font-size: 1.15em; color: rgb(135, 15, 42)">协议</a><a href="/tags/%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC/" style="font-size: 1.15em; color: rgb(23, 126, 163)">编码风格</a><a href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/" style="font-size: 1.15em; color: rgb(35, 3, 7)">栈溢出</a><a href="/tags/%E7%A3%81%E7%9B%98%E9%98%B5%E5%88%97/" style="font-size: 1.15em; color: rgb(27, 161, 76)">磁盘阵列</a><a href="/tags/GCC/" style="font-size: 1.19em; color: rgb(95, 52, 4)">GCC</a><a href="/tags/gcc%E6%8F%92%E4%BB%B6/" style="font-size: 1.19em; color: rgb(34, 166, 132)">gcc插件</a><a href="/tags/Linux%E5%8A%A0%E5%9B%BA/" style="font-size: 1.15em; color: rgb(1, 120, 181)">Linux加固</a><a href="/tags/KASLR/" style="font-size: 1.19em; color: rgb(21, 48, 27)">KASLR</a><a href="/tags/SELinux/" style="font-size: 1.15em; color: rgb(90, 58, 58)">SELinux</a><a href="/tags/MAC/" style="font-size: 1.15em; color: rgb(125, 194, 72)">MAC</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
-    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/07/"><span class="card-archive-list-date">七月 2025</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/06/"><span class="card-archive-list-date">六月 2025</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/02/"><span class="card-archive-list-date">二月 2025</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/01/"><span class="card-archive-list-date">一月 2025</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/09/"><span class="card-archive-list-date">九月 2024</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/05/"><span class="card-archive-list-date">五月 2024</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><span class="card-archive-list-count">10</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/04/"><span class="card-archive-list-date">四月 2023</span><span class="card-archive-list-count">3</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">84</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/"><span class="card-category-list-name">Linux</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-Kernel/"><span class="card-category-list-name">Linux Kernel</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux-kernel/"><span class="card-category-list-name">Linux kernel</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux%E5%91%BD%E4%BB%A4/"><span class="card-category-list-name">Linux命令</span><span class="card-category-list-count">20</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/deepseek/"><span class="card-category-list-name">deepseek</span><span class="card-category-list-count">240</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/openEuler/"><span class="card-category-list-name">openEuler</span><span class="card-category-list-count">4</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E4%B8%AA%E4%BA%BA/"><span class="card-category-list-name">个人</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><span class="card-category-list-name">内存管理</span><span class="card-category-list-count">1</span></a></li>
+            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Linux/" style="font-size: 1.41em; color: rgb(97, 115, 30)">Linux</a><a href="/tags/SSH/" style="font-size: 1.15em; color: rgb(135, 132, 190)">SSH</a><a href="/tags/useradd/" style="font-size: 1.15em; color: rgb(87, 50, 200)">useradd</a><a href="/tags/vdso/" style="font-size: 1.15em; color: rgb(52, 180, 46)">vdso</a><a href="/tags/Linux-Kernel/" style="font-size: 1.15em; color: rgb(136, 132, 74)">Linux Kernel</a><a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" style="font-size: 1.15em; color: rgb(106, 86, 116)">内存管理</a><a href="/tags/virt-to-page/" style="font-size: 1.15em; color: rgb(126, 40, 165)">virt_to_page</a><a href="/tags/%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2/" style="font-size: 1.15em; color: rgb(84, 99, 129)">物理地址转换</a><a href="/tags/TensorFlow/" style="font-size: 1.34em; color: rgb(91, 180, 71)">TensorFlow</a><a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 1.34em; color: rgb(199, 103, 82)">深度学习</a><a href="/tags/openEuler/" style="font-size: 1.22em; color: rgb(56, 148, 88)">openEuler</a><a href="/tags/wsl/" style="font-size: 1.15em; color: rgb(88, 81, 160)">wsl</a><a href="/tags/openEuler-embedded/" style="font-size: 1.15em; color: rgb(161, 86, 77)">openEuler embedded</a><a href="/tags/qemu/" style="font-size: 1.15em; color: rgb(140, 48, 180)">qemu</a><a href="/tags/%E7%A4%BE%E5%8C%BA%E6%8F%90%E4%BA%A4/" style="font-size: 1.15em; color: rgb(158, 74, 138)">社区提交</a><a href="/tags/%E5%AE%89%E5%85%A8/" style="font-size: 1.3em; color: rgb(91, 42, 112)">安全</a><a href="/tags/LSM/" style="font-size: 1.19em; color: rgb(128, 120, 163)">LSM</a><a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.22em; color: rgb(86, 125, 29)">工具</a><a href="/tags/makefile/" style="font-size: 1.15em; color: rgb(89, 131, 45)">makefile</a><a href="/tags/glibc-musl/" style="font-size: 1.19em; color: rgb(136, 188, 25)">glibc, musl</a><a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7/" style="font-size: 1.15em; color: rgb(190, 110, 171)">一致性</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E4%BE%9D%E8%B5%96/" style="font-size: 1.15em; color: rgb(180, 37, 144)">软件依赖</a><a href="/tags/%E5%91%BD%E4%BB%A4/" style="font-size: 1.38em; color: rgb(15, 78, 40)">命令</a><a href="/tags/C/" style="font-size: 1.26em; color: rgb(55, 152, 115)">C</a><a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.15em; color: rgb(124, 52, 61)">调试</a><a href="/tags/libcli/" style="font-size: 1.15em; color: rgb(109, 177, 158)">libcli</a><a href="/tags/log4cplus/" style="font-size: 1.15em; color: rgb(112, 78, 154)">log4cplus</a><a href="/tags/%E7%94%9F%E9%95%BF%E5%9B%A0%E5%AD%90/" style="font-size: 1.15em; color: rgb(120, 76, 94)">生长因子</a><a href="/tags/GRE/" style="font-size: 1.15em; color: rgb(12, 48, 0)">GRE</a><a href="/tags/%E5%8D%8F%E8%AE%AE/" style="font-size: 1.15em; color: rgb(62, 32, 124)">协议</a><a href="/tags/%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC/" style="font-size: 1.15em; color: rgb(14, 134, 29)">编码风格</a><a href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/" style="font-size: 1.15em; color: rgb(165, 35, 35)">栈溢出</a><a href="/tags/%E7%A3%81%E7%9B%98%E9%98%B5%E5%88%97/" style="font-size: 1.15em; color: rgb(39, 12, 4)">磁盘阵列</a><a href="/tags/GCC/" style="font-size: 1.19em; color: rgb(58, 187, 43)">GCC</a><a href="/tags/gcc%E6%8F%92%E4%BB%B6/" style="font-size: 1.19em; color: rgb(114, 51, 12)">gcc插件</a><a href="/tags/Linux%E5%8A%A0%E5%9B%BA/" style="font-size: 1.15em; color: rgb(167, 178, 108)">Linux加固</a><a href="/tags/KASLR/" style="font-size: 1.19em; color: rgb(188, 99, 41)">KASLR</a><a href="/tags/SELinux/" style="font-size: 1.15em; color: rgb(14, 155, 93)">SELinux</a><a href="/tags/MAC/" style="font-size: 1.15em; color: rgb(131, 39, 32)">MAC</a><a href="/tags/deepseek/" style="font-size: 1.45em; color: rgb(66, 166, 39)">deepseek</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/07/"><span class="card-archive-list-date">七月 2025</span><span class="card-archive-list-count">90</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/06/"><span class="card-archive-list-date">六月 2025</span><span class="card-archive-list-count">51</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/05/"><span class="card-archive-list-date">五月 2025</span><span class="card-archive-list-count">57</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/04/"><span class="card-archive-list-date">四月 2025</span><span class="card-archive-list-count">33</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/03/"><span class="card-archive-list-date">三月 2025</span><span class="card-archive-list-count">9</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/02/"><span class="card-archive-list-date">二月 2025</span><span class="card-archive-list-count">4</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/01/"><span class="card-archive-list-date">一月 2025</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/09/"><span class="card-archive-list-date">九月 2024</span><span class="card-archive-list-count">1</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">324</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

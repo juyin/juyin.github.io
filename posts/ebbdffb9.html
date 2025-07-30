@@ -1,0 +1,657 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux中trace钩子原子性分析 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux中trace钩子是否为原子的 在 Linux 内核中，trace 钩子（如 Tracepoints）的启用&#x2F;禁用操作是原子的，但钩子回调函数的执行本身不是原子的。以下是详细分析：  1. Tracepoints 的启用&#x2F;禁用是原子的 指令替换机制：当启用 Tracepoint 时，内核会将被跟踪位置的原始指令替换为一个跳转指令（如 jmp 或 int3）。此操作通过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux中trace钩子原子性分析">
+<meta property="og:url" content="http://helloeuler.cn/posts/ebbdffb9.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux中trace钩子是否为原子的 在 Linux 内核中，trace 钩子（如 Tracepoints）的启用&#x2F;禁用操作是原子的，但钩子回调函数的执行本身不是原子的。以下是详细分析：  1. Tracepoints 的启用&#x2F;禁用是原子的 指令替换机制：当启用 Tracepoint 时，内核会将被跟踪位置的原始指令替换为一个跳转指令（如 jmp 或 int3）。此操作通过">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.763Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/ebbdffb9.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux中trace钩子原子性分析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux中trace钩子原子性分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-27T16:00:00.000Z" title="发表于 2025-07-28 00:00:00">2025-07-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux中trace钩子原子性分析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux中trace钩子是否为原子的</p>
+<p>在 Linux 内核中，<strong>trace 钩子（如 Tracepoints）的启用&#x2F;禁用操作是原子的</strong>，但<strong>钩子回调函数的执行本身不是原子的</strong>。以下是详细分析：</p>
+<hr>
+<h3 id="1-Tracepoints-的启用-禁用是原子的"><a href="#1-Tracepoints-的启用-禁用是原子的" class="headerlink" title="1. Tracepoints 的启用&#x2F;禁用是原子的"></a>1. <strong>Tracepoints 的启用&#x2F;禁用是原子的</strong></h3><ul>
+<li><strong>指令替换机制</strong>：<br>当启用 Tracepoint 时，内核会将被跟踪位置的原始指令替换为一个跳转指令（如 <code>jmp</code> 或 <code>int3</code>）。此操作通过 <code>stop_machine()</code> 机制实现：<ul>
+<li><code>stop_machine()</code> 会暂停所有 CPU 的执行。</li>
+<li>在安全的上下文中原子地替换指令。</li>
+<li>确保没有 CPU 会在指令替换过程中执行被修改的代码。</li>
+</ul>
+</li>
+<li><strong>RCU 保护</strong>：<br>回调函数的注册&#x2F;注销使用 RCU（Read-Copy-Update）机制，确保无锁读取和安全的延迟释放。</li>
+</ul>
+<hr>
+<h3 id="2-Tracepoint-回调函数的执行不是原子的"><a href="#2-Tracepoint-回调函数的执行不是原子的" class="headerlink" title="2. Tracepoint 回调函数的执行不是原子的"></a>2. <strong>Tracepoint 回调函数的执行不是原子的</strong></h3><ul>
+<li><strong>抢占与中断</strong>：<br>回调函数执行时：<ul>
+<li>可能被更高优先级的中断或 NMI（Non-Maskable Interrupt）抢占。</li>
+<li>在 SMP 系统中，多个 CPU 可能同时执行同一回调函数。</li>
+</ul>
+</li>
+<li><strong>并发问题</strong>：<br>如果回调函数访问共享数据，必须使用锁（如 <code>spin_lock</code>）或 RCU 保护数据，否则会导致竞态条件。</li>
+</ul>
+<hr>
+<h3 id="3-其他跟踪机制的原子性"><a href="#3-其他跟踪机制的原子性" class="headerlink" title="3. 其他跟踪机制的原子性"></a>3. <strong>其他跟踪机制的原子性</strong></h3><ul>
+<li><strong>kprobes</strong>：<br>指令替换（断点注入）是原子的（通过 <code>stop_machine()</code>），但回调函数执行不是原子的。</li>
+<li><strong>ftrace</strong>：<br>函数入口的跳转指令修改是原子的，但跟踪函数本身可能被中断或并发执行。</li>
+<li><strong>eBPF</strong>：<br>挂载到 Tracepoint 的 eBPF 程序同样遵循上述规则：启用&#x2F;禁用原子，但程序执行可能被抢占。</li>
+</ul>
+<hr>
+<h3 id="关键结论"><a href="#关键结论" class="headerlink" title="关键结论"></a>关键结论</h3><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>是否原子？</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>启用&#x2F;禁用 Tracepoint</strong></td>
+<td>是</td>
+<td>通过 <code>stop_machine()</code> 和 RCU 实现原子指令替换和回调列表更新。</td>
+</tr>
+<tr>
+<td><strong>回调函数执行</strong></td>
+<td>否</td>
+<td>可被中断、抢占，或在 SMP 上并发执行，需开发者自行处理并发安全。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h3><ul>
+<li><strong>在回调函数中</strong>：<br>假设执行环境是非原子的，需使用：<ul>
+<li>自旋锁（<code>spin_lock</code>）保护共享数据。</li>
+<li>RCU 实现无锁读取。</li>
+<li>禁用本地中断（<code>local_irq_save</code>）防止中断干扰（谨慎使用）。</li>
+</ul>
+</li>
+<li><strong>避免阻塞操作</strong>：<br>回调函数中禁止睡眠（如 <code>kmalloc(GFP_KERNEL)</code>），否则可能导致死锁或内核崩溃。</li>
+</ul>
+<blockquote>
+<p>总结：Trace 钩子的底层开关操作是原子的，但回调函数必须按<strong>非原子、可重入、可并发</strong>的场景设计。</p>
+</blockquote>
+<p>trace钩子中获取进程cmdline</p>
+<p>在 Linux 内核的 trace 钩子（如 Tracepoints）中获取进程的 <code>cmdline</code>（命令行参数）需要谨慎处理，因为该操作涉及用户空间内存访问且存在并发风险。以下是详细分析和安全实现方法：</p>
+<hr>
+<h3 id="关键挑战"><a href="#关键挑战" class="headerlink" title="关键挑战"></a>关键挑战</h3><ol>
+<li><strong>原子性限制</strong><br>Tracepoint 回调在<strong>非原子上下文</strong>执行，可能被中断&#x2F;抢占，需避免竞态条件。</li>
+<li><strong>内存安全</strong><br><code>cmdline</code> 存储在用户空间内存中（<code>mm-&gt;arg_start</code>），直接访问可能：<ul>
+<li>触发缺页异常（Page Fault）</li>
+<li>访问已释放的内存（进程退出时）</li>
+</ul>
+</li>
+<li><strong>进程状态变化</strong><br>目标进程可能在获取 <code>cmdline</code> 期间退出或被修改。</li>
+</ol>
+<hr>
+<h3 id="安全实现步骤"><a href="#安全实现步骤" class="headerlink" title="安全实现步骤"></a>安全实现步骤</h3><h4 id="方法-1：使用内核辅助函数（推荐）"><a href="#方法-1：使用内核辅助函数（推荐）" class="headerlink" title="方法 1：使用内核辅助函数（推荐）"></a>方法 1：使用内核辅助函数（推荐）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">trace_cmdline</span><span class="params">(<span class="keyword">struct</span> task_struct *task, <span class="type">char</span> *buf, <span class="type">size_t</span> size)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mm_struct</span> *<span class="title">mm</span>;</span></span><br><span class="line">    <span class="type">int</span> ret = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 获取进程的 mm 结构（RCU 保护）</span></span><br><span class="line">    mm = get_task_mm(task);</span><br><span class="line">    <span class="keyword">if</span> (!mm) <span class="keyword">goto</span> out;  <span class="comment">// 内核线程或无 mm 结构</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 检查参数范围有效性</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> arg_start = mm-&gt;arg_start;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> arg_end = mm-&gt;arg_end;</span><br><span class="line">    <span class="keyword">if</span> (arg_end &lt;= arg_start || arg_end - arg_start &gt; PAGE_SIZE) &#123;</span><br><span class="line">        mmput(mm);</span><br><span class="line">        <span class="keyword">goto</span> out;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 安全复制用户空间数据（可能休眠！）</span></span><br><span class="line">    ret = access_process_vm(task, arg_start, buf, size - <span class="number">1</span>, FOLL_FORCE);</span><br><span class="line"></span><br><span class="line">    mmput(mm);  <span class="comment">// 释放 mm 引用</span></span><br><span class="line"></span><br><span class="line">out:</span><br><span class="line">    <span class="keyword">if</span> (ret &gt; <span class="number">0</span>) buf[ret] = <span class="string">&#x27;\0&#x27;</span>;  <span class="comment">// 确保字符串终止</span></span><br><span class="line">    <span class="keyword">else</span> buf[<span class="number">0</span>] = <span class="string">&#x27;\0&#x27;</span>;            <span class="comment">// 失败时置空</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="方法-2：通过-proc-接口（适用于非原子上下文）"><a href="#方法-2：通过-proc-接口（适用于非原子上下文）" class="headerlink" title="方法 2：通过 /proc 接口（适用于非原子上下文）"></a>方法 2：通过 <code>/proc</code> 接口（适用于非原子上下文）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">get_cmdline_via_proc</span><span class="params">(<span class="keyword">struct</span> task_struct *task, <span class="type">char</span> *buf)</span> &#123;</span><br><span class="line">    <span class="type">char</span> path[<span class="number">64</span>];</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">filp</span>;</span></span><br><span class="line">    <span class="built_in">snprintf</span>(path, <span class="keyword">sizeof</span>(path), <span class="string">&quot;/proc/%d/cmdline&quot;</span>, task-&gt;pid);</span><br><span class="line">    </span><br><span class="line">    filp = filp_open(path, O_RDONLY, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(filp)) <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">    kernel_read(filp, buf, PATH_MAX, &amp;filp-&gt;f_pos);  <span class="comment">// 同步读取</span></span><br><span class="line">    filp_close(filp, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="在-Tracepoint-回调中的使用示例"><a href="#在-Tracepoint-回调中的使用示例" class="headerlink" title="在 Tracepoint 回调中的使用示例"></a>在 Tracepoint 回调中的使用示例</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;trace/events/sched.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">tp_sched_process_exec</span><span class="params">(<span class="keyword">struct</span> trace_event_buffer *fb)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">task</span> =</span> current;</span><br><span class="line">    <span class="type">char</span> cmdline[<span class="number">256</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 安全获取 cmdline</span></span><br><span class="line">    trace_cmdline(task, cmdline, <span class="keyword">sizeof</span>(cmdline));</span><br><span class="line">    </span><br><span class="line">    trace_event_printf(fb, <span class="string">&quot;exec: pid=%d cmdline=&#x27;%s&#x27;&quot;</span>, task-&gt;pid, cmdline);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">trace_event_functions</span> <span class="title">trace_exec_funcs</span> =</span> &#123;</span><br><span class="line">    .trace = tp_sched_process_exec,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">trace_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">trace_event_call</span> *<span class="title">call</span>;</span></span><br><span class="line">    call = find_trace_event(<span class="string">&quot;sched_process_exec&quot;</span>);</span><br><span class="line">    call-&gt;event.funcs = &amp;trace_exec_funcs;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键注意事项"><a href="#关键注意事项" class="headerlink" title="关键注意事项"></a>关键注意事项</h3><ol>
+<li><p><strong>禁止在原子上下文中访问</strong><br>若 Tracepoint 在中断上下文（如 <code>irq_handler_entry</code>）触发：</p>
+<ul>
+<li><strong>不能使用</strong> <code>access_process_vm()</code>（可能休眠）</li>
+<li>替代方案：记录 PID，在用户空间解析 <code>/proc/[pid]/cmdline</code></li>
+</ul>
+</li>
+<li><p><strong>内存边界检查</strong>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (arg_end - arg_start &gt; YOUR_BUFFER_SIZE) &#123;</span><br><span class="line">    <span class="comment">// 截断或丢弃</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>处理进程退出</strong><br>使用 <code>get_task_mm()</code> 和 <code>mmput()</code> 确保安全引用计数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rcu_read_lock();</span><br><span class="line">task = pid_task(find_vpid(pid), PIDTYPE_PID);</span><br><span class="line"><span class="keyword">if</span> (task) get_task_mm(task); <span class="comment">// 增加 mm 引用计数</span></span><br><span class="line">rcu_read_unlock();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>字符串安全</strong>  </p>
+<ul>
+<li>始终终止字符串：<code>buf[ret] = &#39;\0&#39;</code></li>
+<li>过滤不可打印字符（防止日志注入）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="性能优化建议"><a href="#性能优化建议" class="headerlink" title="性能优化建议"></a>性能优化建议</h3><ol>
+<li><p><strong>延迟获取</strong><br>在回调中仅记录 PID，由用户态工具（如 <code>perf</code> 或 <code>eBPF</code>）解析 <code>cmdline</code></p>
+</li>
+<li><p><strong>eBPF 方案</strong><br>使用 <code>bpf_probe_read_user_str()</code> 安全读取：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// eBPF 程序示例</span></span><br><span class="line">SEC(<span class="string">&quot;tracepoint/sched/sched_process_exec&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">handle_exec</span><span class="params">(<span class="keyword">struct</span> trace_event_raw_sched_process_exec *ctx)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">task</span> =</span> (<span class="type">void</span>*)bpf_get_current_task();</span><br><span class="line">    <span class="type">char</span> cmdline[<span class="number">256</span>];</span><br><span class="line">    bpf_probe_read_user_str(cmdline, <span class="keyword">sizeof</span>(cmdline), task-&gt;mm-&gt;arg_start);</span><br><span class="line">    bpf_trace_printk(<span class="string">&quot;cmdline=%s&quot;</span>, cmdline);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="总结表"><a href="#总结表" class="headerlink" title="总结表"></a>总结表</h3><table>
+<thead>
+<tr>
+<th><strong>方法</strong></th>
+<th>适用场景</th>
+<th>风险</th>
+<th>性能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>access_process_vm()</code></td>
+<td>非原子上下文</td>
+<td>可能触发缺页异常</td>
+<td>中</td>
+</tr>
+<tr>
+<td>通过 <code>/proc</code> 读取</td>
+<td>进程上下文</td>
+<td>文件 I&#x2F;O 开销</td>
+<td>低</td>
+</tr>
+<tr>
+<td>eBPF 辅助函数</td>
+<td>任意上下文</td>
+<td>栈空间限制（≤512B）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>用户空间延迟处理</td>
+<td>高频事件</td>
+<td>数据异步性</td>
+<td>最优</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>核心原则</strong>：在 Tracepoint 回调中获取 <code>cmdline</code> 必须假设目标内存随时可能失效，需通过 RCU&#x2F;引用计数&#x2F;边界检查三重保护。生产环境推荐结合 eBPF 实现。</p>
+</blockquote>
+<p>Linux内核函数in_atomic函数的作用</p>
+<p><code>in_atomic()</code> 是 Linux 内核中一个重要的上下文判断函数，用于检测当前执行上下文是否处于<strong>原子操作状态</strong>（即不能被调度或中断的上下文）。其核心作用是为内核开发者提供一种安全机制，确保在原子上下文中不会执行可能引起睡眠或调度的操作。</p>
+<h3 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/preempt.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">in_atomic</span><span class="params">(<span class="type">void</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p>返回非零值表示处于原子上下文，返回 0 表示非原子上下文</p>
+<hr>
+<h3 id="关键作用解析"><a href="#关键作用解析" class="headerlink" title="关键作用解析"></a>关键作用解析</h3><h4 id="1-检测原子上下文"><a href="#1-检测原子上下文" class="headerlink" title="1. 检测原子上下文"></a>1. <strong>检测原子上下文</strong></h4><p>当以下任一条件成立时，<code>in_atomic()</code> 返回真值：</p>
+<ul>
+<li><strong>硬中断上下文</strong>（包括 IRQ 和 NMI）</li>
+<li><strong>软中断上下文</strong>（softirq&#x2F;tasklet）</li>
+<li><strong>持有自旋锁时</strong>（spinlock 会禁用抢占）</li>
+<li><strong>显式禁用抢占</strong>（通过 <code>preempt_disable()</code>）</li>
+<li><strong>中断禁用状态</strong>（通过 <code>local_irq_save()</code> 等）</li>
+</ul>
+<h4 id="2-防止非法操作"><a href="#2-防止非法操作" class="headerlink" title="2. 防止非法操作"></a>2. <strong>防止非法操作</strong></h4><p>在原子上下文中禁止的操作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (in_atomic()) &#123;</span><br><span class="line">    <span class="comment">// 以下操作会引发内核崩溃或死锁：</span></span><br><span class="line">    <span class="comment">// 1. 内存分配 (GFP_KERNEL)</span></span><br><span class="line">    <span class="comment">// 2. 用户空间内存访问 (copy_from_user)</span></span><br><span class="line">    <span class="comment">// 3. 互斥锁操作 (mutex_lock)</span></span><br><span class="line">    <span class="comment">// 4. 调度相关函数 (schedule())</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-实现原理"><a href="#3-实现原理" class="headerlink" title="3. 实现原理"></a>3. <strong>实现原理</strong></h4><p>基于线程的抢占计数器 (<code>preempt_count</code>)：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简化实现</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> in_atomic() (preempt_count() != 0)</span></span><br></pre></td></tr></table></figure>
+<p><code>preempt_count</code> 结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">| 31-16 | 15-8 | 7-0    |</span><br><span class="line">|-------|------|--------|</span><br><span class="line">| NMI   | IRQ  | PREEMPT|</span><br></pre></td></tr></table></figure>
+<p>当任何部分非零时，表示处于原子上下文</p>
+<hr>
+<h3 id="典型使用场景"><a href="#典型使用场景" class="headerlink" title="典型使用场景"></a>典型使用场景</h3><h4 id="场景-1：安全的内存分配"><a href="#场景-1：安全的内存分配" class="headerlink" title="场景 1：安全的内存分配"></a>场景 1：安全的内存分配</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *<span class="title function_">allocate_buffer</span><span class="params">(<span class="type">size_t</span> size)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (in_atomic()) &#123;</span><br><span class="line">        <span class="comment">// 原子上下文：使用非睡眠分配</span></span><br><span class="line">        <span class="keyword">return</span> kmalloc(size, GFP_ATOMIC);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 非原子上下文：使用常规分配</span></span><br><span class="line">        <span class="keyword">return</span> kmalloc(size, GFP_KERNEL);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景-2：驱动中的中断处理"><a href="#场景-2：驱动中的中断处理" class="headerlink" title="场景 2：驱动中的中断处理"></a>场景 2：驱动中的中断处理</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">irqreturn_t</span> <span class="title function_">my_interrupt_handler</span><span class="params">(<span class="type">int</span> irq, <span class="type">void</span> *dev_id)</span> &#123;</span><br><span class="line">    <span class="comment">// 中断上下文自动为原子状态</span></span><br><span class="line">    <span class="keyword">if</span> (in_atomic()) &#123;</span><br><span class="line">        <span class="comment">// 快速处理中断，仅操作硬件寄存器</span></span><br><span class="line">        handle_hardware();</span><br><span class="line">        <span class="keyword">return</span> IRQ_HANDLED;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 错误：不应执行到此处</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景-3：调试检测"><a href="#场景-3：调试检测" class="headerlink" title="场景 3：调试检测"></a>场景 3：调试检测</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">critical_function</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    BUG_ON(in_atomic()); <span class="comment">// 确保不在原子上下文执行</span></span><br><span class="line">    do_something_complex();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="与其他上下文判断函数的关系"><a href="#与其他上下文判断函数的关系" class="headerlink" title="与其他上下文判断函数的关系"></a>与其他上下文判断函数的关系</h3><table>
+<thead>
+<tr>
+<th>函数</th>
+<th>检测范围</th>
+<th>与 <code>in_atomic()</code> 的关系</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>in_interrupt()</code></td>
+<td>所有中断上下文 (硬+软)</td>
+<td><code>in_atomic()</code> 的子集</td>
+</tr>
+<tr>
+<td><code>in_irq()</code></td>
+<td>仅硬中断上下文</td>
+<td><code>in_atomic()</code> 的子集</td>
+</tr>
+<tr>
+<td><code>in_softirq()</code></td>
+<td>仅软中断&#x2F; tasklet 上下文</td>
+<td><code>in_atomic()</code> 的子集</td>
+</tr>
+<tr>
+<td><code>in_task()</code></td>
+<td>普通进程上下文</td>
+<td><code>!in_atomic()</code> 时可能为真</td>
+</tr>
+<tr>
+<td><code>preemptible()</code></td>
+<td>抢占是否启用</td>
+<td>与 <code>in_atomic()</code> 通常互斥</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="重要注意事项"><a href="#重要注意事项" class="headerlink" title="重要注意事项"></a>重要注意事项</h3><ol>
+<li><p><strong>不是绝对的原子性保证</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">preempt_disable();</span><br><span class="line"><span class="comment">// 此时 in_atomic()=true</span></span><br><span class="line">local_irq_enable(); <span class="comment">// 仍可能被中断</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>嵌套上下文处理</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">preempt_disable(); <span class="comment">// preempt_count=1</span></span><br><span class="line">spin_lock(&amp;lock);  <span class="comment">// preempt_count+=1</span></span><br><span class="line"><span class="comment">// in_atomic() 仍返回 true</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>eBPF 限制</strong><br>eBPF 验证器会拒绝在原子上下文中调用 <code>bpf_helper_in_atomic()</code> 的函数</p>
+</li>
+<li><p><strong>性能影响</strong><br>本质是读取当前线程的 <code>preempt_count</code>，开销极小（通常 1-2 个时钟周期）</p>
+</li>
+</ol>
+<hr>
+<h3 id="内核演进变化"><a href="#内核演进变化" class="headerlink" title="内核演进变化"></a>内核演进变化</h3><table>
+<thead>
+<tr>
+<th>内核版本</th>
+<th>重要变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&lt; 2.6</td>
+<td>无精确的原子上下文检测</td>
+</tr>
+<tr>
+<td>2.6+</td>
+<td>引入 <code>preempt_count</code> 和 <code>in_atomic()</code></td>
+</tr>
+<tr>
+<td>4.15+</td>
+<td>增加对 NMI 上下文的精确检测</td>
+</tr>
+<tr>
+<td>5.10+</td>
+<td>优化为 <code>static __always_inline</code> 函数</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>最佳实践</strong>：在编写可能被多种上下文调用的内核代码（如文件系统、设备驱动）时，应在执行可能阻塞的操作前使用 <code>in_atomic()</code> 进行防御性检查。但应避免过度使用，因为它可能掩盖设计缺陷。</p>
+</blockquote>
+<p>Linux 钩子函数是否在原子上下文</p>
+<p>在 Linux 内核中，<strong>钩子函数（hook functions）是否在原子上下文执行取决于钩子的具体类型和触发点</strong>。不同钩子机制的执行上下文差异很大，以下是详细分析：</p>
+<hr>
+<h3 id="1-钩子类型与上下文关系"><a href="#1-钩子类型与上下文关系" class="headerlink" title="1. 钩子类型与上下文关系"></a>1. <strong>钩子类型与上下文关系</strong></h3><table>
+<thead>
+<tr>
+<th>钩子类型</th>
+<th>典型上下文</th>
+<th>是否原子</th>
+<th>关键特征</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>硬件中断处理程序</strong></td>
+<td>硬中断上下文</td>
+<td>✅ 是</td>
+<td><code>in_irq() = true</code></td>
+</tr>
+<tr>
+<td><strong>软中断&#x2F;tasklet</strong></td>
+<td>软中断上下文</td>
+<td>✅ 是</td>
+<td><code>in_softirq() = true</code></td>
+</tr>
+<tr>
+<td><strong>Tracepoints</strong></td>
+<td>取决于触发点</td>
+<td>⚠️ 可变</td>
+<td>跟随调用者上下文</td>
+</tr>
+<tr>
+<td><strong>kprobes</strong></td>
+<td>取决于探测点</td>
+<td>⚠️ 可变</td>
+<td>与被探测函数相同</td>
+</tr>
+<tr>
+<td><strong>ftrace 回调</strong></td>
+<td>取决于挂钩点</td>
+<td>⚠️ 可变</td>
+<td>通常非原子</td>
+</tr>
+<tr>
+<td><strong>eBPF 程序</strong></td>
+<td>取决于挂接点</td>
+<td>⚠️ 可变</td>
+<td>验证器会强制限制</td>
+</tr>
+<tr>
+<td><strong>LSM 钩子</strong></td>
+<td>进程上下文</td>
+<td>❌ 否</td>
+<td><code>in_task() = true</code></td>
+</tr>
+<tr>
+<td><strong>网络堆栈钩子</strong></td>
+<td>进程&#x2F;软中断</td>
+<td>⚠️ 可变</td>
+<td>如 NF_INET_PRE_ROUTING</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="2-具体场景分析"><a href="#2-具体场景分析" class="headerlink" title="2. 具体场景分析"></a>2. <strong>具体场景分析</strong></h3><h4 id="a-中断相关钩子（原子上下文）"><a href="#a-中断相关钩子（原子上下文）" class="headerlink" title="a) 中断相关钩子（原子上下文）"></a>a) <strong>中断相关钩子（原子上下文）</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 硬件中断处理程序（原子上下文）</span></span><br><span class="line"><span class="type">irqreturn_t</span> <span class="title function_">my_irq_handler</span><span class="params">(<span class="type">int</span> irq, <span class="type">void</span> *dev_id)</span> &#123;</span><br><span class="line">    <span class="comment">// in_atomic() == 1</span></span><br><span class="line">    <span class="comment">// 不能调用可能睡眠的函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="b-Tracepoints（上下文可变）"><a href="#b-Tracepoints（上下文可变）" class="headerlink" title="b) Tracepoints（上下文可变）"></a>b) <strong>Tracepoints（上下文可变）</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 进程退出 Tracepoint（进程上下文）</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">trace_sched_process_exit</span><span class="params">(<span class="type">void</span> *data)</span> &#123;</span><br><span class="line">    <span class="comment">// in_atomic() == 0</span></span><br><span class="line">    <span class="comment">// 可以安全使用 kmalloc(GFP_KERNEL)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中断进入 Tracepoint（原子上下文）</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">trace_irq_handler_entry</span><span class="params">(<span class="type">int</span> irq, <span class="keyword">struct</span> irqaction *action)</span> &#123;</span><br><span class="line">    <span class="comment">// in_atomic() == 1</span></span><br><span class="line">    <span class="comment">// 只能使用 GFP_ATOMIC 分配</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="c-kprobes（上下文跟随被探测函数）"><a href="#c-kprobes（上下文跟随被探测函数）" class="headerlink" title="c) kprobes（上下文跟随被探测函数）"></a>c) <strong>kprobes（上下文跟随被探测函数）</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 探测 sys_open（进程上下文）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">kprobe__sys_open</span><span class="params">(<span class="keyword">struct</span> pt_regs *regs)</span> &#123;</span><br><span class="line">    <span class="comment">// in_atomic() == 0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 探测中断处理函数（原子上下文）</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">kprobe__handle_irq_event_percpu</span><span class="params">(<span class="keyword">struct</span> pt_regs *regs)</span> &#123;</span><br><span class="line">    <span class="comment">// in_atomic() == 1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="d-eBPF-程序（受限上下文）"><a href="#d-eBPF-程序（受限上下文）" class="headerlink" title="d) eBPF 程序（受限上下文）"></a>d) <strong>eBPF 程序（受限上下文）</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// XDP 程序（原子上下文）</span></span><br><span class="line">SEC(<span class="string">&quot;xdp&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">xdp_hook</span><span class="params">(<span class="keyword">struct</span> xdp_md *ctx)</span> &#123;</span><br><span class="line">    <span class="comment">// 在 NIC 驱动上下文执行</span></span><br><span class="line">    <span class="comment">// 禁止访问可能睡眠的辅助函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// tracepoint 程序（跟随 tracepoint）</span></span><br><span class="line">SEC(<span class="string">&quot;tp/sched/sched_process_exec&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">exec_hook</span><span class="params">(<span class="type">void</span> *ctx)</span> &#123;</span><br><span class="line">    <span class="comment">// 上下文取决于 sched_process_exec tracepoint</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-判断上下文的黄金法则"><a href="#3-判断上下文的黄金法则" class="headerlink" title="3. 判断上下文的黄金法则"></a>3. <strong>判断上下文的黄金法则</strong></h3><p>在钩子函数中始终使用以下方法检测上下文：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/preempt.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">hook_function</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (in_atomic()) &#123;</span><br><span class="line">        <span class="comment">// 原子上下文行为：</span></span><br><span class="line">        <span class="comment">// - 使用 GFP_ATOMIC 分配内存</span></span><br><span class="line">        <span class="comment">// - 禁止调用可能阻塞的函数</span></span><br><span class="line">        <span class="comment">// - 避免访问用户空间内存</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 进程上下文行为：</span></span><br><span class="line">        <span class="comment">// - 可使用 GFP_KERNEL</span></span><br><span class="line">        <span class="comment">// - 可调用调度相关函数</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 精确上下文检测</span></span><br><span class="line">    pr_info(<span class="string">&quot;Context: IRQ=%d, SoftIRQ=%d, Task=%d\n&quot;</span>, </span><br><span class="line">            in_irq(), in_softirq(), in_task());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-各版本内核的变化"><a href="#4-各版本内核的变化" class="headerlink" title="4. 各版本内核的变化"></a>4. <strong>各版本内核的变化</strong></h3><table>
+<thead>
+<tr>
+<th>内核版本</th>
+<th>重要变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&lt; 4.0</td>
+<td>更多钩子在原子上下文执行</td>
+</tr>
+<tr>
+<td>4.16+</td>
+<td>eBPF 引入更严格的上下文验证</td>
+</tr>
+<tr>
+<td>5.8+</td>
+<td>Tracepoints 大量迁移到非原子上下文</td>
+</tr>
+<tr>
+<td>5.12+</td>
+<td>新增 <code>in_interrupt()</code> 包含 NMI</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="5-最佳实践指南"><a href="#5-最佳实践指南" class="headerlink" title="5. 最佳实践指南"></a>5. <strong>最佳实践指南</strong></h3><ol>
+<li><p><strong>假设最坏情况</strong><br>除非明确知道钩子的触发上下文，否则按原子上下文设计</p>
+</li>
+<li><p><strong>关键检查点</strong>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BUG_ON(in_atomic() &amp;&amp; (gfp_flags &amp; __GFP_DIRECT_RECLAIM));</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>eBPF 安全写法</strong>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (bpf_in_atomic()) &#123;</span><br><span class="line">    <span class="type">long</span> res = bpf_probe_read_user_str(buf, <span class="keyword">sizeof</span>(buf), unsafe_ptr);</span><br><span class="line">    <span class="keyword">if</span> (res &lt; <span class="number">0</span>) <span class="keyword">return</span> res;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 可使用更安全的非原子方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>性能敏感场景</strong>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 避免在原子钩子中复杂操作</span></span><br><span class="line"><span class="keyword">if</span> (in_atomic())</span><br><span class="line">    queue_work(my_wq, &amp;quick_work);  <span class="comment">// 延后处理</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Linux 钩子函数的原子性：</p>
+<ul>
+<li><strong>中断&#x2F;软中断处理程序</strong>：总是原子上下文 ✅</li>
+<li><strong>Tracepoints&#x2F;kprobes</strong>：取决于触发点 ⚠️ </li>
+<li><strong>LSM&#x2F;系统调用钩子</strong>：通常进程上下文 ❌</li>
+<li><strong>eBPF 程序</strong>：由挂接点和验证器共同决定 ⚠️</li>
+</ul>
+<blockquote>
+<p><strong>核心原则</strong>：在编写钩子函数时，必须通过 <code>in_atomic()</code> 或更精确的 <code>in_irq()/in_softirq()</code> 主动检测上下文，并据此选择安全的内存操作和同步机制。</p>
+</blockquote>
+<p>Linux trace钩子函数是否在原子上下文中</p>
+<p>在 Linux 内核中，<strong>Tracepoint 钩子函数的执行上下文不是固定的</strong>，完全取决于调用该 Tracepoint 的代码路径。以下是关键结论和详细分析：</p>
+<hr>
+<h3 id="核心结论"><a href="#核心结论" class="headerlink" title="核心结论"></a>核心结论</h3><table>
+<thead>
+<tr>
+<th><strong>上下文类型</strong></th>
+<th>是否可能</th>
+<th>典型场景示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>原子上下文</strong></td>
+<td>✅ 是</td>
+<td>中断处理、自旋锁临界区</td>
+</tr>
+<tr>
+<td><strong>非原子进程上下文</strong></td>
+<td>✅ 是</td>
+<td>系统调用、进程调度</td>
+</tr>
+<tr>
+<td><strong>NMI 上下文</strong></td>
+<td>✅ 是</td>
+<td>硬件不可屏蔽中断</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="上下文判断依据"><a href="#上下文判断依据" class="headerlink" title="上下文判断依据"></a>上下文判断依据</h3><p>在 Tracepoint 钩子函数中必须通过以下方法动态检测：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/preempt.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">trace_hook</span><span class="params">(<span class="type">void</span> *data)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (in_atomic()) &#123;  <span class="comment">// 包括中断/软中断/禁用抢占等情况</span></span><br><span class="line">        <span class="comment">// 原子上下文：禁止阻塞操作</span></span><br><span class="line">        printk(<span class="string">&quot;Atomic context! Avoid sleep operations\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 进程上下文：可安全调度</span></span><br><span class="line">        printk(<span class="string">&quot;Process context: GFP_KERNEL allowed\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="具体场景分析"><a href="#具体场景分析" class="headerlink" title="具体场景分析"></a>具体场景分析</h3><h4 id="1-原子上下文示例"><a href="#1-原子上下文示例" class="headerlink" title="1. 原子上下文示例"></a>1. <strong>原子上下文示例</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 硬件中断处理函数中触发 Tracepoint</span></span><br><span class="line"><span class="type">irqreturn_t</span> <span class="title function_">handle_irq</span><span class="params">(<span class="type">int</span> irq, <span class="type">void</span> *dev_id)</span></span><br><span class="line">&#123;</span><br><span class="line">    trace_irq_entry(irq);  <span class="comment">// 钩子在原子上下文执行！</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>特征</strong>：</p>
+<ul>
+<li><code>in_atomic() = 1</code></li>
+<li><code>in_interrupt() = 1</code></li>
+<li>禁止内存分配（除非 <code>GFP_ATOMIC</code>）</li>
+<li>禁止访问用户空间内存</li>
+</ul>
+<h4 id="2-进程上下文示例"><a href="#2-进程上下文示例" class="headerlink" title="2. 进程上下文示例"></a>2. <strong>进程上下文示例</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 系统调用路径中触发</span></span><br><span class="line">SYSCALL_DEFINE1(close, <span class="type">int</span>, fd)</span><br><span class="line">&#123;</span><br><span class="line">    trace_sys_close(fd);  <span class="comment">// 钩子在进程上下文执行</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>特征</strong>：</p>
+<ul>
+<li><code>in_atomic() = 0</code></li>
+<li><code>in_task() = 1</code></li>
+<li>允许睡眠操作（如 <code>mutex_lock()</code>）</li>
+<li>允许 <code>GFP_KERNEL</code> 内存分配</li>
+</ul>
+<h4 id="3-边界案例：自旋锁临界区"><a href="#3-边界案例：自旋锁临界区" class="headerlink" title="3. 边界案例：自旋锁临界区"></a>3. <strong>边界案例：自旋锁临界区</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">modify_shared_data</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    spin_lock(&amp;shared_lock);</span><br><span class="line">    trace_data_modified();  <span class="comment">// 仍在原子上下文！</span></span><br><span class="line">    spin_unlock(&amp;shared_lock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>特征</strong>：</p>
+<ul>
+<li><code>preempt_count() &gt; 0</code>（因锁禁用抢占）</li>
+<li>虽在进程调用，但具有原子性限制</li>
+</ul>
+<hr>
+<h3 id="各内核子系统-Tracepoint-上下文统计"><a href="#各内核子系统-Tracepoint-上下文统计" class="headerlink" title="各内核子系统 Tracepoint 上下文统计"></a>各内核子系统 Tracepoint 上下文统计</h3><table>
+<thead>
+<tr>
+<th><strong>子系统</strong></th>
+<th>原子上下文比例</th>
+<th>典型触发点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>中断处理 (irq)</td>
+<td>95%+</td>
+<td><code>irq_handler_entry/exit</code></td>
+</tr>
+<tr>
+<td>调度器 (sched)</td>
+<td>约 30%</td>
+<td><code>sched_switch</code> (原子)</td>
+</tr>
+<tr>
+<td>文件系统 (fs)</td>
+<td>&lt; 10%</td>
+<td><code>file_open</code> (非原子)</td>
+</tr>
+<tr>
+<td>内存管理 (mm)</td>
+<td>约 50%</td>
+<td><code>mm_page_alloc</code> (可能原子)</td>
+</tr>
+<tr>
+<td>网络堆栈 (net)</td>
+<td>约 70%</td>
+<td><code>net_dev_queue</code> (软中断)</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="开发者应对策略"><a href="#开发者应对策略" class="headerlink" title="开发者应对策略"></a>开发者应对策略</h3><h4 id="1-通用安全写法"><a href="#1-通用安全写法" class="headerlink" title="1. 通用安全写法"></a>1. <strong>通用安全写法</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">trace_hook_safe</span><span class="params">(<span class="type">void</span> *data)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> *buf = <span class="literal">NULL</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (in_atomic()) &#123;</span><br><span class="line">        buf = kmalloc(size, GFP_ATOMIC);  <span class="comment">// 原子分配</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        buf = kmalloc(size, GFP_KERNEL);  <span class="comment">// 常规分配</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!buf) <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 用户空间访问需额外防护</span></span><br><span class="line">    <span class="keyword">if</span> (!in_atomic() &amp;&amp; !current-&gt;mm) &#123;</span><br><span class="line">        <span class="keyword">if</span> (copy_from_user(buf, user_ptr, size)) &#123;</span><br><span class="line">            kfree(buf);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 处理逻辑</span></span><br><span class="line">    kfree(buf);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-eBPF-特别注意事项"><a href="#2-eBPF-特别注意事项" class="headerlink" title="2. eBPF 特别注意事项"></a>2. <strong>eBPF 特别注意事项</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SEC(<span class="string">&quot;tracepoint/skb/kfree_skb&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">handle_kfree</span><span class="params">(<span class="keyword">struct</span> trace_event_raw_kfree_skb *ctx)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// eBPF 验证器会阻止原子上下文中的危险操作：</span></span><br><span class="line">    <span class="comment">// - 直接拒绝可能睡眠的 helper 调用</span></span><br><span class="line">    <span class="comment">// - 栈空间限制 512 字节</span></span><br><span class="line">    bpf_printk(<span class="string">&quot;SKB dropped at %pS&quot;</span>, (<span class="type">void</span> *)ctx-&gt;location);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>验证器保护机制</strong>：</p>
+<ol>
+<li>禁止调用 <code>bpf_copy_from_user()</code>（可能睡眠）</li>
+<li>限制循环次数（防止软锁死）</li>
+<li>禁用动态内存分配</li>
+</ol>
+<hr>
+<h3 id="最新内核演进（5-15-）"><a href="#最新内核演进（5-15-）" class="headerlink" title="最新内核演进（5.15+）"></a>最新内核演进（5.15+）</h3><ol>
+<li><strong>动态上下文标记</strong><br>Tracepoint 声明新增 <code>__context</code> 属性：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 显式声明非原子上下文</span></span><br><span class="line">DEFINE_TRACE(syscall_enter, TP_PROTO(<span class="keyword">struct</span> pt_regs *regs),</span><br><span class="line">            TP_ARGS(regs), __context(<span class="number">0</span>));</span><br></pre></td></tr></table></figure></li>
+<li><strong>RCU 扩展回调</strong><br>支持在原子上下文注册 RCU 回调延迟处理：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">trace_hook_atomic</span><span class="params">(<span class="type">void</span> *data)</span></span><br><span class="line">&#123;</span><br><span class="line">    call_rcu(&amp;my_rcu_head, delayed_processing);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="最佳实践-1"><a href="#最佳实践-1" class="headerlink" title="最佳实践"></a>最佳实践</h3><ol>
+<li><p><strong>永远假设最坏情况</strong><br>除非明确知道调用路径，否则按原子上下文编码</p>
+</li>
+<li><p><strong>关键检查组合</strong>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (in_atomic() || irqs_disabled() || !preemptible()) &#123;</span><br><span class="line">    <span class="comment">// 原子行为</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>性能敏感路径</strong>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (likely(!in_atomic())) &#123;</span><br><span class="line">    do_complex_work();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    queue_work(atomic_workqueue, &amp;quick_work);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<blockquote>
+<p><strong>终极验证方法</strong>：在内核模块中动态检测  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">trace_debug_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  tracepoint_probe_register(target_tracepoint, </span><br><span class="line">      (<span class="type">void</span> *)print_stack, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过 <code>dump_stack()</code> 直接观察调用栈上下文</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/ebbdffb9.html">http://helloeuler.cn/posts/ebbdffb9.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/edb6db56.html" title="Linux内核获取父进程启动参数方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核获取父进程启动参数方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/c979c1d6.html" title="Linux内核模块原子通知链使用示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核模块原子通知链使用示例</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Tracepoints-%E7%9A%84%E5%90%AF%E7%94%A8-%E7%A6%81%E7%94%A8%E6%98%AF%E5%8E%9F%E5%AD%90%E7%9A%84"><span class="toc-text">1. Tracepoints 的启用&#x2F;禁用是原子的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Tracepoint-%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E7%9A%84%E6%89%A7%E8%A1%8C%E4%B8%8D%E6%98%AF%E5%8E%9F%E5%AD%90%E7%9A%84"><span class="toc-text">2. Tracepoint 回调函数的执行不是原子的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%B6%E4%BB%96%E8%B7%9F%E8%B8%AA%E6%9C%BA%E5%88%B6%E7%9A%84%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="toc-text">3. 其他跟踪机制的原子性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%BB%93%E8%AE%BA"><span class="toc-text">关键结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-text">最佳实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%8C%91%E6%88%98"><span class="toc-text">关键挑战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-text">安全实现步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%95-1%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%86%85%E6%A0%B8%E8%BE%85%E5%8A%A9%E5%87%BD%E6%95%B0%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="toc-text">方法 1：使用内核辅助函数（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%95-2%EF%BC%9A%E9%80%9A%E8%BF%87-proc-%E6%8E%A5%E5%8F%A3%EF%BC%88%E9%80%82%E7%94%A8%E4%BA%8E%E9%9D%9E%E5%8E%9F%E5%AD%90%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%89"><span class="toc-text">方法 2：通过 &#x2F;proc 接口（适用于非原子上下文）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8-Tracepoint-%E5%9B%9E%E8%B0%83%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="toc-text">在 Tracepoint 回调中的使用示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">关键注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE"><span class="toc-text">性能优化建议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E8%A1%A8"><span class="toc-text">总结表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-text">函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E4%BD%9C%E7%94%A8%E8%A7%A3%E6%9E%90"><span class="toc-text">关键作用解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%A3%80%E6%B5%8B%E5%8E%9F%E5%AD%90%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-text">1. 检测原子上下文</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%98%B2%E6%AD%A2%E9%9D%9E%E6%B3%95%E6%93%8D%E4%BD%9C"><span class="toc-text">2. 防止非法操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-text">3. 实现原理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">典型使用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-1%EF%BC%9A%E5%AE%89%E5%85%A8%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="toc-text">场景 1：安全的内存分配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-2%EF%BC%9A%E9%A9%B1%E5%8A%A8%E4%B8%AD%E7%9A%84%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86"><span class="toc-text">场景 2：驱动中的中断处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-3%EF%BC%9A%E8%B0%83%E8%AF%95%E6%A3%80%E6%B5%8B"><span class="toc-text">场景 3：调试检测</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E%E5%85%B6%E4%BB%96%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%A4%E6%96%AD%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-text">与其他上下文判断函数的关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E8%A6%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">重要注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E6%BC%94%E8%BF%9B%E5%8F%98%E5%8C%96"><span class="toc-text">内核演进变化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%92%A9%E5%AD%90%E7%B1%BB%E5%9E%8B%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E5%85%B3%E7%B3%BB"><span class="toc-text">1. 钩子类型与上下文关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B7%E4%BD%93%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90"><span class="toc-text">2. 具体场景分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#a-%E4%B8%AD%E6%96%AD%E7%9B%B8%E5%85%B3%E9%92%A9%E5%AD%90%EF%BC%88%E5%8E%9F%E5%AD%90%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%89"><span class="toc-text">a) 中断相关钩子（原子上下文）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#b-Tracepoints%EF%BC%88%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8F%AF%E5%8F%98%EF%BC%89"><span class="toc-text">b) Tracepoints（上下文可变）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#c-kprobes%EF%BC%88%E4%B8%8A%E4%B8%8B%E6%96%87%E8%B7%9F%E9%9A%8F%E8%A2%AB%E6%8E%A2%E6%B5%8B%E5%87%BD%E6%95%B0%EF%BC%89"><span class="toc-text">c) kprobes（上下文跟随被探测函数）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#d-eBPF-%E7%A8%8B%E5%BA%8F%EF%BC%88%E5%8F%97%E9%99%90%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%89"><span class="toc-text">d) eBPF 程序（受限上下文）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%A4%E6%96%AD%E4%B8%8A%E4%B8%8B%E6%96%87%E7%9A%84%E9%BB%84%E9%87%91%E6%B3%95%E5%88%99"><span class="toc-text">3. 判断上下文的黄金法则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%90%84%E7%89%88%E6%9C%AC%E5%86%85%E6%A0%B8%E7%9A%84%E5%8F%98%E5%8C%96"><span class="toc-text">4. 各版本内核的变化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E6%8C%87%E5%8D%97"><span class="toc-text">5. 最佳实践指南</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA"><span class="toc-text">核心结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%A4%E6%96%AD%E4%BE%9D%E6%8D%AE"><span class="toc-text">上下文判断依据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90"><span class="toc-text">具体场景分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8E%9F%E5%AD%90%E4%B8%8A%E4%B8%8B%E6%96%87%E7%A4%BA%E4%BE%8B"><span class="toc-text">1. 原子上下文示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%BF%9B%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E7%A4%BA%E4%BE%8B"><span class="toc-text">2. 进程上下文示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%BE%B9%E7%95%8C%E6%A1%88%E4%BE%8B%EF%BC%9A%E8%87%AA%E6%97%8B%E9%94%81%E4%B8%B4%E7%95%8C%E5%8C%BA"><span class="toc-text">3. 边界案例：自旋锁临界区</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%84%E5%86%85%E6%A0%B8%E5%AD%90%E7%B3%BB%E7%BB%9F-Tracepoint-%E4%B8%8A%E4%B8%8B%E6%96%87%E7%BB%9F%E8%AE%A1"><span class="toc-text">各内核子系统 Tracepoint 上下文统计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E8%80%85%E5%BA%94%E5%AF%B9%E7%AD%96%E7%95%A5"><span class="toc-text">开发者应对策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%80%9A%E7%94%A8%E5%AE%89%E5%85%A8%E5%86%99%E6%B3%95"><span class="toc-text">1. 通用安全写法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-eBPF-%E7%89%B9%E5%88%AB%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">2. eBPF 特别注意事项</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E6%96%B0%E5%86%85%E6%A0%B8%E6%BC%94%E8%BF%9B%EF%BC%885-15-%EF%BC%89"><span class="toc-text">最新内核演进（5.15+）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5-1"><span class="toc-text">最佳实践</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

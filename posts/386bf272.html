@@ -1,0 +1,239 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux memremap接口使用指南 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux memremap接口用法及示例 memremap 是 Linux 内核提供的一个函数，用于灵活地将物理地址范围映射到内核虚拟地址空间。它是对传统 ioremap 函数的增强，提供了对内存类型（如设备内存、写合并内存）的更好控制。它主要在驱动程序中用于访问设备内存（如寄存器、帧缓冲区）或特殊类型的系统内存。 核心功能：  物理到虚拟地址映射： 将给定的物理地址区域 (phys_addr,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux memremap接口使用指南">
+<meta property="og:url" content="http://helloeuler.cn/posts/386bf272.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux memremap接口用法及示例 memremap 是 Linux 内核提供的一个函数，用于灵活地将物理地址范围映射到内核虚拟地址空间。它是对传统 ioremap 函数的增强，提供了对内存类型（如设备内存、写合并内存）的更好控制。它主要在驱动程序中用于访问设备内存（如寄存器、帧缓冲区）或特殊类型的系统内存。 核心功能：  物理到虚拟地址映射： 将给定的物理地址区域 (phys_addr,">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.755Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/386bf272.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux memremap接口使用指南',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux memremap接口使用指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-15T16:00:00.000Z" title="发表于 2025-07-16 00:00:00">2025-07-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux memremap接口使用指南"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux memremap接口用法及示例</p>
+<p><code>memremap</code> 是 Linux 内核提供的一个函数，用于<strong>灵活地将物理地址范围映射到内核虚拟地址空间</strong>。它是对传统 <code>ioremap</code> 函数的增强，提供了对内存类型（如设备内存、写合并内存）的更好控制。它主要在驱动程序中用于访问设备内存（如寄存器、帧缓冲区）或特殊类型的系统内存。</p>
+<p><strong>核心功能：</strong></p>
+<ol>
+<li><strong>物理到虚拟地址映射：</strong> 将给定的物理地址区域 (<code>phys_addr</code>, <code>size</code>) 映射到内核的虚拟地址空间。</li>
+<li><strong>内存类型控制：</strong> 通过 <code>flags</code> 参数指定映射的内存类型，这对访问设备内存、写合并内存或普通内存至关重要，影响 CPU 缓存行为。</li>
+<li><strong>替代部分 <code>ioremap</code>：</strong> 对于设备内存映射，<code>memremap</code> 通常比 <code>ioremap</code> 更灵活和推荐。</li>
+</ol>
+<p><strong>头文件：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/io.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p><strong>函数原型：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *<span class="title function_">memremap</span><span class="params">(<span class="type">phys_addr_t</span> phys_addr, <span class="type">size_t</span> size, <span class="type">unsigned</span> <span class="type">long</span> flags)</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数：</strong></p>
+<ul>
+<li><code>phys_addr</code>：要映射的物理起始地址。</li>
+<li><code>size</code>：要映射的区域大小（字节数）。</li>
+<li><code>flags</code>：控制映射行为的标志位（位掩码）。关键标志包括：<ul>
+<li><code>MEMREMAP_WB</code>：映射为<strong>写回</strong>缓存类型。行为类似普通 RAM。适用于映射系统 RAM。*(使用最少，通常用其他方法映射 RAM)*</li>
+<li><code>MEMREMAP_WT</code>：映射为<strong>写通</strong>缓存类型。写操作直接穿透到内存，但读操作可能缓存。适用于<strong>设备内存</strong>（如寄存器），确保写操作及时到达设备。</li>
+<li><code>MEMREMAP_WC</code>：映射为<strong>写合并</strong>缓存类型。写操作可能被合并并延迟写入，读操作通常不缓存（且可能慢）。适用于<strong>帧缓冲区</strong>等对写性能要求高、对读要求低或顺序访问的大块内存。<strong>使用需谨慎。</strong></li>
+<li><code>MEMREMAP_ENC</code>：与 <code>MEMREMAP_WC</code> 或 <code>MEMREMAP_WT</code> 结合使用，表示映射<strong>加密内存</strong>（如 Intel SME&#x2F;TDX）。*(较新内核，特定场景)*</li>
+<li><code>MEMREMAP_DEC</code>：与 <code>MEMREMAP_WB</code> 结合使用，表示映射<strong>解密内存</strong>。*(较新内核，特定场景)*</li>
+<li><code>MEMREMAP_DEV</code>：显式请求映射为<strong>设备内存</strong>（<code>/dev/mem</code> 风格）。通常隐含在 <code>MEMREMAP_WT</code> 中。更推荐使用 <code>MEMREMAP_WT</code>。</li>
+<li><code>MEMREMAP_KIND</code>：内部使用，用于指定 <code>flags</code> 中哪几位表示内存类型。</li>
+<li><code>MEMREMAP_EXCLUSIVE</code>：尝试独占此映射，防止其他映射覆盖该区域。*(可选)*</li>
+</ul>
+</li>
+</ul>
+<p><strong>返回值：</strong></p>
+<ul>
+<li>成功：映射区域的起始<strong>内核虚拟地址</strong> (<code>void *</code>)。</li>
+<li>失败：<code>NULL</code>。必须检查返回值！</li>
+</ul>
+<p><strong>卸载映射：</strong></p>
+<p>使用 <code>memunmap</code> 释放映射：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">memunmap</span><span class="params">(<span class="type">void</span> *addr)</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>addr</code>：<code>memremap</code> 返回的虚拟地址。</li>
+</ul>
+<p><strong>重要注意事项：</strong></p>
+<ol>
+<li><strong>内存类型选择：</strong> <strong>最关键的是选择正确的 <code>flags</code>：</strong><ul>
+<li><strong>设备寄存器&#x2F;小内存：</strong> 几乎总是使用 <code>MEMREMAP_WT</code> (或隐含它的 <code>MEMREMAP_DEV</code>)。确保写入立即生效，避免缓存导致的意外。</li>
+<li><strong>大型帧缓冲区 (FB)：</strong> 考虑使用 <code>MEMREMAP_WC</code> 以提高写入性能（尤其是连续写入）。但要清楚读取可能慢且不一致。</li>
+<li><strong>系统 RAM (特殊场景)：</strong> 极少使用 <code>MEMREMAP_WB</code>，通常有更好的方法（如 <code>vmalloc</code>、<code>kmap</code> 等）。</li>
+</ul>
+</li>
+<li><strong>错误检查：</strong> **必须检查 <code>memremap</code> 的返回值是否为 <code>NULL</code>**。映射失败是常见情况（如物理地址无效、资源不足）。</li>
+<li><strong>资源释放：</strong> 映射成功后，<strong>必须在驱动卸载或不再需要时调用 <code>memunmap</code></strong> 释放映射，防止资源泄漏。</li>
+<li><strong>对齐：</strong> 虽然 <code>memremap</code> 本身可能不严格要求对齐，但映射的物理区域本身可能有对齐要求（由硬件决定）。确保 <code>phys_addr</code> 和 <code>size</code> 符合设备规范。</li>
+<li><strong>并发访问：</strong> <code>memremap</code>&#x2F;<code>memunmap</code> 本身不是线程安全的。确保在安全上下文中调用（如模块初始化&#x2F;退出）。对映射内存的访问需要驱动程序自己通过锁或其他机制保证并发安全。</li>
+<li><strong>与 <code>ioremap</code> 的关系：</strong><ul>
+<li><code>ioremap</code> 主要用于映射设备 IO 空间（可能存在于独立地址空间），其行为类似 <code>MEMREMAP_WT</code>。</li>
+<li><code>memremap</code> 更通用，明确支持不同的缓存类型，并能映射系统 RAM (尽管不常用)。对于设备内存，<code>memremap(..., MEMREMAP_WT)</code> 是 <code>ioremap</code> 的现代替代品。</li>
+</ul>
+</li>
+<li><strong><code>/dev/mem</code> 访问：</strong> 如果物理地址范围可以通过 <code>/dev/mem</code> 访问，<code>MEMREMAP_DEV</code> 或 <code>MEMREMAP_WT</code> 通常适用。</li>
+</ol>
+<p><strong>示例：</strong></p>
+<ol>
+<li><strong>映射设备寄存器 (推荐方式 - MEMREMAP_WT):</strong></li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MY_DEVICE_REGS_PHYS_BASE 0xFE000000</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MY_DEVICE_REGS_SIZE      0x1000</span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __iomem *regs_vaddr;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">my_driver_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 映射设备寄存器区域 (使用 MEMREMAP_WT 确保设备可见性)</span></span><br><span class="line">    regs_vaddr = memremap(MY_DEVICE_REGS_PHYS_BASE, MY_DEVICE_REGS_SIZE, MEMREMAP_WT);</span><br><span class="line">    <span class="keyword">if</span> (!regs_vaddr) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Failed to remap device registers\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 现在可以通过 regs_vaddr 访问寄存器</span></span><br><span class="line">    <span class="comment">// 例如：u32 control_reg = readl(regs_vaddr + CONTROL_REG_OFFSET);</span></span><br><span class="line">    <span class="comment">//       writel(0x55AA, regs_vaddr + COMMAND_REG_OFFSET);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ... 其他初始化代码 ...</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">my_driver_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (regs_vaddr) &#123;</span><br><span class="line">        <span class="comment">// 卸载时解除映射</span></span><br><span class="line">        memunmap(regs_vaddr);</span><br><span class="line">        regs_vaddr = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ... 其他清理代码 ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(my_driver_init);</span><br><span class="line">module_exit(my_driver_exit);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>映射帧缓冲区 (谨慎使用 MEMREMAP_WC):</strong></li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fb.h&gt;</span> <span class="comment">// 可能用到 fb_info</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> *<span class="title function_">map_framebuffer</span><span class="params">(<span class="type">phys_addr_t</span> fb_phys, <span class="type">size_t</span> fb_size)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">void</span> *fb_vaddr;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 映射帧缓冲区为写合并 (WC) 以提高写入性能</span></span><br><span class="line">    fb_vaddr = memremap(fb_phys, fb_size, MEMREMAP_WC);</span><br><span class="line">    <span class="keyword">if</span> (!fb_vaddr) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Failed to remap framebuffer\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> fb_vaddr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">unmap_framebuffer</span><span class="params">(<span class="type">void</span> *fb_vaddr)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (fb_vaddr) &#123;</span><br><span class="line">        memunmap(fb_vaddr);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在 fb_probe 中调用 map_framebuffer，在 fb_remove 中调用 unmap_framebuffer</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>总结：</strong></p>
+<p><code>memremap</code> 是 Linux 内核中映射物理内存（尤其是设备内存）到内核虚拟空间的强大且灵活的工具。<strong>正确选择 <code>flags</code>（特别是 <code>MEMREMAP_WT</code> 用于设备寄存器，谨慎使用 <code>MEMREMAP_WC</code> 用于帧缓冲区）、严格的错误检查（<code>NULL</code> 返回值）以及及时使用 <code>memunmap</code> 释放映射是正确和安全使用该接口的关键。</strong> 它逐渐成为替代传统 <code>ioremap</code> 的首选方法，尤其是在需要明确控制缓存行为时。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/386bf272.html">http://helloeuler.cn/posts/386bf272.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/453bbe6b.html" title="利用linux find命令找到非二进制的文件，排除掉 /pro"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">利用linux find命令找到非二进制的文件，排除掉 /pro</div></div></a></div><div class="next-post pull-right"><a href="/posts/d4c401f5.html" title="Linux内核mmgrab、mmdrop、mmput函数用法详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核mmgrab、mmdrop、mmput函数用法详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

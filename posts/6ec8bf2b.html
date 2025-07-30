@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>alloc_pages最大内存分配限制 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="alloc_pages最大能分配多大的内存 在 Linux 内核中，alloc_pages 函数（以及其封装函数如 __get_free_pages）最大能分配的连续物理内存大小主要取决于 MAX_ORDER 这个编译时常量。  核心限制：MAX_ORDER  alloc_pages 通过一个 order 参数来指定要分配的页面数量（连续页）。 order 的有效范围是 0 到 MAX_ORDER">
+<meta property="og:type" content="article">
+<meta property="og:title" content="alloc_pages最大内存分配限制">
+<meta property="og:url" content="http://helloeuler.cn/posts/6ec8bf2b.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="alloc_pages最大能分配多大的内存 在 Linux 内核中，alloc_pages 函数（以及其封装函数如 __get_free_pages）最大能分配的连续物理内存大小主要取决于 MAX_ORDER 这个编译时常量。  核心限制：MAX_ORDER  alloc_pages 通过一个 order 参数来指定要分配的页面数量（连续页）。 order 的有效范围是 0 到 MAX_ORDER">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.758Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/6ec8bf2b.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'alloc_pages最大内存分配限制',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">alloc_pages最大内存分配限制</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-21T16:00:00.000Z" title="发表于 2025-07-22 00:00:00">2025-07-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="alloc_pages最大内存分配限制"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>alloc_pages最大能分配多大的内存</p>
+<p>在 Linux 内核中，<code>alloc_pages</code> 函数（以及其封装函数如 <code>__get_free_pages</code>）<strong>最大能分配的连续物理内存大小主要取决于 <code>MAX_ORDER</code> 这个编译时常量</strong>。</p>
+<ol>
+<li><p><strong>核心限制：<code>MAX_ORDER</code></strong></p>
+<ul>
+<li><code>alloc_pages</code> 通过一个 <code>order</code> 参数来指定要分配的页面数量（连续页）。</li>
+<li><code>order</code> 的有效范围是 <code>0</code> 到 <code>MAX_ORDER - 1</code>。</li>
+<li>分配的页面数量是 <code>2^order</code>。</li>
+<li>因此，<strong>最大能分配 <code>2^(MAX_ORDER - 1)</code> 个连续的物理页面</strong>。</li>
+</ul>
+</li>
+<li><p><strong>默认的 <code>MAX_ORDER</code> 值</strong></p>
+<ul>
+<li>在 <strong>绝大多数标准内核配置和架构（如 x86_64, ARM64）</strong> 上，<code>MAX_ORDER</code> 的默认值是 <strong>11</strong>。</li>
+<li>这意味着：<ul>
+<li><code>order</code> 最大可以是 <code>10</code> (因为 <code>MAX_ORDER - 1 = 10</code>)。</li>
+<li>最大页面数 &#x3D; <code>2^10 = 1024</code> 页。</li>
+<li>在 <strong>页大小为 4KB</strong> 的系统上，最大连续物理内存 &#x3D; <code>1024 * 4KB = 4MB</code>。</li>
+<li>在 <strong>页大小为 64KB</strong> 的系统上（某些 ARM 配置），最大连续物理内存 &#x3D; <code>1024 * 64KB = 64MB</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>关键点：<code>MAX_ORDER</code> 是可以改变的</strong></p>
+<ul>
+<li><strong>内核配置选项：</strong><ul>
+<li>存在内核配置选项（如 <code>CONFIG_FORCE_MAX_ZONEORDER</code>）允许在编译内核时覆盖默认的 <code>MAX_ORDER</code> 值。</li>
+<li>例如，为了支持非常大的 HugeTLB 页（如 1GB）或者某些特殊硬件需要超大连续内存块，管理员可能会将 <code>MAX_ORDER</code> 设置为更大的值（如 12, 13, 甚至 21）。</li>
+<li>将 <code>MAX_ORDER</code> 设为 13：最大页面数 &#x3D; <code>2^12 = 4096</code> 页。在 4KB 页系统上就是 <code>4096 * 4KB = 16MB</code>。</li>
+<li>将 <code>MAX_ORDER</code> 设为 21：最大页面数 &#x3D; <code>2^20 = 1048576</code> 页。在 4KB 页系统上就是 <code>1048576 * 4KB = 4GB</code>。但这会显著增加内核启动时伙伴系统初始化的开销和内存使用。</li>
+</ul>
+</li>
+<li><strong>架构差异：</strong> 不同的 CPU 架构可能有不同的默认 <code>MAX_ORDER</code> 值。11 是常见默认值，但需要查看特定架构的内核代码。</li>
+</ul>
+</li>
+<li><p><strong>实际限制：内存碎片</strong></p>
+<ul>
+<li>即使 <code>MAX_ORDER</code> 允许分配很大的连续内存块，<strong>实际能否成功分配还取决于系统当前物理内存的碎片化程度</strong>。</li>
+<li>系统长时间运行后，频繁分配释放不同大小的内存块会导致物理内存被分割成很多小块。虽然总空闲内存可能很多，但可能没有足够大的连续空闲块来满足高 <code>order</code> 的分配请求。</li>
+<li>内核有反碎片机制（如 <code>CONFIG_COMPACTION</code>），但无法完全消除碎片问题。请求的连续内存块越大，分配失败的可能性越高。</li>
+</ul>
+</li>
+<li><p><strong>HugeTLB 页的特殊情况</strong></p>
+<ul>
+<li>当使用 <code>alloc_pages</code> 分配 HugeTLB 页（如 <code>GFP_TRANSHUGE</code> 标志）时，分配的 <code>order</code> 会很大（例如，分配 2MB 大页在 x86_64&#x2F;4KB 基础页上需要 <code>order=9</code>，分配 1GB 大页需要 <code>order=18</code>）。</li>
+<li>为了支持分配 1GB 大页，内核<strong>必须</strong>将 <code>MAX_ORDER</code> 配置为至少 <code>19</code>（因为 <code>MAX_ORDER - 1 &gt;= 18</code>）。</li>
+<li>在这种情况下，<code>alloc_pages</code> 能分配的最大内存块就是 <code>MAX_ORDER</code> 所允许的最大连续物理内存（例如 4GB，如果配置了 <code>MAX_ORDER=21</code>）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结：</strong></p>
+<ul>
+<li><strong>理论最大值（默认配置）：</strong> 在页大小为 4KB 的标准系统上，默认 <code>MAX_ORDER=11</code> 时，<code>alloc_pages</code> 最大能分配 <strong>4MB</strong> (<code>1024 * 4KB</code>) 的连续物理内存。</li>
+<li><strong>理论最大值（可配置）：</strong> 这个最大值可以通过修改内核配置（增大 <code>MAX_ORDER</code>）来显著提高，理论上可以达到系统支持的最大连续物理内存大小（例如 4GB 甚至更大），但这会增加内核开销。</li>
+<li><strong>实际限制：</strong> 即使配置允许分配很大的内存块，<strong>物理内存碎片</strong>是实际运行中限制成功分配大块连续内存的主要因素。分配非常大的连续物理内存在长时间运行的系统上可能失败。</li>
+<li><strong>检查方法：</strong><ul>
+<li>查看运行中内核的 <code>MAX_ORDER</code>： <code>grep &#39;MAX_ORDER&#39; /boot/config-$(uname -r)</code></li>
+<li>查看当前系统各阶连续页的可用情况： <code>cat /proc/buddyinfo</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>因此，笼统地回答“最大能分配多大”是 4MB（默认）或 X MB&#x2F;GB（取决于配置），但实际能成功分配到的可能小于这个理论最大值，尤其是在碎片严重的系统上。</strong> 如果需要分配非常大的连续物理内存，通常需要仔细规划、预留内存或使用 HugeTLB 页机制。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/6ec8bf2b.html">http://helloeuler.cn/posts/6ec8bf2b.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/a1762619.html" title="Linux内核函数耗时测量方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核函数耗时测量方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/d273ed01.html" title="mount命令参数详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">mount命令参数详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

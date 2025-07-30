@@ -1,0 +1,296 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核auditsyscall的机制和原理 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核auditsyscall的机制和原理 Linux 内核中的系统调用审计机制（通常被称为 auditsyscall）是 Linux Auditing Framework (auditd) 的核心组成部分。它允许系统管理员详细记录特定进程执行了哪些系统调用、何时执行、以什么参数执行，以及调用结果如何。这对于安全审计、入侵检测、故障排查和合规性至关重要。 核心机制与原理：  审计子系统集成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核auditsyscall的机制和原理">
+<meta property="og:url" content="http://helloeuler.cn/posts/2976edab.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核auditsyscall的机制和原理 Linux 内核中的系统调用审计机制（通常被称为 auditsyscall）是 Linux Auditing Framework (auditd) 的核心组成部分。它允许系统管理员详细记录特定进程执行了哪些系统调用、何时执行、以什么参数执行，以及调用结果如何。这对于安全审计、入侵检测、故障排查和合规性至关重要。 核心机制与原理：  审计子系统集成">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.744Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/2976edab.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核auditsyscall的机制和原理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核auditsyscall的机制和原理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-17T16:00:00.000Z" title="发表于 2025-06-18 00:00:00">2025-06-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核auditsyscall的机制和原理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核auditsyscall的机制和原理</p>
+<p>Linux 内核中的系统调用审计机制（通常被称为 <code>auditsyscall</code>）是 <strong>Linux Auditing Framework (auditd)</strong> 的核心组成部分。它允许系统管理员详细记录特定进程执行了哪些系统调用、何时执行、以什么参数执行，以及调用结果如何。这对于安全审计、入侵检测、故障排查和合规性至关重要。</p>
+<p><strong>核心机制与原理：</strong></p>
+<ol>
+<li><p><strong>审计子系统集成：</strong></p>
+<ul>
+<li>Linux 内核内置了一个名为 <code>CONFIG_AUDIT</code> 的编译选项（通常默认启用），它提供了审计的基础设施。</li>
+<li>审计子系统维护一个内核空间的事件队列（通常基于 <code>sk_buff</code> 结构实现）。</li>
+<li>用户空间的审计守护进程 <code>auditd</code> 通过 <code>NETLINK_AUDIT</code> 套接字（一种特殊的 IPC 机制）连接到内核审计子系统，持续读取队列中的审计事件。</li>
+</ul>
+</li>
+<li><p><strong>系统调用入口点的挂钩：</strong></p>
+<ul>
+<li>这是审计发生的<strong>最关键点</strong>。内核在<strong>执行任何系统调用之前</strong>（在系统调用分发函数，如 <code>do_syscall_64</code> 或 <code>ia32_do_call</code> 中）和<strong>系统调用返回之后</strong>，插入了特定的审计钩子函数。</li>
+<li><strong>主要钩子函数：</strong><ul>
+<li><code>audit_syscall_entry(int arch, unsigned long syscall, ...)</code>: 在系统调用实际处理函数执行<strong>之前</strong>被调用。<ul>
+<li>参数：<code>arch</code> (体系结构标识符), <code>syscall</code> (系统调用号), <code>args</code> (包含系统调用参数的数组，通常最多 6 个参数)。</li>
+<li>作用：记录“系统调用开始”事件。它捕获即将执行的系统调用的编号和参数。</li>
+</ul>
+</li>
+<li><code>audit_syscall_exit(long retval)</code>: 在系统调用实际处理函数执行<strong>之后</strong>、结果返回给用户空间<strong>之前</strong>被调用。<ul>
+<li>参数：<code>retval</code> (系统调用的返回值&#x2F;错误码)。</li>
+<li>作用：记录“系统调用结束”事件。它捕获系统调用的执行结果（成功值或错误码）。同时，它会将 <code>entry</code> 和 <code>exit</code> 事件关联起来（通常使用当前任务的 <code>audit_context</code> 结构）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>审计上下文：</strong></p>
+<ul>
+<li>每个进程（任务）在内核中都有一个 <code>task_struct</code> 结构。审计子系统为每个需要审计的进程维护一个 <code>audit_context</code> 结构（通常是 <code>task_struct-&gt;audit_context</code>）。</li>
+<li>这个上下文在进程生命周期内（或至少在需要审计的事件期间）存在，用于：<ul>
+<li>临时存储与当前正在审计的事件链相关的信息（例如，关联 <code>entry</code> 和 <code>exit</code> 事件）。</li>
+<li>存储过滤器匹配结果，避免对同一个系统调用多次评估规则。</li>
+<li>记录额外的审计点信息（如路径名、文件描述符等），这些信息可能在系统调用执行过程中被填充。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>审计规则与过滤器：</strong></p>
+<ul>
+<li>用户空间工具 <code>auditctl</code> 用于配置审计规则。规则定义了<strong>哪些事件</strong>需要被记录。</li>
+<li>规则被编译成一种高效的、在内核中运行的 <strong>BPF (Berkeley Packet Filter) 字节码</strong>。这些规则会被加载到内核审计子系统中。</li>
+<li><strong>规则匹配过程：</strong><ul>
+<li>当 <code>audit_syscall_entry</code> 被调用时，内核会使用加载的 BPF 过滤器检查当前系统调用（结合进程的凭证 <code>uid</code>, <code>gid</code>, <code>euid</code>, <code>egid</code>, <code>suid</code>, <code>sgid</code>, <code>fsuid</code>, <code>fsgid</code>，进程ID <code>pid</code>, 父进程ID <code>ppid</code>, 可执行文件路径 <code>exe</code>, 命令行 <code>comm</code>, 架构 <code>arch</code>, 系统调用号 <code>syscall</code> 和参数 <code>a0-a5</code> 等上下文信息）是否匹配任何审计规则。</li>
+<li>如果匹配成功，内核会：<ul>
+<li>在 <code>audit_context</code> 中设置标志，表明这个系统调用需要被审计。</li>
+<li>记录 <code>entry</code> 事件（包含系统调用号和参数）。</li>
+</ul>
+</li>
+<li>当 <code>audit_syscall_exit</code> 被调用时，它会检查 <code>audit_context</code> 中的标志：<ul>
+<li>如果标志被设置（表示在 <code>entry</code> 时匹配了规则），则记录 <code>exit</code> 事件（包含系统调用号和返回值 <code>retval</code>）。</li>
+<li>即使 <code>exit</code> 时没有显式规则匹配 <code>retval</code>，只要 <code>entry</code> 匹配了，<code>exit</code> 事件就会被记录（因为规则通常关注的是“尝试执行某个动作”）。</li>
+</ul>
+</li>
+<li>规则也可以基于返回值进行过滤（例如，只记录失败 <code>open</code> 的 <code>exit</code> 事件）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>审计记录的生成与传递：</strong></p>
+<ul>
+<li>当决定记录一个事件（<code>SYSCALL</code> 类型的 <code>entry</code> 或 <code>exit</code>）时：<ul>
+<li>内核分配一个 <code>audit_buffer</code>。</li>
+<li>使用 <code>audit_log_format</code> 系列函数将事件信息格式化写入缓冲区。信息包括：<ul>
+<li><strong>类型：</strong> <code>SYSCALL</code></li>
+<li><strong>时间戳：</strong> 精确到纳秒。</li>
+<li><strong>序列号：</strong> 唯一标识事件的递增数字。</li>
+<li><strong>进程信息：</strong> <code>pid</code>, <code>ppid</code>, <code>uid</code>, <code>gid</code>, <code>euid</code>, <code>suid</code>, <code>fsuid</code>, <code>egid</code>, <code>sgid</code>, <code>fsgid</code>, <code>auid</code> (审计用户ID，通常是登录用户的原始UID), <code>ses</code> (会话ID)。</li>
+<li><strong>可执行文件信息：</strong> <code>exe</code> (路径), <code>comm</code> (命令行)。</li>
+<li><strong>系统调用信息：</strong> <code>syscall</code> (编号), <code>arch</code> (体系结构), <code>success</code> (是&#x2F;否，基于 <code>exit</code> 的 <code>retval</code>), <code>exit</code> (具体的返回值&#x2F;错误码)。</li>
+<li><strong>参数：</strong> <code>a0</code> - <code>a5</code> (对于 <code>entry</code> 事件)。</li>
+<li><strong>其他上下文信息：</strong> 如当前工作目录 (<code>cwd</code>), 文件路径（如果审计点捕获了，如 <code>open</code> 的 <code>path</code> 规则项）。</li>
+</ul>
+</li>
+<li>格式化的记录被放入内核审计队列。</li>
+</ul>
+</li>
+<li>用户空间的 <code>auditd</code> 守护进程持续监控队列。一旦有新记录到达：<ul>
+<li><code>auditd</code> 通过 <code>netlink</code> 套接字读取记录。</li>
+<li><code>auditd</code> 根据其配置文件 (<code>auditd.conf</code>) 将记录写入日志文件（通常是 <code>/var/log/audit/audit.log</code>）。</li>
+<li><code>auditd</code> 也可以配置为实时发送警报或执行其他操作。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>性能考量：</strong></p>
+<ul>
+<li>审计，尤其是记录所有系统调用，会带来<strong>显著的性能开销</strong>。内核做了大量优化：<ul>
+<li><strong>BPF 过滤器：</strong> 规则编译成高效的字节码，在内核中快速评估。</li>
+<li><strong>快速路径&#x2F;慢速路径：</strong> 如果 <code>audit_context</code> 为空且没有全局规则要求审计，内核会快速跳过审计检查。只有在需要时才创建 <code>audit_context</code> 并执行完整规则匹配。</li>
+<li><strong>异步记录：</strong> 事件记录是异步进行的，放入队列后系统调用即可继续执行，不阻塞调用进程（<code>auditd</code> 处理队列）。</li>
+<li><strong>选择性审计：</strong> 管理员应<strong>谨慎定义规则</strong>，只审计真正需要的特定系统调用、用户或文件，以最小化性能影响。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结流程：</strong></p>
+<ol>
+<li>用户进程发起系统调用（如 <code>open</code>）。</li>
+<li>内核陷入系统调用入口。</li>
+<li>调用 <code>audit_syscall_entry(arch, SYS_open, fd, pathname, flags, mode)</code>。</li>
+<li>内核审计子系统用加载的 BPF 过滤器检查：<code>(arch, syscall=SYS_open, uid=..., pathname=...)</code> 是否匹配任何规则？</li>
+<li><strong>如果匹配：</strong><ul>
+<li>为当前任务设置 <code>audit_context</code>（如果还没有）。</li>
+<li>在 <code>audit_context</code> 中标记需要审计此系统调用。</li>
+<li>生成 <code>SYSCALL</code> <code>entry</code> 记录（含 <code>syscall</code>, <code>args</code>），放入队列。</li>
+</ul>
+</li>
+<li>内核执行实际的 <code>open</code> 系统调用代码。</li>
+<li>系统调用执行完毕，准备返回用户空间。</li>
+<li>调用 <code>audit_syscall_exit(retval)</code>。</li>
+<li>检查 <code>audit_context</code>：<strong>如果之前 <code>entry</code> 被标记需要审计</strong>：<ul>
+<li>生成 <code>SYSCALL</code> <code>exit</code> 记录（含 <code>syscall</code>, <code>success</code>, <code>exit=retval</code>），放入队列。</li>
+</ul>
+</li>
+<li>内核返回系统调用结果 (<code>retval</code>) 给用户进程。</li>
+<li>用户空间 <code>auditd</code> 从队列读取 <code>entry</code> 和 <code>exit</code> 记录，写入 <code>/var/log/audit/audit.log</code>。</li>
+</ol>
+<p><strong>关键点：</strong></p>
+<ul>
+<li><code>auditsyscall</code> 不是单个函数，而是指代内核在系统调用入口&#x2F;出口处触发审计记录的<strong>整个机制</strong>。</li>
+<li><strong>审计发生在内核空间</strong>，由内核代码直接挂钩系统调用执行路径。</li>
+<li>是否记录一个系统调用<strong>由用户配置的、在内核中运行的 BPF 规则</strong>决定。</li>
+<li>记录包含<strong>极其详细</strong>的上下文信息（用户、进程、参数、结果）。</li>
+<li><strong>性能影响显著</strong>，必须<strong>精确配置规则</strong>以避免过度开销。</li>
+<li>用户空间工具 (<code>auditctl</code>, <code>auditd</code>, <code>ausearch</code>, <code>aureport</code>) 用于配置规则、收集和解读日志。</li>
+</ul>
+<p>理解这个机制对于有效利用 Linux Audit 框架进行安全监控和合规性报告至关重要。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/2976edab.html">http://helloeuler.cn/posts/2976edab.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/c8153dda.html" title="tmpfs最大容量受物理内存和交换空间限制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">tmpfs最大容量受物理内存和交换空间限制</div></div></a></div><div class="next-post pull-right"><a href="/posts/2ef2497d.html" title="glibc中libc_nonshared.a的作用与用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">glibc中libc_nonshared.a的作用与用法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

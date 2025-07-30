@@ -1,0 +1,245 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核栈保护机制详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核中的stack protector实现 Linux 内核中的 Stack Protector（也称为 Stack Canary）是一种重要的安全机制，旨在检测和防御栈缓冲区溢出攻击。其核心思想是在函数栈帧的关键位置（通常是返回地址之前）放置一个特殊的、难以预测的值（称为 “canary”），并在函数返回前检查该值是否被意外或恶意修改。如果值被改变，内核会认为发生了栈破坏并立即崩溃（触">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核栈保护机制详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/18a8664d.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核中的stack protector实现 Linux 内核中的 Stack Protector（也称为 Stack Canary）是一种重要的安全机制，旨在检测和防御栈缓冲区溢出攻击。其核心思想是在函数栈帧的关键位置（通常是返回地址之前）放置一个特殊的、难以预测的值（称为 “canary”），并在函数返回前检查该值是否被意外或恶意修改。如果值被改变，内核会认为发生了栈破坏并立即崩溃（触">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.741Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/18a8664d.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核栈保护机制详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核栈保护机制详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-09T16:00:00.000Z" title="发表于 2025-06-10 00:00:00">2025-06-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核栈保护机制详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核中的stack protector实现</p>
+<p>Linux 内核中的 <strong>Stack Protector</strong>（也称为 <strong>Stack Canary</strong>）是一种重要的安全机制，旨在检测和防御<strong>栈缓冲区溢出攻击</strong>。其核心思想是在函数栈帧的关键位置（通常是返回地址之前）放置一个特殊的、难以预测的值（称为 “canary”），并在函数返回前检查该值是否被意外或恶意修改。如果值被改变，内核会认为发生了栈破坏并立即崩溃（触发 kernel panic），从而阻止攻击者利用溢出控制程序执行流（例如执行任意代码或进行 ROP 攻击）。</p>
+<p>以下是 Linux 内核中 Stack Protector 实现的关键细节：</p>
+<ol>
+<li><p><strong>Canary 的生成与存储：</strong></p>
+<ul>
+<li><strong>引导早期初始化：</strong> 内核在启动的非常早期阶段（在 <code>start_kernel</code> 函数中，由 <code>boot_init_stack_canary</code> 函数执行）生成一个<strong>全局的、随机的 “主” canary 值</strong>。这个随机性对于安全性至关重要，使得攻击者难以预测 canary 的值。</li>
+<li><strong>Per-Task Canary：</strong> 为了提高安全性（防止通过信息泄露获取一个任务的 canary 去攻击另一个任务），<strong>每个进程（任务）在创建时（<code>fork</code> 或创建内核线程时）会获得一个基于主 canary 和任务特定信息（如进程 ID）派生出的唯一 canary 值</strong>。这个值存储在进程的 <code>task_struct</code> 结构体中（通常是 <code>stack_canary</code> 字段）。</li>
+<li><strong>x86 架构的特殊处理 (FS&#x2F;GS 寄存器)：</strong><ul>
+<li>在 x86-64 架构上，内核利用 <code>GS</code> 寄存器的段基址来高效地访问当前任务的 <code>task_struct</code>。</li>
+<li>内核配置 <code>GS</code> 基址指向当前 CPU 的 <code>struct pcpu_hot</code>，该结构内部包含指向当前运行任务 <code>task_struct</code> 的指针。</li>
+<li>当需要访问当前任务的 canary（例如在函数序言&#x2F;尾声）时，编译器生成的代码会通过 <code>GS</code> 寄存器进行偏移寻址，快速定位到 <code>task_struct-&gt;stack_canary</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>函数编译时的插桩：</strong></p>
+<ul>
+<li>启用了 Stack Protector 的内核在编译时，会对<strong>选定的函数</strong>使用 GCC 的 <code>-fstack-protector-strong</code>（或历史上使用过的 <code>-fstack-protector</code>）编译选项。</li>
+<li><strong>函数序言 (Prologue)：</strong> 在函数开始时，编译器插入指令将<strong>当前任务的 canary 值</strong>（从 <code>task_struct-&gt;stack_canary</code> 获取）压入（或存储到）当前函数栈帧中的一个特定位置（通常紧邻着局部变量之后，但在保存的帧指针和返回地址之前）。</li>
+<li><strong>函数尾声 (Epilogue)：</strong> 在函数返回（通过 <code>ret</code> 指令）<strong>之前</strong>，编译器插入指令将栈上保存的 canary 值重新读出，并与存储在 <code>task_struct-&gt;stack_canary</code> 中的原始值进行比较。<ul>
+<li><strong>匹配：</strong> 如果值匹配，函数正常返回。</li>
+<li><strong>不匹配：</strong> 如果值不匹配（说明栈上该位置到返回地址之间的数据，包括 canary 本身，可能被溢出覆盖了），则触发一个预定义的错误处理函数 <code>__stack_chk_fail</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong><code>__stack_chk_fail</code> 处理：</strong></p>
+<ul>
+<li>这个函数在内核中实现。</li>
+<li>它的核心操作是调用 <code>panic</code> 函数，导致<strong>内核立即崩溃</strong>，并打印出类似 <code>&quot;Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: [function_name]&quot;</code> 的错误信息。</li>
+<li>这种崩溃是主动的安全防御措施，目的是在检测到栈破坏时立即终止系统运行，防止潜在的进一步利用。</li>
+</ul>
+</li>
+<li><p><strong>中断栈的 Canary：</strong></p>
+<ul>
+<li>内核不仅保护进程的内核栈，也保护<strong>中断栈</strong>。</li>
+<li>在中断&#x2F;异常处理程序的入口点（例如 <code>entry_64.S</code> 中的汇编代码），内核会加载一个特定的 canary 值到中断栈上。</li>
+<li>在退出中断处理程序返回到被中断的上下文之前，会检查这个中断栈上的 canary 值是否被破坏。</li>
+<li>如果中断栈 canary 被破坏，同样会触发 panic。</li>
+</ul>
+</li>
+<li><p><strong>哪些函数受到保护？</strong></p>
+<ul>
+<li>早期可能只保护包含字符数组的函数。现在主要使用 <code>-fstack-protector-strong</code>，其规则更智能：<ul>
+<li>保护包含<strong>任意大小的字符数组</strong>的函数。</li>
+<li>保护包含<strong>大于等于 8 字节的其他类型数组</strong>的函数。</li>
+<li>保护包含<strong>地址被取用的局部变量</strong>的函数（因为这可能暗示该变量被传递到可能进行越界写入的函数）。</li>
+</ul>
+</li>
+<li>明确标记为 <code>__no_stack_protector</code> 的函数会被排除。</li>
+<li>非常关键、性能敏感或需要在堆栈保护机制初始化之前运行的极早期代码可能不受保护或使用特殊处理。</li>
+</ul>
+</li>
+<li><p><strong>配置选项：</strong></p>
+<ul>
+<li><code>CONFIG_STACKPROTECTOR</code> (或旧版本中的 <code>CONFIG_CC_STACKPROTECTOR</code>): 基本启用 Stack Protector (通常是 <code>-fstack-protector</code>，保护规则相对简单)。</li>
+<li><code>CONFIG_STACKPROTECTOR_STRONG</code>: 启用更强的保护 (<code>-fstack-protector-strong</code>)，保护更多的函数。这是现代内核的推荐和默认选择。</li>
+<li><code>CONFIG_STACKPROTECTOR_PER_TASK</code>: 启用 per-task canary (这是默认且必要的)。</li>
+<li><code>CONFIG_CC_STACKPROTECTOR_NONE</code>: 完全禁用 Stack Protector（不推荐，除非有特殊原因且了解风险）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结与重要性：</strong></p>
+<p>Linux 内核的 Stack Protector 是一种经过精心设计、高效且基本成为标配的漏洞利用缓解技术（Exploit Mitigation）。它通过：</p>
+<ol>
+<li><strong>在编译时插桩</strong>关键函数。</li>
+<li>使用<strong>随机化的、per-task 的 canary 值</strong>。</li>
+<li><strong>在函数返回前验证 canary</strong>。</li>
+<li>**在检测到破坏时立即崩溃内核 (<code>panic</code>)**。</li>
+</ol>
+<p>极大地增加了攻击者成功利用<strong>内核栈缓冲区溢出漏洞</strong>的难度。攻击者不仅需要触发漏洞覆盖返回地址，还需要<strong>精确地覆盖 canary 位置为其原始值</strong>（而原始值是随机的且对每个任务唯一），否则攻击会被立即检测并终止。这使得许多传统的栈溢出攻击手法失效。</p>
+<p><strong>局限性：</strong></p>
+<ul>
+<li>无法防御<strong>堆溢出</strong>、<strong>格式化字符串漏洞</strong>、<strong>逻辑漏洞</strong>等。</li>
+<li>无法防御能精确<strong>泄露 canary 值</strong>的信息泄露漏洞。一旦 canary 被泄露，攻击者可以构造 payload 时包含正确的 canary 从而绕过保护（这就是 per-task canary 和 KASLR 等缓解措施的重要性）。</li>
+<li>无法防御不覆盖 canary 的栈破坏（例如直接修改保存的帧指针）。</li>
+<li>对性能有轻微开销（存储和检查 canary 的指令）。</li>
+</ul>
+<p>尽管如此，Stack Protector 仍然是 Linux 内核纵深防御策略中极其重要且有效的一环。一个著名的成功案例是它阻止了利用 CVE-2017-1000367 (Stack Clash) 在内核中的实际利用。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/18a8664d.html">http://helloeuler.cn/posts/18a8664d.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/bc1f9c96.html" title="statx函数作用及优势详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">statx函数作用及优势详解</div></div></a></div><div class="next-post pull-right"><a href="/posts/7f6c91af.html" title="Linux内核栈破坏示例代码"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核栈破坏示例代码</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

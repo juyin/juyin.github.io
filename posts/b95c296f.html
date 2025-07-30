@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核进程创建跟踪方法 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核进程创建trace钩子 在 Linux 内核中跟踪进程创建事件有多种方法，以下是几种常用的技术方案和实现思路：  一、使用 Tracepoints（推荐）内核已内置 sched_process_fork tracepoint，可捕获进程创建事件。 1. 查看可用 tracepoints1cat &#x2F;sys&#x2F;kernel&#x2F;debug&#x2F;tracing&#x2F;available_events |">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核进程创建跟踪方法">
+<meta property="og:url" content="http://helloeuler.cn/posts/b95c296f.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核进程创建trace钩子 在 Linux 内核中跟踪进程创建事件有多种方法，以下是几种常用的技术方案和实现思路：  一、使用 Tracepoints（推荐）内核已内置 sched_process_fork tracepoint，可捕获进程创建事件。 1. 查看可用 tracepoints1cat &#x2F;sys&#x2F;kernel&#x2F;debug&#x2F;tracing&#x2F;available_events |">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.735Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/b95c296f.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核进程创建跟踪方法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核进程创建跟踪方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-26T16:00:00.000Z" title="发表于 2025-05-27 00:00:00">2025-05-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核进程创建跟踪方法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核进程创建trace钩子</p>
+<p>在 Linux 内核中跟踪进程创建事件有多种方法，以下是几种常用的技术方案和实现思路：</p>
+<hr>
+<h3 id="一、使用-Tracepoints（推荐）"><a href="#一、使用-Tracepoints（推荐）" class="headerlink" title="一、使用 Tracepoints（推荐）"></a>一、使用 <strong>Tracepoints</strong>（推荐）</h3><p>内核已内置 <code>sched_process_fork</code> tracepoint，可捕获进程创建事件。</p>
+<h4 id="1-查看可用-tracepoints"><a href="#1-查看可用-tracepoints" class="headerlink" title="1. 查看可用 tracepoints"></a>1. 查看可用 tracepoints</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /sys/kernel/debug/tracing/available_events | grep sched_process_fork</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-通过-perf-工具快速测试"><a href="#2-通过-perf-工具快速测试" class="headerlink" title="2. 通过 perf 工具快速测试"></a>2. 通过 <code>perf</code> 工具快速测试</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perf record -e <span class="built_in">sched</span>:sched_process_fork -a</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-内核模块示例代码"><a href="#3-内核模块示例代码" class="headerlink" title="3. 内核模块示例代码"></a>3. 内核模块示例代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/tracepoint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;trace/events/sched.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">trace_fork_handler</span><span class="params">(<span class="type">void</span> *ignore, <span class="keyword">struct</span> task_struct *parent, <span class="keyword">struct</span> task_struct *child)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(<span class="string">&quot;Process created: parent=%s[%d] -&gt; child=%s[%d]\n&quot;</span>,</span><br><span class="line">           parent-&gt;comm, parent-&gt;pid, child-&gt;comm, child-&gt;pid);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">my_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    register_trace_sched_process_fork(trace_fork_handler, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">my_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    unregister_trace_sched_process_fork(trace_fork_handler, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(my_init);</span><br><span class="line">module_exit(my_exit);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="二、使用-kprobes（动态Hook）"><a href="#二、使用-kprobes（动态Hook）" class="headerlink" title="二、使用 kprobes（动态Hook）"></a>二、使用 <strong>kprobes</strong>（动态Hook）</h3><p>当需要更底层的跟踪时，可以 Hook <code>do_fork</code>（旧内核）或 <code>kernel_clone</code>（新内核）等函数。</p>
+<h4 id="内核模块示例"><a href="#内核模块示例" class="headerlink" title="内核模块示例"></a>内核模块示例</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/kprobes.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">kprobe</span> <span class="title">kp</span> =</span> &#123;</span><br><span class="line">    .symbol_name = <span class="string">&quot;do_fork&quot;</span>, <span class="comment">// 或 &quot;kernel_clone&quot;（根据内核版本）</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">handler_pre</span><span class="params">(<span class="keyword">struct</span> kprobe *p, <span class="keyword">struct</span> pt_regs *regs)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 参数解析依赖内核版本和体系结构</span></span><br><span class="line">    <span class="comment">// 例如：do_fork 的参数可能通过寄存器传递</span></span><br><span class="line">    printk(<span class="string">&quot;Process fork triggered\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">my_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    kp.pre_handler = handler_pre;</span><br><span class="line">    register_kprobe(&amp;kp);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">my_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    unregister_kprobe(&amp;kp);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(my_init);</span><br><span class="line">module_exit(my_exit);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、使用-eBPF（现代方案）"><a href="#三、使用-eBPF（现代方案）" class="headerlink" title="三、使用 eBPF（现代方案）"></a>三、使用 <strong>eBPF</strong>（现代方案）</h3><p>通过 eBPF 程序安全地附加到 tracepoint 或 kprobes。</p>
+<h4 id="1-使用-tracepoint-的-eBPF-示例（需要-libbpf）"><a href="#1-使用-tracepoint-的-eBPF-示例（需要-libbpf）" class="headerlink" title="1. 使用 tracepoint 的 eBPF 示例（需要 libbpf）"></a>1. 使用 <code>tracepoint</code> 的 eBPF 示例（需要 libbpf）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 SEC 宏附加到 tracepoint</span></span><br><span class="line">SEC(<span class="string">&quot;tracepoint/sched/sched_process_fork&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">handle_fork</span><span class="params">(<span class="keyword">struct</span> trace_event_raw_sched_process_fork *ctx)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">parent</span> =</span> (<span class="keyword">struct</span> task_struct *)ctx-&gt;parent_pid;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">child</span> =</span> (<span class="keyword">struct</span> task_struct *)ctx-&gt;child_pid;</span><br><span class="line">    bpf_printk(<span class="string">&quot;Fork: parent=%d -&gt; child=%d\n&quot;</span>, parent-&gt;pid, child-&gt;pid);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-使用-kprobe-的-eBPF-示例"><a href="#2-使用-kprobe-的-eBPF-示例" class="headerlink" title="2. 使用 kprobe 的 eBPF 示例"></a>2. 使用 <code>kprobe</code> 的 eBPF 示例</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SEC(<span class="string">&quot;kprobe/do_fork&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">BPF_KPROBE</span><span class="params">(do_fork_hook)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">pid_t</span> parent_pid = bpf_get_current_pid_tgid() &gt;&gt; <span class="number">32</span>;</span><br><span class="line">    bpf_printk(<span class="string">&quot;do_fork called by PID %d\n&quot;</span>, parent_pid);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、其他方法"><a href="#四、其他方法" class="headerlink" title="四、其他方法"></a>四、其他方法</h3><ol>
+<li><p><strong>SystemTap</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stap -e <span class="string">&#x27;probe kernel.function(&quot;do_fork&quot;) &#123; printf(&quot;fork by %s(%d)\n&quot;, execname(), pid()) &#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Ftrace</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 1 &gt; /sys/kernel/debug/tracing/events/sched/sched_process_fork/enable</span><br><span class="line"><span class="built_in">cat</span> /sys/kernel/debug/tracing/trace_pipe</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ol>
+<li><p><strong>内核版本差异</strong>：</p>
+<ul>
+<li>进程创建函数在历史上经历过变化：<ul>
+<li>Linux 4.2 之前：<code>do_fork</code></li>
+<li>Linux 5.4+：<code>kernel_clone</code></li>
+</ul>
+</li>
+<li>使用前需确认目标内核符号。</li>
+</ul>
+</li>
+<li><p><strong>安全性</strong>：</p>
+<ul>
+<li>内核模块需要 root 权限加载。</li>
+<li>eBPF 程序需要 <code>CAP_BPF</code> 权限（Linux 5.8+）。</li>
+</ul>
+</li>
+<li><p><strong>性能影响</strong>：</p>
+<ul>
+<li>kprobes 在高频调用场景可能影响性能。</li>
+<li>eBPF 程序需通过验证器，安全性更高。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li><strong>简单监控</strong>：使用 <code>perf</code> 或 <code>ftrace</code> 工具。</li>
+<li><strong>生产环境</strong>：eBPF + BCC&#x2F;libbpf。</li>
+<li><strong>深度调试</strong>：内核模块 + tracepoints&#x2F;kprobes。</li>
+</ul>
+<p>根据具体需求选择合适方案。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/b95c296f.html">http://helloeuler.cn/posts/b95c296f.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/81a3d319.html" title="Linux内核线程命名方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核线程命名方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/11eebf08.html" title="ioremap限制映射系统RAM原因分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">ioremap限制映射系统RAM原因分析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BD%BF%E7%94%A8-Tracepoints%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="toc-text">一、使用 Tracepoints（推荐）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9F%A5%E7%9C%8B%E5%8F%AF%E7%94%A8-tracepoints"><span class="toc-text">1. 查看可用 tracepoints</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%80%9A%E8%BF%87-perf-%E5%B7%A5%E5%85%B7%E5%BF%AB%E9%80%9F%E6%B5%8B%E8%AF%95"><span class="toc-text">2. 通过 perf 工具快速测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">3. 内核模块示例代码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BD%BF%E7%94%A8-kprobes%EF%BC%88%E5%8A%A8%E6%80%81Hook%EF%BC%89"><span class="toc-text">二、使用 kprobes（动态Hook）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E7%A4%BA%E4%BE%8B"><span class="toc-text">内核模块示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8-eBPF%EF%BC%88%E7%8E%B0%E4%BB%A3%E6%96%B9%E6%A1%88%EF%BC%89"><span class="toc-text">三、使用 eBPF（现代方案）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8-tracepoint-%E7%9A%84-eBPF-%E7%A4%BA%E4%BE%8B%EF%BC%88%E9%9C%80%E8%A6%81-libbpf%EF%BC%89"><span class="toc-text">1. 使用 tracepoint 的 eBPF 示例（需要 libbpf）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8-kprobe-%E7%9A%84-eBPF-%E7%A4%BA%E4%BE%8B"><span class="toc-text">2. 使用 kprobe 的 eBPF 示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%85%B6%E4%BB%96%E6%96%B9%E6%B3%95"><span class="toc-text">四、其他方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

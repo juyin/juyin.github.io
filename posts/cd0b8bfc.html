@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>setfsgid函数用法及示例详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="setfsgid函数用法及示例 setfsgid() 是 Linux 系统中的一个底层系统调用，用于设置调用进程的 文件系统组 ID。这个 ID 在核心的文件系统操作（如文件创建、权限检查）中扮演着特定角色。 核心概念：  实际用户 ID (RUID) 和 **实际组 ID (RGID)**： 启动进程的用户和组。 有效用户 ID (EUID) 和 **有效组 ID (EGID)**： 决定进程进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="setfsgid函数用法及示例详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/cd0b8bfc.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="setfsgid函数用法及示例 setfsgid() 是 Linux 系统中的一个底层系统调用，用于设置调用进程的 文件系统组 ID。这个 ID 在核心的文件系统操作（如文件创建、权限检查）中扮演着特定角色。 核心概念：  实际用户 ID (RUID) 和 **实际组 ID (RGID)**： 启动进程的用户和组。 有效用户 ID (EUID) 和 **有效组 ID (EGID)**： 决定进程进">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.741Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/cd0b8bfc.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'setfsgid函数用法及示例详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">setfsgid函数用法及示例详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-09T16:00:00.000Z" title="发表于 2025-06-10 00:00:00">2025-06-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="setfsgid函数用法及示例详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>setfsgid函数用法及示例</p>
+<p><code>setfsgid()</code> 是 Linux 系统中的一个底层系统调用，用于设置调用进程的 <strong>文件系统组 ID</strong>。这个 ID 在核心的文件系统操作（如文件创建、权限检查）中扮演着特定角色。</p>
+<p><strong>核心概念：</strong></p>
+<ol>
+<li><strong>实际用户 ID (RUID)</strong> 和 **实际组 ID (RGID)**： 启动进程的用户和组。</li>
+<li><strong>有效用户 ID (EUID)</strong> 和 **有效组 ID (EGID)**： 决定进程进行资源访问权限的主要 ID。</li>
+<li><strong>保存的设置用户 ID (SUID)</strong> 和 **保存的设置组 ID (SGID)**： 在执行 <code>exec()</code> 后用于恢复 EUID&#x2F;EGID。</li>
+<li><strong>文件系统用户 ID (FSUID)</strong> 和 **文件系统组 ID (FSGID)**： <strong>专门用于 Linux 内核进行文件系统权限检查的 ID</strong>。通常，<code>FSUID</code> 等于 <code>EUID</code>，<code>FSGID</code> 等于 <code>EGID</code>。<code>setfsuid()</code> 和 <code>setfsgid()</code> 就是用来直接修改这两个特定 ID 的。</li>
+</ol>
+<p><strong><code>setfsgid()</code> 的作用：</strong></p>
+<ul>
+<li>直接设置调用进程的 <strong>文件系统组 ID</strong>。</li>
+<li>它的主要目的是给那些需要 <strong>精确模拟特定用户&#x2F;组进行文件系统访问权限检查</strong> 的程序（如 NFS 服务器）使用的。</li>
+<li><strong>普通应用程序几乎不需要使用这个函数。</strong> 更常见、更安全的做法是使用 <code>setegid()</code>, <code>setregid()</code>, <code>setresgid()</code> 等函数来修改 <code>EGID</code>（这会同时改变 <code>FSGID</code>，除非明确需要只改变 <code>FSGID</code> 而不影响 <code>EGID</code>）。</li>
+</ul>
+<p><strong>函数原型：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/fsuid.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">setfsgid</span><span class="params">(<span class="type">gid_t</span> fsuid)</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>参数 <code>fsgid</code></strong>: 你想要设置的新文件系统组 ID。</li>
+<li><strong>返回值</strong>:<ul>
+<li>成功： 返回 <strong>调用前的旧文件系统组 ID</strong>。</li>
+<li>失败： 返回当前的文件系统组 ID（保持不变），并设置 <code>errno</code> 来指示错误。注意，失败时返回值 &gt;&#x3D; 0，所以不能简单用 -1 判断错误。<strong>必须检查 <code>errno</code> 或与预期旧值比较才能可靠判断是否出错</strong>。</li>
+</ul>
+</li>
+<li><strong>头文件</strong>: <code>&lt;sys/fsuid.h&gt;</code>。</li>
+</ul>
+<p><strong>重要注意事项：</strong></p>
+<ol>
+<li><strong>权限要求：</strong> 进程必须具有 <code>CAP_SETGID</code> 能力（通常意味着需要 root 权限），或者参数 <code>fsgid</code> 必须等于当前的 <code>RUID</code>、当前的 <code>EUID</code>、当前的 <code>SUID</code> 或当前的 <code>FSGID</code>。</li>
+<li><strong>非标准且底层：</strong> 这是 Linux 特有的系统调用，<strong>不具备可移植性</strong>。POSIX 标准中没有这个函数。</li>
+<li><strong>潜在危险：</strong> 直接操作 <code>FSGID</code> 绕过了一些标准的权限管理抽象层，使用不当可能导致安全漏洞或权限混乱。仅在充分理解其含义且没有更安全替代方案时使用。</li>
+<li><strong><code>glibc</code> 封装：</strong> 在 <code>glibc</code> 2.15 之前，<code>setfsgid()</code> 在用户空间库中实现，可能会改变 <code>EGID</code>。从 <code>glibc</code> 2.15 开始，它直接调用同名的系统调用，只改变 <code>FSGID</code>。</li>
+<li><strong><code>FSUID</code>&#x2F;<code>FSGID</code> 的自动同步：</strong> 当进程通过 <code>seteuid(euid)</code> 修改其 <code>EUID</code> 时，<code>FSUID</code> 也会被自动设置为相同的 <code>euid</code>。同样，<code>setegid(egid)</code> 也会自动将 <code>FSGID</code> 设置为 <code>egid</code>。<code>setfsuid()</code>&#x2F;<code>setfsgid()</code> 主要用于需要 <strong>独立于 <code>EUID</code>&#x2F;<code>EGID</code> 来设置 <code>FSUID</code>&#x2F;<code>FSGID</code></strong> 的特殊场景。</li>
+</ol>
+<p><strong><code>setfsgid()</code> vs <code>setegid()</code></strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left"><code>setfsgid(new_gid)</code></th>
+<th align="left"><code>setegid(new_gid)</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>修改目标</strong></td>
+<td align="left">仅文件系统组 ID (<code>FSGID</code>)</td>
+<td align="left">有效组 ID (<code>EGID</code>)</td>
+</tr>
+<tr>
+<td align="left"><strong>连带影响</strong></td>
+<td align="left">不影响 <code>EGID</code> (除非 <code>glibc</code> &lt; 2.15)</td>
+<td align="left"><strong>通常也会自动将 <code>FSGID</code> 设置为 <code>new_gid</code></strong></td>
+</tr>
+<tr>
+<td align="left"><strong>主要用途</strong></td>
+<td align="left">需要独立于 <code>EGID</code> 控制文件系统权限的场景</td>
+<td align="left">标准方式修改进程的组权限</td>
+</tr>
+<tr>
+<td align="left"><strong>可移植性</strong></td>
+<td align="left">Linux 特有</td>
+<td align="left">POSIX 标准</td>
+</tr>
+<tr>
+<td align="left"><strong>推荐度</strong></td>
+<td align="left">不推荐，仅用于特殊场景</td>
+<td align="left">推荐的标准做法</td>
+</tr>
+</tbody></table>
+<p><strong>示例：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/fsuid.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span> <span class="comment">// for getegid()</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">gid_t</span> current_egid = getegid();</span><br><span class="line">    <span class="type">gid_t</span> old_fsgid, new_fsgid, test_fsgid;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 假设我们想临时将 FSGID 设置为 1000 (通常是个普通用户组)</span></span><br><span class="line">    new_fsgid = <span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Current EGID: %d\n&quot;</span>, current_egid);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保存旧的 FSGID</span></span><br><span class="line">    old_fsgid = setfsgid(new_fsgid); <span class="comment">// 尝试设置新的 FSGID</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// **关键：检查错误不能只看返回值是否为 -1！**</span></span><br><span class="line">    <span class="keyword">if</span> (old_fsgid == <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果返回 -1，肯定是出错了</span></span><br><span class="line">        perror(<span class="string">&quot;setfsgid failed (returned -1)&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (setfsgid(old_fsgid) != new_fsgid) &#123;</span><br><span class="line">        <span class="comment">// 更可靠的检查: 尝试设置回去，看返回值是不是我们刚刚设置的 new_fsgid</span></span><br><span class="line">        <span class="comment">// 如果不是，说明第一次 setfsgid 可能没成功 (或者有并发修改，但单线程简单示例忽略)</span></span><br><span class="line">        perror(<span class="string">&quot;setfsgid likely failed (inconsistent state)&quot;</span>);</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Expected to get %d back, got %d\n&quot;</span>, new_fsgid, setfsgid(old_fsgid));</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果我们到达这里，第一次 setfsgid 很可能成功了。</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Old FSGID was: %d\n&quot;</span>, old_fsgid);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Attempted to set new FSGID to: %d\n&quot;</span>, new_fsgid);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查当前的 FSGID (间接方式：尝试设置为自己，返回值应是当前值)</span></span><br><span class="line">    test_fsgid = setfsgid(new_fsgid);</span><br><span class="line">    <span class="keyword">if</span> (test_fsgid != new_fsgid) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;FSGID is NOT %d (it&#x27;s %d). Setting failed or changed.\n&quot;</span>, new_fsgid, test_fsgid);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;FSGID is currently %d (verification by setting to itself).\n&quot;</span>, test_fsgid);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重要：恢复旧的 FSGID (假设我们需要恢复)</span></span><br><span class="line">    <span class="keyword">if</span> (setfsgid(old_fsgid) == <span class="number">-1</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;Failed to restore old FSGID&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Restored FSGID to %d\n&quot;</span>, old_fsgid);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>解释：</strong></p>
+<ol>
+<li><strong>获取当前 EGID：</strong> 使用 <code>getegid()</code> 获取当前有效组 ID 作为参考。</li>
+<li><strong>尝试设置新 FSGID：</strong> 调用 <code>old_fsgid = setfsgid(new_fsgid)</code>。这尝试将 <code>FSGID</code> 设置为 <code>1000</code>，并将旧的 <code>FSGID</code> 保存在 <code>old_fsgid</code> 中。</li>
+<li><strong>错误检查（关键且复杂）：</strong><ul>
+<li>如果返回值 <code>old_fsgid</code> 是 <code>-1</code>，则肯定出错，使用 <code>perror</code> 打印错误。</li>
+<li><strong>更可靠的检查：</strong> 尝试再次调用 <code>setfsgid(old_fsgid)</code>。如果这个调用返回的值 <strong>不等于</strong> 我们刚刚尝试设置的 <code>new_fsgid</code> (<code>1000</code>)，那么说明第一次 <code>setfsgid</code> 调用很可能没有成功地将 <code>FSGID</code> 设置为 <code>1000</code>。这是检测 <code>setfsgid</code> 是否成功的最可靠方法之一（在单线程环境下）。</li>
+</ul>
+</li>
+<li><strong>验证当前 FSGID：</strong> 尝试使用 <code>setfsgid(new_fsgid)</code> 将 <code>FSGID</code> 再次设置为 <code>1000</code>。根据规范，如果 <code>FSGID</code> 已经是 <code>1000</code>，这个调用会成功并返回 <code>1000</code>（即旧的 <code>FSGID</code>）。如果返回值等于 <code>1000</code>，说明当前 <code>FSGID</code> 确实是 <code>1000</code>。</li>
+<li><strong>恢复旧 FSGID：</strong> 出于良好实践（如果程序后续逻辑依赖原始状态），尝试使用 <code>setfsgid(old_fsgid)</code> 将 <code>FSGID</code> 恢复成调用前的值。同样检查错误。</li>
+</ol>
+<p><strong>何时使用（非常罕见）：</strong></p>
+<p>如前面所述，<code>setfsgid()</code> 的使用场景极其有限且高度专业化。以下是一些<em>可能</em>（但通常有更好替代方案）的潜在场景：</p>
+<ol>
+<li><strong>实现文件服务器 (NFS, CIFS&#x2F;Samba)：</strong> 当服务器进程以高权限（如 root）运行，需要代表不同网络客户端用户进行文件访问时。服务器可能需要临时将 <code>FSGID</code> 精确地设置为客户端请求的组 ID <em>仅用于文件系统权限检查</em>，同时保持 <code>EGID</code> 为服务器进程自身的值（以便切换回）。然而，现代实践更倾向于使用 <code>setegid()</code> 或进程克隆（fork）。</li>
+<li><strong>高度特化的安全监控&#x2F;审计工具：</strong> 某些需要以特定组身份检查文件访问权限但又不希望改变进程整体权限的工具。同样，通常有更安全的方式。</li>
+<li><strong>模拟用户环境的底层库：</strong> 极少数系统级库可能需要这种精细控制。</li>
+</ol>
+<p><strong>总结：</strong></p>
+<ul>
+<li><code>setfsgid()</code> 是一个 <strong>底层、Linux 特有、非标准</strong> 的系统调用，用于直接设置进程的 <strong>文件系统组 ID</strong>。</li>
+<li>它主要用于 <strong>需要将文件系统权限检查的组 ID 与进程的有效组 ID (<code>EGID</code>) 解耦</strong> 的 <strong>高度专业化场景</strong>。</li>
+<li><strong>绝大多数应用程序应该避免使用它。</strong> 修改组权限的标准和首选方法是使用 <code>setegid()</code>, <code>setregid()</code>, <code>setresgid()</code> 等 POSIX 函数来改变 <code>EGID</code>（这通常会自动更新 <code>FSGID</code>）。</li>
+<li>使用 <code>setfsgid()</code> 需要 <strong>极其小心</strong> 的权限检查、错误处理和状态恢复，因为它操作的是核心权限机制。</li>
+<li>它的错误返回语义（成功返回旧值，失败返回当前值）使得错误检测 <strong>不直观且容易出错</strong>，必须仔细处理。</li>
+</ul>
+<p>在编写需要改变组权限的代码时，<strong>强烈建议首先考虑标准的 <code>setegid()</code> 和相关函数</strong>，除非你有非常明确且无法通过标准方式解决的、需要独立控制 <code>FSGID</code> 的需求。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/cd0b8bfc.html">http://helloeuler.cn/posts/cd0b8bfc.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/7f4e555b.html" title="capset接口作用及用法详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">capset接口作用及用法详解</div></div></a></div><div class="next-post pull-right"><a href="/posts/c8b83a78.html" title="setgroups函数用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">setgroups函数用法及示例</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

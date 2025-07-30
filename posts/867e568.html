@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux seccomp机制原理详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux seccomp机制原理 Linux seccomp（secure computing）是一种内核安全机制，用于严格限制进程可用的系统调用（syscalls）。它的核心目标是通过减少内核攻击面来增强安全性。当一个进程（或其子进程）进入 seccomp 模式后，它只能调用被明确允许的极少数系统调用。任何尝试调用未授权的系统调用都会立即被内核终止（默认行为）。 核心原理：  系统调用过滤：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux seccomp机制原理详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/867e568.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux seccomp机制原理 Linux seccomp（secure computing）是一种内核安全机制，用于严格限制进程可用的系统调用（syscalls）。它的核心目标是通过减少内核攻击面来增强安全性。当一个进程（或其子进程）进入 seccomp 模式后，它只能调用被明确允许的极少数系统调用。任何尝试调用未授权的系统调用都会立即被内核终止（默认行为）。 核心原理：  系统调用过滤：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.756Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/867e568.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux seccomp机制原理详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux seccomp机制原理详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-16T16:00:00.000Z" title="发表于 2025-07-17 00:00:00">2025-07-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux seccomp机制原理详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux seccomp机制原理</p>
+<p>Linux seccomp（<strong>sec</strong>ure <strong>comp</strong>uting）是一种内核安全机制，<strong>用于严格限制进程可用的系统调用（syscalls）</strong>。它的核心目标是<strong>通过减少内核攻击面来增强安全性</strong>。当一个进程（或其子进程）进入 seccomp 模式后，它只能调用被明确允许的极少数系统调用。任何尝试调用未授权的系统调用都会立即被内核终止（默认行为）。</p>
+<p><strong>核心原理：</strong></p>
+<ol>
+<li><p><strong>系统调用过滤：</strong></p>
+<ul>
+<li>Linux 应用程序的所有特权操作（文件访问、网络通信、进程管理等）都通过系统调用请求内核服务。</li>
+<li>攻击者常常利用程序漏洞（如缓冲区溢出）执行任意代码，并尝试调用危险的系统调用（如 <code>execve</code>, <code>socket</code>, <code>ptrace</code>, <code>keyctl</code>）来提升权限、突破沙箱或进行其他恶意操作。</li>
+<li>seccomp 允许为进程定义一个<strong>过滤器规则集</strong>，明确指定哪些系统调用是允许的，哪些是禁止的。只有白名单上的调用才能被执行。</li>
+</ul>
+</li>
+<li><p><strong>基于 BPF 的过滤引擎：</strong></p>
+<ul>
+<li>seccomp 的现代实现（称为 <strong>seccomp-bpf</strong>）利用 <strong>Berkeley Packet Filter (BPF)</strong> 作为其过滤引擎。</li>
+<li>开发者编写一个 BPF 程序。这个程序不是处理网络数据包，而是<strong>评估每一个将要执行的系统调用</strong>。</li>
+<li>BPF 程序对每个系统调用进行检查（主要基于系统调用号 <code>syscall_nr</code>，有时也会检查参数 <code>args</code>），然后返回一个预定义的裁决：<ul>
+<li><code>SECCOMP_RET_ALLOW</code>： 允许该系统调用执行。</li>
+<li><code>SECCOMP_RET_KILL_PROCESS</code> &#x2F; <code>SECCOMP_RET_KILL_THREAD</code>： 立即终止进程或线程（现代首选 <code>KILL_PROCESS</code>）。</li>
+<li><code>SECCOMP_RET_ERRNO</code>： 阻止调用，并返回指定的 <code>errno</code> 给用户空间（模拟调用失败）。</li>
+<li><code>SECCOMP_RET_TRAP</code>： 发送一个可捕获的 <code>SIGSYS</code> 信号给进程，允许用户空间处理程序响应。</li>
+<li><code>SECCOMP_RET_TRACE</code>： 用于通知 ptrace 跟踪器，让跟踪器决定是否允许调用（常用于更复杂的沙箱）。</li>
+<li><code>SECCOMP_RET_LOG</code>： 允许调用，但记录该调用请求（用于审计或调试）。</li>
+</ul>
+</li>
+<li>BPF 程序在内核空间以 JIT 编译的形式高效执行，性能开销很小。</li>
+</ul>
+</li>
+<li><p><strong>应用 seccomp 过滤器：</strong></p>
+<ul>
+<li>进程通过 <code>prctl(PR_SET_SECCOMP, ...)</code> 或更现代的 <code>seccomp(SECCOMP_SET_MODE_FILTER, ...)</code> 系统调用将自己置于 seccomp-bpf 模式。</li>
+<li>调用时，需要传递一个指向已编译 BPF 程序（指令数组）的指针。</li>
+<li><strong>一旦过滤器被应用，该进程及其所有未来创建的子进程（除非它们自己调用 <code>execve</code> 重置状态）都将受到这些规则的约束。</strong> 这是一个关键且不可逆的操作（严格模式下）。</li>
+</ul>
+</li>
+<li><p><strong>执行流程（简化）：</strong></p>
+<ol>
+<li>用户空间进程发起一个系统调用（如 <code>open</code>）。</li>
+<li>内核在真正执行该系统调用的处理程序之前，会检查该进程是否启用了 seccomp-bpf 过滤器。</li>
+<li>如果启用了，内核将<strong>暂停</strong>该系统调用的执行。</li>
+<li>内核加载为该进程配置的 BPF 过滤器程序。</li>
+<li>内核将系统调用号（和可选参数）作为输入传递给 BPF 程序。</li>
+<li>BPF 程序执行其过滤逻辑并返回裁决（<code>ALLOW</code>, <code>KILL</code>, <code>ERRNO</code> 等）。</li>
+<li>内核根据 BPF 的裁决行动：<ul>
+<li><code>ALLOW</code>： 恢复该系统调用的正常执行。</li>
+<li><code>KILL</code>： 立即终止进程&#x2F;线程。</li>
+<li><code>ERRNO</code>： 不执行系统调用，直接返回指定的错误号给用户空间。</li>
+<li>其他裁决： 执行相应操作（发送信号、通知 ptrace 等）。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<p><strong>seccomp 模式：</strong></p>
+<ul>
+<li><strong>SECCOMP_MODE_DISABLED：</strong> 默认状态，无限制。</li>
+<li><strong>SECCOMP_MODE_STRICT：</strong> 原始模式（已过时）。只允许 <code>read</code>, <code>write</code>, <code>_exit</code> (以及 <code>sigreturn</code>)。任何其他系统调用导致 <code>SIGKILL</code>。功能有限，很少直接使用。</li>
+<li><strong>SECCOMP_MODE_FILTER：</strong> 现代模式，即 <strong>seccomp-bpf</strong>。使用 BPF 程序定义灵活的过滤策略，是实际使用的标准模式。</li>
+</ul>
+<p><strong>为什么 seccomp 重要？</strong></p>
+<ol>
+<li><strong>最小权限原则：</strong> 即使攻击者成功在进程中执行了任意代码，seccomp 也能阻止其调用关键的、危险的系统调用，极大地限制其破坏能力（提权、逃逸、建立持久化）。</li>
+<li><strong>减少内核攻击面：</strong> 内核庞大而复杂，历史漏洞众多。seccomp 直接阻止进程接触大量潜在存在漏洞的系统调用接口。</li>
+<li><strong>沙箱构建基础：</strong> 是现代沙箱技术（如 Chrome&#x2F;Chromium 的 Renderer 进程沙箱、Firefox, systemd 服务单元、Docker&#x2F;containerd 的容器运行时）的核心组件之一。它与其他机制（如 Namespaces, Capabilities, SELinux&#x2F;AppArmor）协同工作，构建纵深防御。</li>
+</ol>
+<p><strong>关键特点与注意事项：</strong></p>
+<ul>
+<li><strong>进程粒度：</strong> 过滤器应用于单个进程及其后代（直到 <code>execve</code>）。</li>
+<li><strong>不可逆性 (严格模式下)：</strong> 一旦通过 <code>prctl</code>&#x2F;<code>seccomp</code> 进入 <code>SECCOMP_MODE_FILTER</code>，进程自身通常无法移除或放宽过滤器（这是设计的安全特性）。子进程继承过滤器。</li>
+<li><strong><code>execve</code> 的影响：</strong> 调用 <code>execve</code> 加载新程序后，新程序<strong>继承</strong>父进程的 seccomp 过滤器状态（如果父进程设置了 <code>SECCOMP_FILTER_FLAG_TSYNC</code> 或类似标志，线程也会同步）。新程序可以在其初始化阶段选择应用<strong>更严格</strong>的过滤器（但不能移除或放宽继承来的过滤器）。</li>
+<li><strong>性能：</strong> seccomp-bpf 的 BPF 过滤器经过高度优化（JIT编译），性能开销通常很低（&lt;1%），使其适用于高性能场景。</li>
+<li><strong>复杂性：</strong> 正确设计和维护一个安全的 seccomp 策略（BPF程序）需要深入了解应用程序行为和 Linux 系统调用。错误的策略可能导致合法应用功能失效。</li>
+<li><strong>与 Namespaces&#x2F;Capabilities 协同：</strong> seccomp 专注于限制 <em>系统调用接口</em>。它通常与：<ul>
+<li><strong>Namespaces：</strong> 限制进程的视图（网络、挂载点、PID 等）。</li>
+<li><strong>Capabilities：</strong> 拆分 root 特权为细粒度单元。<br>结合使用，共同构建强大的隔离环境。</li>
+</ul>
+</li>
+</ul>
+<p><strong>总结：</strong></p>
+<p>Linux seccomp（特别是 seccomp-bpf）是一种强大的内核级安全机制，它允许进程主动限制自己及其子进程所能使用的系统调用。通过加载一个用 BPF 编写的自定义过滤器程序，进程可以精确控制哪些系统调用被允许执行，哪些会被阻止并触发终止或错误。这种强制性的最小权限策略是构建安全沙箱、容器和强化应用程序抵御攻击的关键技术，通过显著缩小内核暴露给潜在恶意代码的攻击面来提升系统整体安全性。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/867e568.html">http://helloeuler.cn/posts/867e568.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/be316e27.html" title="中断上下文中调用pfn_to_page和phys_to_pfn"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">中断上下文中调用pfn_to_page和phys_to_pfn</div></div></a></div><div class="next-post pull-right"><a href="/posts/284d5ce1.html" title="Linux查找全局可写文件命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux查找全局可写文件命令</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

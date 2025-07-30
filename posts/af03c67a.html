@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux UCE中断处理流程 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux UCE中断入口 在 Linux 内核中，UCE (Uncorrectable Error) 中断（更准确地说是异常）通常指的是由硬件报告的无法纠正的严重错误，最常见的是内存 ECC (Error Correcting Code) 不可纠正错误或总线不可纠正错误。这些错误表明硬件发生了致命故障，通常无法安全地继续执行。 处理这类错误的入口点在内核中称为MCE (Machine Check">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux UCE中断处理流程">
+<meta property="og:url" content="http://helloeuler.cn/posts/af03c67a.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux UCE中断入口 在 Linux 内核中，UCE (Uncorrectable Error) 中断（更准确地说是异常）通常指的是由硬件报告的无法纠正的严重错误，最常见的是内存 ECC (Error Correcting Code) 不可纠正错误或总线不可纠正错误。这些错误表明硬件发生了致命故障，通常无法安全地继续执行。 处理这类错误的入口点在内核中称为MCE (Machine Check">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.746Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/af03c67a.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux UCE中断处理流程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux UCE中断处理流程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-24T16:00:00.000Z" title="发表于 2025-06-25 00:00:00">2025-06-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux UCE中断处理流程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux UCE中断入口</p>
+<p>在 Linux 内核中，<strong>UCE (Uncorrectable Error)</strong> 中断（更准确地说是<strong>异常</strong>）通常指的是由硬件报告的无法纠正的严重错误，最常见的是<strong>内存 ECC (Error Correcting Code) 不可纠正错误</strong>或<strong>总线不可纠正错误</strong>。这些错误表明硬件发生了致命故障，通常无法安全地继续执行。</p>
+<p>处理这类错误的入口点在内核中称为<strong>MCE (Machine Check Exception) 处理路径</strong>。UCE 是 MCE 的一种类型（严重等级最高）。</p>
+<p>以下是 Linux 内核处理 UCE 的核心入口点流程（以 x86&#x2F;x86_64 架构为例）：</p>
+<ol>
+<li><p><strong>硬件触发：</strong></p>
+<ul>
+<li>当 CPU 检测到或接收到来自其他硬件组件（如内存控制器、PCIe 设备）报告的不可纠正错误时，会触发一个**机器检查异常 (Machine Check Exception)**。在 x86 上，这个异常对应的中断向量号是 <strong>#18</strong>。</li>
+</ul>
+</li>
+<li><p><strong>汇编入口点 (<code>entry_INT18</code>):</strong></p>
+<ul>
+<li>内核在初始化时，通过<strong>中断描述符表 (IDT)</strong> 将向量 <code>18</code> 关联到特定的汇编入口点函数。在 x86_64 内核中，这个函数通常命名为 <code>entry_INT18</code> (定义在 <code>arch/x86/entry/entry_64.S</code> 或类似路径)。</li>
+<li>这个汇编代码的主要职责是：<ul>
+<li><strong>保存现场：</strong> 极其小心地保存当前 CPU 的寄存器状态到内核栈上。由于此时系统状态可能已经严重损坏（尤其是在 UCE 的情况下），保存操作需要尽可能避免依赖潜在损坏的内存或缓存。</li>
+<li><strong>切换栈：</strong> 如果必要，切换到更安全的内核栈（如 MCE 专用栈）。</li>
+<li><strong>设置环境：</strong> 准备执行 C 语言处理函数所需的环境。</li>
+<li><strong>调用 C 语言处理程序：</strong> 跳转到主要的 MCE 处理 C 函数。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>C 语言处理入口 (<code>do_machine_check</code>):</strong></p>
+<ul>
+<li>汇编入口最终会调用核心的 C 语言处理函数 <code>do_machine_check()</code> (定义在 <code>arch/x86/kernel/cpu/mce/core.c</code> 或类似路径)。</li>
+<li><strong><code>do_machine_check(struct pt_regs *regs, long error_code)</code></strong> 是处理 MCE（包括 UCE）的核心入口点。</li>
+<li>它的主要任务是：<ul>
+<li><strong>识别错误源：</strong> 读取 CPU 上的一组特定**机器检查寄存器 (Machine Check Registers - <code>IA32_MCi_STATUS</code> 等)**。这些寄存器详细记录了错误发生的 Bank、地址、类型、严重性等信息。</li>
+<li><strong>错误分类：</strong><ul>
+<li><strong>可纠正错误 (CE - Corrected Error)：</strong> 硬件已自动修复的错误（如单比特 ECC 错误）。记录日志即可。</li>
+<li><strong>可处理&#x2F;未确定错误：</strong> 需要进一步分析或可能部分恢复的错误。</li>
+<li><strong>不可纠正错误 (UCE - Uncorrectable Error)：</strong> 硬件无法自动修复的致命错误（如多比特 ECC 错误、奇偶校验错误、总线协议错误等）。<strong>这是最严重的情况，通常意味着系统无法安全继续运行。</strong></li>
+</ul>
+</li>
+<li><strong>处理 UCE (关键步骤)：</strong><ul>
+<li><strong>日志记录：</strong> 尽最大可能将详细的错误信息（CPU、Bank、地址、类型、严重性等）记录到内核日志 (<code>dmesg</code>) 和 <code>/dev/mcelog</code> 字符设备（如果配置了）或更新的 <code>tracefs</code>&#x2F;<code>rasdaemon</code> 等机制中。这对于后续诊断硬件故障至关重要。</li>
+<li><strong>进程关联：</strong> 尝试判断发生错误时正在执行的进程（通过检查保存的 <code>%rip</code> 寄存器），并将该进程标记为已因硬件错误而终止 (<code>SIGBUS</code> with <code>BUS_MCEERR_AO</code> or <code>BUS_MCEERR_AR</code>)。</li>
+<li><strong>内存页标记&#x2F;卸载：</strong> 如果错误与特定的物理内存页相关，内核会尝试通过内存故障通知链将该页标记为 “Poisoned” (有毒页)，并通知可能映射了该页的用户态进程（通过 <code>SIGBUS</code>）。<strong>然而，对于 UCE，这个操作通常发生在系统即将崩溃之前，且不一定能成功完成，因为系统状态可能已经极度不稳定。</strong></li>
+<li><strong>紧急处理 - <code>mce_panic()</code>：</strong> <strong>这是 UCE 处理的最终也是最关键的一步。</strong> 因为 UCE 意味着硬件存在无法恢复的致命错误，继续执行可能导致数据损坏、安全漏洞或不可预测的行为。<code>do_machine_check()</code> 在识别到 UCE 后，最终会调用 <code>mce_panic()</code> 函数。<ul>
+<li><code>mce_panic()</code> 会：<ul>
+<li>尝试打印最后的错误信息和堆栈跟踪（如果可能）。</li>
+<li>调用 <code>emergency_restart()</code> 或直接触发内核崩溃 (<code>panic()</code>)，导致系统立即停止运行。内核崩溃转储机制（如 kdump）可能会被触发以保存崩溃时的内存映像，用于事后分析。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结 UCE 中断的关键入口点：</strong></p>
+<ol>
+<li><strong>硬件中断向量 #18 (Machine Check Exception)</strong></li>
+<li><strong>汇编入口：</strong> <code>entry_INT18</code> (或类似名称，在 <code>arch/x86/entry/entry_64.S</code>)</li>
+<li><strong>核心 C 入口：</strong> <code>do_machine_check()</code> (在 <code>arch/x86/kernel/cpu/mce/core.c</code>)</li>
+<li><strong>UCE 致命处理：</strong> <code>mce_panic()</code> -&gt; <code>panic()</code> 或 <code>emergency_restart()</code> (导致系统崩溃或重启)</li>
+</ol>
+<p><strong>关键点：</strong></p>
+<ul>
+<li>UCE 通过 MCE 机制处理。</li>
+<li><code>do_machine_check()</code> 是分析错误严重性的核心 C 函数。</li>
+<li><strong>检测到 UCE 后，内核的首要目标是安全地记录错误信息，然后尽快使系统崩溃 (<code>panic</code>)，以防止数据损坏或更严重的后果。</strong> 这是 UCE 处理与大多数其他可恢复中断&#x2F;异常的根本区别。</li>
+<li>实际行为可能受内核配置选项影响（如 <code>CONFIG_X86_MCE</code>, <code>CONFIG_X86_MCE_THRESHOLD</code>, <code>CONFIG_X86_MCE_AMD</code>, <code>CONFIG_X86_MCE_INTEL</code>, <code>panic_on_oops</code>, <code>panic_on_unrecovered_nmi</code> 等）。</li>
+<li>其他架构（如 ARM、PowerPC）也有类似的机制（如 ARM 的 SEA&#x2F;SEI，PPC 的 Machine Check），但具体的汇编入口点和 C 函数名称会不同，原理类似：记录错误-&gt;尝试恢复&#x2F;隔离-&gt;若为致命错误则触发系统崩溃。</li>
+</ul>
+<p>因此，当你遇到由 UCE 触发的系统崩溃时，查看内核日志 (<code>dmesg</code>) 或 <code>/var/log/messages</code> 中 <code>do_machine_check</code> 和 <code>mce_panic</code> 输出的错误信息是诊断底层硬件（尤其是内存、CPU、主板）故障的关键。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/af03c67a.html">http://helloeuler.cn/posts/af03c67a.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/1f8b94b8.html" title="Linux查看进程动态库方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux查看进程动态库方法总结</div></div></a></div><div class="next-post pull-right"><a href="/posts/3b0ac819.html" title="Linux限定函数执行时间方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux限定函数执行时间方法总结</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

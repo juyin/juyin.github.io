@@ -1,0 +1,502 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>sscanf函数用法及注意事项详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="sscanf函数用法及使用注意事项 sscanf 函数是 C 标准库中用于从字符串中读取格式化输入的函数。其功能类似于 scanf，但数据源是字符串而非标准输入。以下是其用法详解及注意事项：  一、函数原型1int sscanf(const char *str, const char *format, ...);  参数： str：输入源字符串。 format：格式化字符串，定义如何解析输入。 .">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sscanf函数用法及注意事项详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/22c19659.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="sscanf函数用法及使用注意事项 sscanf 函数是 C 标准库中用于从字符串中读取格式化输入的函数。其功能类似于 scanf，但数据源是字符串而非标准输入。以下是其用法详解及注意事项：  一、函数原型1int sscanf(const char *str, const char *format, ...);  参数： str：输入源字符串。 format：格式化字符串，定义如何解析输入。 .">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-04-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.716Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/22c19659.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'sscanf函数用法及注意事项详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">sscanf函数用法及注意事项详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-04-13T16:00:00.000Z" title="发表于 2025-04-14 00:00:00">2025-04-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="sscanf函数用法及注意事项详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>sscanf函数用法及使用注意事项</p>
+<p><code>sscanf</code> 函数是 C 标准库中用于从字符串中读取格式化输入的函数。其功能类似于 <code>scanf</code>，但数据源是字符串而非标准输入。以下是其用法详解及注意事项：</p>
+<hr>
+<h3 id="一、函数原型"><a href="#一、函数原型" class="headerlink" title="一、函数原型"></a><strong>一、函数原型</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">sscanf</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str, <span class="type">const</span> <span class="type">char</span> *format, ...)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数</strong>：<ul>
+<li><code>str</code>：输入源字符串。</li>
+<li><code>format</code>：格式化字符串，定义如何解析输入。</li>
+<li><code>...</code>：可变参数列表，用于接收解析后的数据。</li>
+</ul>
+</li>
+<li><strong>返回值</strong>：成功匹配并赋值的参数个数，若失败返回 <code>EOF</code>。</li>
+</ul>
+<hr>
+<h3 id="二、基本用法"><a href="#二、基本用法" class="headerlink" title="二、基本用法"></a><strong>二、基本用法</strong></h3><h4 id="1-简单解析"><a href="#1-简单解析" class="headerlink" title="1. 简单解析"></a>1. 简单解析</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> str[] = <span class="string">&quot;Alice 25 95.5&quot;</span>;</span><br><span class="line"><span class="type">char</span> name[<span class="number">20</span>];</span><br><span class="line"><span class="type">int</span> age;</span><br><span class="line"><span class="type">float</span> score;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> ret = <span class="built_in">sscanf</span>(str, <span class="string">&quot;%s %d %f&quot;</span>, name, &amp;age, &amp;score);</span><br><span class="line"><span class="comment">// 结果：name=&quot;Alice&quot;, age=25, score=95.5，返回值 ret=3</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-处理分隔符"><a href="#2-处理分隔符" class="headerlink" title="2. 处理分隔符"></a>2. 处理分隔符</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> data[] = <span class="string">&quot;2023-08-31&quot;</span>;</span><br><span class="line"><span class="type">int</span> year, month, day;</span><br><span class="line"><span class="built_in">sscanf</span>(data, <span class="string">&quot;%d-%d-%d&quot;</span>, &amp;year, &amp;month, &amp;day);</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-使用-匹配字符集合"><a href="#3-使用-匹配字符集合" class="headerlink" title="3. 使用 %[] 匹配字符集合"></a>3. 使用 <code>%[]</code> 匹配字符集合</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> line[] = <span class="string">&quot;Name: Bob; Age: 30&quot;</span>;</span><br><span class="line"><span class="type">char</span> name[<span class="number">10</span>];</span><br><span class="line"><span class="type">int</span> age;</span><br><span class="line"><span class="built_in">sscanf</span>(line, <span class="string">&quot;Name: %9[^;]; Age: %d&quot;</span>, name, &amp;age); <span class="comment">// 读取直到分号的名字</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-使用-n-记录已解析字符数"><a href="#4-使用-n-记录已解析字符数" class="headerlink" title="4. 使用 %n 记录已解析字符数"></a>4. 使用 <code>%n</code> 记录已解析字符数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> pos;</span><br><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;1234abcd&quot;</span>, <span class="string">&quot;%d%n&quot;</span>, &amp;num, &amp;pos); <span class="comment">// pos=4，表示数字部分占4字符</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、注意事项"><a href="#三、注意事项" class="headerlink" title="三、注意事项"></a><strong>三、注意事项</strong></h3><h4 id="1-参数类型匹配"><a href="#1-参数类型匹配" class="headerlink" title="1. 参数类型匹配"></a>1. <strong>参数类型匹配</strong></h4><ul>
+<li><p>格式说明符必须与参数类型严格对应：</p>
+<ul>
+<li><code>%d</code> → <code>int*</code></li>
+<li><code>%f</code> → <code>float*</code></li>
+<li><code>%lf</code> → <code>double*</code></li>
+<li><code>%s</code> → <code>char*</code>（字符数组）</li>
+<li><code>%c</code> → <code>char*</code>（不跳过空白字符）</li>
+</ul>
+<p><strong>错误示例</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> d;</span><br><span class="line"><span class="built_in">sscanf</span>(str, <span class="string">&quot;%f&quot;</span>, &amp;d); <span class="comment">// 错误！应用 %lf</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="2-缓冲区溢出防护"><a href="#2-缓冲区溢出防护" class="headerlink" title="2. 缓冲区溢出防护"></a>2. <strong>缓冲区溢出防护</strong></h4><ul>
+<li>使用 <code>%s</code> 或 <code>%[]</code> 时，需指定最大宽度防止溢出：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buf[<span class="number">10</span>];</span><br><span class="line"><span class="built_in">sscanf</span>(input, <span class="string">&quot;%9s&quot;</span>, buf); <span class="comment">// 最多读取9字符，保留空间给 &#x27;\0&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-返回值检查"><a href="#3-返回值检查" class="headerlink" title="3. 返回值检查"></a>3. <strong>返回值检查</strong></h4><ul>
+<li>必须检查返回值以确认成功解析的参数数量：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">sscanf</span>(str, <span class="string">&quot;%d %f&quot;</span>, &amp;a, &amp;b) != <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="comment">// 处理错误</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="4-空白字符处理"><a href="#4-空白字符处理" class="headerlink" title="4. 空白字符处理"></a>4. <strong>空白字符处理</strong></h4><ul>
+<li><code>%s</code> 会跳过前导空白字符，读取到下一个空白字符为止。</li>
+<li><code>%c</code> 会读取任意字符（包括空白符）。若需跳过空白，可用 <code>&quot; %c&quot;</code>（注意空格）。</li>
+</ul>
+<h4 id="5-精确匹配"><a href="#5-精确匹配" class="headerlink" title="5. 精确匹配"></a>5. <strong>精确匹配</strong></h4><ul>
+<li>格式字符串中的非格式字符（如逗号、冒号）需与输入严格匹配：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;10,20&quot;</span>, <span class="string">&quot;%d,%d&quot;</span>, &amp;a, &amp;b); <span class="comment">// 正确</span></span><br><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;10 20&quot;</span>, <span class="string">&quot;%d,%d&quot;</span>, &amp;a, &amp;b); <span class="comment">// 失败，逗号不匹配</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="6-特殊格式说明符"><a href="#6-特殊格式说明符" class="headerlink" title="6. 特殊格式说明符"></a>6. <strong>特殊格式说明符</strong></h4><ul>
+<li><code>%i</code>：自动检测进制（如 <code>0x</code> 开头为十六进制）。</li>
+<li><code>%x</code>：十六进制数。</li>
+<li><code>%[^,]</code>：读取直到逗号前的所有字符。</li>
+<li><code>%n</code>：不消耗输入，仅记录已处理的字符数。</li>
+</ul>
+<hr>
+<h3 id="四、常见错误及解决"><a href="#四、常见错误及解决" class="headerlink" title="四、常见错误及解决"></a><strong>四、常见错误及解决</strong></h3><ol>
+<li><p><strong>类型不匹配导致未定义行为</strong>  </p>
+<ul>
+<li>确保格式说明符与变量类型一致，如 <code>double</code> 必须用 <code>%lf</code>。</li>
+</ul>
+</li>
+<li><p><strong>忽略返回值导致使用未初始化变量</strong>  </p>
+<ul>
+<li>始终检查返回值，避免使用未成功赋值的变量。</li>
+</ul>
+</li>
+<li><p><strong>未限制输入宽度引发缓冲区溢出</strong>  </p>
+<ul>
+<li>对字符串使用 <code>%&lt;width&gt;s</code> 或 <code>%&lt;width&gt;[]</code>。</li>
+</ul>
+</li>
+<li><p><strong>错误处理分隔符</strong>  </p>
+<ul>
+<li>若输入格式不固定，可先用 <code>strtok</code> 分割字符串再解析。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a><strong>五、总结</strong></h3><p><code>sscanf</code> 是强大的字符串解析工具，但需谨慎处理以下问题：</p>
+<ul>
+<li>严格匹配类型与格式说明符。</li>
+<li>防护缓冲区溢出。</li>
+<li>检查返回值。</li>
+<li>处理特殊字符和格式。</li>
+</ul>
+<p>通过合理使用，可高效解析复杂字符串数据。</p>
+<p>fgets函数用法及注意事项</p>
+<p><code>fgets</code> 是 C 标准库中用于从文件流（如标准输入、文件）中读取一行字符串的函数。它比 <code>gets</code> 更安全，因为可以指定缓冲区大小，防止溢出。以下是其用法详解及注意事项：</p>
+<hr>
+<h3 id="一、函数原型-1"><a href="#一、函数原型-1" class="headerlink" title="一、函数原型"></a><strong>一、函数原型</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> *<span class="title function_">fgets</span><span class="params">(<span class="type">char</span> *str, <span class="type">int</span> n, FILE *stream)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数</strong>：<ul>
+<li><code>str</code>：存储读取内容的字符数组（缓冲区）。</li>
+<li><code>n</code>：缓冲区的大小（最多读取 <code>n-1</code> 个字符，最后补 <code>\0</code>）。</li>
+<li><code>stream</code>：输入流（如 <code>stdin</code> 表示标准输入，或文件指针）。</li>
+</ul>
+</li>
+<li><strong>返回值</strong>：<ul>
+<li>成功：返回 <code>str</code> 的地址。</li>
+<li>失败或读到文件末尾：返回 <code>NULL</code>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="二、基本用法-1"><a href="#二、基本用法-1" class="headerlink" title="二、基本用法"></a><strong>二、基本用法</strong></h3><h4 id="1-从标准输入读取一行"><a href="#1-从标准输入读取一行" class="headerlink" title="1. 从标准输入读取一行"></a>1. 从标准输入读取一行</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buffer[<span class="number">100</span>];</span><br><span class="line"><span class="keyword">if</span> (fgets(buffer, <span class="keyword">sizeof</span>(buffer), <span class="built_in">stdin</span>) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="comment">// 成功读取到输入</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;输入内容: %s&quot;</span>, buffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-从文件读取内容"><a href="#2-从文件读取内容" class="headerlink" title="2. 从文件读取内容"></a>2. 从文件读取内容</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">FILE *fp = fopen(<span class="string">&quot;data.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (fp != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="type">char</span> line[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">while</span> (fgets(line, <span class="keyword">sizeof</span>(line), fp) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, line);</span><br><span class="line">    &#125;</span><br><span class="line">    fclose(fp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-处理换行符"><a href="#3-处理换行符" class="headerlink" title="3. 处理换行符"></a>3. 处理换行符</h4><p><code>fgets</code> 会读取换行符（如用户按回车键的 <code>\n</code>）并存入缓冲区：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：<span class="string">&quot;Hello\n&quot;</span></span><br><span class="line">缓冲区内容：<span class="string">&#x27;H&#x27;</span>,<span class="string">&#x27;e&#x27;</span>,<span class="string">&#x27;l&#x27;</span>,<span class="string">&#x27;l&#x27;</span>,<span class="string">&#x27;o&#x27;</span>,<span class="string">&#x27;\n&#x27;</span>,<span class="string">&#x27;\0&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、注意事项-1"><a href="#三、注意事项-1" class="headerlink" title="三、注意事项"></a><strong>三、注意事项</strong></h3><h4 id="1-缓冲区溢出防护"><a href="#1-缓冲区溢出防护" class="headerlink" title="1. 缓冲区溢出防护"></a>1. <strong>缓冲区溢出防护</strong></h4><ul>
+<li><code>fgets</code> 保证最多读取 <code>n-1</code> 个字符，并在末尾自动补 <code>\0</code>。</li>
+<li><strong>正确示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buf[<span class="number">5</span>];</span><br><span class="line">fgets(buf, <span class="keyword">sizeof</span>(buf), <span class="built_in">stdin</span>); <span class="comment">// 最多读4字符（如 &quot;abcd&quot; → &quot;abcd\0&quot;）</span></span><br></pre></td></tr></table></figure></li>
+<li>**对比 <code>gets</code>**：<br><code>gets</code> 已被弃用，因为它无法限制读取长度，极易导致溢出。</li>
+</ul>
+<h4 id="2-处理换行符"><a href="#2-处理换行符" class="headerlink" title="2. 处理换行符"></a>2. <strong>处理换行符</strong></h4><ul>
+<li>如果输入行的长度小于缓冲区大小，<code>fgets</code> 会将换行符 <code>\n</code> 存入缓冲区。</li>
+<li>如果需要去除换行符：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">buffer[<span class="built_in">strcspn</span>(buffer, <span class="string">&quot;\n&quot;</span>)] = <span class="string">&#x27;\0&#x27;</span>; <span class="comment">// 找到 `\n` 并替换为 `\0`</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-返回值检查-1"><a href="#3-返回值检查-1" class="headerlink" title="3. 返回值检查"></a>3. <strong>返回值检查</strong></h4><ul>
+<li>必须检查返回值是否为 <code>NULL</code>，否则可能操作未初始化的缓冲区：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (fgets(buffer, <span class="keyword">sizeof</span>(buffer), <span class="built_in">stdin</span>) == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="comment">// 处理错误或文件结束（如用户按 Ctrl+D）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="4-输入流的残留内容"><a href="#4-输入流的残留内容" class="headerlink" title="4. 输入流的残留内容"></a>4. <strong>输入流的残留内容</strong></h4><ul>
+<li>当 <code>fgets</code> 与其他输入函数（如 <code>scanf</code>）混用时，若 <code>scanf</code> 残留换行符在输入缓冲区，会导致 <code>fgets</code> 直接读到空行。</li>
+<li><strong>解决方法</strong>：清空输入缓冲区：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> c;</span><br><span class="line"><span class="keyword">while</span> ((c = getchar()) != <span class="string">&#x27;\n&#x27;</span> &amp;&amp; c != EOF); <span class="comment">// 清空直到换行符或文件末尾</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="5-读取不完整行"><a href="#5-读取不完整行" class="headerlink" title="5. 读取不完整行"></a>5. <strong>读取不完整行</strong></h4><ul>
+<li>如果一行的长度超过缓冲区大小，<code>fgets</code> 会截断输入，剩余字符留在输入流中等待下次读取。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">输入：<span class="string">&quot;123456789\n&quot;</span></span><br><span class="line">缓冲区大小：<span class="number">5</span></span><br><span class="line">第一次读取：<span class="string">&quot;1234\0&quot;</span>（剩余 <span class="string">&quot;56789\n&quot;</span> 在输入流中）</span><br><span class="line">第二次读取：<span class="string">&quot;5678\0&quot;</span>（剩余 <span class="string">&quot;9\n&quot;</span>）</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="四、常见错误及解决-1"><a href="#四、常见错误及解决-1" class="headerlink" title="四、常见错误及解决"></a><strong>四、常见错误及解决</strong></h3><h4 id="1-未处理换行符"><a href="#1-未处理换行符" class="headerlink" title="1. 未处理换行符"></a>1. <strong>未处理换行符</strong></h4><ul>
+<li><strong>错误现象</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> name[<span class="number">20</span>];</span><br><span class="line">fgets(name, <span class="keyword">sizeof</span>(name), <span class="built_in">stdin</span>);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;Name: %s&quot;</span>, name); <span class="comment">// 输出会包含换行符</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>解决</strong>：使用 <code>strcspn</code> 或手动替换 <code>\n</code>。</li>
+</ul>
+<h4 id="2-忽略返回值导致未初始化数据"><a href="#2-忽略返回值导致未初始化数据" class="headerlink" title="2. 忽略返回值导致未初始化数据"></a>2. <strong>忽略返回值导致未初始化数据</strong></h4><ul>
+<li><strong>错误示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buf[<span class="number">100</span>];</span><br><span class="line">fgets(buf, <span class="keyword">sizeof</span>(buf), <span class="built_in">stdin</span>); <span class="comment">// 未检查返回值</span></span><br><span class="line"><span class="comment">// 若读到 NULL，buf 可能为随机值</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>解决</strong>：始终检查返回值是否为 <code>NULL</code>。</li>
+</ul>
+<h4 id="3-缓冲区大小错误"><a href="#3-缓冲区大小错误" class="headerlink" title="3. 缓冲区大小错误"></a>3. <strong>缓冲区大小错误</strong></h4><ul>
+<li><strong>错误示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buf[<span class="number">10</span>];</span><br><span class="line">fgets(buf, <span class="number">20</span>, <span class="built_in">stdin</span>); <span class="comment">// n 超过缓冲区实际大小，导致溢出</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>解决</strong>：使用 <code>sizeof(buf)</code> 动态指定大小。</li>
+</ul>
+<h4 id="4-与-scanf-混用时未清空缓冲区"><a href="#4-与-scanf-混用时未清空缓冲区" class="headerlink" title="4. 与 scanf 混用时未清空缓冲区"></a>4. <strong>与 <code>scanf</code> 混用时未清空缓冲区</strong></h4><ul>
+<li><strong>错误现象</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> age;</span><br><span class="line"><span class="type">char</span> name[<span class="number">20</span>];</span><br><span class="line"><span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, &amp;age);      <span class="comment">// 用户输入 &quot;30\n&quot;，但 `\n` 留在缓冲区</span></span><br><span class="line">fgets(name, <span class="number">20</span>, <span class="built_in">stdin</span>); <span class="comment">// 直接读到 &quot;\n&quot;，name 为空</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>解决</strong>：在 <code>scanf</code> 后清空缓冲区（见上文注意事项 4）。</li>
+</ul>
+<hr>
+<h3 id="五、总结-1"><a href="#五、总结-1" class="headerlink" title="五、总结"></a><strong>五、总结</strong></h3><p><code>fgets</code> 是安全读取字符串的首选函数，但需注意以下问题：</p>
+<ol>
+<li><strong>始终指定缓冲区大小</strong>，防止溢出。</li>
+<li><strong>处理换行符</strong>（如使用 <code>strcspn</code>）。</li>
+<li><strong>检查返回值</strong>，避免操作未初始化数据。</li>
+<li><strong>注意输入流的残留内容</strong>，必要时清空缓冲区。</li>
+</ol>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>读取用户输入（替代不安全的 <code>gets</code>）。</li>
+<li>逐行读取文件内容。</li>
+<li>需要安全控制输入长度的场景。</li>
+</ul>
+<p>strcspn用法及注意事项</p>
+<p>服务器繁忙，请稍后再试。</p>
+<p>strcspn用法及注意事项</p>
+<p>服务器繁忙，请稍后再试。</p>
+<p>strcspn用法及注意事项</p>
+<p><code>strcspn</code> 是 C 标准库中用于计算字符串中连续不包含特定字符集合的字符长度的函数。它在字符串处理中常用于查找分隔符、过滤非法字符或截断字符串。以下是其用法详解及注意事项：</p>
+<hr>
+<h3 id="一、函数原型-2"><a href="#一、函数原型-2" class="headerlink" title="一、函数原型"></a><strong>一、函数原型</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">size_t</span> <span class="title function_">strcspn</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str, <span class="type">const</span> <span class="type">char</span> *reject)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数</strong>：<ul>
+<li><code>str</code>：待扫描的源字符串。</li>
+<li><code>reject</code>：包含目标字符集合的字符串（任意一个字符匹配即停止）。</li>
+</ul>
+</li>
+<li><strong>返回值</strong>：<ul>
+<li>返回 <code>str</code> 中从开头开始，连续<strong>不包含</strong> <code>reject</code> 中任意字符的最大子串长度。</li>
+<li>若 <code>str</code> 开头就包含 <code>reject</code> 中的字符，返回 <code>0</code>。</li>
+<li>若 <code>str</code> 中完全不包含 <code>reject</code> 中的字符，返回 <code>str</code> 的长度（即 <code>\0</code> 前的位置）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="二、基本用法-2"><a href="#二、基本用法-2" class="headerlink" title="二、基本用法"></a><strong>二、基本用法</strong></h3><h4 id="1-查找首个分隔符位置"><a href="#1-查找首个分隔符位置" class="headerlink" title="1. 查找首个分隔符位置"></a>1. 查找首个分隔符位置</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> str[] = <span class="string">&quot;hello-world;example&quot;</span>;</span><br><span class="line"><span class="type">size_t</span> pos = <span class="built_in">strcspn</span>(str, <span class="string">&quot;-;&quot;</span>); <span class="comment">// 查找 &#x27;-&#x27; 或 &#x27;;&#x27; 的位置</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;位置: %zu\n&quot;</span>, pos);      <span class="comment">// 输出: 5（&#x27;hello&#x27; 后是 &#x27;-&#x27;）</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-截断字符串到首个非法字符"><a href="#2-截断字符串到首个非法字符" class="headerlink" title="2. 截断字符串到首个非法字符"></a>2. 截断字符串到首个非法字符</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> input[] = <span class="string">&quot;user@123#data&quot;</span>;</span><br><span class="line"><span class="type">size_t</span> valid_len = <span class="built_in">strcspn</span>(input, <span class="string">&quot;@#&quot;</span>); <span class="comment">// 找到 &#x27;@&#x27; 或 &#x27;#&#x27; 的位置</span></span><br><span class="line">input[valid_len] = <span class="string">&#x27;\0&#x27;</span>;                 <span class="comment">// 截断字符串为 &quot;user&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-处理换行符（常见用途）"><a href="#3-处理换行符（常见用途）" class="headerlink" title="3. 处理换行符（常见用途）"></a>3. 处理换行符（常见用途）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buffer[<span class="number">100</span>];</span><br><span class="line">fgets(buffer, <span class="keyword">sizeof</span>(buffer), <span class="built_in">stdin</span>);</span><br><span class="line">buffer[<span class="built_in">strcspn</span>(buffer, <span class="string">&quot;\n&quot;</span>)] = <span class="string">&#x27;\0&#x27;</span>; <span class="comment">// 去掉换行符</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、注意事项-2"><a href="#三、注意事项-2" class="headerlink" title="三、注意事项"></a><strong>三、注意事项</strong></h3><h4 id="1-参数有效性"><a href="#1-参数有效性" class="headerlink" title="1. 参数有效性"></a>1. <strong>参数有效性</strong></h4><ul>
+<li><code>str</code> 和 <code>reject</code> 必须是以 <code>\0</code> 结尾的有效字符串。</li>
+<li><strong>危险示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> *str = <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">size_t</span> len = <span class="built_in">strcspn</span>(str, <span class="string">&quot;abc&quot;</span>); <span class="comment">// 未定义行为（段错误）</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="2-返回值处理"><a href="#2-返回值处理" class="headerlink" title="2. 返回值处理"></a>2. <strong>返回值处理</strong></h4><ul>
+<li>返回值类型为 <code>size_t</code>（无符号整数），不可直接与负数比较。</li>
+<li>若需判断是否找到目标字符：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">size_t</span> pos = <span class="built_in">strcspn</span>(str, <span class="string">&quot;xyz&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (pos &lt; <span class="built_in">strlen</span>(str)) &#123;</span><br><span class="line">    <span class="comment">// 找到了目标字符</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 未找到</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-目标字符集合"><a href="#3-目标字符集合" class="headerlink" title="3. 目标字符集合"></a>3. <strong>目标字符集合</strong></h4><ul>
+<li><code>reject</code> 是一个字符集合，函数会检查 <code>str</code> 中的字符是否属于该集合。</li>
+<li>若 <code>reject</code> 为空字符串，函数返回 <code>0</code>（因为任何字符都不属于空集合）。</li>
+</ul>
+<h4 id="4-性能问题"><a href="#4-性能问题" class="headerlink" title="4. 性能问题"></a>4. <strong>性能问题</strong></h4><ul>
+<li><code>strcspn</code> 的时间复杂度为 O(n*m)，其中 <code>n</code> 是 <code>str</code> 的长度，<code>m</code> 是 <code>reject</code> 的长度。</li>
+<li>若 <code>reject</code> 的字符集合很大，可能影响性能。可改用 <code>strpbrk</code> 直接返回指针：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> *p = <span class="built_in">strpbrk</span>(str, <span class="string">&quot;abc&quot;</span>); <span class="comment">// 返回首个匹配字符的指针</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="5-与-strspn-的区别"><a href="#5-与-strspn-的区别" class="headerlink" title="5. 与 strspn 的区别"></a>5. <strong>与 <code>strspn</code> 的区别</strong></h4><ul>
+<li><code>strspn(str, accept)</code>：计算 <code>str</code> 中连续<strong>包含</strong> <code>accept</code> 中字符的最大子串长度。</li>
+<li><code>strcspn(str, reject)</code>：计算 <code>str</code> 中连续<strong>不包含</strong> <code>reject</code> 中字符的最大子串长度。</li>
+</ul>
+<hr>
+<h3 id="四、常见错误及解决-2"><a href="#四、常见错误及解决-2" class="headerlink" title="四、常见错误及解决"></a><strong>四、常见错误及解决</strong></h3><h4 id="1-未处理未找到目标字符的情况"><a href="#1-未处理未找到目标字符的情况" class="headerlink" title="1. 未处理未找到目标字符的情况"></a>1. <strong>未处理未找到目标字符的情况</strong></h4><ul>
+<li><strong>错误示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> str[] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line"><span class="type">size_t</span> pos = <span class="built_in">strcspn</span>(str, <span class="string">&quot;@&quot;</span>);</span><br><span class="line">str[pos] = <span class="string">&#x27;\0&#x27;</span>; <span class="comment">// 若未找到，pos = 5，str[5] 是 &#x27;\0&#x27;，操作无意义但合法</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>解决</strong>：通常无需额外处理，直接赋值 <code>\0</code> 是安全的。</li>
+</ul>
+<h4 id="2-混淆-strcspn-和-strspn"><a href="#2-混淆-strcspn-和-strspn" class="headerlink" title="2. 混淆 strcspn 和 strspn"></a>2. <strong>混淆 <code>strcspn</code> 和 <code>strspn</code></strong></h4><ul>
+<li><strong>错误示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 错误：本意是查找非数字字符的位置</span></span><br><span class="line"><span class="type">size_t</span> pos = <span class="built_in">strspn</span>(str, <span class="string">&quot;0123456789&quot;</span>); <span class="comment">// 实际是查找连续数字的长度</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>正确</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">size_t</span> pos = <span class="built_in">strcspn</span>(str, <span class="string">&quot;0123456789&quot;</span>); <span class="comment">// 查找首个非数字字符的位置</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-处理二进制数据"><a href="#3-处理二进制数据" class="headerlink" title="3. 处理二进制数据"></a>3. <strong>处理二进制数据</strong></h4><ul>
+<li><code>strcspn</code> 只能处理以 <code>\0</code> 结尾的字符串。若用于二进制数据（如含 <code>\0</code> 的内容），需改用 <code>memchr</code> 等函数。</li>
+</ul>
+<hr>
+<h3 id="五、总结-2"><a href="#五、总结-2" class="headerlink" title="五、总结"></a><strong>五、总结</strong></h3><p><code>strcspn</code> 的核心用途是<strong>查找字符串中首个出现在指定字符集合中的字符的位置</strong>。其常见场景包括：</p>
+<ul>
+<li>分割字符串（如解析 CSV、去除换行符）。</li>
+<li>校验字符串格式（如查找非法字符）。</li>
+<li>截断字符串到特定分隔符。</li>
+</ul>
+<p><strong>关键注意事项</strong>：</p>
+<ol>
+<li>确保参数是有效字符串（非 <code>NULL</code> 且以 <code>\0</code> 结尾）。</li>
+<li>理解 <code>strcspn</code> 与 <code>strspn</code> 的区别。</li>
+<li>处理返回值时注意边界条件（如未找到目标字符）。</li>
+</ol>
+<p>sscanf函数用法及注意事项</p>
+<p><code>sscanf</code> 是 C 标准库中用于从字符串中按指定格式解析数据的函数，类似于 <code>scanf</code>，但输入源是字符串而非标准输入。它在处理复杂字符串解析时非常灵活，但也需要谨慎使用以避免常见问题。以下是详细用法及注意事项：</p>
+<hr>
+<h3 id="一、函数原型-3"><a href="#一、函数原型-3" class="headerlink" title="一、函数原型"></a><strong>一、函数原型</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">sscanf</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str, <span class="type">const</span> <span class="type">char</span> *format, ...)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数</strong>：<ul>
+<li><code>str</code>：待解析的源字符串。</li>
+<li><code>format</code>：格式化字符串，定义如何解析输入。</li>
+<li><code>...</code>：可变参数列表，用于接收解析后的数据（必须为指针类型）。</li>
+</ul>
+</li>
+<li><strong>返回值</strong>：<ul>
+<li>成功匹配并赋值的参数个数。</li>
+<li>若输入与格式不匹配或错误，返回 <code>EOF</code>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="二、基本用法-3"><a href="#二、基本用法-3" class="headerlink" title="二、基本用法"></a><strong>二、基本用法</strong></h3><h4 id="1-简单解析-1"><a href="#1-简单解析-1" class="headerlink" title="1. 简单解析"></a>1. 简单解析</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> input[] = <span class="string">&quot;John 25 95.5&quot;</span>;</span><br><span class="line"><span class="type">char</span> name[<span class="number">20</span>];</span><br><span class="line"><span class="type">int</span> age;</span><br><span class="line"><span class="type">float</span> score;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> num = <span class="built_in">sscanf</span>(input, <span class="string">&quot;%s %d %f&quot;</span>, name, &amp;age, &amp;score);</span><br><span class="line"><span class="comment">// name = &quot;John&quot;, age = 25, score = 95.5，num = 3</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-处理特定分隔符"><a href="#2-处理特定分隔符" class="headerlink" title="2. 处理特定分隔符"></a>2. 处理特定分隔符</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> date[] = <span class="string">&quot;2023-08-31&quot;</span>;</span><br><span class="line"><span class="type">int</span> year, month, day;</span><br><span class="line"><span class="built_in">sscanf</span>(date, <span class="string">&quot;%d-%d-%d&quot;</span>, &amp;year, &amp;month, &amp;day);</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-跳过不需要的字符"><a href="#3-跳过不需要的字符" class="headerlink" title="3. 跳过不需要的字符"></a>3. 跳过不需要的字符</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> data[] = <span class="string">&quot;Value: 1234&quot;</span>;</span><br><span class="line"><span class="type">int</span> value;</span><br><span class="line"><span class="built_in">sscanf</span>(data, <span class="string">&quot;Value: %d&quot;</span>, &amp;value); <span class="comment">// 直接跳过 &quot;Value: &quot;，读取数字</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-限制读取宽度（防止溢出）"><a href="#4-限制读取宽度（防止溢出）" class="headerlink" title="4. 限制读取宽度（防止溢出）"></a>4. 限制读取宽度（防止溢出）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> str[] = <span class="string">&quot;abcdefghijk&quot;</span>;</span><br><span class="line"><span class="type">char</span> buf[<span class="number">5</span>];</span><br><span class="line"><span class="built_in">sscanf</span>(str, <span class="string">&quot;%4s&quot;</span>, buf); <span class="comment">// 只读4字符，buf = &quot;abcd\0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、高级用法"><a href="#三、高级用法" class="headerlink" title="三、高级用法"></a><strong>三、高级用法</strong></h3><h4 id="1-使用-匹配字符集合"><a href="#1-使用-匹配字符集合" class="headerlink" title="1. 使用 %[] 匹配字符集合"></a>1. 使用 <code>%[]</code> 匹配字符集合</h4><ul>
+<li><strong>读取特定字符</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> line[] = <span class="string">&quot;Name: Alice; Age: 30&quot;</span>;</span><br><span class="line"><span class="type">char</span> name[<span class="number">20</span>];</span><br><span class="line"><span class="built_in">sscanf</span>(line, <span class="string">&quot;Name: %19[^;];&quot;</span>, name); <span class="comment">// 读取直到分号的内容</span></span><br><span class="line"><span class="comment">// name = &quot;Alice&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>排除特定字符</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;hello123&quot;</span>, <span class="string">&quot;%[^0-9]&quot;</span>, name); <span class="comment">// 读取到第一个数字前，name = &quot;hello&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="2-使用-n-记录已解析的字符数"><a href="#2-使用-n-记录已解析的字符数" class="headerlink" title="2. 使用 %n 记录已解析的字符数"></a>2. 使用 <code>%n</code> 记录已解析的字符数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> input[] = <span class="string">&quot;12345abcde&quot;</span>;</span><br><span class="line"><span class="type">int</span> num, pos;</span><br><span class="line"><span class="built_in">sscanf</span>(input, <span class="string">&quot;%d%n&quot;</span>, &amp;num, &amp;pos); <span class="comment">// pos = 5（解析了5个字符）</span></span><br><span class="line"><span class="comment">// num = 12345，剩余字符串为 &quot;abcde&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-组合使用多个格式符"><a href="#3-组合使用多个格式符" class="headerlink" title="3. 组合使用多个格式符"></a>3. 组合使用多个格式符</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> <span class="built_in">log</span>[] = <span class="string">&quot;[ERROR] 2023-08-31: Invalid input&quot;</span>;</span><br><span class="line"><span class="type">char</span> level[<span class="number">10</span>], message[<span class="number">50</span>];</span><br><span class="line"><span class="type">int</span> year, month, day;</span><br><span class="line"><span class="built_in">sscanf</span>(<span class="built_in">log</span>, <span class="string">&quot;[%9[^]]] %d-%d-%d: %49[^\n]&quot;</span>, level, &amp;year, &amp;month, &amp;day, message);</span><br><span class="line"><span class="comment">// level = &quot;ERROR&quot;, year=2023, month=8, day=31, message=&quot;Invalid input&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a><strong>四、注意事项</strong></h3><h4 id="1-类型严格匹配"><a href="#1-类型严格匹配" class="headerlink" title="1. 类型严格匹配"></a>1. <strong>类型严格匹配</strong></h4><ul>
+<li><p>格式说明符必须与参数类型严格对应：</p>
+<ul>
+<li><code>%d</code> → <code>int*</code></li>
+<li><code>%f</code> → <code>float*</code></li>
+<li><code>%lf</code> → <code>double*</code></li>
+<li><code>%s</code> → <code>char*</code>（字符数组）</li>
+<li><code>%c</code> → <code>char*</code>（不跳过空白字符）</li>
+</ul>
+<p><strong>错误示例</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> d;</span><br><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;3.14&quot;</span>, <span class="string">&quot;%f&quot;</span>, &amp;d); <span class="comment">// 错误！应用 %lf</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="2-缓冲区溢出防护-1"><a href="#2-缓冲区溢出防护-1" class="headerlink" title="2. 缓冲区溢出防护"></a>2. <strong>缓冲区溢出防护</strong></h4><ul>
+<li>使用 <code>%s</code> 或 <code>%[]</code> 时，必须指定最大宽度（如 <code>%9s</code>），确保不超过缓冲区大小。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buf[<span class="number">10</span>];</span><br><span class="line"><span class="built_in">sscanf</span>(input, <span class="string">&quot;%9s&quot;</span>, buf); <span class="comment">// 最多读9字符，保留1字节给 &#x27;\0&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-返回值检查-2"><a href="#3-返回值检查-2" class="headerlink" title="3. 返回值检查"></a>3. <strong>返回值检查</strong></h4><ul>
+<li>必须检查返回值以确认成功解析的参数数量：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">sscanf</span>(str, <span class="string">&quot;%d %f&quot;</span>, &amp;a, &amp;b) != <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="comment">// 处理错误（如输入格式不匹配）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="4-空白字符处理-1"><a href="#4-空白字符处理-1" class="headerlink" title="4. 空白字符处理"></a>4. <strong>空白字符处理</strong></h4><ul>
+<li><code>%s</code> 会跳过前导空白字符（如空格、换行），读取到下一个空白字符为止。</li>
+<li><code>%c</code> 会读取任意字符（包括空白符）。若需跳过前导空白，可添加空格：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;   A&quot;</span>, <span class="string">&quot; %c&quot;</span>, &amp;ch); <span class="comment">// ch = &#x27;A&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="5-严格匹配非格式字符"><a href="#5-严格匹配非格式字符" class="headerlink" title="5. 严格匹配非格式字符"></a>5. <strong>严格匹配非格式字符</strong></h4><ul>
+<li>格式字符串中的普通字符（如逗号、冒号）必须与输入完全匹配：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;10,20&quot;</span>, <span class="string">&quot;%d,%d&quot;</span>, &amp;a, &amp;b); <span class="comment">// 正确</span></span><br><span class="line"><span class="built_in">sscanf</span>(<span class="string">&quot;10 20&quot;</span>, <span class="string">&quot;%d,%d&quot;</span>, &amp;a, &amp;b); <span class="comment">// 失败，返回1（只解析了a）</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="6-处理剩余输入"><a href="#6-处理剩余输入" class="headerlink" title="6. 处理剩余输入"></a>6. <strong>处理剩余输入</strong></h4><ul>
+<li>若需多次解析同一字符串，可利用 <code>%n</code> 记录已解析的位置：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> input[] = <span class="string">&quot;123 456 789&quot;</span>;</span><br><span class="line"><span class="type">int</span> a, b, c, pos1, pos2;</span><br><span class="line"><span class="built_in">sscanf</span>(input, <span class="string">&quot;%d%n %d%n %d&quot;</span>, &amp;a, &amp;pos1, &amp;b, &amp;pos2, &amp;c);</span><br><span class="line"><span class="comment">// pos1 = 3（&quot;123&quot;占3字符），pos2 = 7（&quot;123 456&quot;占7字符）</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="五、常见错误及解决"><a href="#五、常见错误及解决" class="headerlink" title="五、常见错误及解决"></a><strong>五、常见错误及解决</strong></h3><ol>
+<li><p><strong>类型不匹配导致未定义行为</strong>  </p>
+<ul>
+<li>确保格式符与变量类型一致，如 <code>double</code> 必须用 <code>%lf</code>。</li>
+</ul>
+</li>
+<li><p><strong>忽略返回值导致使用未初始化变量</strong>  </p>
+<ul>
+<li>始终检查返回值，避免操作未成功赋值的变量。</li>
+</ul>
+</li>
+<li><p><strong>未限制输入宽度引发缓冲区溢出</strong>  </p>
+<ul>
+<li>对字符串使用 <code>%&lt;width&gt;s</code> 或 <code>%&lt;width&gt;[]</code>。</li>
+</ul>
+</li>
+<li><p><strong>错误处理分隔符</strong>  </p>
+<ul>
+<li>若输入格式不固定，可先用 <code>strtok</code> 分割字符串再解析。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a><strong>六、总结</strong></h3><p><code>sscanf</code> 是强大的字符串解析工具，适合处理结构化数据（如日志、配置文件），但需注意：</p>
+<ul>
+<li><strong>严格类型匹配</strong>：避免未定义行为。</li>
+<li><strong>缓冲区安全</strong>：始终限制读取宽度。</li>
+<li><strong>错误处理</strong>：检查返回值，处理异常输入。</li>
+<li><strong>灵活使用格式符</strong>：如 <code>%[]</code>、<code>%n</code> 可处理复杂场景。</li>
+</ul>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>解析固定格式的字符串（如日期、日志）。</li>
+<li>从文本中提取数字、字符串或特定模式。</li>
+<li>替代简单的正则表达式功能（C语言中无原生正则支持）。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/22c19659.html">http://helloeuler.cn/posts/22c19659.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/e0d93d11.html" title="reallocarray函数用法及注意事项"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">reallocarray函数用法及注意事项</div></div></a></div><div class="next-post pull-right"><a href="/posts/3cac4149.html" title="检查和控制Linux内核地址随机化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">检查和控制Linux内核地址随机化</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-text">一、函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="toc-text">二、基本用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%AE%80%E5%8D%95%E8%A7%A3%E6%9E%90"><span class="toc-text">1. 简单解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%A4%84%E7%90%86%E5%88%86%E9%9A%94%E7%AC%A6"><span class="toc-text">2. 处理分隔符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BD%BF%E7%94%A8-%E5%8C%B9%E9%85%8D%E5%AD%97%E7%AC%A6%E9%9B%86%E5%90%88"><span class="toc-text">3. 使用 %[] 匹配字符集合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E4%BD%BF%E7%94%A8-n-%E8%AE%B0%E5%BD%95%E5%B7%B2%E8%A7%A3%E6%9E%90%E5%AD%97%E7%AC%A6%E6%95%B0"><span class="toc-text">4. 使用 %n 记录已解析字符数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">三、注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8F%82%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%8C%B9%E9%85%8D"><span class="toc-text">1. 参数类型匹配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E9%98%B2%E6%8A%A4"><span class="toc-text">2. 缓冲区溢出防护</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%BF%94%E5%9B%9E%E5%80%BC%E6%A3%80%E6%9F%A5"><span class="toc-text">3. 返回值检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E7%A9%BA%E7%99%BD%E5%AD%97%E7%AC%A6%E5%A4%84%E7%90%86"><span class="toc-text">4. 空白字符处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E7%B2%BE%E7%A1%AE%E5%8C%B9%E9%85%8D"><span class="toc-text">5. 精确匹配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E7%89%B9%E6%AE%8A%E6%A0%BC%E5%BC%8F%E8%AF%B4%E6%98%8E%E7%AC%A6"><span class="toc-text">6. 特殊格式说明符</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%8F%8A%E8%A7%A3%E5%86%B3"><span class="toc-text">四、常见错误及解决</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B-1"><span class="toc-text">一、函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95-1"><span class="toc-text">二、基本用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BB%8E%E6%A0%87%E5%87%86%E8%BE%93%E5%85%A5%E8%AF%BB%E5%8F%96%E4%B8%80%E8%A1%8C"><span class="toc-text">1. 从标准输入读取一行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BB%8E%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E5%86%85%E5%AE%B9"><span class="toc-text">2. 从文件读取内容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%A4%84%E7%90%86%E6%8D%A2%E8%A1%8C%E7%AC%A6"><span class="toc-text">3. 处理换行符</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">三、注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E9%98%B2%E6%8A%A4"><span class="toc-text">1. 缓冲区溢出防护</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%A4%84%E7%90%86%E6%8D%A2%E8%A1%8C%E7%AC%A6"><span class="toc-text">2. 处理换行符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%BF%94%E5%9B%9E%E5%80%BC%E6%A3%80%E6%9F%A5-1"><span class="toc-text">3. 返回值检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%BE%93%E5%85%A5%E6%B5%81%E7%9A%84%E6%AE%8B%E7%95%99%E5%86%85%E5%AE%B9"><span class="toc-text">4. 输入流的残留内容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E8%AF%BB%E5%8F%96%E4%B8%8D%E5%AE%8C%E6%95%B4%E8%A1%8C"><span class="toc-text">5. 读取不完整行</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%8F%8A%E8%A7%A3%E5%86%B3-1"><span class="toc-text">四、常见错误及解决</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9C%AA%E5%A4%84%E7%90%86%E6%8D%A2%E8%A1%8C%E7%AC%A6"><span class="toc-text">1. 未处理换行符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%BF%BD%E7%95%A5%E8%BF%94%E5%9B%9E%E5%80%BC%E5%AF%BC%E8%87%B4%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E6%95%B0%E6%8D%AE"><span class="toc-text">2. 忽略返回值导致未初始化数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%BC%93%E5%86%B2%E5%8C%BA%E5%A4%A7%E5%B0%8F%E9%94%99%E8%AF%AF"><span class="toc-text">3. 缓冲区大小错误</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E4%B8%8E-scanf-%E6%B7%B7%E7%94%A8%E6%97%B6%E6%9C%AA%E6%B8%85%E7%A9%BA%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="toc-text">4. 与 scanf 混用时未清空缓冲区</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93-1"><span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B-2"><span class="toc-text">一、函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95-2"><span class="toc-text">二、基本用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9F%A5%E6%89%BE%E9%A6%96%E4%B8%AA%E5%88%86%E9%9A%94%E7%AC%A6%E4%BD%8D%E7%BD%AE"><span class="toc-text">1. 查找首个分隔符位置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%88%AA%E6%96%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%88%B0%E9%A6%96%E4%B8%AA%E9%9D%9E%E6%B3%95%E5%AD%97%E7%AC%A6"><span class="toc-text">2. 截断字符串到首个非法字符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%A4%84%E7%90%86%E6%8D%A2%E8%A1%8C%E7%AC%A6%EF%BC%88%E5%B8%B8%E8%A7%81%E7%94%A8%E9%80%94%EF%BC%89"><span class="toc-text">3. 处理换行符（常见用途）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-2"><span class="toc-text">三、注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8F%82%E6%95%B0%E6%9C%89%E6%95%88%E6%80%A7"><span class="toc-text">1. 参数有效性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%BF%94%E5%9B%9E%E5%80%BC%E5%A4%84%E7%90%86"><span class="toc-text">2. 返回值处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%9B%AE%E6%A0%87%E5%AD%97%E7%AC%A6%E9%9B%86%E5%90%88"><span class="toc-text">3. 目标字符集合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98"><span class="toc-text">4. 性能问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E4%B8%8E-strspn-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">5. 与 strspn 的区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%8F%8A%E8%A7%A3%E5%86%B3-2"><span class="toc-text">四、常见错误及解决</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9C%AA%E5%A4%84%E7%90%86%E6%9C%AA%E6%89%BE%E5%88%B0%E7%9B%AE%E6%A0%87%E5%AD%97%E7%AC%A6%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-text">1. 未处理未找到目标字符的情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%B7%B7%E6%B7%86-strcspn-%E5%92%8C-strspn"><span class="toc-text">2. 混淆 strcspn 和 strspn</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%A4%84%E7%90%86%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%95%B0%E6%8D%AE"><span class="toc-text">3. 处理二进制数据</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93-2"><span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B-3"><span class="toc-text">一、函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95-3"><span class="toc-text">二、基本用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%AE%80%E5%8D%95%E8%A7%A3%E6%9E%90-1"><span class="toc-text">1. 简单解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%A4%84%E7%90%86%E7%89%B9%E5%AE%9A%E5%88%86%E9%9A%94%E7%AC%A6"><span class="toc-text">2. 处理特定分隔符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%B7%B3%E8%BF%87%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E5%AD%97%E7%AC%A6"><span class="toc-text">3. 跳过不需要的字符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E9%99%90%E5%88%B6%E8%AF%BB%E5%8F%96%E5%AE%BD%E5%BA%A6%EF%BC%88%E9%98%B2%E6%AD%A2%E6%BA%A2%E5%87%BA%EF%BC%89"><span class="toc-text">4. 限制读取宽度（防止溢出）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95"><span class="toc-text">三、高级用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8-%E5%8C%B9%E9%85%8D%E5%AD%97%E7%AC%A6%E9%9B%86%E5%90%88"><span class="toc-text">1. 使用 %[] 匹配字符集合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8-n-%E8%AE%B0%E5%BD%95%E5%B7%B2%E8%A7%A3%E6%9E%90%E7%9A%84%E5%AD%97%E7%AC%A6%E6%95%B0"><span class="toc-text">2. 使用 %n 记录已解析的字符数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8%E5%A4%9A%E4%B8%AA%E6%A0%BC%E5%BC%8F%E7%AC%A6"><span class="toc-text">3. 组合使用多个格式符</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">四、注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%B1%BB%E5%9E%8B%E4%B8%A5%E6%A0%BC%E5%8C%B9%E9%85%8D"><span class="toc-text">1. 类型严格匹配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E9%98%B2%E6%8A%A4-1"><span class="toc-text">2. 缓冲区溢出防护</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%BF%94%E5%9B%9E%E5%80%BC%E6%A3%80%E6%9F%A5-2"><span class="toc-text">3. 返回值检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E7%A9%BA%E7%99%BD%E5%AD%97%E7%AC%A6%E5%A4%84%E7%90%86-1"><span class="toc-text">4. 空白字符处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E4%B8%A5%E6%A0%BC%E5%8C%B9%E9%85%8D%E9%9D%9E%E6%A0%BC%E5%BC%8F%E5%AD%97%E7%AC%A6"><span class="toc-text">5. 严格匹配非格式字符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E5%A4%84%E7%90%86%E5%89%A9%E4%BD%99%E8%BE%93%E5%85%A5"><span class="toc-text">6. 处理剩余输入</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%8F%8A%E8%A7%A3%E5%86%B3"><span class="toc-text">五、常见错误及解决</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">六、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

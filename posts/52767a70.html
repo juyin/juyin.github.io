@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux mdev -s 设备节点初始化 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux mdev -s介绍 mdev 是 BusyBox 套件中提供的一个轻量级的 设备管理工具，主要用于嵌入式 Linux 系统或其他资源受限的环境。它的作用类似于标准的 udev，负责在 &#x2F;dev 目录下动态创建和删除设备节点文件（device nodes），以反映系统中实际存在的硬件设备。 mdev -s 是 mdev 命令的一个特定用法，通常在系统启动过程中执行，用于初始化 &#x2F;dev">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux mdev -s 设备节点初始化">
+<meta property="og:url" content="http://helloeuler.cn/posts/52767a70.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux mdev -s介绍 mdev 是 BusyBox 套件中提供的一个轻量级的 设备管理工具，主要用于嵌入式 Linux 系统或其他资源受限的环境。它的作用类似于标准的 udev，负责在 &#x2F;dev 目录下动态创建和删除设备节点文件（device nodes），以反映系统中实际存在的硬件设备。 mdev -s 是 mdev 命令的一个特定用法，通常在系统启动过程中执行，用于初始化 &#x2F;dev">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.739Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/52767a70.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux mdev -s 设备节点初始化',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux mdev -s 设备节点初始化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-06T16:00:00.000Z" title="发表于 2025-06-07 00:00:00">2025-06-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux mdev -s 设备节点初始化"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux mdev -s介绍</p>
+<p><code>mdev</code> 是 <strong>BusyBox</strong> 套件中提供的一个轻量级的 <strong>设备管理工具</strong>，主要用于嵌入式 Linux 系统或其他资源受限的环境。它的作用类似于标准的 <code>udev</code>，负责在 <code>/dev</code> 目录下动态创建和删除设备节点文件（device nodes），以反映系统中实际存在的硬件设备。</p>
+<p><code>mdev -s</code> 是 <code>mdev</code> 命令的一个<strong>特定用法</strong>，通常在<strong>系统启动过程中执行</strong>，用于<strong>初始化 <code>/dev</code> 目录</strong>。</p>
+<h3 id="mdev-s-的作用详解"><a href="#mdev-s-的作用详解" class="headerlink" title="mdev -s 的作用详解"></a><code>mdev -s</code> 的作用详解</h3><ol>
+<li><p><strong>扫描 <code>/sys</code> 文件系统：</strong></p>
+<ul>
+<li><code>-s</code> 选项告诉 <code>mdev</code> 扫描整个 <code>/sys</code> 文件系统（通常挂载在 <code>/sys</code> 目录下）。</li>
+<li><code>/sys</code> 是一个虚拟文件系统，由内核提供，它以结构化的方式暴露了系统中所有设备、总线、驱动程序和内核模块的信息。每个设备在 <code>/sys</code> 下都有一个对应的目录，包含其属性（如设备号、厂商ID、产品ID等）。</li>
+</ul>
+</li>
+<li><p><strong>创建初始设备节点：</strong></p>
+<ul>
+<li>在扫描过程中，<code>mdev -s</code> 会遍历 <code>/sys</code> 目录树。</li>
+<li>对于 <code>/sys</code> 中发现的每一个具有 <code>dev</code> 属性的设备（<code>dev</code> 属性包含了设备的主设备号和次设备号，格式如 <code>254:0</code>），<code>mdev</code> 会：<ul>
+<li>在 <code>/dev</code> 目录下<strong>创建</strong>对应的设备节点文件（例如 <code>/dev/sda</code>, <code>/dev/ttyS0</code>, <code>/dev/input/event0</code> 等）。</li>
+<li>根据 <code>/sys</code> 中的信息（如设备类、子系统）和 <code>/etc/mdev.conf</code> 配置文件（如果存在），<strong>设置设备节点的权限</strong>（用户、组、读写权限）和<strong>所有权</strong>。</li>
+<li>根据 <code>/etc/mdev.conf</code> 中的规则，<strong>执行可能关联的命令</strong>（例如在设备出现时加载特定固件、创建符号链接等）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>解决启动依赖：</strong></p>
+<ul>
+<li>在系统启动的早期阶段（通常在挂载根文件系统之后、执行初始化脚本之前），<code>/dev</code> 目录通常是空的或者只包含一些最基本的静态设备节点（如 <code>/dev/console</code>, <code>/dev/null</code>）。</li>
+<li>许多关键的守护进程和初始化脚本需要访问特定的设备节点（如磁盘分区 <code>/dev/sda1</code>、串口 <code>/dev/ttyS0</code>、随机数生成器 <code>/dev/urandom</code> 等）才能正常启动。</li>
+<li><code>mdev -s</code> 在这个关键时刻运行，确保所有内核已经检测到的硬件设备在 <code>/dev</code> 下都有对应的、权限正确的设备节点可用，为后续启动步骤提供必要的设备访问能力。</li>
+</ul>
+</li>
+</ol>
+<h3 id="典型使用场景"><a href="#典型使用场景" class="headerlink" title="典型使用场景"></a>典型使用场景</h3><ul>
+<li><p><strong>系统启动脚本：</strong> 这是 <code>mdev -s</code> 最常见的地方。通常在 <code>/etc/inittab</code> 或者 <code>/etc/init.d/rcS</code> 这样的早期初始化脚本中调用。例如，在 BusyBox 的 <code>inittab</code> 中你可能会看到这样一行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">::sysinit:/bin/mdev -s</span><br></pre></td></tr></table></figure>
+<p>这确保了在系统进入多用户模式或运行其他初始化脚本之前，<code>/dev</code> 目录已经被正确填充。</p>
+</li>
+<li><p><strong>手动初始化 <code>/dev</code>：</strong> 如果你怀疑 <code>/dev</code> 目录下的设备节点不完整或损坏（例如在动态添加了许多设备之后），或者在一个非常规启动的环境中，可以手动以 root 身份运行 <code>mdev -s</code> 来重建 <code>/dev</code>。</p>
+</li>
+</ul>
+<h3 id="与-udev-的区别"><a href="#与-udev-的区别" class="headerlink" title="与 udev 的区别"></a>与 <code>udev</code> 的区别</h3><ul>
+<li><strong>轻量级：</strong> <code>mdev</code> 是 BusyBox 的一部分，设计目标是小巧、快速、占用资源少，非常适合嵌入式系统。</li>
+<li><strong>依赖 BusyBox：</strong> 需要 BusyBox 环境支持。</li>
+<li><strong>配置 (<code>/etc/mdev.conf</code>)：</strong> 规则语法比 <code>udev</code> 的规则文件简单，但功能也相对有限。</li>
+<li><strong>热插拔支持：</strong> <code>mdev</code> 也可以配置为响应内核的 <code>uevent</code>（通常在 <code>/proc/sys/kernel/hotplug</code> 设置为 <code>/sbin/mdev</code>），实现设备热插拔时动态创建设备节点（这是 <code>mdev</code> 不加 <code>-s</code> 时的默认行为）。<code>mdev -s</code> 则专注于启动时的静态初始化。</li>
+<li><strong>功能：</strong> <code>udev</code> 功能更强大、更复杂（持久化命名、更丰富的规则、集成 D-Bus 等），是现代桌面和服务器发行版的标准。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><code>mdev -s</code> 是嵌入式 Linux 系统中（特别是使用 BusyBox 的）一个<strong>关键的启动时命令</strong>。它的核心任务是：<strong>在系统启动早期，通过扫描 <code>/sys</code> 文件系统，在 <code>/dev</code> 目录下自动创建所有内核已识别设备的设备节点文件，并设置正确的权限和所有权。</strong> 这为后续的系统服务和应用程序访问硬件设备奠定了必要的基础。理解它在启动流程中的作用对于管理和调试嵌入式系统非常重要。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/52767a70.html">http://helloeuler.cn/posts/52767a70.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/1c5841c9.html" title="内核schedule_timeout_uninterruptible用法详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">内核schedule_timeout_uninterruptible用法详解</div></div></a></div><div class="next-post pull-right"><a href="/posts/6204afae.html" title="Mount -a Command Usage and Troubleshooting"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Mount -a Command Usage and Troubleshooting</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#mdev-s-%E7%9A%84%E4%BD%9C%E7%94%A8%E8%AF%A6%E8%A7%A3"><span class="toc-text">mdev -s 的作用详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">典型使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E-udev-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">与 udev 的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

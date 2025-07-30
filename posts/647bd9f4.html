@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>pfn_to_page函数使用注意事项总结 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="pfn_to_page函数使用注意事项 pfn_to_page 是 Linux 内核中一个极其基础且重要的宏&#x2F;函数（定义在 &lt;linux&#x2F;mm.h&gt; 或 &lt;linux&#x2F;pfn.h&gt; 中），用于将物理页帧号（Physical Frame Number, pfn）转换为其对应的 struct page 结构体的指针。这个结构体是内核管理物理内存页的核心数据结构。 正确">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pfn_to_page函数使用注意事项总结">
+<meta property="og:url" content="http://helloeuler.cn/posts/647bd9f4.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="pfn_to_page函数使用注意事项 pfn_to_page 是 Linux 内核中一个极其基础且重要的宏&#x2F;函数（定义在 &lt;linux&#x2F;mm.h&gt; 或 &lt;linux&#x2F;pfn.h&gt; 中），用于将物理页帧号（Physical Frame Number, pfn）转换为其对应的 struct page 结构体的指针。这个结构体是内核管理物理内存页的核心数据结构。 正确">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.753Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/647bd9f4.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'pfn_to_page函数使用注意事项总结',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">pfn_to_page函数使用注意事项总结</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-11T16:00:00.000Z" title="发表于 2025-07-12 00:00:00">2025-07-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="pfn_to_page函数使用注意事项总结"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>pfn_to_page函数使用注意事项</p>
+<p><code>pfn_to_page</code> 是 Linux 内核中一个<strong>极其基础且重要</strong>的宏&#x2F;函数（定义在 <code>&lt;linux/mm.h&gt;</code> 或 <code>&lt;linux/pfn.h&gt;</code> 中），用于将物理页帧号（Physical Frame Number, <code>pfn</code>）转换为其对应的 <code>struct page</code> 结构体的指针。这个结构体是内核管理物理内存页的核心数据结构。</p>
+<p>正确使用 <code>pfn_to_page</code> 至关重要，否则会导致内核崩溃、数据损坏或难以调试的内存错误。以下是其关键使用注意事项：</p>
+<ol>
+<li><p><strong>确保 <code>pfn</code> 是有效的且可用的：</strong></p>
+<ul>
+<li><strong>核心前提：</strong> 这是<strong>最重要</strong>的一点。传递给 <code>pfn_to_page</code> 的 <code>pfn</code> <strong>必须</strong>代表一个实际存在的、可被内核使用的物理内存页帧。</li>
+<li><strong>验证有效性：</strong> 在不确定 <code>pfn</code> 是否有效时，<strong>必须</strong>使用 <code>pfn_valid(pfn)</code> 进行验证。该函数检查 <code>pfn</code> 是否在系统物理内存映射范围内，并且不是位于内存空洞（<code>mem_map</code> 数组中无对应 <code>struct page</code>）中。</li>
+<li><strong>何时需要验证？</strong><ul>
+<li>当你处理的 <code>pfn</code> 来自用户空间、DMA 映射（尤其是 <code>dma_map_*</code> 可能返回 <code>DMA_MAPPING_ERROR</code> 时需检查）、硬件寄存器、不可信来源或跨越不同内存区域（如 ZONE_DMA, ZONE_NORMAL, ZONE_HIGHMEM）时。</li>
+<li>处理可能涉及内存热插拔（hotplug）的区域时。</li>
+<li>在使用 <code>virt_to_phys</code> 或类似机制转换虚拟地址得到的 <code>pfn</code> 时，<strong>必须确保该虚拟地址是有效的内核地址（如 <code>virt_addr_valid(addr)</code>）</strong>。直接转换用户空间地址或无效地址得到的 <code>pfn</code> 是无效的。</li>
+</ul>
+</li>
+<li><strong>典型安全用法：</strong><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> pfn = ...; <span class="comment">// 获取 pfn 的代码</span></span><br><span class="line"><span class="keyword">if</span> (pfn_valid(pfn)) &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span> =</span> pfn_to_page(pfn);</span><br><span class="line">    <span class="comment">// 安全地使用 page</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 处理无效 pfn 的情况（错误、跳过等）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>理解内存模型（<code>CONFIG_SPARSEMEM</code>, <code>CONFIG_FLATMEM</code>）：</strong></p>
+<ul>
+<li>内核支持不同的物理内存布局模型（稀疏内存 <code>SPARSEMEM</code> 是主流，尤其是大内存或带孔系统；平坦内存 <code>FLATMEM</code> 用于简单系统）。</li>
+<li><code>pfn_to_page</code> 的实现会根据编译时选择的模型而不同（例如，在 <code>SPARSEMEM</code> 下，它通过 <code>mem_section</code> 查找）。</li>
+<li><strong>开发者注意事项：</strong> 通常你不需要关心内部实现细节，但<strong>必须</strong>理解第 1 点（验证有效性）在任何模型下都适用。<code>pfn_valid</code> 的实现也与内存模型相关。</li>
+</ul>
+</li>
+<li><p><strong><code>ZONE_HIGHMEM</code> 的特殊性（如果配置）：</strong></p>
+<ul>
+<li>在 32 位系统启用 <code>CONFIG_HIGHMEM</code> 时，物理地址高于 <code>~896MB</code> 的内存被划为 <code>ZONE_HIGHMEM</code>。</li>
+<li><code>pfn_to_page</code> 对 <code>ZONE_HIGHMEM</code> 的页帧<strong>同样有效</strong>，它返回的是该页对应的 <code>struct page</code> 指针。</li>
+<li><strong>关键区别：</strong> <code>ZONE_HIGHMEM</code> 页的 <code>struct page</code> 对应的<strong>内核虚拟地址不是直接映射（directly mapped）</strong> 的。你不能直接用 <code>page_address(page)</code> 得到内核虚拟地址（该函数对 <code>HIGHMEM</code> 可能返回 <code>NULL</code>）。访问其内容需要使用 <code>kmap</code>, <code>kmap_atomic</code> 或 <code>kmap_local_page</code> 等函数建立临时映射。</li>
+<li><code>pfn_to_page</code> 本身不涉及虚拟地址映射，它只是获取管理该物理页的元数据结构。</li>
+</ul>
+</li>
+<li><p><strong><code>pfn</code> 的范围：</strong></p>
+<ul>
+<li><code>pfn</code> 的类型是 <code>unsigned long</code>。确保你处理 <code>pfn</code> 的代码能容纳系统中最大的物理页帧号。在 64 位系统上通常不是问题，但在 32 位系统处理非常大的物理内存（使用 <code>PAE</code>）时需要注意。</li>
+</ul>
+</li>
+<li><p><strong>内存热插拔（Memory Hotplug）：</strong></p>
+<ul>
+<li>如果系统支持内存热插拔（<code>CONFIG_MEMORY_HOTPLUG</code>），物理内存块可以在运行时添加或移除。</li>
+<li>当一个内存块被热移除时，其对应的 <code>pfn</code> 范围会变得无效，对应的 <code>struct page</code> 结构可能被回收或处于特殊状态。</li>
+<li><strong>注意事项：</strong><ul>
+<li>持有 <code>page</code> 指针的代码需要意识到该页所属的内存块可能被移除（通常通过引用计数 <code>get_page</code>&#x2F;<code>put_page</code> 或锁机制来防止）。</li>
+<li>在热移除后，使用之前获得的 <code>pfn</code> 或 <code>page</code> 指针是<strong>极其危险</strong>的，会导致崩溃。内核内部有机制（如 <code>offline_page</code>）来处理页的迁移和失效。</li>
+<li>用户代码（如驱动程序）应遵循内核提供的热插拔通知机制（如 <code>memory_block_action_notifiers</code>）来感知内存状态变化，并避免访问即将移除的内存。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>性能：</strong></p>
+<ul>
+<li><code>pfn_to_page</code> 通常被设计成非常高效的操作（在 <code>FLATMEM</code> 下是简单的数组索引；在 <code>SPARSEMEM</code> 下是查表）。它本身<strong>不涉及锁操作</strong>。频繁调用通常不是性能瓶颈。</li>
+</ul>
+</li>
+<li><p><strong>调试：</strong></p>
+<ul>
+<li>如果怀疑 <code>pfn_to_page</code> 返回了无效的 <code>page</code> 指针，可以通过 <code>dump_page(page, &quot;reason&quot;)</code> 来打印 <code>struct page</code> 的详细信息（需要 <code>CONFIG_DEBUG_VM</code>）。</li>
+<li>使用 <code>%pF</code> 或 <code>%px</code>（需谨慎，暴露内核地址）打印 <code>page</code> 指针有助于调试。</li>
+<li>首要检查点始终是 <code>pfn_valid(pfn)</code>。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结关键实践：</strong></p>
+<ol>
+<li><strong>强制验证：</strong> 对于任何来源不确定的 <code>pfn</code>，<strong>必须</strong>在使用 <code>pfn_to_page</code> 之前用 <code>pfn_valid(pfn)</code> 检查其有效性。</li>
+<li><strong>地址来源可靠：</strong> 如果 <code>pfn</code> 来自虚拟地址转换（<code>virt_to_phys</code> -&gt; <code>pfn</code>），<strong>必须</strong>确保原始虚拟地址是有效的内核地址（<code>virt_addr_valid</code>）。</li>
+<li><strong>区分映射：</strong> 记住 <code>pfn_to_page</code> 只给你 <code>struct page</code>。访问 <code>HIGHMEM</code> 页的内容需要额外的 <code>kmap</code> 操作。</li>
+<li><strong>警惕热插拔：</strong> 在支持热插拔的环境中，确保你持有 <code>page</code> 指针的期间，其对应的物理内存不会被移除（通过引用计数或通知机制）。</li>
+<li><strong>理解上下文：</strong> 清楚你正在处理的内存区域（Normal, DMA, HighMem）和其特性。</li>
+</ol>
+<p>遵循这些注意事项是编写稳定、可靠的内核内存管理代码的基础。忽略 <code>pfn</code> 有效性验证是导致内核 <code>oops</code> 的常见原因。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/647bd9f4.html">http://helloeuler.cn/posts/647bd9f4.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/e8311a0e.html" title="Linux UMH模块作用与机制解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux UMH模块作用与机制解析</div></div></a></div><div class="next-post pull-right"><a href="/posts/668bb861.html" title="seccomp接口用法及示例详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">seccomp接口用法及示例详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

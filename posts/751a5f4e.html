@@ -1,0 +1,584 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核抢占调度调用链分析 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核__local_bh_enable_ip到preempt_schedule函数的调用链 在 Linux 内核中，从 __local_bh_enable_ip() 到 preempt_schedule() 的调用链涉及底半部（Bottom Half）启用和内核抢占调度机制。以下是详细的调用链分析（基于 Linux 5.x 内核版本）：  核心调用链12345__local_bh_ena">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核抢占调度调用链分析">
+<meta property="og:url" content="http://helloeuler.cn/posts/751a5f4e.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核__local_bh_enable_ip到preempt_schedule函数的调用链 在 Linux 内核中，从 __local_bh_enable_ip() 到 preempt_schedule() 的调用链涉及底半部（Bottom Half）启用和内核抢占调度机制。以下是详细的调用链分析（基于 Linux 5.x 内核版本）：  核心调用链12345__local_bh_ena">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.740Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/751a5f4e.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核抢占调度调用链分析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核抢占调度调用链分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-08T16:00:00.000Z" title="发表于 2025-06-09 00:00:00">2025-06-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核抢占调度调用链分析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核__local_bh_enable_ip到preempt_schedule函数的调用链</p>
+<p>在 Linux 内核中，从 <code>__local_bh_enable_ip()</code> 到 <code>preempt_schedule()</code> 的调用链涉及底半部（Bottom Half）启用和内核抢占调度机制。以下是详细的调用链分析（基于 Linux 5.x 内核版本）：</p>
+<hr>
+<h3 id="核心调用链"><a href="#核心调用链" class="headerlink" title="核心调用链"></a><strong>核心调用链</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__local_bh_enable_ip()</span><br><span class="line">  → local_bh_enable()</span><br><span class="line">    → __local_bh_enable()</span><br><span class="line">      → preempt_check_resched()</span><br><span class="line">        → preempt_schedule()</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="详细步骤分析"><a href="#详细步骤分析" class="headerlink" title="详细步骤分析"></a><strong>详细步骤分析</strong></h3><h4 id="1-local-bh-enable-ip"><a href="#1-local-bh-enable-ip" class="headerlink" title="1. __local_bh_enable_ip()"></a>1. <strong><code>__local_bh_enable_ip()</code></strong></h4><ul>
+<li><strong>位置</strong>：<code>kernel/softirq.c</code></li>
+<li><strong>功能</strong>：启用底半部处理（软中断&#x2F;Tasklet），并处理未决的软中断。</li>
+<li><strong>关键逻辑</strong>：<ul>
+<li>减少当前任务的软中断禁用计数（<code>preempt_count</code> 中的软中断部分）。</li>
+<li>检查是否需要执行未决的软中断。</li>
+<li>调用 <code>__local_bh_enable()</code> 继续处理。</li>
+</ul>
+</li>
+</ul>
+   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __local_bh_enable_ip(<span class="type">unsigned</span> <span class="type">long</span> ip, <span class="type">unsigned</span> <span class="type">int</span> cnt)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ... 更新 preempt_count ...</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(!in_interrupt() &amp;&amp; local_softirq_pending()))</span><br><span class="line">        do_softirq(); <span class="comment">// 执行未决软中断</span></span><br><span class="line">    preempt_check_resched(); <span class="comment">// → 触发抢占检查</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-preempt-check-resched"><a href="#2-preempt-check-resched" class="headerlink" title="2. preempt_check_resched()"></a>2. <strong><code>preempt_check_resched()</code></strong></h4><ul>
+<li><strong>位置</strong>：<code>include/linux/preempt.h</code></li>
+<li><strong>功能</strong>：检查是否需要抢占当前任务。</li>
+<li><strong>关键逻辑</strong>：<ul>
+<li>检查 <code>TIF_NEED_RESCHED</code> 标志（是否需要重新调度）。</li>
+<li>如果允许抢占（<code>preempt_count() == 0</code>），则调用 <code>preempt_schedule()</code>。</li>
+</ul>
+</li>
+</ul>
+   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> preempt_check_resched() \</span></span><br><span class="line"><span class="meta">do &#123; \</span></span><br><span class="line"><span class="meta">    <span class="keyword">if</span> (unlikely(test_thread_flag(TIF_NEED_RESCHED))) \</span></span><br><span class="line"><span class="meta">        preempt_schedule(); \</span></span><br><span class="line"><span class="meta">&#125; while (0)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-preempt-schedule"><a href="#3-preempt-schedule" class="headerlink" title="3. preempt_schedule()"></a>3. <strong><code>preempt_schedule()</code></strong></h4><ul>
+<li><strong>位置</strong>：<code>kernel/sched/core.c</code></li>
+<li><strong>功能</strong>：主动触发内核抢占调度。</li>
+<li><strong>关键逻辑</strong>：<ul>
+<li>增加抢占计数器（标记进入抢占上下文）。</li>
+<li>调用 <code>__schedule()</code> 执行实际的任务切换。</li>
+<li>减少抢占计数器。</li>
+</ul>
+</li>
+</ul>
+   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">asmlinkage __visible <span class="type">void</span> __sched <span class="title function_">preempt_schedule</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        preempt_disable();</span><br><span class="line">        __schedule(<span class="literal">true</span>); <span class="comment">// 核心调度逻辑</span></span><br><span class="line">        preempt_enable();</span><br><span class="line">    &#125; <span class="keyword">while</span> (need_resched());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键机制说明"><a href="#关键机制说明" class="headerlink" title="关键机制说明"></a><strong>关键机制说明</strong></h3><ol>
+<li><p><strong>底半部启用</strong>：</p>
+<ul>
+<li><code>local_bh_disable()</code>&#x2F;<code>local_bh_enable()</code> 用于禁用&#x2F;启用软中断。</li>
+<li>启用时（<code>__local_bh_enable_ip()</code>），内核需检查是否有未决的软中断待处理。</li>
+</ul>
+</li>
+<li><p><strong>抢占触发条件</strong>：</p>
+<ul>
+<li>在启用底半部后，通过 <code>preempt_check_resched()</code> 检查调度标志。</li>
+<li>若满足以下条件，则触发 <code>preempt_schedule()</code>：<ul>
+<li><code>TIF_NEED_RESCHED</code> 被设置（例如：高优先级任务就绪）。</li>
+<li>抢占未被禁用（<code>preempt_count() == 0</code>）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>抢占调度</strong>：</p>
+<ul>
+<li><code>preempt_schedule()</code> 是内核主动调度的入口，最终调用 <code>__schedule()</code> 切换任务。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="场景示例"><a href="#场景示例" class="headerlink" title="场景示例"></a><strong>场景示例</strong></h3><p>假设以下事件序列：</p>
+<ol>
+<li>任务 A 调用 <code>local_bh_disable()</code> 禁用底半部。</li>
+<li>中断触发，唤醒高优先级任务 B（设置 <code>TIF_NEED_RESCHED</code>）。</li>
+<li>任务 A 调用 <code>local_bh_enable()</code> → 进入 <code>__local_bh_enable_ip()</code>。</li>
+<li>在 <code>preempt_check_resched()</code> 中检测到需调度，调用 <code>preempt_schedule()</code>。</li>
+<li>任务 A 被抢占，任务 B 开始执行。</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><ul>
+<li><strong>调用链</strong>：<br><code>__local_bh_enable_ip()</code> → <code>preempt_check_resched()</code> → <code>preempt_schedule()</code>  </li>
+<li><strong>意义</strong>：<br>在启用底半部时主动检查抢占，确保高优先级任务能及时响应，提升系统实时性。</li>
+</ul>
+<p>Linux内核中中断和抢占是否有关联</p>
+<p>是的，在 Linux 内核中，<strong>中断和抢占有密切的关联</strong>。它们共同构成了内核响应性和实时性的基础机制，主要通过以下方式相互影响：</p>
+<hr>
+<h3 id="1-中断是抢占的主要触发源"><a href="#1-中断是抢占的主要触发源" class="headerlink" title="1. 中断是抢占的主要触发源"></a>1. <strong>中断是抢占的主要触发源</strong></h3><p>中断处理程序（ISR）是设置抢占标志的主要场景：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 典型中断处理流程</span></span><br><span class="line">irq_handler()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 处理硬件中断</span></span><br><span class="line">    <span class="comment">// 2. 唤醒等待任务或设置调度标志</span></span><br><span class="line">    set_tsk_need_resched(current); <span class="comment">// 设置 TIF_NEED_RESCHED</span></span><br><span class="line">    <span class="comment">// 3. 退出中断处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>高优先级任务就绪</strong>：当中断唤醒高优先级任务时，会设置当前任务的 <code>TIF_NEED_RESCHED</code> 标志</li>
+<li><strong>时间片耗尽</strong>：定时器中断（<code>scheduler_tick()</code>）检查任务时间片，耗尽时设置抢占标志</li>
+</ul>
+<hr>
+<h3 id="2-中断返回路径触发抢占"><a href="#2-中断返回路径触发抢占" class="headerlink" title="2. 中断返回路径触发抢占"></a>2. <strong>中断返回路径触发抢占</strong></h3><p>内核在<strong>从中断返回</strong>的临界点检查抢占：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 中断返回路径 (arch/x86/entry/entry_64.S)</span></span><br><span class="line">ret_from_intr:</span><br><span class="line">    testl $X86_EFLAGS_IF, PT_EFLAGS(%rsp) <span class="comment">// 检查是否开中断</span></span><br><span class="line">    jz ret_intr <span class="comment">// 关中断则直接返回</span></span><br><span class="line">    call preempt_schedule_irq <span class="comment">// → 抢占检查核心</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果 <code>TIF_NEED_RESCHED</code> 被设置且抢占未被禁用，触发 <code>preempt_schedule_irq()</code></li>
+<li>这是内核抢占（Preemption）发生的关键时机</li>
+</ul>
+<hr>
+<h3 id="3-中断上下文与抢占的互斥"><a href="#3-中断上下文与抢占的互斥" class="headerlink" title="3. 中断上下文与抢占的互斥"></a>3. <strong>中断上下文与抢占的互斥</strong></h3><p>内核通过 <code>preempt_count</code> 实现三层保护：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">thread_info</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span>   preempt_count;  <span class="comment">// 格式: [抢占计数|软中断|硬中断]</span></span><br><span class="line">    <span class="comment">// 0x3000000 - 硬中断计数 (IRQ)</span></span><br><span class="line">    <span class="comment">// 0x0FF0000 - 软中断计数 (SoftIRQ)</span></span><br><span class="line">    <span class="comment">// 0x00000FF - 抢占计数 (Preempt)</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>进入中断时</strong>：<code>irq_enter()</code> 增加硬中断计数 → <strong>隐式禁止抢占</strong></li>
+<li><strong>退出中断时</strong>：<code>irq_exit()</code> 减少计数，当计数归零时触发软中断和抢占检查</li>
+</ul>
+<hr>
+<h3 id="4-底半部处理与抢占"><a href="#4-底半部处理与抢占" class="headerlink" title="4. 底半部处理与抢占"></a>4. <strong>底半部处理与抢占</strong></h3><p>软中断&#x2F;Tasklet 启用时是抢占触发点：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __local_bh_enable_ip(<span class="type">unsigned</span> <span class="type">long</span> ip, <span class="type">unsigned</span> <span class="type">int</span> cnt)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">if</span> (unlikely(!in_interrupt() &amp;&amp; local_softirq_pending()))</span><br><span class="line">        do_softirq(); <span class="comment">// 执行软中断</span></span><br><span class="line">    preempt_check_resched(); <span class="comment">// → 检查抢占 !!!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如您之前提到的调用链：<code>local_bh_enable()</code> → <code>preempt_check_resched()</code> → <code>preempt_schedule()</code></li>
+</ul>
+<hr>
+<h3 id="5-抢占对中断的影响"><a href="#5-抢占对中断的影响" class="headerlink" title="5. 抢占对中断的影响"></a>5. <strong>抢占对中断的影响</strong></h3><ul>
+<li><strong>中断延迟</strong>：当内核处于<strong>不可抢占区域</strong>（如自旋锁临界区）时：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">spin_lock(&amp;mylock);</span><br><span class="line">preempt_disable(); <span class="comment">// 实际在 spin_lock 中隐含</span></span><br><span class="line"><span class="comment">// 此期间即使有中断发生，抢占也会延迟到解锁后</span></span><br><span class="line">spin_unlock(&amp;mylock); <span class="comment">// 解锁时检查抢占</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>实时性保障</strong>：<code>CONFIG_PREEMPT_RT</code> 补丁通过将中断线程化，使得中断处理程序自身也可被抢占</li>
+</ul>
+<hr>
+<h3 id="关键关联总结"><a href="#关键关联总结" class="headerlink" title="关键关联总结"></a>关键关联总结</h3><table>
+<thead>
+<tr>
+<th>机制</th>
+<th>中断 → 抢占</th>
+<th>抢占 → 中断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>触发方向</strong></td>
+<td>中断是抢占的主要触发源</td>
+<td>抢占状态影响中断延迟</td>
+</tr>
+<tr>
+<td><strong>关键标志</strong></td>
+<td><code>TIF_NEED_RESCHED</code> 由中断设置</td>
+<td><code>preempt_count</code> 禁止抢占</td>
+</tr>
+<tr>
+<td><strong>执行点</strong></td>
+<td>中断返回路径、软中断启用点</td>
+<td>抢占临界区内延迟中断响应</td>
+</tr>
+<tr>
+<td><strong>实时性影响</strong></td>
+<td>决定调度响应速度</td>
+<td>决定最坏情况中断延迟(WCET)</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="典型场景"><a href="#典型场景" class="headerlink" title="典型场景"></a>典型场景</h3><ol>
+<li><p><strong>硬件中断</strong>：网卡收包中断</p>
+<ul>
+<li>ISR 快速处理 → 唤醒软中断 <code>NET_RX_SOFTIRQ</code></li>
+<li>中断返回前触发 <code>preempt_schedule_irq()</code></li>
+<li>若网络处理线程优先级高，立即抢占当前任务</li>
+</ul>
+</li>
+<li><p><strong>定时器中断</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">scheduler_tick() <span class="comment">// 由定时器中断调用</span></span><br><span class="line">&#123;</span><br><span class="line">    task_tick_fair(); <span class="comment">// 检查时间片</span></span><br><span class="line">    <span class="keyword">if</span> (should_resched(prev))</span><br><span class="line">        set_tsk_need_resched(prev); <span class="comment">// 标记需抢占</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>自旋锁临界区</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">spin_lock(&amp;db_lock);</span><br><span class="line"><span class="comment">// 此期间即使发生中断，抢占也会被延迟</span></span><br><span class="line">update_database(); </span><br><span class="line">spin_unlock(&amp;db_lock); <span class="comment">// 解锁时立即触发抢占检查</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>中断和抢占是 Linux 内核中<strong>深度耦合的核心机制</strong>：</p>
+<ol>
+<li>中断是抢占的<strong>触发引擎</strong>（通过设置调度标志）</li>
+<li>抢占是中断的<strong>执行结果</strong>（在中断返回路径实现）</li>
+<li>通过 <code>preempt_count</code> 实现<strong>原子性保护</strong>，协调两者关系</li>
+<li>共同保障系统的<strong>响应性</strong>（中断）和<strong>公平性</strong>（抢占）</li>
+</ol>
+<p>这种紧密关联是 Linux 实现实时性、高吞吐量的基础，尤其在服务器、实时系统和嵌入式领域至关重要。</p>
+<p>Linux内核中设置schedule_timeout_uninterruptible后调用软中断</p>
+<p>在 Linux 内核中，当设置了 <code>schedule_timeout_uninterruptible()</code> 后调用软中断，涉及到任务状态转换、超时机制和底半部处理的复杂交互。以下是详细分析：</p>
+<hr>
+<h3 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a><strong>核心流程</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">    A[调用 schedule_timeout_uninterruptible] --&gt; B[设置 TASK_UNINTERRUPTIBLE]</span><br><span class="line">    B --&gt; C[添加定时器到队列]</span><br><span class="line">    C --&gt; D[调用 schedule]</span><br><span class="line">    D --&gt; E[任务进入睡眠]</span><br><span class="line">    E --&gt; F[硬件中断发生]</span><br><span class="line">    F --&gt; G[ISR 触发软中断]</span><br><span class="line">    G --&gt; H[中断返回路径执行软中断]</span><br><span class="line">    H --&gt; I[软中断处理中唤醒任务?]</span><br><span class="line">    I --&gt;|是| J[修改任务状态为 TASK_RUNNING]</span><br><span class="line">    I --&gt;|否| K[定时器超时唤醒]</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键阶段分析"><a href="#关键阶段分析" class="headerlink" title="关键阶段分析"></a><strong>关键阶段分析</strong></h3><h4 id="1-schedule-timeout-uninterruptible-的作用"><a href="#1-schedule-timeout-uninterruptible-的作用" class="headerlink" title="1. schedule_timeout_uninterruptible() 的作用"></a>1. <strong><code>schedule_timeout_uninterruptible()</code> 的作用</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/time/timer.c</span></span><br><span class="line"><span class="type">signed</span> <span class="type">long</span> __sched <span class="title function_">schedule_timeout_uninterruptible</span><span class="params">(<span class="type">signed</span> <span class="type">long</span> timeout)</span></span><br><span class="line">&#123;</span><br><span class="line">    __set_current_state(TASK_UNINTERRUPTIBLE); <span class="comment">// 设置不可中断状态</span></span><br><span class="line">    <span class="keyword">return</span> schedule_timeout(timeout); <span class="comment">// 设置定时器并调度</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>任务状态</strong>：设置为 <code>TASK_UNINTERRUPTIBLE</code>，表示<strong>不响应信号</strong>的睡眠</li>
+<li><strong>超时机制</strong>：添加内核定时器，超时后自动唤醒任务</li>
+<li><strong>调度行为</strong>：调用 <code>schedule()</code> 主动让出 CPU</li>
+</ul>
+<h4 id="2-睡眠期间软中断触发"><a href="#2-睡眠期间软中断触发" class="headerlink" title="2. 睡眠期间软中断触发"></a>2. <strong>睡眠期间软中断触发</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 典型中断处理流程</span></span><br><span class="line">irq_handler()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">/* 1. 硬件中断处理 */</span></span><br><span class="line">    handle_hardirq();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 2. 触发软中断 */</span></span><br><span class="line">    raise_softirq(NET_RX_SOFTIRQ); <span class="comment">// 例如网卡收包</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 3. 中断退出路径 */</span></span><br><span class="line">    irq_exit();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>irq_exit()</code> 关键路径</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">irq_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!in_interrupt() &amp;&amp; local_softirq_pending())</span><br><span class="line">        invoke_softirq(); <span class="comment">// 执行软中断!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-软中断执行与任务唤醒"><a href="#3-软中断执行与任务唤醒" class="headerlink" title="3. 软中断执行与任务唤醒"></a>3. <strong>软中断执行与任务唤醒</strong></h4><p>在软中断处理中<strong>可能唤醒睡眠任务</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 例如网络收包软中断</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">net_rx_action</span><span class="params">(<span class="keyword">struct</span> softirq_action *h)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (!list_empty(&amp;<span class="built_in">queue</span>)) &#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">skb</span> =</span> dequeue_packet();</span><br><span class="line">        <span class="comment">/* 处理数据包... */</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 可能唤醒等待数据的任务</span></span><br><span class="line">        <span class="keyword">if</span> (skb-&gt;target_task-&gt;state == TASK_UNINTERRUPTIBLE)</span><br><span class="line">            wake_up_process(skb-&gt;target_task);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三种可能的唤醒场景"><a href="#三种可能的唤醒场景" class="headerlink" title="三种可能的唤醒场景"></a><strong>三种可能的唤醒场景</strong></h3><h4 id="场景1-软中断先于超时唤醒任务"><a href="#场景1-软中断先于超时唤醒任务" class="headerlink" title="场景1: 软中断先于超时唤醒任务"></a>场景1: <strong>软中断先于超时唤醒任务</strong></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant Task</span><br><span class="line">    participant Timer</span><br><span class="line">    participant SoftIRQ</span><br><span class="line">    </span><br><span class="line">    Task-&gt;&gt;Timer: 设置超时(100ms)</span><br><span class="line">    Task-&gt;&gt;Task: 进入UNINTERRUPTIBLE睡眠</span><br><span class="line">    Note over Task: 睡眠中...</span><br><span class="line">    SoftIRQ-&gt;&gt;SoftIRQ: 执行(50ms时)</span><br><span class="line">    SoftIRQ-&gt;&gt;Task: wake_up_process()</span><br><span class="line">    Task-&gt;&gt;Task: 状态→RUNNING</span><br><span class="line">    Timer-&gt;&gt;Timer: 超时(100ms)时任务已唤醒</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景2-超时先于软中断唤醒"><a href="#场景2-超时先于软中断唤醒" class="headerlink" title="场景2: 超时先于软中断唤醒"></a>场景2: <strong>超时先于软中断唤醒</strong></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant Task</span><br><span class="line">    participant Timer</span><br><span class="line">    participant SoftIRQ</span><br><span class="line">    </span><br><span class="line">    Task-&gt;&gt;Timer: 设置超时(100ms)</span><br><span class="line">    Task-&gt;&gt;Task: 进入UNINTERRUPTIBLE睡眠</span><br><span class="line">    Note over Task: 睡眠中...</span><br><span class="line">    Timer-&gt;&gt;Task: 超时唤醒(100ms)</span><br><span class="line">    Task-&gt;&gt;Task: 状态→RUNNING</span><br><span class="line">    SoftIRQ-&gt;&gt;SoftIRQ: 稍后执行(120ms)</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景3-软中断修改超时时间"><a href="#场景3-软中断修改超时时间" class="headerlink" title="场景3: 软中断修改超时时间"></a>场景3: <strong>软中断修改超时时间</strong></h4><p>某些驱动可能在软中断中<strong>动态调整超时</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例伪代码</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">softirq_handler</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (need_more_time) &#123;</span><br><span class="line">        mod_timer(&amp;task_timer, jiffies + NEW_TIMEOUT); <span class="comment">// 延长超时</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键注意事项"><a href="#关键注意事项" class="headerlink" title="关键注意事项"></a><strong>关键注意事项</strong></h3><ol>
+<li><p><strong>状态保护</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set_current_state(TASK_UNINTERRUPTIBLE);</span><br><span class="line"><span class="keyword">if</span> (!condition)</span><br><span class="line">    schedule_timeout(timeout);</span><br><span class="line"><span class="comment">// 唤醒后需重新检查条件!</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>软中断并发控制</strong>：</p>
+<ul>
+<li>软中断可能在不同 CPU 上并发执行</li>
+<li>对共享数据的访问需要锁保护：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">spin_lock_bh(&amp;lock); <span class="comment">// 同时禁止软中断</span></span><br><span class="line"><span class="comment">/* 访问共享数据 */</span></span><br><span class="line">spin_unlock_bh(&amp;lock);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>唤醒的原子性</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正确写法：防止唤醒丢失</span></span><br><span class="line">set_current_state(TASK_UNINTERRUPTIBLE);</span><br><span class="line">add_wait_queue(&amp;<span class="built_in">queue</span>, &amp;wait); <span class="comment">// 先加入等待队列</span></span><br><span class="line"><span class="keyword">if</span> (!condition)</span><br><span class="line">    schedule_timeout(timeout);</span><br><span class="line">remove_wait_queue(&amp;<span class="built_in">queue</span>, &amp;wait);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="性能影响"><a href="#性能影响" class="headerlink" title="性能影响"></a><strong>性能影响</strong></h3><ol>
+<li><p><strong>延迟抖动</strong>：</p>
+<ul>
+<li>软中断执行可能延迟超时唤醒</li>
+<li>实时系统需监控 <code>ksoftirqd</code> 线程负载</li>
+</ul>
+</li>
+<li><p><strong>负载均衡</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 监控软中断负载</span></span><br><span class="line">watch -n1 <span class="string">&#x27;cat /proc/softirqs&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>优先级反转风险</strong>：</p>
+<ul>
+<li>高优先级任务等待低优先级的软中断处理</li>
+<li><code>CONFIG_PREEMPT_RT</code> 通过线程化软中断缓解此问题</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a><strong>最佳实践</strong></h3><ol>
+<li><p><strong>短睡眠设计</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 避免长超时阻塞软中断</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHORT_TIMEOUT (HZ/10) <span class="comment">// 100ms</span></span></span><br><span class="line">schedule_timeout_uninterruptible(SHORT_TIMEOUT);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>混合等待机制</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (!condition) &#123;</span><br><span class="line">    set_current_state(TASK_UNINTERRUPTIBLE);</span><br><span class="line">    <span class="keyword">if</span> (schedule_timeout(timeout)) <span class="comment">// 超时返回非0</span></span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// 处理超时逻辑</span></span><br><span class="line">    <span class="comment">// 否则被软中断唤醒，重试</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>软中断优化</strong>：</p>
+<ul>
+<li>将耗时操作转移到工作队列</li>
+<li>使用 <code>tasklet_hi_schedule()</code> 赋予更高优先级</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>当 <code>schedule_timeout_uninterruptible()</code> 与软中断交互时：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>行为</th>
+<th>风险</th>
+<th>缓解措施</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>睡眠设置</strong></td>
+<td>设置不可中断状态+定时器</td>
+<td>死锁(若条件永远不满足)</td>
+<td>设置合理超时</td>
+</tr>
+<tr>
+<td><strong>软中断执行</strong></td>
+<td>可能在任意CPU异步执行</td>
+<td>唤醒竞争条件</td>
+<td>使用等待队列屏障</td>
+</tr>
+<tr>
+<td><strong>唤醒路径</strong></td>
+<td>软中断&#x2F;定时器均可唤醒</td>
+<td>虚假唤醒</td>
+<td>循环检查条件</td>
+</tr>
+<tr>
+<td><strong>超时处理</strong></td>
+<td>超时后强制唤醒</td>
+<td>可能错过有效事件</td>
+<td>记录超时标志</td>
+</tr>
+</tbody></table>
+<p>这种机制广泛用于：</p>
+<ol>
+<li>设备驱动等待硬件响应（如磁盘I&#x2F;O）</li>
+<li>网络协议栈等待数据包重组</li>
+<li>同步原语实现（如信号量超时等待）</li>
+</ol>
+<p>理解其交互原理对开发可靠的内核代码至关重要，尤其在实时系统和性能敏感场景中。</p>
+<p>Linux内核中计算sha256哈希值的接口</p>
+<p>在 Linux 内核中计算 SHA-256 哈希值主要通过内核的加密 API 实现。以下是完整的接口使用指南和实现细节：</p>
+<hr>
+<h3 id="1-核心接口和头文件"><a href="#1-核心接口和头文件" class="headerlink" title="1. 核心接口和头文件"></a>1. <strong>核心接口和头文件</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;crypto/hash.h&gt;</span>      <span class="comment">// 哈希操作核心头文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;crypto/sha.h&gt;</span>       <span class="comment">// SHA 算法特定定义</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/scatterlist.h&gt;</span> <span class="comment">// 分散/聚集列表支持</span></span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-关键数据结构"><a href="#2-关键数据结构" class="headerlink" title="2. 关键数据结构"></a>2. <strong>关键数据结构</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">crypto_shash</span> *<span class="title">tfm</span>;</span>      <span class="comment">// 转换对象（算法实例）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">shash_desc</span> *<span class="title">desc</span>;</span>       <span class="comment">// 操作描述符</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">scatterlist</span> <span class="title">sg</span>;</span>         <span class="comment">// 分散列表（用于处理非连续内存）</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-计算-SHA-256-的完整流程"><a href="#3-计算-SHA-256-的完整流程" class="headerlink" title="3. 计算 SHA-256 的完整流程"></a>3. <strong>计算 SHA-256 的完整流程</strong></h3><h4 id="步骤-1-分配算法实例"><a href="#步骤-1-分配算法实例" class="headerlink" title="步骤 1: 分配算法实例"></a>步骤 1: 分配算法实例</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tfm = crypto_alloc_shash(<span class="string">&quot;sha256&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span> (IS_ERR(tfm)) &#123;</span><br><span class="line">    pr_err(<span class="string">&quot;Failed to allocate sha256: %ld\n&quot;</span>, PTR_ERR(tfm));</span><br><span class="line">    <span class="keyword">return</span> PTR_ERR(tfm);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-2-准备操作描述符"><a href="#步骤-2-准备操作描述符" class="headerlink" title="步骤 2: 准备操作描述符"></a>步骤 2: 准备操作描述符</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">desc = kmalloc(<span class="keyword">sizeof</span>(*desc) + crypto_shash_descsize(tfm), GFP_KERNEL);</span><br><span class="line"><span class="keyword">if</span> (!desc) &#123;</span><br><span class="line">    ret = -ENOMEM;</span><br><span class="line">    <span class="keyword">goto</span> out_free_tfm;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">desc-&gt;tfm = tfm;</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-3-初始化哈希操作"><a href="#步骤-3-初始化哈希操作" class="headerlink" title="步骤 3: 初始化哈希操作"></a>步骤 3: 初始化哈希操作</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ret = crypto_shash_init(desc);</span><br><span class="line"><span class="keyword">if</span> (ret) &#123;</span><br><span class="line">    pr_err(<span class="string">&quot;crypto_shash_init failed: %d\n&quot;</span>, ret);</span><br><span class="line">    <span class="keyword">goto</span> out_free_desc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-4-更新哈希状态（处理数据）"><a href="#步骤-4-更新哈希状态（处理数据）" class="headerlink" title="步骤 4: 更新哈希状态（处理数据）"></a>步骤 4: 更新哈希状态（处理数据）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 处理单个连续缓冲区</span></span><br><span class="line">ret = crypto_shash_update(desc, data, data_len);</span><br><span class="line"><span class="keyword">if</span> (ret) &#123;</span><br><span class="line">    pr_err(<span class="string">&quot;crypto_shash_update failed: %d\n&quot;</span>, ret);</span><br><span class="line">    <span class="keyword">goto</span> out_free_desc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理多个分散缓冲区（可选）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">scatterlist</span> <span class="title">sg</span>[2];</span></span><br><span class="line">sg_init_table(sg, <span class="number">2</span>);</span><br><span class="line">sg_set_buf(&amp;sg[<span class="number">0</span>], data1, data1_len);</span><br><span class="line">sg_set_buf(&amp;sg[<span class="number">1</span>], data2, data2_len);</span><br><span class="line"></span><br><span class="line">ret = crypto_shash_digest(desc, sg, data1_len + data2_len, hash_result);</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-5-获取最终哈希值"><a href="#步骤-5-获取最终哈希值" class="headerlink" title="步骤 5: 获取最终哈希值"></a>步骤 5: 获取最终哈希值</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">u8 hash[SHA256_DIGEST_SIZE]; <span class="comment">// 32字节缓冲区</span></span><br><span class="line"></span><br><span class="line">ret = crypto_shash_final(desc, hash);</span><br><span class="line"><span class="keyword">if</span> (ret) &#123;</span><br><span class="line">    pr_err(<span class="string">&quot;crypto_shash_final failed: %d\n&quot;</span>, ret);</span><br><span class="line">    <span class="keyword">goto</span> out_free_desc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-6-资源清理"><a href="#步骤-6-资源清理" class="headerlink" title="步骤 6: 资源清理"></a>步骤 6: 资源清理</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">out_free_desc:</span><br><span class="line">    kfree(desc);</span><br><span class="line">out_free_tfm:</span><br><span class="line">    crypto_free_shash(tfm);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-完整示例函数"><a href="#4-完整示例函数" class="headerlink" title="4. 完整示例函数"></a>4. <strong>完整示例函数</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;crypto/hash.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;crypto/sha.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">calculate_sha256</span><span class="params">(<span class="type">const</span> u8 *data, <span class="type">size_t</span> len, u8 *out_hash)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">crypto_shash</span> *<span class="title">tfm</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">shash_desc</span> *<span class="title">desc</span>;</span></span><br><span class="line">    <span class="type">int</span> ret;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 分配算法实例</span></span><br><span class="line">    tfm = crypto_alloc_shash(<span class="string">&quot;sha256&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(tfm))</span><br><span class="line">        <span class="keyword">return</span> PTR_ERR(tfm);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 创建描述符</span></span><br><span class="line">    desc = kmalloc(<span class="keyword">sizeof</span>(*desc) + crypto_shash_descsize(tfm), GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> (!desc) &#123;</span><br><span class="line">        ret = -ENOMEM;</span><br><span class="line">        <span class="keyword">goto</span> out_tfm;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    desc-&gt;tfm = tfm;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 初始化哈希操作</span></span><br><span class="line">    ret = crypto_shash_init(desc);</span><br><span class="line">    <span class="keyword">if</span> (ret)</span><br><span class="line">        <span class="keyword">goto</span> out_desc;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 4. 更新哈希状态</span></span><br><span class="line">    ret = crypto_shash_update(desc, data, len);</span><br><span class="line">    <span class="keyword">if</span> (ret)</span><br><span class="line">        <span class="keyword">goto</span> out_desc;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 5. 获取最终哈希值</span></span><br><span class="line">    ret = crypto_shash_final(desc, out_hash);</span><br><span class="line"></span><br><span class="line">out_desc:</span><br><span class="line">    kfree(desc);</span><br><span class="line">out_tfm:</span><br><span class="line">    crypto_free_shash(tfm);</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-优化技巧"><a href="#5-优化技巧" class="headerlink" title="5. 优化技巧"></a>5. <strong>优化技巧</strong></h3><h4 id="单步计算（适合小数据）"><a href="#单步计算（适合小数据）" class="headerlink" title="单步计算（适合小数据）"></a>单步计算（适合小数据）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">one_step_sha256</span><span class="params">(<span class="type">const</span> u8 *data, <span class="type">size_t</span> len, u8 *hash)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">crypto_shash</span> *<span class="title">tfm</span> =</span> crypto_alloc_shash(<span class="string">&quot;sha256&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(tfm)) <span class="keyword">return</span> PTR_ERR(tfm);</span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> ret = crypto_shash_digest(tfm, data, len, hash);</span><br><span class="line">    crypto_free_shash(tfm);</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="重用算法实例（高性能场景）"><a href="#重用算法实例（高性能场景）" class="headerlink" title="重用算法实例（高性能场景）"></a>重用算法实例（高性能场景）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 模块初始化时</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">crypto_shash</span> *<span class="title">sha_tfm</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">mod_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    sha_tfm = crypto_alloc_shash(<span class="string">&quot;sha256&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> PTR_ERR_OR_ZERO(sha_tfm);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 每次计算时</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">fast_sha256</span><span class="params">(<span class="type">const</span> u8 *data, <span class="type">size_t</span> len, u8 *hash)</span></span><br><span class="line">&#123;</span><br><span class="line">    SHASH_DESC_ON_STACK(desc, sha_tfm);</span><br><span class="line">    desc-&gt;tfm = sha_tfm;</span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> ret = crypto_shash_init(desc) ?:</span><br><span class="line">             crypto_shash_update(desc, data, len) ?:</span><br><span class="line">             crypto_shash_final(desc, hash);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="6-内核版本差异处理"><a href="#6-内核版本差异处理" class="headerlink" title="6. 内核版本差异处理"></a>6. <strong>内核版本差异处理</strong></h3><table>
+<thead>
+<tr>
+<th>内核版本</th>
+<th>变化</th>
+<th>兼容性处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&lt; 4.0</td>
+<td><code>shash_desc</code> 直接使用</td>
+<td>标准方法</td>
+</tr>
+<tr>
+<td>≥ 4.0</td>
+<td>引入 <code>SHASH_DESC_ON_STACK</code></td>
+<td>使用栈分配减少内存开销</td>
+</tr>
+<tr>
+<td>≥ 5.11</td>
+<td><code>crypto_shash_</code> 函数原型更新</td>
+<td>检查返回值处理</td>
+</tr>
+</tbody></table>
+<p><strong>兼容性包装示例</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> LINUX_VERSION_CODE &lt; KERNEL_VERSION(5,11,0)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> my_shash_update crypto_shash_update</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">int</span> <span class="title function_">my_shash_update</span><span class="params">(<span class="keyword">struct</span> shash_desc *desc, <span class="type">const</span> u8 *data, <span class="type">unsigned</span> <span class="type">int</span> len)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> crypto_shash_update(desc, data, len);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="7-使用场景"><a href="#7-使用场景" class="headerlink" title="7. 使用场景"></a>7. <strong>使用场景</strong></h3><ol>
+<li><p><strong>文件系统完整性校验</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// fs/verity.c</span></span><br><span class="line">fsverity_calc_hash(<span class="keyword">struct</span> inode *inode, <span class="type">const</span> u8 *data, u8 *hash)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>内核模块签名验证</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// kernel/module/signing.c</span></span><br><span class="line">mod_verify_sig(<span class="type">const</span> <span class="type">void</span> *mod, <span class="type">unsigned</span> <span class="type">long</span> *_len)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>网络协议安全</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// net/ipv4/tcp.c</span></span><br><span class="line">tcp_v4_md5_hash_skb(<span class="type">char</span> *md5_hash, <span class="keyword">struct</span> tcp_md5sig_key *key, ...)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>硬件加密引擎集成</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// drivers/crypto/ccree/cc_hash.c</span></span><br><span class="line">cc_hash_update(<span class="keyword">struct</span> ahash_request *req)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="8-调试与验证"><a href="#8-调试与验证" class="headerlink" title="8. 调试与验证"></a>8. <strong>调试与验证</strong></h3><ol>
+<li><p><strong>检查算法可用性</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> /proc/crypto | grep -A 3 sha256</span><br><span class="line">name         : sha256</span><br><span class="line">driver       : sha256-generic</span><br><span class="line">module       : kernel</span><br><span class="line">priority     : 100</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>测试哈希计算</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">u8 test_data[] = <span class="string">&quot;Hello, Kernel SHA-256!&quot;</span>;</span><br><span class="line">u8 hash[SHA256_DIGEST_SIZE];</span><br><span class="line"></span><br><span class="line">ret = calculate_sha256(test_data, <span class="keyword">sizeof</span>(test_data)<span class="number">-1</span>, hash);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 预期结果：</span></span><br><span class="line"><span class="comment">// b7c76f4e... (使用外部工具验证)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>性能分析</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ktime_t</span> start = ktime_get();</span><br><span class="line"><span class="comment">// 多次调用哈希函数</span></span><br><span class="line"><span class="type">ktime_t</span> delta = ktime_sub(ktime_get(), start);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="9-常见错误处理"><a href="#9-常见错误处理" class="headerlink" title="9. 常见错误处理"></a>9. <strong>常见错误处理</strong></h3><table>
+<thead>
+<tr>
+<th>错误代码</th>
+<th>原因</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-ENOENT</td>
+<td>算法未注册</td>
+<td>检查内核配置 <code>CONFIG_CRYPTO_SHA256=y</code></td>
+</tr>
+<tr>
+<td>-EINVAL</td>
+<td>无效参数</td>
+<td>检查缓冲区对齐和数据长度</td>
+</tr>
+<tr>
+<td>-ENOMEM</td>
+<td>内存不足</td>
+<td>减少并发操作或使用 <code>SHASH_DESC_ON_STACK</code></td>
+</tr>
+<tr>
+<td>-ENOSYS</td>
+<td>函数未实现</td>
+<td>检查内核版本兼容性</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="10-替代方法（已弃用）"><a href="#10-替代方法（已弃用）" class="headerlink" title="10. 替代方法（已弃用）"></a>10. <strong>替代方法（已弃用）</strong></h3><p>旧版方法（避免使用）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 已弃用：HMAC 接口</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">crypto_hash</span> *<span class="title">tfm</span> =</span> crypto_alloc_hash(<span class="string">&quot;sha256&quot;</span>, <span class="number">0</span>, CRYPTO_ALG_ASYNC);</span><br></pre></td></tr></table></figure>
+
+<p><strong>迁移指南</strong>：</p>
+<ol>
+<li>替换 <code>crypto_hash_</code> 为 <code>crypto_shash_</code></li>
+<li>转换 <code>struct hash_desc</code> 到 <code>struct shash_desc</code></li>
+<li>使用分散列表代替直接缓冲区</li>
+</ol>
+<hr>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><p>Linux 内核中 SHA-256 计算的核心接口：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[crypto_alloc_shash] --&gt; B[shash_desc分配]</span><br><span class="line">B --&gt; C[crypto_shash_init]</span><br><span class="line">C --&gt; D[crypto_shash_update]</span><br><span class="line">D --&gt; E[crypto_shash_final]</span><br><span class="line">E --&gt; F[资源释放]</span><br></pre></td></tr></table></figure>
+
+<p><strong>最佳实践</strong>：</p>
+<ol>
+<li>使用 <code>crypto_shash_</code> 系列函数</li>
+<li>重用算法实例提升性能</li>
+<li>检查所有返回值</li>
+<li>使用 <code>SHASH_DESC_ON_STACK</code> 减少内存分配</li>
+<li>处理内核版本兼容性问题</li>
+</ol>
+<p>这些接口广泛应用于内核的加密子系统、文件系统完整性保护、网络协议安全等核心功能，是内核安全机制的基础设施之一。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/751a5f4e.html">http://helloeuler.cn/posts/751a5f4e.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/5a25cb1a.html" title="用户寻求文件或内容分割指导"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">用户寻求文件或内容分割指导</div></div></a></div><div class="next-post pull-right"><a href="/posts/5ebf742.html" title="Linux内核栈保护机制原理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核栈保护机制原理</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E8%B0%83%E7%94%A8%E9%93%BE"><span class="toc-text">核心调用链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E6%AD%A5%E9%AA%A4%E5%88%86%E6%9E%90"><span class="toc-text">详细步骤分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-local-bh-enable-ip"><span class="toc-text">1. __local_bh_enable_ip()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-preempt-check-resched"><span class="toc-text">2. preempt_check_resched()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-preempt-schedule"><span class="toc-text">3. preempt_schedule()</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6%E8%AF%B4%E6%98%8E"><span class="toc-text">关键机制说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E7%A4%BA%E4%BE%8B"><span class="toc-text">场景示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%AD%E6%96%AD%E6%98%AF%E6%8A%A2%E5%8D%A0%E7%9A%84%E4%B8%BB%E8%A6%81%E8%A7%A6%E5%8F%91%E6%BA%90"><span class="toc-text">1. 中断是抢占的主要触发源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%B8%AD%E6%96%AD%E8%BF%94%E5%9B%9E%E8%B7%AF%E5%BE%84%E8%A7%A6%E5%8F%91%E6%8A%A2%E5%8D%A0"><span class="toc-text">2. 中断返回路径触发抢占</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%B8%AD%E6%96%AD%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8E%E6%8A%A2%E5%8D%A0%E7%9A%84%E4%BA%92%E6%96%A5"><span class="toc-text">3. 中断上下文与抢占的互斥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%BA%95%E5%8D%8A%E9%83%A8%E5%A4%84%E7%90%86%E4%B8%8E%E6%8A%A2%E5%8D%A0"><span class="toc-text">4. 底半部处理与抢占</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%8A%A2%E5%8D%A0%E5%AF%B9%E4%B8%AD%E6%96%AD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">5. 抢占对中断的影响</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E5%85%B3%E8%81%94%E6%80%BB%E7%BB%93"><span class="toc-text">关键关联总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E5%9C%BA%E6%99%AF"><span class="toc-text">典型场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-text">结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B"><span class="toc-text">核心流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E9%98%B6%E6%AE%B5%E5%88%86%E6%9E%90"><span class="toc-text">关键阶段分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-schedule-timeout-uninterruptible-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-text">1. schedule_timeout_uninterruptible() 的作用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%9D%A1%E7%9C%A0%E6%9C%9F%E9%97%B4%E8%BD%AF%E4%B8%AD%E6%96%AD%E8%A7%A6%E5%8F%91"><span class="toc-text">2. 睡眠期间软中断触发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%BD%AF%E4%B8%AD%E6%96%AD%E6%89%A7%E8%A1%8C%E4%B8%8E%E4%BB%BB%E5%8A%A1%E5%94%A4%E9%86%92"><span class="toc-text">3. 软中断执行与任务唤醒</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E5%8F%AF%E8%83%BD%E7%9A%84%E5%94%A4%E9%86%92%E5%9C%BA%E6%99%AF"><span class="toc-text">三种可能的唤醒场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF1-%E8%BD%AF%E4%B8%AD%E6%96%AD%E5%85%88%E4%BA%8E%E8%B6%85%E6%97%B6%E5%94%A4%E9%86%92%E4%BB%BB%E5%8A%A1"><span class="toc-text">场景1: 软中断先于超时唤醒任务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF2-%E8%B6%85%E6%97%B6%E5%85%88%E4%BA%8E%E8%BD%AF%E4%B8%AD%E6%96%AD%E5%94%A4%E9%86%92"><span class="toc-text">场景2: 超时先于软中断唤醒</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF3-%E8%BD%AF%E4%B8%AD%E6%96%AD%E4%BF%AE%E6%94%B9%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4"><span class="toc-text">场景3: 软中断修改超时时间</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">关键注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E5%BD%B1%E5%93%8D"><span class="toc-text">性能影响</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-text">最佳实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E6%8E%A5%E5%8F%A3%E5%92%8C%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="toc-text">1. 核心接口和头文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B3%E9%94%AE%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">2. 关键数据结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AE%A1%E7%AE%97-SHA-256-%E7%9A%84%E5%AE%8C%E6%95%B4%E6%B5%81%E7%A8%8B"><span class="toc-text">3. 计算 SHA-256 的完整流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4-1-%E5%88%86%E9%85%8D%E7%AE%97%E6%B3%95%E5%AE%9E%E4%BE%8B"><span class="toc-text">步骤 1: 分配算法实例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4-2-%E5%87%86%E5%A4%87%E6%93%8D%E4%BD%9C%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-text">步骤 2: 准备操作描述符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4-3-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%93%88%E5%B8%8C%E6%93%8D%E4%BD%9C"><span class="toc-text">步骤 3: 初始化哈希操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4-4-%E6%9B%B4%E6%96%B0%E5%93%88%E5%B8%8C%E7%8A%B6%E6%80%81%EF%BC%88%E5%A4%84%E7%90%86%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="toc-text">步骤 4: 更新哈希状态（处理数据）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4-5-%E8%8E%B7%E5%8F%96%E6%9C%80%E7%BB%88%E5%93%88%E5%B8%8C%E5%80%BC"><span class="toc-text">步骤 5: 获取最终哈希值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4-6-%E8%B5%84%E6%BA%90%E6%B8%85%E7%90%86"><span class="toc-text">步骤 6: 资源清理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E5%87%BD%E6%95%B0"><span class="toc-text">4. 完整示例函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E4%BC%98%E5%8C%96%E6%8A%80%E5%B7%A7"><span class="toc-text">5. 优化技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%95%E6%AD%A5%E8%AE%A1%E7%AE%97%EF%BC%88%E9%80%82%E5%90%88%E5%B0%8F%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="toc-text">单步计算（适合小数据）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E7%94%A8%E7%AE%97%E6%B3%95%E5%AE%9E%E4%BE%8B%EF%BC%88%E9%AB%98%E6%80%A7%E8%83%BD%E5%9C%BA%E6%99%AF%EF%BC%89"><span class="toc-text">重用算法实例（高性能场景）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC%E5%B7%AE%E5%BC%82%E5%A4%84%E7%90%86"><span class="toc-text">6. 内核版本差异处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">7. 使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E8%B0%83%E8%AF%95%E4%B8%8E%E9%AA%8C%E8%AF%81"><span class="toc-text">8. 调试与验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="toc-text">9. 常见错误处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%B3%95%EF%BC%88%E5%B7%B2%E5%BC%83%E7%94%A8%EF%BC%89"><span class="toc-text">10. 替代方法（已弃用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

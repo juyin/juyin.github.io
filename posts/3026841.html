@@ -1,0 +1,387 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核进程管理导出符号接口 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核中创建进程、进程退出、修改进程属性的导出符号接口 在 Linux 内核中，进程管理是核心功能之一。内核提供了许多函数（作为导出符号 EXPORT_SYMBOL 或 EXPORT_SYMBOL_GPL）供其他内核模块使用，用于创建进程、处理进程退出和修改进程属性。以下是一些关键的接口：  1. 创建进程 kernel_thread (传统方式，逐渐被替代):  函数：pid_t ker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核进程管理导出符号接口">
+<meta property="og:url" content="http://helloeuler.cn/posts/3026841.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核中创建进程、进程退出、修改进程属性的导出符号接口 在 Linux 内核中，进程管理是核心功能之一。内核提供了许多函数（作为导出符号 EXPORT_SYMBOL 或 EXPORT_SYMBOL_GPL）供其他内核模块使用，用于创建进程、处理进程退出和修改进程属性。以下是一些关键的接口：  1. 创建进程 kernel_thread (传统方式，逐渐被替代):  函数：pid_t ker">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.754Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/3026841.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核进程管理导出符号接口',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核进程管理导出符号接口</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核进程管理导出符号接口"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核中创建进程、进程退出、修改进程属性的导出符号接口</p>
+<p>在 Linux 内核中，进程管理是核心功能之一。内核提供了许多函数（作为导出符号 <code>EXPORT_SYMBOL</code> 或 <code>EXPORT_SYMBOL_GPL</code>）供其他内核模块使用，用于创建进程、处理进程退出和修改进程属性。以下是一些关键的接口：</p>
+<hr>
+<h2 id="1-创建进程"><a href="#1-创建进程" class="headerlink" title="1. 创建进程"></a>1. 创建进程</h2><ul>
+<li><p><strong><code>kernel_thread</code> (传统方式，逐渐被替代):</strong></p>
+<ul>
+<li>函数：<code>pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)</code></li>
+<li>功能：创建一个新的内核线程。</li>
+<li>导出状态：<code>EXPORT_SYMBOL(kernel_thread)</code></li>
+<li>注意：虽然仍在使用，但更推荐使用 <code>kthread_create</code> 系列函数，因为 <code>kernel_thread</code> 创建的线程在用户空间不可见（没有对应的 <code>/proc/pid</code> 条目），且资源清理不如 <code>kthread</code> 方便。</li>
+</ul>
+</li>
+<li><p><strong><code>kthread_create</code> &#x2F; <code>kthread_run</code> (推荐方式):</strong></p>
+<ul>
+<li>函数：<ul>
+<li><code>struct task_struct *kthread_create(int (*threadfn)(void *data), void *data, const char namefmt[], ...)</code> (创建但未运行)</li>
+<li><code>struct task_struct *kthread_run(int (*threadfn)(void *data), void *data, const char namefmt[], ...)</code> (宏，创建并立即运行)</li>
+</ul>
+</li>
+<li>功能：创建并管理内核线程。提供了更好的资源管理和可见性（可通过 <code>ps</code> 看到）。</li>
+<li>导出状态：<code>EXPORT_SYMBOL(kthread_create)</code>, <code>kthread_run</code> 是宏，依赖于 <code>kthread_create</code> 和 <code>wake_up_process</code>。</li>
+<li>相关重要函数：<ul>
+<li><code>int wake_up_process(struct task_struct *tsk)</code>: 唤醒创建的线程（如果使用 <code>kthread_create</code>）。<code>EXPORT_SYMBOL(wake_up_process)</code></li>
+<li><code>bool kthread_should_stop(void)</code>: 线程函数中检查是否应退出。<code>EXPORT_SYMBOL(kthread_should_stop)</code></li>
+<li><code>int kthread_stop(struct task_struct *k)</code>: 请求停止一个由 <code>kthread_create</code> 创建的线程并等待其结束。<code>EXPORT_SYMBOL(kthread_stop)</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong><code>fork</code> &#x2F; <code>vfork</code> &#x2F; <code>clone</code> (用户空间进程创建的核心):</strong></p>
+<ul>
+<li>函数：这些是系统调用的核心实现。</li>
+<li>导出状态：它们本身 <strong>不是</strong> 直接作为 <code>EXPORT_SYMBOL</code> 导出的函数。用户空间通过 <code>fork()</code>, <code>vfork()</code>, <code>clone()</code> 系统调用触发。</li>
+<li>内部机制：它们最终会调用内部的 <code>_do_fork</code> &#x2F; <code>kernel_clone</code> 函数（具体名称和实现细节随内核版本变化）。这些内部函数处理复制进程描述符、复制资源（COW）、设置栈等复杂工作。</li>
+<li>重点：<strong>模块通常不需要直接调用这些底层创建用户进程的函数</strong>。用户进程是由用户空间程序通过 syscall 创建的。内核模块创建新执行上下文主要是创建内核线程(<code>kthread_*</code>)。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="2-进程退出"><a href="#2-进程退出" class="headerlink" title="2. 进程退出"></a>2. 进程退出</h2><ul>
+<li><p><strong><code>do_exit</code> (核心退出函数):</strong></p>
+<ul>
+<li>函数：<code>void do_exit(long code)</code></li>
+<li>功能：执行进程退出的主要清理工作。释放进程的大部分资源，设置退出状态码，通知父进程，将进程状态设为 <code>EXIT_ZOMBIE</code>。<strong>这是进程终止路径上的关键函数。</strong></li>
+<li>导出状态：<code>EXPORT_SYMBOL_GPL(do_exit)</code></li>
+<li><strong>警告：</strong> 在模块中直接调用 <code>do_exit()</code> 来终止当前进程（例如在自定义内核线程中）<strong>是可能的，但需极其谨慎</strong>。它不会执行文件描述符刷新等用户空间相关的清理。对于内核线程，更推荐使用 <code>kthread_stop</code> 机制或 <code>complete_and_exit</code>。</li>
+</ul>
+</li>
+<li><p><strong><code>complete_and_exit</code> (内核线程退出常用):</strong></p>
+<ul>
+<li>函数：<code>void complete_and_exit(struct completion *comp, long code)</code></li>
+<li>功能：主要用于内核线程的优雅退出。它先完成（唤醒等待者）一个 <code>completion</code> 变量，然后调用 <code>do_exit(code)</code>。</li>
+<li>导出状态：<code>EXPORT_SYMBOL(complete_and_exit)</code></li>
+<li>用途：常用于让内核线程在完成其最后一项任务（通过 <code>completion</code> 信号通知创建者）后安全退出。</li>
+</ul>
+</li>
+<li><p><strong><code>make_task_dead</code> (更高级别的退出入口 - 较新内核):</strong></p>
+<ul>
+<li>函数：<code>void make_task_dead(int signr)</code></li>
+<li>功能：一个更上层的函数，最终调用 <code>do_exit</code>。它处理一些额外的簿记工作，比如发送信号（<code>SIGKILL</code>）给线程组中的其他线程。通常在致命错误路径（如 <code>oops</code> 处理）或强制终止时使用。</li>
+<li>导出状态：<code>EXPORT_SYMBOL_GPL(make_task_dead)</code></li>
+<li>注意：普通模块代码通常不需要直接调用这个。</li>
+</ul>
+</li>
+<li><p><strong><code>panic</code> (系统级崩溃):</strong></p>
+<ul>
+<li>函数：<code>void panic(const char *fmt, ...)</code></li>
+<li>功能：导致内核崩溃，打印消息并（可能）尝试重启。虽然不是针对单个进程的退出，但它会导致所有进程终止。</li>
+<li>导出状态：<code>EXPORT_SYMBOL(panic)</code></li>
+<li>注意：仅在遇到不可恢复的、影响整个系统的致命错误时使用。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-修改进程属性"><a href="#3-修改进程属性" class="headerlink" title="3. 修改进程属性"></a>3. 修改进程属性</h2><p>这部分涉及的接口非常广泛，以下列举一些常见且重要的：</p>
+<ul>
+<li><p><strong>进程状态与调度:</strong></p>
+<ul>
+<li><code>void set_task_state(struct task_struct *tsk, int state)</code>: 设置进程状态 (e.g., <code>TASK_RUNNING</code>, <code>TASK_INTERRUPTIBLE</code>, <code>TASK_UNINTERRUPTIBLE</code>)。更安全，包含内存屏障。<code>EXPORT_SYMBOL(set_task_state)</code></li>
+<li><code>void set_current_state(int state)</code>: 设置<strong>当前</strong>进程状态。<code>EXPORT_SYMBOL(set_current_state)</code></li>
+<li><code>int wake_up_state(struct task_struct *tsk, unsigned int state)</code>: 唤醒处于特定状态的进程。<code>EXPORT_SYMBOL(wake_up_state)</code></li>
+<li><code>void set_user_nice(struct task_struct *p, long nice)</code>: 设置进程的 <code>nice</code> 值（影响调度优先级）。<code>EXPORT_SYMBOL(set_user_nice)</code></li>
+<li><code>int sched_setscheduler(struct task_struct *p, int policy, const struct sched_param *param)</code>: 设置进程的调度策略(<code>SCHED_FIFO</code>, <code>SCHED_RR</code>, <code>SCHED_OTHER</code>, <code>SCHED_BATCH</code>, <code>SCHED_IDLE</code>, <code>SCHED_DEADLINE</code>)和参数（如优先级）。<code>EXPORT_SYMBOL_GPL(sched_setscheduler)</code></li>
+<li><code>void set_cpus_allowed_ptr(struct task_struct *p, const struct cpumask *new_mask)</code>: 设置进程允许运行的CPU亲和性掩码。<code>EXPORT_SYMBOL(set_cpus_allowed_ptr)</code></li>
+</ul>
+</li>
+<li><p><strong>进程标识与凭证:</strong></p>
+<ul>
+<li><code>void set_task_comm(struct task_struct *tsk, const char *buf)</code>: 设置进程的命令行名称（出现在 <code>ps</code> 等命令中）。<code>EXPORT_SYMBOL(set_task_comm)</code></li>
+<li><code>int commit_creds(struct cred *new)</code>: 应用一组新的凭证到当前进程（权限更改的核心）。<strong>极其危险，需谨慎！</strong> <code>EXPORT_SYMBOL(commit_creds)</code></li>
+<li><code>struct cred *prepare_creds(void)</code>: 为当前进程准备一份可修改的凭证副本。<code>EXPORT_SYMBOL(prepare_creds)</code></li>
+<li><code>void __put_cred(struct cred *cred)</code>: 减少凭证的引用计数，可能在引用为0时释放。<code>EXPORT_SYMBOL(__put_cred)</code></li>
+<li><code>const struct cred *get_task_cred(struct task_struct *task)</code>: 获取指定进程凭证的引用（需调用 <code>put_cred</code> 释放）。<code>EXPORT_SYMBOL(get_task_cred)</code></li>
+<li><code>int capable(int cap)</code>: 检查当前进程是否具有指定的内核能力（Capability）。<code>EXPORT_SYMBOL(capable)</code></li>
+<li><code>int has_capability(struct task_struct *t, int cap)</code>: 检查指定进程是否具有指定的内核能力。<code>EXPORT_SYMBOL(has_capability)</code></li>
+<li><code>void security_task_to_inode(struct task_struct *p, struct inode *inode)</code>: LSM Hook，在创建 <code>/proc/pid</code> inode 时设置安全信息（通常模块不直接调用）。</li>
+</ul>
+</li>
+<li><p><strong>信号处理:</strong></p>
+<ul>
+<li><code>int send_sig_info(int sig, struct kernel_siginfo *info, struct task_struct *p)</code>: 向指定进程发送信号。<code>EXPORT_SYMBOL(send_sig_info)</code></li>
+<li><code>int kill_pid(struct pid *pid, int sig, int priv)</code>: 向指定 PID 发送信号。<code>EXPORT_SYMBOL(kill_pid)</code></li>
+<li><code>int force_sig(int sig)</code>: 强制发送信号给当前进程（不可阻塞或忽略）。<code>EXPORT_SYMBOL(force_sig)</code></li>
+<li><code>int allow_signal(int sig)</code>: (较旧) 允许内核线程接收特定信号。现代内核线程通常使用 <code>kthread_should_stop()</code> 机制。</li>
+</ul>
+</li>
+<li><p><strong>命名空间:</strong></p>
+<ul>
+<li><code>struct nsproxy *create_nsproxy(void)</code>: 创建新的命名空间代理结构。<code>EXPORT_SYMBOL_GPL(create_nsproxy)</code></li>
+<li><code>int switch_task_namespaces(struct task_struct *p, struct nsproxy *new)</code>: 切换任务的命名空间视图。<code>EXPORT_SYMBOL_GPL(switch_task_namespaces)</code></li>
+<li>特定命名空间操作函数（如 <code>copy_pid_ns</code>, <code>copy_net_ns</code> 等）通常也导出。</li>
+</ul>
+</li>
+<li><p><strong>资源限制 (rlimits):</strong></p>
+<ul>
+<li><code>int security_task_setrlimit(struct task_struct *p, unsigned int resource, struct rlimit *new_rlim)</code>: LSM Hook，在设置资源限制前调用（模块通常不直接调用）。</li>
+<li>修改 <code>task_struct-&gt;signal-&gt;rlim[resource]</code> 需要谨慎，通常通过用户空间 <code>setrlimit</code> syscall 或特权操作进行。</li>
+</ul>
+</li>
+<li><p><strong>进程关系:</strong></p>
+<ul>
+<li>直接修改 <code>task_struct</code> 中的 <code>parent</code>, <code>real_parent</code>, <code>children</code>, <code>sibling</code> 等链表指针是<strong>极其危险且不被允许的</strong>。内核提供内部函数维护这些关系（如 <code>__ptrace_link</code>, <code>__ptrace_unlink</code> 用于 ptrace）。</li>
+</ul>
+</li>
+<li><p><strong>获取进程引用:</strong></p>
+<ul>
+<li><code>struct task_struct *get_pid_task(struct pid *pid, enum pid_type type)</code>: 通过 PID 结构获取 <code>task_struct</code> 引用。<code>EXPORT_SYMBOL_GPL(get_pid_task)</code></li>
+<li><code>struct pid *get_task_pid(struct task_struct *task, enum pid_type type)</code>: 获取任务指定类型 PID 的引用。<code>EXPORT_SYMBOL_GPL(get_task_pid)</code></li>
+<li><code>struct task_struct *get_task_struct(struct task_struct *tsk)</code>: 增加任务的引用计数。<strong>在持有指向 <code>task_struct</code> 指针操作前，通常需要调用此函数防止任务消失。</strong> <code>EXPORT_SYMBOL_GPL(get_task_struct)</code></li>
+<li><code>void put_task_struct(struct task_struct *tsk)</code>: 减少任务的引用计数，引用为0时释放。<strong>必须与 <code>get_task_struct</code> 配对使用。</strong> <code>EXPORT_SYMBOL_GPL(put_task_struct)</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="重要提示"><a href="#重要提示" class="headerlink" title="重要提示"></a>重要提示</h2><ol>
+<li><strong>内核版本差异：</strong> 内核 API 会随版本变化。上面列出的函数名和导出状态是基于较新稳定内核（如 5.x, 6.x）。开发时务必查阅目标内核版本的源代码头文件（<code>include/linux/sched.h</code>, <code>include/linux/kthread.h</code>, <code>kernel/exit.c</code>, <code>kernel/fork.c</code>, <code>kernel/signal.c</code>, <code>kernel/capability.c</code>, <code>kernel/nsproxy.c</code> 等）和 <code>Module.symvers</code> 文件。</li>
+<li><strong>安全性与稳定性：</strong> 修改进程属性（尤其是凭证、调度策略）或强制终止进程的操作具有高风险，可能破坏系统稳定性和安全性。模块代码必须非常谨慎，确保有充分的理由和正确的同步。</li>
+<li><strong>引用计数：</strong> 操作其他进程的 <code>task_struct</code> 时，<strong>必须</strong>使用 <code>get_task_struct()</code> 和 <code>put_task_struct()</code> 来管理引用计数，防止目标进程在你使用其结构时意外退出导致 Use-After-Free 错误。</li>
+<li><strong>替代方案：</strong> 优先考虑通过用户空间机制（syscall, procfs, sysfs）或标准内核设施（如 cgroups）来影响进程行为，而不是在内核模块中直接修改进程属性。</li>
+<li><strong>查找导出符号：</strong><ul>
+<li>查看内核源码树中的 <code>Module.symvers</code> 文件。</li>
+<li>在编译好的内核上使用 <code>nm vmlinux | grep &lt;function_name&gt;</code>。</li>
+<li>查看 <code>/proc/kallsyms</code> (需要 root 权限)。</li>
+</ul>
+</li>
+</ol>
+<p>理解这些接口对于进行深入的内核开发（如编写调度器、安全模块、容器技术）至关重要，但务必遵循内核开发的最佳实践和安全准则。</p>
+<p>内核中修改用户态进程的euid</p>
+<p>在 Linux 内核中修改用户态进程的 euid（effective user ID）需要通过进程凭证（credentials）操作接口。以下是详细步骤和关键接口：</p>
+<h3 id="核心步骤"><a href="#核心步骤" class="headerlink" title="核心步骤"></a>核心步骤</h3><ol>
+<li><strong>获取目标进程的凭证结构体</strong> (<code>struct cred</code>)</li>
+<li><strong>修改凭证中的 euid 字段</strong></li>
+<li><strong>应用新凭证到目标进程</strong></li>
+<li><strong>管理引用计数</strong></li>
+</ol>
+<hr>
+<h3 id="关键导出符号接口"><a href="#关键导出符号接口" class="headerlink" title="关键导出符号接口"></a>关键导出符号接口</h3><h4 id="1-凭证准备与修改"><a href="#1-凭证准备与修改" class="headerlink" title="1. 凭证准备与修改"></a>1. 凭证准备与修改</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 获取当前进程凭证的可修改副本 */</span></span><br><span class="line"><span class="keyword">struct</span> cred *<span class="title function_">prepare_creds</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line">EXPORT_SYMBOL(prepare_creds);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 创建新的空白凭证 */</span></span><br><span class="line"><span class="keyword">struct</span> cred *<span class="title function_">cred_alloc_blank</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line">EXPORT_SYMBOL(cred_alloc_blank);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 复制凭证 */</span></span><br><span class="line"><span class="keyword">struct</span> cred *<span class="title function_">copy_creds</span><span class="params">(<span class="keyword">struct</span> task_struct *tsk)</span>;</span><br><span class="line">EXPORT_SYMBOL(copy_creds);</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-修改-euid-的核心操作"><a href="#2-修改-euid-的核心操作" class="headerlink" title="2. 修改 euid 的核心操作"></a>2. 修改 euid 的核心操作</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 应用新凭证到当前进程 */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">commit_creds</span><span class="params">(<span class="keyword">struct</span> cred *new)</span>;</span><br><span class="line">EXPORT_SYMBOL(commit_creds);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 安全地修改目标进程的凭证 */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">set_cred_uc</span><span class="params">(<span class="keyword">struct</span> task_struct *tsk, <span class="keyword">struct</span> cred *new_cred)</span>;</span><br><span class="line">EXPORT_SYMBOL_GPL(set_cred_uc);</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-进程和凭证引用管理"><a href="#3-进程和凭证引用管理" class="headerlink" title="3. 进程和凭证引用管理"></a>3. 进程和凭证引用管理</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 获取任务结构引用 */</span></span><br><span class="line"><span class="keyword">struct</span> task_struct *<span class="title function_">get_pid_task</span><span class="params">(<span class="keyword">struct</span> pid *pid, <span class="keyword">enum</span> pid_type type)</span>;</span><br><span class="line">EXPORT_SYMBOL_GPL(get_pid_task);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 获取凭证引用 */</span></span><br><span class="line"><span class="type">const</span> <span class="keyword">struct</span> cred *<span class="title function_">get_task_cred</span><span class="params">(<span class="keyword">struct</span> task_struct *task)</span>;</span><br><span class="line">EXPORT_SYMBOL(get_task_cred);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 释放凭证引用 */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">put_cred</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> cred *cred)</span>;</span><br><span class="line">EXPORT_SYMBOL(put_cred);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="修改-euid-的典型流程"><a href="#修改-euid-的典型流程" class="headerlink" title="修改 euid 的典型流程"></a>修改 euid 的典型流程</h3><h4 id="场景1：修改当前进程的-euid"><a href="#场景1：修改当前进程的-euid" class="headerlink" title="场景1：修改当前进程的 euid"></a>场景1：修改当前进程的 euid</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">set_current_euid</span><span class="params">(<span class="type">uid_t</span> new_euid)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">new</span>;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 准备当前凭证的可修改副本</span></span><br><span class="line">    new = prepare_creds();</span><br><span class="line">    <span class="keyword">if</span> (!new) <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 修改 euid 字段</span></span><br><span class="line">    new-&gt;euid = new_euid;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 同时更新 fsuid (文件系统 UID)</span></span><br><span class="line">    new-&gt;fsuid = new_euid;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 4. 应用新凭证</span></span><br><span class="line">    commit_creds(new);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景2：修改其他进程的-euid（需-CAP-SETUID-权限）"><a href="#场景2：修改其他进程的-euid（需-CAP-SETUID-权限）" class="headerlink" title="场景2：修改其他进程的 euid（需 CAP_SETUID 权限）"></a>场景2：修改其他进程的 euid（需 CAP_SETUID 权限）</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">set_process_euid</span><span class="params">(<span class="type">pid_t</span> pid, <span class="type">uid_t</span> new_euid)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">target</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">new_cred</span>;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 通过 PID 获取目标进程</span></span><br><span class="line">    target = pid_task(find_vpid(pid), PIDTYPE_PID);</span><br><span class="line">    <span class="keyword">if</span> (!target) <span class="keyword">return</span> -ESRCH;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 获取目标进程凭证引用</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">old_cred</span> =</span> get_task_cred(target);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 创建新凭证副本</span></span><br><span class="line">    new_cred = prepare_creds();</span><br><span class="line">    <span class="keyword">if</span> (!new_cred) &#123;</span><br><span class="line">        put_cred(old_cred);</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 4. 修改凭证字段</span></span><br><span class="line">    new_cred-&gt;euid = new_euid;</span><br><span class="line">    new_cred-&gt;fsuid = new_euid;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 5. 应用新凭证到目标进程</span></span><br><span class="line">    <span class="type">int</span> ret = set_cred_uc(target, new_cred);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 6. 清理引用</span></span><br><span class="line">    put_cred(old_cred);</span><br><span class="line">    abort_creds(new_cred);  <span class="comment">// 仅当set_cred_uc失败时使用</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键注意事项"><a href="#关键注意事项" class="headerlink" title="关键注意事项"></a>关键注意事项</h3><ol>
+<li><p><strong>权限要求</strong>：</p>
+<ul>
+<li>修改自身：需要当前 euid&#x3D;&#x3D;目标 euid 或具有 CAP_SETUID</li>
+<li>修改其他进程：<strong>必须</strong>具有 CAP_SETUID 能力</li>
+</ul>
+</li>
+<li><p><strong>安全规则</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 检查权限的底层函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">set_euid_checks</span><span class="params">(<span class="keyword">struct</span> cred *new, <span class="type">const</span> <span class="keyword">struct</span> cred *old)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (capable(CAP_SETUID)) </span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (new-&gt;euid == old-&gt;uid || </span><br><span class="line">        new-&gt;euid == old-&gt;euid || </span><br><span class="line">        new-&gt;euid == old-&gt;suid)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> -EPERM;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>关联 ID 更新</strong>：</p>
+<ul>
+<li>修改 euid 时<strong>必须</strong>同步更新 fsuid（文件系统 UID）</li>
+<li>真实 UID (uid) 和保存 UID (suid) 通常不变</li>
+</ul>
+</li>
+<li><p><strong>审计跟踪</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改凭证时触发审计</span></span><br><span class="line">security_task_fix_setuid(new, old, LSM_SETID_EUID);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>内核版本差异</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>版本范围</th>
+<th>关键变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&lt; 4.3</td>
+<td>使用 <code>__task_cred()</code> 直接访问</td>
+</tr>
+<tr>
+<td>≥ 4.3</td>
+<td>引入 <code>cred_has_capability()</code></td>
+</tr>
+<tr>
+<td>≥ 5.9</td>
+<td><code>struct cred</code> 添加安全标签字段</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<hr>
+<h3 id="完整示例（修改当前进程）"><a href="#完整示例（修改当前进程）" class="headerlink" title="完整示例（修改当前进程）"></a>完整示例（修改当前进程）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/cred.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/security.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">safe_set_euid</span><span class="params">(<span class="type">uid_t</span> euid)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">new</span> =</span> prepare_creds();</span><br><span class="line">    <span class="keyword">if</span> (!new) <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    </span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">old</span> =</span> current_cred();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 权限检查</span></span><br><span class="line">    <span class="keyword">if</span> (!capable(CAP_SETUID) &amp;&amp; </span><br><span class="line">        euid != old-&gt;uid &amp;&amp; </span><br><span class="line">        euid != old-&gt;euid &amp;&amp; </span><br><span class="line">        euid != old-&gt;suid) &#123;</span><br><span class="line">        abort_creds(new);</span><br><span class="line">        <span class="keyword">return</span> -EPERM;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 修改凭证</span></span><br><span class="line">    new-&gt;euid = euid;</span><br><span class="line">    new-&gt;fsuid = euid;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// LSM 安全钩子</span></span><br><span class="line">    security_task_fix_setuid(new, old, LSM_SETID_EUID);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> commit_creds(new);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="风险提示"><a href="#风险提示" class="headerlink" title="风险提示"></a>风险提示</h3><ol>
+<li><strong>竞态条件</strong>：修改其他进程凭证时，目标进程可能正在退出</li>
+<li><strong>能力泄漏</strong>：不当修改可能导致权限提升漏洞</li>
+<li><strong>审计追踪</strong>：所有凭证修改都会被记录到审计日志</li>
+<li><strong>容器兼容性</strong>：在容器内修改需考虑 user namespace 映射</li>
+</ol>
+<blockquote>
+<p><strong>重要</strong>：生产环境应优先使用用户空间工具（如 <code>/bin/setuid</code> 或 <code>libc</code> 的 <code>seteuid()</code>），内核模块直接修改凭证仅适用于特殊场景（如安全模块、容器运行时）。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/3026841.html">http://helloeuler.cn/posts/3026841.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/7738a70c.html" title="Linux内核trace钩子使用注意事项"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核trace钩子使用注意事项</div></div></a></div><div class="next-post pull-right"><a href="/posts/234cdb8.html" title="内核系统调用流程判断方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">内核系统调用流程判断方法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B"><span class="toc-text">1. 创建进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9B%E7%A8%8B%E9%80%80%E5%87%BA"><span class="toc-text">2. 进程退出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9%E8%BF%9B%E7%A8%8B%E5%B1%9E%E6%80%A7"><span class="toc-text">3. 修改进程属性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E8%A6%81%E6%8F%90%E7%A4%BA"><span class="toc-text">重要提示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%AD%A5%E9%AA%A4"><span class="toc-text">核心步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E5%AF%BC%E5%87%BA%E7%AC%A6%E5%8F%B7%E6%8E%A5%E5%8F%A3"><span class="toc-text">关键导出符号接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%87%AD%E8%AF%81%E5%87%86%E5%A4%87%E4%B8%8E%E4%BF%AE%E6%94%B9"><span class="toc-text">1. 凭证准备与修改</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9-euid-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%93%8D%E4%BD%9C"><span class="toc-text">2. 修改 euid 的核心操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%BF%9B%E7%A8%8B%E5%92%8C%E5%87%AD%E8%AF%81%E5%BC%95%E7%94%A8%E7%AE%A1%E7%90%86"><span class="toc-text">3. 进程和凭证引用管理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9-euid-%E7%9A%84%E5%85%B8%E5%9E%8B%E6%B5%81%E7%A8%8B"><span class="toc-text">修改 euid 的典型流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF1%EF%BC%9A%E4%BF%AE%E6%94%B9%E5%BD%93%E5%89%8D%E8%BF%9B%E7%A8%8B%E7%9A%84-euid"><span class="toc-text">场景1：修改当前进程的 euid</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF2%EF%BC%9A%E4%BF%AE%E6%94%B9%E5%85%B6%E4%BB%96%E8%BF%9B%E7%A8%8B%E7%9A%84-euid%EF%BC%88%E9%9C%80-CAP-SETUID-%E6%9D%83%E9%99%90%EF%BC%89"><span class="toc-text">场景2：修改其他进程的 euid（需 CAP_SETUID 权限）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">关键注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%EF%BC%88%E4%BF%AE%E6%94%B9%E5%BD%93%E5%89%8D%E8%BF%9B%E7%A8%8B%EF%BC%89"><span class="toc-text">完整示例（修改当前进程）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A3%8E%E9%99%A9%E6%8F%90%E7%A4%BA"><span class="toc-text">风险提示</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

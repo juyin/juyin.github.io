@@ -1,0 +1,257 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核trace钩子使用注意事项 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核trace钩子使用注意事项 在 Linux 内核中使用 trace 钩子（Tracepoints、kprobes&#x2F;uprobes、BPF 挂载点等）是进行深度系统分析、性能调优和故障排查的利器，但也需要格外谨慎。以下是关键的注意事项： 🛡 一、核心原则与安全 最小化与无副作用原则：  代码必须极简： 钩子函数（尤其是 tracepoint 回调、kprobe 处理函数）的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核trace钩子使用注意事项">
+<meta property="og:url" content="http://helloeuler.cn/posts/7738a70c.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核trace钩子使用注意事项 在 Linux 内核中使用 trace 钩子（Tracepoints、kprobes&#x2F;uprobes、BPF 挂载点等）是进行深度系统分析、性能调优和故障排查的利器，但也需要格外谨慎。以下是关键的注意事项： 🛡 一、核心原则与安全 最小化与无副作用原则：  代码必须极简： 钩子函数（尤其是 tracepoint 回调、kprobe 处理函数）的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.754Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/7738a70c.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核trace钩子使用注意事项',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核trace钩子使用注意事项</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核trace钩子使用注意事项"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核trace钩子使用注意事项</p>
+<p>在 Linux 内核中使用 trace 钩子（Tracepoints、kprobes&#x2F;uprobes、BPF 挂载点等）是进行深度系统分析、性能调优和故障排查的利器，但也需要格外谨慎。以下是关键的注意事项：</p>
+<h2 id="🛡-一、核心原则与安全"><a href="#🛡-一、核心原则与安全" class="headerlink" title="🛡 一、核心原则与安全"></a>🛡 一、核心原则与安全</h2><ol>
+<li><p><strong>最小化与无副作用原则：</strong></p>
+<ul>
+<li><strong>代码必须极简：</strong> 钩子函数（尤其是 tracepoint 回调、kprobe 处理函数）的执行路径应尽可能短、快、简单。避免复杂逻辑、循环、阻塞操作（如获取锁🔒、I&#x2F;O、内存分配）。</li>
+<li><strong>绝对禁止副作用：</strong> 钩子函数<strong>绝不能</strong>修改系统的运行状态（修改全局变量、数据结构、释放资源、改变控制流等）。它们应该是只读的、被动的观察者。任何修改都可能导致数据损坏、死锁或不可预测的系统行为。这是最重要的原则！</li>
+</ul>
+</li>
+<li><p><strong>上下文意识：</strong></p>
+<ul>
+<li><strong>中断上下文：</strong> 明确你的钩子可能在哪个上下文中执行（进程上下文、中断上下文 - 硬中断、软中断&#x2F;<code>tasklet</code>、不可屏蔽中断 NMI）。在中断上下文中，限制更加严格：<ul>
+<li><strong>禁止睡眠&#x2F;阻塞：</strong> 绝对不允许调用任何可能睡眠的函数（如 <code>kmalloc(GFP_KERNEL)</code>, <code>mutex_lock</code>, <code>copy_from_user</code>）。使用 <code>GFP_ATOMIC</code> 分配内存也要极其谨慎，可能失败。</li>
+<li><strong>禁止直接访问用户空间内存：</strong> 使用 <code>copy_from_user_inatomic</code> 等特殊函数（且需非常小心）。</li>
+<li><strong>栈空间极小：</strong> 中断栈通常很小（几KB），避免大的局部变量或深调用栈。</li>
+</ul>
+</li>
+<li><strong>抢占&#x2F;并发：</strong> 钩子函数可能被多个CPU核心同时执行，访问共享数据时（即使只读也要注意一致性问题）要考虑适当的同步机制（<code>rcu_read_lock</code>&#x2F;<code>rcu_read_unlock</code> 是首选，读锁有时也可用，<strong>避免写锁</strong>）。避免在钩子函数内部加锁。</li>
+</ul>
+</li>
+<li><p><strong>内存管理：</strong></p>
+<ul>
+<li><strong>谨慎分配：</strong> 尽量避免在钩子函数内部进行内存分配。如果必须（如在进程上下文中收集数据），使用 <code>GFP_ATOMIC</code> 或 <code>GFP_NOWAIT</code>，并<strong>严格检查分配失败的情况</strong>（处理 <code>NULL</code> 返回值）。</li>
+<li><strong>无泄漏：</strong> 确保在钩子卸载或不再需要时，释放所有在钩子生命周期内分配的资源（内存、文件句柄等）。BPF 程序通常依赖 Map 和帮助函数管理内存，相对安全，但仍需注意 Map 的生命周期。</li>
+<li><strong>避免访问无效内存：</strong> 确保从钩子上下文中访问的内核数据结构指针是有效的。使用 <code>rcu_dereference</code> 等 RCU 原语安全地访问受 RCU 保护的数据。</li>
+</ul>
+</li>
+<li><p><strong>稳定性与版本控制：</strong></p>
+<ul>
+<li><strong>内核版本差异：</strong> Tracepoint 参数、kprobes 位置、内核数据结构布局会随内核版本变化。你的钩子代码或 BPF 程序可能需要针对不同内核版本进行条件编译或运行时适配。使用 <code>#ifdef</code> 和内核版本宏（<code>LINUX_VERSION_CODE</code>, <code>KERNEL_VERSION</code>）。</li>
+<li><strong>ABI 不保证：</strong> Tracepoint 的参数和语义、内核符号（函数&#x2F;变量）地址和签名<strong>不是稳定的内核 ABI</strong>。它们可能在补丁版本中改变。依赖于特定符号的 kprobes&#x2F;uprobes 非常脆弱。</li>
+<li><strong>模块卸载：</strong> 如果钩子在内核模块中实现，模块卸载函数<strong>必须</strong>先安全地注销所有钩子（tracepoint 探针、kprobes&#x2F;uprobes），等待所有正在执行的回调退出，并释放所有相关资源，然后才能卸载模块。否则会导致内核崩溃。</li>
+</ul>
+</li>
+</ol>
+<h2 id="⚙-二、性能影响"><a href="#⚙-二、性能影响" class="headerlink" title="⚙ 二、性能影响"></a>⚙ 二、性能影响</h2><ol start="5">
+<li><p><strong>性能开销：</strong></p>
+<ul>
+<li><strong>零开销原则（未启用）：</strong> Tracepoints 的核心设计是当没有附加任何追踪器（tracer）时，其性能开销接近于零（只是一个极快的条件判断分支）。这是广泛使用 tracepoints 的基础。</li>
+<li><strong>启用时的开销：</strong> 当钩子被启用时，其执行路径上的开销变得显著：<ul>
+<li><strong>函数调用开销：</strong> 执行回调函数本身的成本。</li>
+<li><strong>数据收集&#x2F;复制：</strong> 将数据从原始执行点复制到缓冲区或用户空间的成本（例如 <code>trace_event</code> 格式化）。</li>
+<li><strong>缓冲区管理：</strong> 写入环形缓冲区的开销。</li>
+</ul>
+</li>
+<li><strong>高频率路径：</strong> 在每秒执行数百万次的极热路径（如网络包处理、调度器决策点）上放置钩子，即使回调函数很简单，也可能引入可测量的性能下降（5%-20% 甚至更高）。<strong>务必进行性能基准测试！</strong></li>
+<li><strong>动态启用&#x2F;禁用：</strong> 利用 <code>perf</code>, <code>ftrace</code>, <code>BPF</code> 等框架提供的动态启用&#x2F;禁用机制。只在需要收集数据时才启用钩子，将运行时开销限制在分析期间。</li>
+</ul>
+</li>
+<li><p><strong>数据收集效率：</strong></p>
+<ul>
+<li><strong>最小化数据量：</strong> 只收集解决问题所必需的最小数据集。避免在热路径上复制大块数据（如整个结构体）。优先复制关键字段或使用指针+长度（在 BPF 中需验证）。</li>
+<li><strong>使用高效缓冲区：</strong> <code>ftrace</code> 的 <code>ring_buffer</code>, <code>perf</code> 的 <code>perf_event</code> 环形缓冲区、BPF <code>perf</code>&#x2F;<code>ringbuf</code>&#x2F;<code>array</code> Map 都经过高度优化。避免在钩子回调中实现自己的复杂缓冲逻辑。</li>
+<li><strong>过滤：</strong> 尽可能利用框架提供的过滤功能（如 <code>ftrace</code> 的过滤器、BPF 的 <code>bpf_probe_read_kernel</code> 前置条件检查、<code>perf_event</code> 的过滤器），在钩子执行的最早期就丢弃不相关的事件，避免不必要的处理开销。</li>
+</ul>
+</li>
+</ol>
+<h2 id="🧪-三、调试与可维护性"><a href="#🧪-三、调试与可维护性" class="headerlink" title="🧪 三、调试与可维护性"></a>🧪 三、调试与可维护性</h2><ol start="7">
+<li><p><strong>文档与注释：</strong></p>
+<ul>
+<li>清晰注释钩子的目的、所依赖的精确内核上下文、收集的数据含义以及任何已知的限制或陷阱。</li>
+<li>如果 hook 依赖于特定内核版本或配置，请明确说明。</li>
+</ul>
+</li>
+<li><p><strong>错误处理：</strong></p>
+<ul>
+<li>对钩子注册（<code>register_trace_*</code>, <code>register_kprobe</code>）和关键操作（如内存分配）进行严格的错误检查，并妥善处理失败（打印警告、优雅降级）。在内核中，失败往往比崩溃好。</li>
+<li>BPF 程序加载时，<code>verifier</code> 会执行严格检查，但仍需确保程序逻辑安全（边界检查、空指针检查）。</li>
+</ul>
+</li>
+<li><p><strong>避免递归：</strong></p>
+<ul>
+<li>极端小心地避免钩子函数内部的操作（如 <code>printk</code>、访问复杂数据结构、调用其他函数）无意中再次触发你正在追踪的相同（或其他）钩子，导致无限递归和栈溢出崩溃。例如，在内存分配相关的 tracepoint 回调中调用 <code>kmalloc</code>（即使 <code>GFP_ATOMIC</code>）非常危险。</li>
+</ul>
+</li>
+<li><p><strong>优先使用高级抽象：</strong></p>
+<ul>
+<li><strong>首选 Tracepoints：</strong> 如果存在合适的 tracepoint，优先使用它而不是 kprobes。Tracepoints 更稳定（相对）、有明确定义的参数接口，并且维护者会注意其性能影响。</li>
+<li><strong>利用 BPF：</strong> 对于复杂的收集、过滤、聚合逻辑，强烈建议使用 BPF（eBPF）。BPF 虚拟机提供了安全沙箱（通过验证器）、丰富的帮助函数、高效的数据结构（Map），并且其设计就是为了解决传统内核模块 hook 的安全性和效率问题。<code>libbpf</code> 和 <code>BPF CO-RE</code> (Compile Once - Run Everywhere) 技术大大增强了 BPF 程序的可移植性。</li>
+<li><strong>使用 <code>ftrace</code>&#x2F;<code>perf</code>&#x2F;<code>trace-cmd</code>：</strong> 对于简单的追踪，优先使用这些内置工具直接利用已有的 tracepoints 和功能，避免自己写内核代码。</li>
+</ul>
+</li>
+</ol>
+<h2 id="📌-总结关键点"><a href="#📌-总结关键点" class="headerlink" title="📌 总结关键点"></a>📌 总结关键点</h2><ul>
+<li><strong>Hook 函数必须只读、无副作用、极小化、上下文感知。</strong></li>
+<li><strong>深刻理解执行上下文（能否睡眠？栈多大？能否抢占？），尤其是中断上下文。</strong></li>
+<li><strong>性能开销是主要考量，动态启用、高效过滤、数据最小化是核心优化手段。</strong></li>
+<li><strong>内核版本差异和不稳定的 ABI 是开发和维护的主要挑战。</strong></li>
+<li><strong>稳定性压倒一切：错误处理、资源清理、避免递归至关重要。</strong></li>
+<li><strong>优先选择更安全、更高级别的抽象：Tracepoints &gt; BPF &gt; kprobes&#x2F;uprobes。</strong> 避免直接使用 kprobes&#x2F;uprobes 除非绝对必要。</li>
+</ul>
+<p>⚠️ <strong>强烈建议：</strong> 在将任何自定义钩子（尤其是基于 kprobes 或内核模块的）部署到生产环境之前，必须在与目标环境内核版本和配置一致的测试环境中进行<strong>彻底的测试和性能评估</strong>。充分利用 <code>kprobe</code> 的错误注入和 BPF 的验证器来发现潜在问题。仔细阅读内核源码中 <code>Documentation/trace/</code> 目录下的相关文档📚。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/7738a70c.html">http://helloeuler.cn/posts/7738a70c.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/1792a562.html" title="果壳铃铛使用注意事项总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">果壳铃铛使用注意事项总结</div></div></a></div><div class="next-post pull-right"><a href="/posts/3026841.html" title="Linux内核进程管理导出符号接口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核进程管理导出符号接口</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%A1-%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99%E4%B8%8E%E5%AE%89%E5%85%A8"><span class="toc-text">🛡 一、核心原则与安全</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9A%99-%E4%BA%8C%E3%80%81%E6%80%A7%E8%83%BD%E5%BD%B1%E5%93%8D"><span class="toc-text">⚙ 二、性能影响</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A7%AA-%E4%B8%89%E3%80%81%E8%B0%83%E8%AF%95%E4%B8%8E%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7"><span class="toc-text">🧪 三、调试与可维护性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C-%E6%80%BB%E7%BB%93%E5%85%B3%E9%94%AE%E7%82%B9"><span class="toc-text">📌 总结关键点</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

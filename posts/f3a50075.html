@@ -1,0 +1,561 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>gettimeofday与settimeofday用法详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="gettimeofday和settimeofday的用法及示例 gettimeofday 和 settimeofday 是用于获取和设置系统时间的系统调用，适用于需要高精度时间操作的场景。以下是它们的详细用法及示例：  1. gettimeofday函数原型：123#include &lt;sys&#x2F;time.h&gt;int gettimeofday(struct timeval *tv, str">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gettimeofday与settimeofday用法详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/f3a50075.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="gettimeofday和settimeofday的用法及示例 gettimeofday 和 settimeofday 是用于获取和设置系统时间的系统调用，适用于需要高精度时间操作的场景。以下是它们的详细用法及示例：  1. gettimeofday函数原型：123#include &lt;sys&#x2F;time.h&gt;int gettimeofday(struct timeval *tv, str">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.732Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/f3a50075.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'gettimeofday与settimeofday用法详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">gettimeofday与settimeofday用法详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-20T16:00:00.000Z" title="发表于 2025-05-21 00:00:00">2025-05-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="gettimeofday与settimeofday用法详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>gettimeofday和settimeofday的用法及示例</p>
+<p><code>gettimeofday</code> 和 <code>settimeofday</code> 是用于获取和设置系统时间的系统调用，适用于需要高精度时间操作的场景。以下是它们的详细用法及示例：</p>
+<hr>
+<h3 id="1-gettimeofday"><a href="#1-gettimeofday" class="headerlink" title="1. gettimeofday"></a><strong>1. gettimeofday</strong></h3><h4 id="函数原型："><a href="#函数原型：" class="headerlink" title="函数原型："></a>函数原型：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">gettimeofday</span><span class="params">(<span class="keyword">struct</span> timeval *tv, <span class="keyword">struct</span> timezone *tz)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="参数说明："><a href="#参数说明：" class="headerlink" title="参数说明："></a>参数说明：</h4><ul>
+<li><strong>tv</strong>：指向 <code>struct timeval</code> 的指针，用于存储获取的时间（精确到微秒）。</li>
+<li><strong>tz</strong>：时区信息，通常已废弃，设置为 <code>NULL</code>。</li>
+</ul>
+<h4 id="struct-timeval-结构："><a href="#struct-timeval-结构：" class="headerlink" title="struct timeval 结构："></a><code>struct timeval</code> 结构：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> &#123;</span></span><br><span class="line">    <span class="type">time_t</span>      tv_sec;   <span class="comment">// 秒（自 1970-01-01 00:00:00 UTC）</span></span><br><span class="line">    <span class="type">suseconds_t</span> tv_usec;  <span class="comment">// 微秒</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="示例：获取当前时间"><a href="#示例：获取当前时间" class="headerlink" title="示例：获取当前时间"></a>示例：获取当前时间</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">tv</span>;</span></span><br><span class="line">    <span class="keyword">if</span> (gettimeofday(&amp;tv, <span class="literal">NULL</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Seconds since Epoch: %ld\n&quot;</span>, tv.tv_sec);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Microseconds: %ld\n&quot;</span>, tv.tv_usec);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        perror(<span class="string">&quot;gettimeofday failed&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-settimeofday"><a href="#2-settimeofday" class="headerlink" title="2. settimeofday"></a><strong>2. settimeofday</strong></h3><h4 id="函数原型：-1"><a href="#函数原型：-1" class="headerlink" title="函数原型："></a>函数原型：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">settimeofday</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> timeval *tv, <span class="type">const</span> <span class="keyword">struct</span> timezone *tz)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="参数说明：-1"><a href="#参数说明：-1" class="headerlink" title="参数说明："></a>参数说明：</h4><ul>
+<li><strong>tv</strong>：指向 <code>struct timeval</code> 的指针，包含要设置的时间。</li>
+<li><strong>tz</strong>：时区信息，通常设置为 <code>NULL</code>。</li>
+</ul>
+<h4 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h4><ul>
+<li>需要 <strong>root 权限</strong>（如使用 <code>sudo</code> 运行程序）。</li>
+<li>直接修改系统时间可能导致不可预见的后果（如日志混乱），需谨慎使用。</li>
+</ul>
+<h4 id="示例：设置系统时间"><a href="#示例：设置系统时间" class="headerlink" title="示例：设置系统时间"></a>示例：设置系统时间</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">tv</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">tm_time</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置目标时间：2023-10-01 12:00:00（UTC）</span></span><br><span class="line">    tm_time.tm_year = <span class="number">2023</span> - <span class="number">1900</span>;  <span class="comment">// 年份从 1900 开始计数</span></span><br><span class="line">    tm_time.tm_mon = <span class="number">10</span> - <span class="number">1</span>;        <span class="comment">// 月份 0-11（10 月为 9）</span></span><br><span class="line">    tm_time.tm_mday = <span class="number">1</span>;</span><br><span class="line">    tm_time.tm_hour = <span class="number">12</span>;</span><br><span class="line">    tm_time.tm_min = <span class="number">0</span>;</span><br><span class="line">    tm_time.tm_sec = <span class="number">0</span>;</span><br><span class="line">    tm_time.tm_isdst = <span class="number">-1</span>;          <span class="comment">// 自动判断夏令时</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 tm 结构转换为 time_t（UTC 时间）</span></span><br><span class="line">    <span class="type">time_t</span> t = mktime(&amp;tm_time);</span><br><span class="line">    <span class="keyword">if</span> (t == (<span class="type">time_t</span>)<span class="number">-1</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;mktime failed&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 填充 timeval 结构</span></span><br><span class="line">    tv.tv_sec = t;</span><br><span class="line">    tv.tv_usec = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置系统时间（需 root 权限）</span></span><br><span class="line">    <span class="keyword">if</span> (settimeofday(&amp;tv, <span class="literal">NULL</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;System time updated successfully.\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        perror(<span class="string">&quot;settimeofday failed&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><p><strong>时区处理</strong>：</p>
+<ul>
+<li><code>mktime</code> 默认将 <code>struct tm</code> 视为本地时间。若需使用 UTC 时间，可使用 <code>timegm</code>（非标准，需在 Linux 中定义 <code>_BSD_SOURCE</code>）或调整时区：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setenv(<span class="string">&quot;TZ&quot;</span>, <span class="string">&quot;UTC&quot;</span>, <span class="number">1</span>);  <span class="comment">// 设置时区为 UTC</span></span><br><span class="line">tzset();                 <span class="comment">// 生效时区设置</span></span><br></pre></td></tr></table></figure>
+处理完毕后恢复原时区。</li>
+</ul>
+</li>
+<li><p><strong>权限问题</strong>：</p>
+<ul>
+<li>运行 <code>settimeofday</code> 示例时需使用 <code>sudo</code>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ./settime_example</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>替代方案</strong>：</p>
+<ul>
+<li>对于时间调整，推荐使用 <code>ntp</code> 服务或 <code>adjtime</code> 逐步校正。</li>
+<li>新代码建议使用 <code>clock_gettime</code> 和 <code>clock_settime</code>（精度更高）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>通过上述示例和说明，可安全地使用 <code>gettimeofday</code> 获取时间，并在必要时用 <code>settimeofday</code> 设置系统时间。</p>
+<p>Linux内核ktime_get_real_ts64函数用法及示例</p>
+<p><code>ktime_get_real_ts64</code> 是 Linux 内核中用于获取当前真实时间（即“墙上时间”，wall time）的高精度函数，返回的时间格式为 <code>timespec64</code>（64 位秒和纳秒）。以下是详细用法及示例：</p>
+<hr>
+<h3 id="1-函数原型与头文件"><a href="#1-函数原型与头文件" class="headerlink" title="1. 函数原型与头文件"></a><strong>1. 函数原型与头文件</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/timekeeping.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">ktime_get_real_ts64</span><span class="params">(<span class="keyword">struct</span> timespec64 *ts)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="参数说明：-2"><a href="#参数说明：-2" class="headerlink" title="参数说明："></a>参数说明：</h4><ul>
+<li><strong>ts</strong>：指向 <code>struct timespec64</code> 的指针，用于存储获取的时间。</li>
+</ul>
+<h4 id="struct-timespec64-结构："><a href="#struct-timespec64-结构：" class="headerlink" title="struct timespec64 结构："></a><code>struct timespec64</code> 结构：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span> &#123;</span></span><br><span class="line">    <span class="type">time64_t</span> tv_sec;  <span class="comment">// 秒（自 1970-01-01 00:00:00 UTC）</span></span><br><span class="line">    <span class="type">long</span>     tv_nsec; <span class="comment">// 纳秒 [0, 999,999,999]</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-使用场景"><a href="#2-使用场景" class="headerlink" title="2. 使用场景"></a><strong>2. 使用场景</strong></h3><ul>
+<li>在内核模块中获取高精度实时时间（如日志记录、性能分析）。</li>
+<li>需要避免用户空间与内核空间上下文切换的开销时。</li>
+<li>支持 64 位时间（避免 2038 年溢出问题）。</li>
+</ul>
+<hr>
+<h3 id="3-示例代码"><a href="#3-示例代码" class="headerlink" title="3. 示例代码"></a><strong>3. 示例代码</strong></h3><h4 id="内核模块示例：获取并打印当前时间"><a href="#内核模块示例：获取并打印当前时间" class="headerlink" title="内核模块示例：获取并打印当前时间"></a>内核模块示例：获取并打印当前时间</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/ktime.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/timekeeping.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;Example of ktime_get_real_ts64&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">example_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span> <span class="title">ts</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取当前真实时间</span></span><br><span class="line">    ktime_get_real_ts64(&amp;ts);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印时间（秒 + 纳秒）</span></span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Current time: %lld seconds, %ld nanoseconds\n&quot;</span>,</span><br><span class="line">           (<span class="type">long</span> <span class="type">long</span>)ts.tv_sec, ts.tv_nsec);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">example_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Module unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(example_init);</span><br><span class="line">module_exit(example_exit);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-编译与加载"><a href="#4-编译与加载" class="headerlink" title="4. 编译与加载"></a><strong>4. 编译与加载</strong></h3><h4 id="Makefile-示例："><a href="#Makefile-示例：" class="headerlink" title="Makefile 示例："></a>Makefile 示例：</h4><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">obj-m += example.o</span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+
+<h4 id="操作步骤："><a href="#操作步骤：" class="headerlink" title="操作步骤："></a>操作步骤：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译模块</span></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载模块</span></span><br><span class="line"><span class="built_in">sudo</span> insmod example.ko</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看输出（dmesg）</span></span><br><span class="line">dmesg | <span class="built_in">tail</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载模块</span></span><br><span class="line"><span class="built_in">sudo</span> rmmod example</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-注意事项"><a href="#5-注意事项" class="headerlink" title="5. 注意事项"></a><strong>5. 注意事项</strong></h3><ol>
+<li><p><strong>内核上下文安全性</strong>：</p>
+<ul>
+<li><code>ktime_get_real_ts64</code> 可以在大多数上下文中调用（包括中断上下文），但需确认具体内核版本的实现。</li>
+<li>避免在持有锁时调用，以减少延迟。</li>
+</ul>
+</li>
+<li><p><strong>时间精度</strong>：</p>
+<ul>
+<li>返回的时间精度为纳秒级，但实际精度取决于硬件和内核配置（如 <code>CONFIG_HIGH_RES_TIMERS</code>）。</li>
+</ul>
+</li>
+<li><p><strong>时间来源</strong>：</p>
+<ul>
+<li>返回的时间是系统实时时间，可能受 NTP 调整或 <code>settimeofday</code> 影响。</li>
+</ul>
+</li>
+<li><p><strong>64 位时间</strong>：</p>
+<ul>
+<li>使用 <code>time64_t</code> 避免 2038 年溢出问题（32 位系统兼容）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="6-对比其他时间函数"><a href="#6-对比其他时间函数" class="headerlink" title="6. 对比其他时间函数"></a><strong>6. 对比其他时间函数</strong></h3><table>
+<thead>
+<tr>
+<th>函数</th>
+<th>描述</th>
+<th>精度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ktime_get_real_ts64</code></td>
+<td>获取实时时间（墙上时间）</td>
+<td>纳秒</td>
+<td>需要 64 位时间的场景</td>
+</tr>
+<tr>
+<td><code>ktime_get</code></td>
+<td>获取单调时间（不受 NTP 影响）</td>
+<td>纳秒</td>
+<td>性能测量、超时计算</td>
+</tr>
+<tr>
+<td><code>do_gettimeofday</code></td>
+<td>获取实时时间（旧接口）</td>
+<td>微秒</td>
+<td>遗留代码兼容</td>
+</tr>
+<tr>
+<td><code>current_kernel_time</code></td>
+<td>获取实时时间（旧接口）</td>
+<td>微秒</td>
+<td>已废弃，不推荐使用</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="7-时间格式转换"><a href="#7-时间格式转换" class="headerlink" title="7. 时间格式转换"></a><strong>7. 时间格式转换</strong></h3><p>若需将 <code>timespec64</code> 转换为可读字符串，可使用 <code>time64_to_tm</code> 和 <code>snprintf</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">tm_time</span>;</span></span><br><span class="line">time64_to_tm(ts.tv_sec, <span class="number">0</span>, &amp;tm_time); <span class="comment">// 转换为分解时间（UTC）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 格式化输出（示例）</span></span><br><span class="line">printk(KERN_INFO <span class="string">&quot;UTC Time: %04d-%02d-%02d %02d:%02d:%02d\n&quot;</span>,</span><br><span class="line">       tm_time.tm_year + <span class="number">1900</span>, tm_time.tm_mon + <span class="number">1</span>, tm_time.tm_mday,</span><br><span class="line">       tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>通过上述示例和说明，可以在内核模块中安全地使用 <code>ktime_get_real_ts64</code> 获取高精度实时时间。</p>
+<p>Linux内核time64_to_tm 函数的用法及示例</p>
+<p><code>time64_to_tm</code> 是 Linux 内核中用于将 <strong>64 位时间戳</strong>（<code>time64_t</code>，自 1970-01-01 00:00:00 UTC 的秒数）转换为人类可读的分解时间（<code>struct tm</code>）的函数。以下是其详细用法及示例：</p>
+<hr>
+<h3 id="1-函数原型与头文件-1"><a href="#1-函数原型与头文件-1" class="headerlink" title="1. 函数原型与头文件"></a><strong>1. 函数原型与头文件</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">time64_to_tm</span><span class="params">(<span class="type">time64_t</span> totalsecs, <span class="type">int</span> offset, <span class="keyword">struct</span> tm *result)</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="参数说明：-3"><a href="#参数说明：-3" class="headerlink" title="参数说明："></a>参数说明：</h4><ul>
+<li>**<code>totalsecs</code>**：待转换的 64 位时间戳（秒数）。</li>
+<li>**<code>offset</code>**：时区偏移（单位：秒）。若设为 <code>0</code>，表示使用 <strong>UTC 时间</strong>；若需本地时间，需传入时区偏移（如东八区为 <code>8*3600</code>）。</li>
+<li>**<code>result</code>**：指向 <code>struct tm</code> 的指针，用于存储转换后的分解时间。</li>
+</ul>
+<h4 id="struct-tm-结构："><a href="#struct-tm-结构：" class="headerlink" title="struct tm 结构："></a><code>struct tm</code> 结构：</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tm</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> tm_sec;    <span class="comment">// 秒 [0-59]</span></span><br><span class="line">    <span class="type">int</span> tm_min;    <span class="comment">// 分 [0-59]</span></span><br><span class="line">    <span class="type">int</span> tm_hour;   <span class="comment">// 小时 [0-23]</span></span><br><span class="line">    <span class="type">int</span> tm_mday;   <span class="comment">// 日 [1-31]</span></span><br><span class="line">    <span class="type">int</span> tm_mon;    <span class="comment">// 月 [0-11]（0 代表 1 月）</span></span><br><span class="line">    <span class="type">int</span> tm_year;   <span class="comment">// 年份（自 1900 年起的差值）</span></span><br><span class="line">    <span class="type">int</span> tm_wday;   <span class="comment">// 星期 [0-6]（0 代表周日）</span></span><br><span class="line">    <span class="type">int</span> tm_yday;   <span class="comment">// 一年中的第几天 [0-365]</span></span><br><span class="line">    <span class="type">int</span> tm_isdst;  <span class="comment">// 夏令时标志（负数表示未知）</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-使用场景-1"><a href="#2-使用场景-1" class="headerlink" title="2. 使用场景"></a><strong>2. 使用场景</strong></h3><ul>
+<li>在内核模块中将时间戳转换为可读的年、月、日、时、分、秒。</li>
+<li>生成日志时间戳、调试信息或处理时间相关逻辑。</li>
+</ul>
+<hr>
+<h3 id="3-示例代码-1"><a href="#3-示例代码-1" class="headerlink" title="3. 示例代码"></a><strong>3. 示例代码</strong></h3><h4 id="内核模块示例：将时间戳转换为分解时间并打印"><a href="#内核模块示例：将时间戳转换为分解时间并打印" class="headerlink" title="内核模块示例：将时间戳转换为分解时间并打印"></a>内核模块示例：将时间戳转换为分解时间并打印</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/timekeeping.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;Example of time64_to_tm&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">example_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span> <span class="title">ts</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">tm_time</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 获取当前时间（64 位时间戳）</span></span><br><span class="line">    ktime_get_real_ts64(&amp;ts);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 将时间戳转换为分解时间（UTC）</span></span><br><span class="line">    time64_to_tm(ts.tv_sec, <span class="number">0</span>, &amp;tm_time);  <span class="comment">// offset=0 表示 UTC</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 打印分解时间</span></span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;UTC Time: %04d-%02d-%02d %02d:%02d:%02d\n&quot;</span>,</span><br><span class="line">           tm_time.tm_year + <span class="number">1900</span>,  <span class="comment">// 年份需 +1900</span></span><br><span class="line">           tm_time.tm_mon + <span class="number">1</span>,      <span class="comment">// 月份从 0 开始，需 +1</span></span><br><span class="line">           tm_time.tm_mday,</span><br><span class="line">           tm_time.tm_hour,</span><br><span class="line">           tm_time.tm_min,</span><br><span class="line">           tm_time.tm_sec);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">example_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Module unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(example_init);</span><br><span class="line">module_exit(example_exit);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-编译与加载-1"><a href="#4-编译与加载-1" class="headerlink" title="4. 编译与加载"></a><strong>4. 编译与加载</strong></h3><h4 id="Makefile-示例：-1"><a href="#Makefile-示例：-1" class="headerlink" title="Makefile 示例："></a>Makefile 示例：</h4><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">obj-m += example.o</span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+
+<h4 id="操作步骤：-1"><a href="#操作步骤：-1" class="headerlink" title="操作步骤："></a>操作步骤：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译模块</span></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载模块</span></span><br><span class="line"><span class="built_in">sudo</span> insmod example.ko</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看输出（dmesg）</span></span><br><span class="line">dmesg | <span class="built_in">tail</span> -n 2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出示例：</span></span><br><span class="line"><span class="comment"># [ 1234.567890] UTC Time: 2023-10-05 14:30:45</span></span><br><span class="line"><span class="comment"># [ 1234.567891] Module unloaded</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载模块</span></span><br><span class="line"><span class="built_in">sudo</span> rmmod example</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-注意事项-1"><a href="#5-注意事项-1" class="headerlink" title="5. 注意事项"></a><strong>5. 注意事项</strong></h3><ol>
+<li><p><strong>时区处理</strong>：</p>
+<ul>
+<li>若需本地时间，需手动计算时区偏移（例如东八区为 <code>8*3600</code> 秒）：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">time64_to_tm(ts.tv_sec, <span class="number">8</span> * <span class="number">3600</span>, &amp;tm_time);  <span class="comment">// 东八区</span></span><br></pre></td></tr></table></figure></li>
+<li>内核中不直接支持时区数据库，需硬编码偏移量。</li>
+</ul>
+</li>
+<li><p><strong>时间精度</strong>：</p>
+<ul>
+<li><code>time64_to_tm</code> 仅处理秒级时间戳，纳秒部分（<code>ts.tv_nsec</code>）需额外处理。</li>
+</ul>
+</li>
+<li><p><strong>年份和月份的修正</strong>：</p>
+<ul>
+<li><code>tm_year</code> 返回的是自 1900 年起的差值，需 <code>+1900</code> 得到实际年份。</li>
+<li><code>tm_mon</code> 范围是 0-11（0 代表 1 月），需 <code>+1</code> 得到实际月份。</li>
+</ul>
+</li>
+<li><p><strong>函数安全性</strong>：</p>
+<ul>
+<li><code>time64_to_tm</code> 是内核安全函数，可在中断上下文中调用。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="6-对比用户空间函数"><a href="#6-对比用户空间函数" class="headerlink" title="6. 对比用户空间函数"></a><strong>6. 对比用户空间函数</strong></h3><table>
+<thead>
+<tr>
+<th>函数&#x2F;操作</th>
+<th>用户空间</th>
+<th>内核空间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>时间戳转分解时间</td>
+<td><code>localtime()</code></td>
+<td><code>time64_to_tm()</code></td>
+</tr>
+<tr>
+<td>时间戳来源</td>
+<td><code>time()</code></td>
+<td><code>ktime_get_real_ts64()</code></td>
+</tr>
+<tr>
+<td>时区支持</td>
+<td>自动读取系统时区</td>
+<td>需手动指定偏移量</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="7-扩展应用"><a href="#7-扩展应用" class="headerlink" title="7. 扩展应用"></a><strong>7. 扩展应用</strong></h3><h4 id="将分解时间格式化为字符串"><a href="#将分解时间格式化为字符串" class="headerlink" title="将分解时间格式化为字符串"></a>将分解时间格式化为字符串</h4><p>若需生成自定义时间字符串（如 <code>YYYY-MM-DD HH:MM:SS</code>），可结合 <code>snprintf</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> time_buf[<span class="number">64</span>];</span><br><span class="line"><span class="built_in">snprintf</span>(time_buf, <span class="keyword">sizeof</span>(time_buf), <span class="string">&quot;%04d-%02d-%02d %02d:%02d:%02d&quot;</span>,</span><br><span class="line">         tm_time.tm_year + <span class="number">1900</span>,</span><br><span class="line">         tm_time.tm_mon + <span class="number">1</span>,</span><br><span class="line">         tm_time.tm_mday,</span><br><span class="line">         tm_time.tm_hour,</span><br><span class="line">         tm_time.tm_min,</span><br><span class="line">         tm_time.tm_sec);</span><br><span class="line">printk(KERN_INFO <span class="string">&quot;Formatted Time: %s\n&quot;</span>, time_buf);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>通过上述示例，可以轻松在内核模块中使用 <code>time64_to_tm</code> 将时间戳转换为可读格式，适用于日志记录、调试等场景。</p>
+<p>使用time64_to_tm接口获取本地时间的方法及示例</p>
+<p>在内核中使用 <code>time64_to_tm</code> 获取本地时间需要 <strong>手动指定时区偏移量</strong>（因为内核不直接支持系统时区配置）。以下是具体方法及示例：</p>
+<hr>
+<h3 id="1-核心思路"><a href="#1-核心思路" class="headerlink" title="1. 核心思路"></a><strong>1. 核心思路</strong></h3><ol>
+<li><strong>获取 UTC 时间戳</strong>：通过 <code>ktime_get_real_ts64</code> 获取当前 UTC 时间（64 位秒数）。</li>
+<li><strong>计算时区偏移</strong>：本地时间 &#x3D; UTC 时间 + 时区偏移（例如东八区偏移为 <code>8*3600</code> 秒）。</li>
+<li><strong>转换时间格式</strong>：调用 <code>time64_to_tm</code> 将时间戳转换为分解时间（<code>struct tm</code>）。</li>
+</ol>
+<hr>
+<h3 id="2-完整示例代码"><a href="#2-完整示例代码" class="headerlink" title="2. 完整示例代码"></a><strong>2. 完整示例代码</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/timekeeping.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;Get local time with time64_to_tm&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">example_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span> <span class="title">ts_utc</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> <span class="title">tm_local</span>;</span></span><br><span class="line">    <span class="type">int</span> timezone_offset = <span class="number">8</span> * <span class="number">3600</span>; <span class="comment">// 东八区（北京时间）偏移：+8小时</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 获取当前 UTC 时间</span></span><br><span class="line">    ktime_get_real_ts64(&amp;ts_utc);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 转换为本地时间（UTC时间 + 时区偏移）</span></span><br><span class="line">    time64_to_tm(ts_utc.tv_sec + timezone_offset, <span class="number">0</span>, &amp;tm_local);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 打印本地时间（注意年份和月份的修正）</span></span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Local Time: %04d-%02d-%02d %02d:%02d:%02d\n&quot;</span>,</span><br><span class="line">           tm_local.tm_year + <span class="number">1900</span>,  <span class="comment">// 年份需要 +1900</span></span><br><span class="line">           tm_local.tm_mon + <span class="number">1</span>,      <span class="comment">// 月份从 0 开始，需要 +1</span></span><br><span class="line">           tm_local.tm_mday,</span><br><span class="line">           tm_local.tm_hour,</span><br><span class="line">           tm_local.tm_min,</span><br><span class="line">           tm_local.tm_sec);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">example_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;Module unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(example_init);</span><br><span class="line">module_exit(example_exit);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-编译与验证"><a href="#3-编译与验证" class="headerlink" title="3. 编译与验证"></a><strong>3. 编译与验证</strong></h3><h4 id="Makefile-示例：-2"><a href="#Makefile-示例：-2" class="headerlink" title="Makefile 示例："></a>Makefile 示例：</h4><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">obj-m += local_time.o</span><br><span class="line"></span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+
+<h4 id="操作步骤：-2"><a href="#操作步骤：-2" class="headerlink" title="操作步骤："></a>操作步骤：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编译模块</span></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载模块（需root权限）</span></span><br><span class="line"><span class="built_in">sudo</span> insmod local_time.ko</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看输出（dmesg）</span></span><br><span class="line">dmesg | <span class="built_in">tail</span> -n 1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例输出：</span></span><br><span class="line"><span class="comment"># [ 1234.567890] Local Time: 2023-10-06 10:30:45</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 卸载模块</span></span><br><span class="line"><span class="built_in">sudo</span> rmmod local_time</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-关键细节说明"><a href="#4-关键细节说明" class="headerlink" title="4. 关键细节说明"></a><strong>4. 关键细节说明</strong></h3><h4 id="1-时区偏移计算"><a href="#1-时区偏移计算" class="headerlink" title="(1) 时区偏移计算"></a>(1) <strong>时区偏移计算</strong></h4><ul>
+<li><strong>公式</strong>：<code>本地时间 = UTC时间 + 时区偏移</code></li>
+<li><strong>示例</strong>：<ul>
+<li>东八区（北京）：<code>8小时 = 8*3600秒</code></li>
+<li>西五区（纽约）：<code>-5小时 = -5*3600秒</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="2-夏令时（DST）问题"><a href="#2-夏令时（DST）问题" class="headerlink" title="(2) 夏令时（DST）问题"></a>(2) <strong>夏令时（DST）问题</strong></h4><ul>
+<li>内核不自动处理夏令时，若需支持，需手动调整偏移量（例如东八区夏令时偏移为 <code>+9*3600</code>）。</li>
+<li>实际应用中，硬编码偏移量可能不灵活，需根据业务需求处理。</li>
+</ul>
+<h4 id="3-时区偏移来源"><a href="#3-时区偏移来源" class="headerlink" title="(3) 时区偏移来源"></a>(3) <strong>时区偏移来源</strong></h4><ul>
+<li><strong>硬编码</strong>：简单但不可动态调整（如示例中的 <code>timezone_offset = 8*3600</code>）。</li>
+<li><strong>内核参数传递</strong>：通过模块参数动态设置偏移量：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> timezone_offset = <span class="number">8</span>*<span class="number">3600</span>;</span><br><span class="line">module_param(timezone_offset, <span class="type">int</span>, <span class="number">0644</span>);</span><br><span class="line">MODULE_PARM_DESC(timezone_offset, <span class="string">&quot;Timezone offset in seconds (e.g., 28800 for UTC+8)&quot;</span>);</span><br></pre></td></tr></table></figure>
+加载模块时指定：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> insmod local_time.ko timezone_offset=28800</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="5-对比用户空间行为"><a href="#5-对比用户空间行为" class="headerlink" title="5. 对比用户空间行为"></a><strong>5. 对比用户空间行为</strong></h3><table>
+<thead>
+<tr>
+<th><strong>操作</strong></th>
+<th><strong>用户空间</strong></th>
+<th><strong>内核空间</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取时间</td>
+<td><code>time()</code> &#x2F; <code>gettimeofday()</code></td>
+<td><code>ktime_get_real_ts64()</code></td>
+</tr>
+<tr>
+<td>转换本地时间</td>
+<td><code>localtime()</code>（自动读时区）</td>
+<td><code>time64_to_tm()</code> + 手动偏移</td>
+</tr>
+<tr>
+<td>时区配置</td>
+<td><code>/etc/localtime</code> 或 <code>TZ</code> 变量</td>
+<td>需硬编码或动态传递偏移量</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="6-扩展应用：动态获取系统时区"><a href="#6-扩展应用：动态获取系统时区" class="headerlink" title="6. 扩展应用：动态获取系统时区"></a><strong>6. 扩展应用：动态获取系统时区</strong></h3><p>若需在内核中动态获取系统时区偏移，需结合用户空间协作（需 root 权限）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例：通过系统调用或 procfs 获取用户空间时区偏移</span></span><br><span class="line"><span class="comment">// （此处为伪代码，实际需设计内核与用户空间的通信机制）</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">get_system_timezone_offset</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 用户空间程序读取系统时区偏移（如通过 `date +%z`）</span></span><br><span class="line">    <span class="comment">// 2. 将偏移量传递给内核模块（通过 netlink、sysfs 等）</span></span><br><span class="line">    <span class="comment">// 3. 返回偏移量（秒）</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">8</span>*<span class="number">3600</span>; <span class="comment">// 示例值</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在模块初始化中使用：</span></span><br><span class="line">timezone_offset = get_system_timezone_offset();</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="7-总结"><a href="#7-总结" class="headerlink" title="7. 总结"></a><strong>7. 总结</strong></h3><ul>
+<li><strong>核心步骤</strong>：获取 UTC 时间 → 添加时区偏移 → 调用 <code>time64_to_tm</code>。</li>
+<li><strong>适用场景</strong>：内核日志时间戳、驱动程序时间记录等。</li>
+<li><strong>局限性</strong>：时区偏移需手动维护，无法直接响应系统时区变化。</li>
+</ul>
+<p>Linux下获取时区接口</p>
+<p>在 Linux 系统中，获取时区信息可以通过多种接口实现，具体分为 <strong>用户空间</strong> 和 <strong>内核空间</strong> 两类场景。以下是详细的接口说明及示例：</p>
+<hr>
+<h3 id="一、用户空间获取时区"><a href="#一、用户空间获取时区" class="headerlink" title="一、用户空间获取时区"></a><strong>一、用户空间获取时区</strong></h3><h4 id="1-使用-localtime-和-tzset-函数"><a href="#1-使用-localtime-和-tzset-函数" class="headerlink" title="1. 使用 localtime 和 tzset 函数"></a><strong>1. 使用 <code>localtime</code> 和 <code>tzset</code> 函数</strong></h4><p>通过标准库函数读取系统时区配置，依赖环境变量 <code>TZ</code> 或系统默认时区文件 <code>/etc/localtime</code>。</p>
+<h5 id="示例代码："><a href="#示例代码：" class="headerlink" title="示例代码："></a>示例代码：</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">time_t</span> t = time(<span class="literal">NULL</span>);</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">tm</span> *<span class="title">local</span> =</span> localtime(&amp;t);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取时区名称和偏移（需调用 tzset 初始化）</span></span><br><span class="line">    tzset(); <span class="comment">// 初始化时区信息</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Timezone Name: %s\n&quot;</span>, tzname[<span class="number">0</span>]);       <span class="comment">// 时区缩写（如 CST）</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;UTC Offset: %ld hours\n&quot;</span>, timezone / <span class="number">3600</span>); <span class="comment">// 秒转为小时（注意符号）</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Local Time: %s&quot;</span>, asctime(local));       <span class="comment">// 本地时间字符串</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="输出示例："><a href="#输出示例：" class="headerlink" title="输出示例："></a>输出示例：</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Timezone Name: CST</span><br><span class="line">UTC Offset: -8 hours</span><br><span class="line">Local Time: Wed Oct  6 15:30:45 2023</span><br></pre></td></tr></table></figure>
+
+<h5 id="关键点："><a href="#关键点：" class="headerlink" title="关键点："></a>关键点：</h5><ul>
+<li><code>tzname[0]</code>: 时区名称（非夏令时）。</li>
+<li><code>timezone</code>: 时区偏移（秒），<strong>UTC 时间 &#x3D; 本地时间 + timezone</strong>（东区为负值，西区为正值）。</li>
+<li><code>daylight</code>: 是否启用夏令时（0 或 1）。</li>
+</ul>
+<hr>
+<h4 id="2-直接读取-etc-localtime-文件"><a href="#2-直接读取-etc-localtime-文件" class="headerlink" title="2. 直接读取 /etc/localtime 文件"></a><strong>2. 直接读取 <code>/etc/localtime</code> 文件</strong></h4><p>系统时区通常通过符号链接 <code>/etc/localtime</code> 指向 <code>/usr/share/zoneinfo/</code> 中的时区文件。</p>
+<h5 id="示例命令："><a href="#示例命令：" class="headerlink" title="示例命令："></a>示例命令：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前时区文件路径</span></span><br><span class="line"><span class="built_in">ls</span> -l /etc/localtime</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例输出：</span></span><br><span class="line">lrwxrwxrwx 1 root root 33 Oct  1 12:00 /etc/localtime -&gt; /usr/share/zoneinfo/Asia/Shanghai</span><br></pre></td></tr></table></figure>
+
+<h5 id="解析时区名称："><a href="#解析时区名称：" class="headerlink" title="解析时区名称："></a>解析时区名称：</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;limits.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">char</span> tzpath[PATH_MAX];</span><br><span class="line">    <span class="type">ssize_t</span> len = readlink(<span class="string">&quot;/etc/localtime&quot;</span>, tzpath, <span class="keyword">sizeof</span>(tzpath)<span class="number">-1</span>);</span><br><span class="line">    <span class="keyword">if</span> (len != <span class="number">-1</span>) &#123;</span><br><span class="line">        tzpath[len] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Timezone File: %s\n&quot;</span>, tzpath); <span class="comment">// 如 /usr/share/zoneinfo/Asia/Shanghai</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="3-使用-gettimeofday（已废弃时区参数）"><a href="#3-使用-gettimeofday（已废弃时区参数）" class="headerlink" title="3. 使用 gettimeofday（已废弃时区参数）"></a><strong>3. 使用 <code>gettimeofday</code>（已废弃时区参数）</strong></h4><p>尽管 <code>gettimeofday</code> 的 <code>struct timezone</code> 参数已过时，仍可通过它获取粗略的时区偏移：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">tv</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timezone</span> <span class="title">tz</span>;</span></span><br><span class="line"></span><br><span class="line">    gettimeofday(&amp;tv, &amp;tz);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Timezone Offset: UTC%d%02d\n&quot;</span>, </span><br><span class="line">           -tz.tz_minuteswest / <span class="number">60</span>,    <span class="comment">// 小时偏移（西区正值）</span></span><br><span class="line">           tz.tz_minuteswest % <span class="number">60</span>);    <span class="comment">// 分钟偏移</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="输出示例：-1"><a href="#输出示例：-1" class="headerlink" title="输出示例："></a>输出示例：</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Timezone Offset: UTC+08:00</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="二、内核空间获取时区"><a href="#二、内核空间获取时区" class="headerlink" title="二、内核空间获取时区"></a><strong>二、内核空间获取时区</strong></h3><p>Linux 内核默认 <strong>不直接管理时区</strong>，系统时间以 UTC 存储。若需在内核模块中获取时区信息，需通过以下方法：</p>
+<h4 id="1-硬编码时区偏移"><a href="#1-硬编码时区偏移" class="headerlink" title="1. 硬编码时区偏移"></a><strong>1. 硬编码时区偏移</strong></h4><p>在模块中手动指定时区偏移（如东八区）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> timezone_offset = <span class="number">8</span> * <span class="number">3600</span>; <span class="comment">// 东八区：+8 小时</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timespec64</span> <span class="title">ts_utc</span>;</span></span><br><span class="line">ktime_get_real_ts64(&amp;ts_utc);</span><br><span class="line"><span class="type">time64_t</span> local_sec = ts_utc.tv_sec + timezone_offset;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-通过用户空间传递时区"><a href="#2-通过用户空间传递时区" class="headerlink" title="2. 通过用户空间传递时区"></a><strong>2. 通过用户空间传递时区</strong></h4><p>通过内核与用户空间通信（如 sysfs、netlink 或模块参数）动态获取时区偏移。</p>
+<h5 id="示例：模块参数传递时区"><a href="#示例：模块参数传递时区" class="headerlink" title="示例：模块参数传递时区"></a>示例：模块参数传递时区</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> timezone_offset = <span class="number">0</span>;</span><br><span class="line">module_param(timezone_offset, <span class="type">int</span>, <span class="number">0644</span>);</span><br><span class="line">MODULE_PARM_DESC(timezone_offset, <span class="string">&quot;Timezone offset in seconds (e.g., 28800 for UTC+8)&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 加载模块时指定：</span></span><br><span class="line"><span class="comment">// sudo insmod mymodule.ko timezone_offset=28800</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="3-读取-RTC-时间（可能包含时区）"><a href="#3-读取-RTC-时间（可能包含时区）" class="headerlink" title="3. 读取 RTC 时间（可能包含时区）"></a><strong>3. 读取 RTC 时间（可能包含时区）</strong></h4><p>部分系统将 RTC 时间设置为本地时间（而非 UTC），可通过 RTC 驱动接口获取：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/rtc.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rtc_time</span> <span class="title">tm</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rtc_device</span> *<span class="title">rtc</span> =</span> rtc_class_open(<span class="string">&quot;rtc0&quot;</span>);</span><br><span class="line">rtc_read_time(rtc, &amp;tm);</span><br><span class="line">rtc_class_close(rtc);</span><br><span class="line"></span><br><span class="line">printk(<span class="string">&quot;RTC Time: %04d-%02d-%02d %02d:%02d:%02d\n&quot;</span>,</span><br><span class="line">       tm.tm_year + <span class="number">1900</span>, tm.tm_mon + <span class="number">1</span>, tm.tm_mday,</span><br><span class="line">       tm.tm_hour, tm.tm_min, tm.tm_sec);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、动态获取系统时区（高级）"><a href="#三、动态获取系统时区（高级）" class="headerlink" title="三、动态获取系统时区（高级）"></a><strong>三、动态获取系统时区（高级）</strong></h3><h4 id="1-解析-proc-timedate-信息"><a href="#1-解析-proc-timedate-信息" class="headerlink" title="1. 解析 /proc/timedate 信息"></a><strong>1. 解析 <code>/proc/timedate</code> 信息</strong></h4><p>通过 <code>/proc/timedate</code> 文件读取时区名称（需内核支持）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /proc/timedate</span><br><span class="line"><span class="comment"># 输出示例：</span></span><br><span class="line">Timezone: Asia/Shanghai (CST, +0800)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-使用-Glibc-扩展函数-gettimeofday"><a href="#2-使用-Glibc-扩展函数-gettimeofday" class="headerlink" title="2. 使用 Glibc 扩展函数 gettimeofday"></a><strong>2. 使用 Glibc 扩展函数 <code>gettimeofday</code></strong></h4><p>通过 <code>struct timezone</code> 获取时区偏移（注意：非跨平台兼容）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">print_timezone</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timezone</span> <span class="title">tz</span>;</span></span><br><span class="line">    gettimeofday(<span class="literal">NULL</span>, &amp;tz);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Timezone Offset: %d minutes west of UTC\n&quot;</span>, tz.tz_minuteswest);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a><strong>四、总结</strong></h3><table>
+<thead>
+<tr>
+<th><strong>场景</strong></th>
+<th><strong>方法</strong></th>
+<th><strong>特点</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>用户空间</strong></td>
+<td><code>localtime</code> + <code>tzset</code></td>
+<td>依赖系统时区配置，支持动态调整</td>
+</tr>
+<tr>
+<td></td>
+<td>读取 <code>/etc/localtime</code> 符号链接</td>
+<td>直接获取时区文件路径</td>
+</tr>
+<tr>
+<td></td>
+<td><code>gettimeofday</code>（时区参数）</td>
+<td>已废弃，但可获取粗略偏移</td>
+</tr>
+<tr>
+<td><strong>内核空间</strong></td>
+<td>硬编码时区偏移</td>
+<td>简单但不灵活</td>
+</tr>
+<tr>
+<td></td>
+<td>通过模块参数传递</td>
+<td>动态配置，依赖用户输入</td>
+</tr>
+<tr>
+<td></td>
+<td>读取 RTC 时间（若设置为本地时间）</td>
+<td>依赖硬件配置</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><p><strong>时区与夏令时</strong>：</p>
+<ul>
+<li>用户空间可通过 <code>tzname[1]</code> 获取夏令时时区名称（如 <code>CDT</code>），但内核无内置支持。</li>
+<li>夏令时偏移需手动处理。</li>
+</ul>
+</li>
+<li><p><strong>内核限制</strong>：</p>
+<ul>
+<li>内核不直接管理时区，需依赖外部输入或硬编码。</li>
+<li>修改系统时区需通过用户空间工具（如 <code>timedatectl</code>）。</li>
+</ul>
+</li>
+<li><p><strong>跨平台兼容性</strong>：</p>
+<ul>
+<li>避免依赖 <code>/proc</code> 或 <code>/sys</code> 中的非标准文件。</li>
+<li>优先使用标准库函数（如 <code>localtime_r</code>）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>通过上述接口，开发者可以在不同场景下灵活获取和处理时区信息。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/f3a50075.html">http://helloeuler.cn/posts/f3a50075.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/3f04ec12.html" title="Linux内存隔离后接口使用情况"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内存隔离后接口使用情况</div></div></a></div><div class="next-post pull-right"><a href="/posts/fde51a2f.html" title="Linux内核copy_from_user_page函数详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核copy_from_user_page函数详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-gettimeofday"><span class="toc-text">1. gettimeofday</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B%EF%BC%9A"><span class="toc-text">函数原型：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-text">参数说明：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#struct-timeval-%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-text">struct timeval 结构：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%97%B6%E9%97%B4"><span class="toc-text">示例：获取当前时间</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-settimeofday"><span class="toc-text">2. settimeofday</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B%EF%BC%9A-1"><span class="toc-text">函数原型：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E%EF%BC%9A-1"><span class="toc-text">参数说明：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%9A"><span class="toc-text">注意事项：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E8%AE%BE%E7%BD%AE%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%97%B4"><span class="toc-text">示例：设置系统时间</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="toc-text">1. 函数原型与头文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E%EF%BC%9A-2"><span class="toc-text">参数说明：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#struct-timespec64-%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-text">struct timespec64 结构：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">2. 使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">3. 示例代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E7%A4%BA%E4%BE%8B%EF%BC%9A%E8%8E%B7%E5%8F%96%E5%B9%B6%E6%89%93%E5%8D%B0%E5%BD%93%E5%89%8D%E6%97%B6%E9%97%B4"><span class="toc-text">内核模块示例：获取并打印当前时间</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%BC%96%E8%AF%91%E4%B8%8E%E5%8A%A0%E8%BD%BD"><span class="toc-text">4. 编译与加载</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Makefile-%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-text">Makefile 示例：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="toc-text">操作步骤：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">5. 注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%AF%B9%E6%AF%94%E5%85%B6%E4%BB%96%E6%97%B6%E9%97%B4%E5%87%BD%E6%95%B0"><span class="toc-text">6. 对比其他时间函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%97%B6%E9%97%B4%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="toc-text">7. 时间格式转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%A4%B4%E6%96%87%E4%BB%B6-1"><span class="toc-text">1. 函数原型与头文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E%EF%BC%9A-3"><span class="toc-text">参数说明：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#struct-tm-%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-text">struct tm 结构：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="toc-text">2. 使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81-1"><span class="toc-text">3. 示例代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%B0%86%E6%97%B6%E9%97%B4%E6%88%B3%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%88%86%E8%A7%A3%E6%97%B6%E9%97%B4%E5%B9%B6%E6%89%93%E5%8D%B0"><span class="toc-text">内核模块示例：将时间戳转换为分解时间并打印</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%BC%96%E8%AF%91%E4%B8%8E%E5%8A%A0%E8%BD%BD-1"><span class="toc-text">4. 编译与加载</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Makefile-%E7%A4%BA%E4%BE%8B%EF%BC%9A-1"><span class="toc-text">Makefile 示例：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4%EF%BC%9A-1"><span class="toc-text">操作步骤：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">5. 注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%AF%B9%E6%AF%94%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E5%87%BD%E6%95%B0"><span class="toc-text">6. 对比用户空间函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%89%A9%E5%B1%95%E5%BA%94%E7%94%A8"><span class="toc-text">7. 扩展应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E5%88%86%E8%A7%A3%E6%97%B6%E9%97%B4%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%BA%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-text">将分解时间格式化为字符串</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E6%80%9D%E8%B7%AF"><span class="toc-text">1. 核心思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">2. 完整示例代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%BC%96%E8%AF%91%E4%B8%8E%E9%AA%8C%E8%AF%81"><span class="toc-text">3. 编译与验证</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Makefile-%E7%A4%BA%E4%BE%8B%EF%BC%9A-2"><span class="toc-text">Makefile 示例：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4%EF%BC%9A-2"><span class="toc-text">操作步骤：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%85%B3%E9%94%AE%E7%BB%86%E8%8A%82%E8%AF%B4%E6%98%8E"><span class="toc-text">4. 关键细节说明</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%97%B6%E5%8C%BA%E5%81%8F%E7%A7%BB%E8%AE%A1%E7%AE%97"><span class="toc-text">(1) 时区偏移计算</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%A4%8F%E4%BB%A4%E6%97%B6%EF%BC%88DST%EF%BC%89%E9%97%AE%E9%A2%98"><span class="toc-text">(2) 夏令时（DST）问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%97%B6%E5%8C%BA%E5%81%8F%E7%A7%BB%E6%9D%A5%E6%BA%90"><span class="toc-text">(3) 时区偏移来源</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%AF%B9%E6%AF%94%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E8%A1%8C%E4%B8%BA"><span class="toc-text">5. 对比用户空间行为</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%89%A9%E5%B1%95%E5%BA%94%E7%94%A8%EF%BC%9A%E5%8A%A8%E6%80%81%E8%8E%B7%E5%8F%96%E7%B3%BB%E7%BB%9F%E6%97%B6%E5%8C%BA"><span class="toc-text">6. 扩展应用：动态获取系统时区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%80%BB%E7%BB%93"><span class="toc-text">7. 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E8%8E%B7%E5%8F%96%E6%97%B6%E5%8C%BA"><span class="toc-text">一、用户空间获取时区</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8-localtime-%E5%92%8C-tzset-%E5%87%BD%E6%95%B0"><span class="toc-text">1. 使用 localtime 和 tzset 函数</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="toc-text">示例代码：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-text">输出示例：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%82%B9%EF%BC%9A"><span class="toc-text">关键点：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%9B%B4%E6%8E%A5%E8%AF%BB%E5%8F%96-etc-localtime-%E6%96%87%E4%BB%B6"><span class="toc-text">2. 直接读取 &#x2F;etc&#x2F;localtime 文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E5%91%BD%E4%BB%A4%EF%BC%9A"><span class="toc-text">示例命令：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90%E6%97%B6%E5%8C%BA%E5%90%8D%E7%A7%B0%EF%BC%9A"><span class="toc-text">解析时区名称：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BD%BF%E7%94%A8-gettimeofday%EF%BC%88%E5%B7%B2%E5%BA%9F%E5%BC%83%E6%97%B6%E5%8C%BA%E5%8F%82%E6%95%B0%EF%BC%89"><span class="toc-text">3. 使用 gettimeofday（已废弃时区参数）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E7%A4%BA%E4%BE%8B%EF%BC%9A-1"><span class="toc-text">输出示例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E8%8E%B7%E5%8F%96%E6%97%B6%E5%8C%BA"><span class="toc-text">二、内核空间获取时区</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%A1%AC%E7%BC%96%E7%A0%81%E6%97%B6%E5%8C%BA%E5%81%8F%E7%A7%BB"><span class="toc-text">1. 硬编码时区偏移</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%80%9A%E8%BF%87%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E4%BC%A0%E9%80%92%E6%97%B6%E5%8C%BA"><span class="toc-text">2. 通过用户空间传递时区</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%A8%A1%E5%9D%97%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E6%97%B6%E5%8C%BA"><span class="toc-text">示例：模块参数传递时区</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%AF%BB%E5%8F%96-RTC-%E6%97%B6%E9%97%B4%EF%BC%88%E5%8F%AF%E8%83%BD%E5%8C%85%E5%90%AB%E6%97%B6%E5%8C%BA%EF%BC%89"><span class="toc-text">3. 读取 RTC 时间（可能包含时区）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%8A%A8%E6%80%81%E8%8E%B7%E5%8F%96%E7%B3%BB%E7%BB%9F%E6%97%B6%E5%8C%BA%EF%BC%88%E9%AB%98%E7%BA%A7%EF%BC%89"><span class="toc-text">三、动态获取系统时区（高级）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%A7%A3%E6%9E%90-proc-timedate-%E4%BF%A1%E6%81%AF"><span class="toc-text">1. 解析 &#x2F;proc&#x2F;timedate 信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8-Glibc-%E6%89%A9%E5%B1%95%E5%87%BD%E6%95%B0-gettimeofday"><span class="toc-text">2. 使用 Glibc 扩展函数 gettimeofday</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">注意事项</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

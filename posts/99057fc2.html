@@ -1,0 +1,337 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核读写寄存器函数用法 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核readl和writel函数的用法 在 Linux 内核中，readl() 和 writel() 是用于访问 内存映射 I&#x2F;O（Memory-Mapped I&#x2F;O, MMIO） 的函数，专门处理 32 位宽度的寄存器或内存操作。它们提供了一种安全和可移植的方式与硬件设备寄存器进行交互。  一、基本概念 readl(addr): 从虚拟地址 addr 读取 32 位">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核读写寄存器函数用法">
+<meta property="og:url" content="http://helloeuler.cn/posts/99057fc2.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核readl和writel函数的用法 在 Linux 内核中，readl() 和 writel() 是用于访问 内存映射 I&#x2F;O（Memory-Mapped I&#x2F;O, MMIO） 的函数，专门处理 32 位宽度的寄存器或内存操作。它们提供了一种安全和可移植的方式与硬件设备寄存器进行交互。  一、基本概念 readl(addr): 从虚拟地址 addr 读取 32 位">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.726Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/99057fc2.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核读写寄存器函数用法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核读写寄存器函数用法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-07T16:00:00.000Z" title="发表于 2025-05-08 00:00:00">2025-05-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核读写寄存器函数用法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核readl和writel函数的用法</p>
+<p>在 Linux 内核中，<code>readl()</code> 和 <code>writel()</code> 是用于访问 <strong>内存映射 I&#x2F;O（Memory-Mapped I&#x2F;O, MMIO）</strong> 的函数，专门处理 32 位宽度的寄存器或内存操作。它们提供了一种安全和可移植的方式与硬件设备寄存器进行交互。</p>
+<hr>
+<h3 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h3><ul>
+<li><strong><code>readl(addr)</code></strong>: 从虚拟地址 <code>addr</code> 读取 32 位数据。</li>
+<li><strong><code>writel(val, addr)</code></strong>: 将 32 位值 <code>val</code> 写入虚拟地址 <code>addr</code>。</li>
+</ul>
+<p>这两个函数的主要目的是：</p>
+<ol>
+<li><strong>保证原子性</strong>：确保 32 位操作在目标平台上是一次性完成的。</li>
+<li><strong>处理字节序</strong>：根据 CPU 和设备的不同，自动处理字节序问题。</li>
+<li><strong>内存屏障</strong>：隐式添加内存屏障（Memory Barrier），防止编译器或 CPU 乱序执行导致的问题。</li>
+</ol>
+<hr>
+<h3 id="二、函数原型"><a href="#二、函数原型" class="headerlink" title="二、函数原型"></a>二、函数原型</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/io.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">u32 <span class="title function_">readl</span><span class="params">(<span class="type">const</span> <span class="keyword">volatile</span> <span class="type">void</span> __iomem *addr)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">writel</span><span class="params">(u32 val, <span class="keyword">volatile</span> <span class="type">void</span> __iomem *addr)</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>volatile</code> 关键字告诉编译器不要优化此操作（确保每次访问都是真实的硬件访问）。</li>
+<li><code>__iomem</code> 表示该地址指向 I&#x2F;O 内存空间，而非普通内存。</li>
+</ul>
+<hr>
+<h3 id="三、使用步骤"><a href="#三、使用步骤" class="headerlink" title="三、使用步骤"></a>三、使用步骤</h3><ol>
+<li><p><strong>映射物理地址到虚拟地址</strong><br>硬件寄存器的物理地址需要先通过 <code>ioremap()</code> 映射到内核虚拟地址空间：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __iomem *reg_base = ioremap(phy_addr, size);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>计算寄存器偏移量</strong><br>假设寄存器偏移为 <code>reg_offset</code>，则实际访问地址为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __iomem *reg_addr = reg_base + reg_offset;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>读写寄存器</strong>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">u32 value = readl(reg_addr);        <span class="comment">// 读取寄存器</span></span><br><span class="line">writel(new_value, reg_addr);        <span class="comment">// 写入寄存器</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>解除映射</strong><br>在驱动卸载时，使用 <code>iounmap()</code> 释放映射：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iounmap(reg_base);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="四、完整示例"><a href="#四、完整示例" class="headerlink" title="四、完整示例"></a>四、完整示例</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PHY_BASE 0x10000000  <span class="comment">// 设备物理基地址</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> REG_OFFSET 0x10       <span class="comment">// 寄存器偏移量</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __iomem *reg_base;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">my_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 映射物理地址到内核虚拟地址</span></span><br><span class="line">    reg_base = ioremap(PHY_BASE, <span class="number">0x100</span>);</span><br><span class="line">    <span class="keyword">if</span> (!reg_base) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;ioremap failed\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 读取寄存器值</span></span><br><span class="line">    u32 val = readl(reg_base + REG_OFFSET);</span><br><span class="line">    pr_info(<span class="string">&quot;Original value: 0x%08x\n&quot;</span>, val);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 修改并写回寄存器</span></span><br><span class="line">    val |= <span class="number">0x1</span>;  <span class="comment">// 设置最低位</span></span><br><span class="line">    writel(val, reg_base + REG_OFFSET);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">my_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 4. 解除映射</span></span><br><span class="line">    iounmap(reg_base);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(my_init);</span><br><span class="line">module_exit(my_exit);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="五、注意事项"><a href="#五、注意事项" class="headerlink" title="五、注意事项"></a>五、注意事项</h3><ol>
+<li><p><strong>地址对齐</strong><br>确保访问的地址是 32 位对齐的（即地址是 4 的倍数），否则某些架构会导致异常。</p>
+</li>
+<li><p><strong>内存屏障</strong>  </p>
+<ul>
+<li>若需要显式控制内存屏障，可使用 <code>mmiowb()</code> 或在读写后调用 <code>rmb()</code>&#x2F;<code>wmb()</code>。</li>
+<li><code>writel()</code> 自身包含写屏障，但某些场景可能需要额外处理。</li>
+</ul>
+</li>
+<li><p><strong>错误处理</strong><br>始终检查 <code>ioremap()</code> 的返回值，映射失败可能导致内核崩溃。</p>
+</li>
+<li><p><strong>并发访问</strong><br>如果多个 CPU 或线程可能同时访问同一寄存器，需使用自旋锁（<code>spin_lock</code>）保护。</p>
+</li>
+<li><p><strong>设备特性</strong><br>某些设备的寄存器可能需要特定的访问顺序（例如先写命令寄存器再写数据寄存器）。</p>
+</li>
+</ol>
+<hr>
+<h3 id="六、其他相关函数"><a href="#六、其他相关函数" class="headerlink" title="六、其他相关函数"></a>六、其他相关函数</h3><ul>
+<li><strong>8 位访问</strong>: <code>readb()</code> &#x2F; <code>writeb()</code></li>
+<li><strong>16 位访问</strong>: <code>readw()</code> &#x2F; <code>writew()</code></li>
+<li><strong>64 位访问</strong>: <code>readq()</code> &#x2F; <code>writeq()</code></li>
+</ul>
+<hr>
+<p>通过合理使用 <code>readl()</code> 和 <code>writel()</code>，可以确保在内核中安全、高效地操作硬件寄存器。</p>
+<p>Linux内核中写完数据将其写入到flash中，确保不再缓存中</p>
+<p>Linux内核中写完数据将其写入到flash中，确保不再缓存中的接口</p>
+<p>在 Linux 内核中，若要将数据写入 Flash 并确保数据彻底落盘（即不在缓存中残留），需要根据具体的存储架构和访问方式选择合适的方法。以下是几种典型场景的解决方案：</p>
+<hr>
+<h3 id="一、块设备层（如通过-MTD-转换为块设备）"><a href="#一、块设备层（如通过-MTD-转换为块设备）" class="headerlink" title="一、块设备层（如通过 MTD 转换为块设备）"></a>一、块设备层（如通过 MTD 转换为块设备）</h3><p>若 Flash 被抽象为块设备（如 <code>/dev/mtdblockX</code> 或通过 FTL 转换的块设备），需确保数据绕过缓存或主动刷写缓存：</p>
+<h4 id="1-直接-I-O（绕过页缓存）"><a href="#1-直接-I-O（绕过页缓存）" class="headerlink" title="1. 直接 I&#x2F;O（绕过页缓存）"></a>1. <strong>直接 I&#x2F;O（绕过页缓存）</strong></h4><p>在打开设备时使用 <code>O_DIRECT</code> 标志，强制绕过内核页缓存，直接操作物理存储：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;/dev/mtdblock0&quot;</span>, O_WRONLY | O_DIRECT);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>注意</strong>：需要对齐的缓冲区（通常按 512 字节对齐）。</li>
+</ul>
+<h4 id="2-主动刷写缓存"><a href="#2-主动刷写缓存" class="headerlink" title="2. **主动刷写缓存"></a>2. **主动刷写缓存</h4><p>Linux内核中写数据将其写入到DDR中而不经过缓存的接口</p>
+<p>在 Linux 内核中，若要将数据直接写入 <strong>DDR 内存</strong> 并确保不经过 CPU 缓存（即绕过缓存，直接操作物理内存），需要根据具体场景选择合适的方法。以下是几种典型场景的实现方案：</p>
+<hr>
+<h3 id="一、直接操作非缓存内存（Non-Cached-Memory）"><a href="#一、直接操作非缓存内存（Non-Cached-Memory）" class="headerlink" title="一、直接操作非缓存内存（Non-Cached Memory）"></a>一、直接操作非缓存内存（Non-Cached Memory）</h3><p>如果目标内存区域需要被硬件（如 DMA 控制器或外设）直接访问，或需要避免缓存一致性问题，可以通过以下接口分配或映射 <strong>非缓存内存</strong>：</p>
+<h4 id="1-使用-dma-alloc-coherent（一致性-DMA-内存）"><a href="#1-使用-dma-alloc-coherent（一致性-DMA-内存）" class="headerlink" title="1. 使用 dma_alloc_coherent（一致性 DMA 内存）"></a>1. <strong>使用 <code>dma_alloc_coherent</code>（一致性 DMA 内存）</strong></h4><p>此函数分配的内存对 CPU 和设备是 <strong>一致性（Coherent）</strong> 的，CPU 写入的数据会直接反映到物理内存，无需手动刷新缓存。<br><strong>适用场景</strong>：需要与 DMA 控制器或其他硬件共享内存时。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/dma-mapping.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 分配非缓存内存（物理连续）</span></span><br><span class="line"><span class="type">void</span> *cpu_addr;</span><br><span class="line"><span class="type">dma_addr_t</span> dma_handle;</span><br><span class="line">cpu_addr = dma_alloc_coherent(dev, size, &amp;dma_handle, GFP_KERNEL);</span><br><span class="line"><span class="keyword">if</span> (!cpu_addr) &#123;</span><br><span class="line">    <span class="comment">// 错误处理</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 写入数据到 DDR（不经过缓存）</span></span><br><span class="line"><span class="built_in">memcpy</span>(cpu_addr, src_data, size);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放内存</span></span><br><span class="line">dma_free_coherent(dev, size, cpu_addr, dma_handle);</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键特性</strong>：</p>
+<ul>
+<li>内存物理连续，适合 DMA 传输。</li>
+<li>自动保证 CPU 和设备的内存视图一致。</li>
+</ul>
+<hr>
+<h4 id="2-使用-ioremap-映射非缓存物理内存"><a href="#2-使用-ioremap-映射非缓存物理内存" class="headerlink" title="2. 使用 ioremap 映射非缓存物理内存"></a>2. <strong>使用 <code>ioremap</code> 映射非缓存物理内存</strong></h4><p>如果已知某段物理地址需要直接访问（如预留的硬件缓冲区），可通过 <code>ioremap</code> 将其映射为内核虚拟地址，并指定非缓存属性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/io.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 映射物理地址到内核虚拟地址（非缓存）</span></span><br><span class="line"><span class="type">void</span> __iomem *vaddr;</span><br><span class="line">vaddr = ioremap(phy_addr, size);</span><br><span class="line"><span class="keyword">if</span> (!vaddr) &#123;</span><br><span class="line">    <span class="comment">// 错误处理</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 写入数据到 DDR（使用 writel 等接口避免缓存）</span></span><br><span class="line">writel(val, vaddr + offset);  <span class="comment">// 32 位写入</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 解除映射</span></span><br><span class="line">iounmap(vaddr);</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键特性</strong>：</p>
+<ul>
+<li>需手动指定物理地址（通常配合设备树预留内存使用）。</li>
+<li><code>ioremap</code> 默认可能映射为设备内存（非缓存），但具体行为依赖架构和 flags。</li>
+</ul>
+<hr>
+<h4 id="3-使用-memremap-显式指定缓存策略"><a href="#3-使用-memremap-显式指定缓存策略" class="headerlink" title="3. 使用 memremap 显式指定缓存策略"></a>3. <strong>使用 <code>memremap</code> 显式指定缓存策略</strong></h4><p>在较新内核中，<code>memremap</code> 允许更灵活地控制内存映射属性：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/io.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 映射物理地址为非缓存内存</span></span><br><span class="line"><span class="type">void</span> *vaddr = memremap(phy_addr, size, MEMREMAP_WC);  <span class="comment">// MEMREMAP_WB（缓存）/ MEMREMAP_WT（透写）/ MEMREMAP_WC（非缓存）</span></span><br><span class="line"><span class="keyword">if</span> (!vaddr) &#123;</span><br><span class="line">    <span class="comment">// 错误处理</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 直接操作内存（不经过缓存）</span></span><br><span class="line"><span class="built_in">memcpy</span>(vaddr, src_data, size);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 解除映射</span></span><br><span class="line">memunmap(vaddr);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="二、强制绕过-CPU-缓存的写入操作"><a href="#二、强制绕过-CPU-缓存的写入操作" class="headerlink" title="二、强制绕过 CPU 缓存的写入操作"></a>二、强制绕过 CPU 缓存的写入操作</h3><p>若已有一段普通内存（如通过 <code>kmalloc</code> 分配），但需要确保某次写入直接到达 DDR，可以手动禁用缓存或刷新缓存：</p>
+<h4 id="1-使用-non-temporal-写入指令（如-movnti）"><a href="#1-使用-non-temporal-写入指令（如-movnti）" class="headerlink" title="1. 使用 non-temporal 写入指令（如 movnti）"></a>1. <strong>使用 <code>non-temporal</code> 写入指令（如 <code>movnti</code>）</strong></h4><p>通过 SSE&#x2F;AVX 指令直接写入内存而不污染缓存（需在用户态或内核模块中内联汇编）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例：使用 movnti 写入 32 位数据（x86 架构）</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title function_">write_nt</span><span class="params">(<span class="type">int</span> *dest, <span class="type">int</span> val)</span> &#123;</span><br><span class="line">    <span class="keyword">asm</span> <span class="title function_">volatile</span><span class="params">(<span class="string">&quot;movnti %1, %0&quot;</span> : <span class="string">&quot;=m&quot;</span> (*dest) : <span class="string">&quot;r&quot;</span> (val))</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用</span></span><br><span class="line">write_nt(dest_ptr, value);</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：</p>
+<ul>
+<li>需处理内存对齐（通常 16 字节对齐）。</li>
+<li>平台依赖性强，通常仅用于性能关键代码。</li>
+</ul>
+<hr>
+<h4 id="2-手动刷新缓存"><a href="#2-手动刷新缓存" class="headerlink" title="2. 手动刷新缓存"></a>2. <strong>手动刷新缓存</strong></h4><p>写入普通缓存内存后，强制刷新缓存使数据落盘：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;asm/cacheflush.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 写入数据到缓存内存</span></span><br><span class="line"><span class="built_in">memcpy</span>(dest, src, size);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 刷新缓存范围，确保数据写入 DDR</span></span><br><span class="line">clflush_cache_range(dest, size);</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>临时性强制刷新，但频繁操作会严重影响性能。</li>
+</ul>
+<hr>
+<h3 id="三、保留内存（Reserved-Memory）"><a href="#三、保留内存（Reserved-Memory）" class="headerlink" title="三、保留内存（Reserved Memory）"></a>三、保留内存（Reserved Memory）</h3><p>通过设备树预留一段物理内存，确保内核不会将其分配给普通内存池，然后映射为直接访问的非缓存内存：</p>
+<h4 id="1-设备树中预留内存"><a href="#1-设备树中预留内存" class="headerlink" title="1. 设备树中预留内存"></a>1. <strong>设备树中预留内存</strong></h4><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/<span class="title class_">reserved-memory</span> <span class="punctuation">&#123;</span></span><br><span class="line"><span class="symbol">    my_region:</span> <span class="title class_">my_region@10000000</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">compatible</span> <span class="operator">=</span> <span class="string">&quot;my-reserved-memory&quot;</span><span class="punctuation">;</span></span><br><span class="line">        <span class="attr">reg</span> <span class="operator">=</span> <span class="params">&lt;<span class="number">0x10000000</span> <span class="number">0x100000</span>&gt;</span><span class="punctuation">;</span>  <span class="comment">// 物理地址和大小</span></span><br><span class="line">        <span class="attr">no-map</span><span class="punctuation">;</span>  <span class="comment">// 内核不映射此区域</span></span><br><span class="line">    <span class="punctuation">&#125;;</span></span><br><span class="line"><span class="punctuation">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-驱动中映射预留内存"><a href="#2-驱动中映射预留内存" class="headerlink" title="2. 驱动中映射预留内存"></a>2. <strong>驱动中映射预留内存</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取预留内存信息</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">resource</span> *<span class="title">res</span>;</span></span><br><span class="line">res = platform_get_resource(pdev, IORESOURCE_MEM, <span class="number">0</span>);</span><br><span class="line">phy_addr = res-&gt;start;</span><br><span class="line">size = resource_size(res);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 映射为非缓存内存</span></span><br><span class="line"><span class="type">void</span> __iomem *vaddr = ioremap(phy_addr, size);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 直接写入 DDR</span></span><br><span class="line">writel(val, vaddr + offset);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a>四、注意事项</h3><ol>
+<li><p><strong>缓存一致性</strong>  </p>
+<ul>
+<li>若内存被多个 CPU 核心或设备共享，需确保使用正确的同步机制（如内存屏障 <code>wmb()</code>&#x2F;<code>rmb()</code>）。</li>
+<li>避免混合使用缓存和非缓存方式访问同一内存区域。</li>
+</ul>
+</li>
+<li><p><strong>性能影响</strong>  </p>
+<ul>
+<li>绕过缓存会降低 CPU 写入速度（无缓存加速）。</li>
+<li>频繁的非缓存操作可能增加总线带宽压力。</li>
+</ul>
+</li>
+<li><p><strong>平台依赖性</strong>  </p>
+<ul>
+<li>非缓存内存的实现细节（如 <code>ioremap</code> 属性）因架构而异（ARM、x86、RISC-V 等需区别处理）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>适用场景</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dma_alloc_coherent</code></td>
+<td>DMA 设备共享内存</td>
+<td>自动维护一致性，物理连续，需释放</td>
+</tr>
+<tr>
+<td><code>ioremap</code>&#x2F;<code>memremap</code></td>
+<td>访问预留的物理地址</td>
+<td>灵活指定缓存策略，需手动管理映射</td>
+</tr>
+<tr>
+<td>保留内存 + 设备树</td>
+<td>固定物理地址的硬件缓冲区</td>
+<td>避免内核占用，需设备树配合</td>
+</tr>
+<tr>
+<td>手动刷新缓存</td>
+<td>临时强制数据落盘</td>
+<td>性能开销大，仅适合低频操作</td>
+</tr>
+</tbody></table>
+<p>根据具体需求选择合适方法，确保数据直接写入 DDR 且避免缓存干扰。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/99057fc2.html">http://helloeuler.cn/posts/99057fc2.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/8c319781.html" title="Linux内核定时器调用可睡眠函数方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核定时器调用可睡眠函数方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/d1fcc289.html" title="现有OS故障模型分类总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">现有OS故障模型分类总结</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-text">一、基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-text">二、函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4"><span class="toc-text">三、使用步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B"><span class="toc-text">四、完整示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">五、注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%85%B6%E4%BB%96%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-text">六、其他相关函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9D%97%E8%AE%BE%E5%A4%87%E5%B1%82%EF%BC%88%E5%A6%82%E9%80%9A%E8%BF%87-MTD-%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%9D%97%E8%AE%BE%E5%A4%87%EF%BC%89"><span class="toc-text">一、块设备层（如通过 MTD 转换为块设备）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%9B%B4%E6%8E%A5-I-O%EF%BC%88%E7%BB%95%E8%BF%87%E9%A1%B5%E7%BC%93%E5%AD%98%EF%BC%89"><span class="toc-text">1. 直接 I&#x2F;O（绕过页缓存）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%B8%BB%E5%8A%A8%E5%88%B7%E5%86%99%E7%BC%93%E5%AD%98"><span class="toc-text">2. **主动刷写缓存</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%9B%B4%E6%8E%A5%E6%93%8D%E4%BD%9C%E9%9D%9E%E7%BC%93%E5%AD%98%E5%86%85%E5%AD%98%EF%BC%88Non-Cached-Memory%EF%BC%89"><span class="toc-text">一、直接操作非缓存内存（Non-Cached Memory）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8-dma-alloc-coherent%EF%BC%88%E4%B8%80%E8%87%B4%E6%80%A7-DMA-%E5%86%85%E5%AD%98%EF%BC%89"><span class="toc-text">1. 使用 dma_alloc_coherent（一致性 DMA 内存）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8-ioremap-%E6%98%A0%E5%B0%84%E9%9D%9E%E7%BC%93%E5%AD%98%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98"><span class="toc-text">2. 使用 ioremap 映射非缓存物理内存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BD%BF%E7%94%A8-memremap-%E6%98%BE%E5%BC%8F%E6%8C%87%E5%AE%9A%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5"><span class="toc-text">3. 使用 memremap 显式指定缓存策略</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BC%BA%E5%88%B6%E7%BB%95%E8%BF%87-CPU-%E7%BC%93%E5%AD%98%E7%9A%84%E5%86%99%E5%85%A5%E6%93%8D%E4%BD%9C"><span class="toc-text">二、强制绕过 CPU 缓存的写入操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8-non-temporal-%E5%86%99%E5%85%A5%E6%8C%87%E4%BB%A4%EF%BC%88%E5%A6%82-movnti%EF%BC%89"><span class="toc-text">1. 使用 non-temporal 写入指令（如 movnti）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%89%8B%E5%8A%A8%E5%88%B7%E6%96%B0%E7%BC%93%E5%AD%98"><span class="toc-text">2. 手动刷新缓存</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BF%9D%E7%95%99%E5%86%85%E5%AD%98%EF%BC%88Reserved-Memory%EF%BC%89"><span class="toc-text">三、保留内存（Reserved Memory）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%AE%BE%E5%A4%87%E6%A0%91%E4%B8%AD%E9%A2%84%E7%95%99%E5%86%85%E5%AD%98"><span class="toc-text">1. 设备树中预留内存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%A9%B1%E5%8A%A8%E4%B8%AD%E6%98%A0%E5%B0%84%E9%A2%84%E7%95%99%E5%86%85%E5%AD%98"><span class="toc-text">2. 驱动中映射预留内存</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">四、注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-text">五、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

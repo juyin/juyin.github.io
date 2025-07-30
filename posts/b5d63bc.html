@@ -1,0 +1,590 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核VMA无法合并场景分析 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux中内核什么场景下vma无法合并 在Linux内核中，虚拟内存区域（VMA）的合并是优化内存管理的关键机制。然而，在以下场景中，相邻的VMA无法合并，导致地址空间碎片化：  1. 权限（Protection Flags）不同 示例：一个VMA可读可写（PROT_READ | PROT_WRITE），相邻的VMA只读（PROT_READ）。 原因：权限不一致会破坏内存保护的一致性。   2.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核VMA无法合并场景分析">
+<meta property="og:url" content="http://helloeuler.cn/posts/b5d63bc.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux中内核什么场景下vma无法合并 在Linux内核中，虚拟内存区域（VMA）的合并是优化内存管理的关键机制。然而，在以下场景中，相邻的VMA无法合并，导致地址空间碎片化：  1. 权限（Protection Flags）不同 示例：一个VMA可读可写（PROT_READ | PROT_WRITE），相邻的VMA只读（PROT_READ）。 原因：权限不一致会破坏内存保护的一致性。   2.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.749Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/b5d63bc.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核VMA无法合并场景分析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核VMA无法合并场景分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-02T16:00:00.000Z" title="发表于 2025-07-03 00:00:00">2025-07-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核VMA无法合并场景分析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux中内核什么场景下vma无法合并</p>
+<p>在Linux内核中，虚拟内存区域（VMA）的合并是优化内存管理的关键机制。然而，<strong>在以下场景中，相邻的VMA无法合并</strong>，导致地址空间碎片化：</p>
+<hr>
+<h3 id="1-权限（Protection-Flags）不同"><a href="#1-权限（Protection-Flags）不同" class="headerlink" title="1. 权限（Protection Flags）不同"></a><strong>1. 权限（Protection Flags）不同</strong></h3><ul>
+<li><strong>示例</strong>：一个VMA可读可写（<code>PROT_READ | PROT_WRITE</code>），相邻的VMA只读（<code>PROT_READ</code>）。</li>
+<li><strong>原因</strong>：权限不一致会破坏内存保护的一致性。</li>
+</ul>
+<hr>
+<h3 id="2-标志（Flags）不同"><a href="#2-标志（Flags）不同" class="headerlink" title="2. 标志（Flags）不同"></a><strong>2. 标志（Flags）不同</strong></h3><ul>
+<li><strong>关键标志</strong>：<ul>
+<li><code>VM_SHARED</code> vs <code>VM_PRIVATE</code>（共享&#x2F;私有映射）</li>
+<li><code>VM_GROWSDOWN</code>（栈是否可向下扩展）</li>
+<li><code>VM_DENYWRITE</code>（禁止写入文件）</li>
+<li><code>VM_LOCKED</code>（锁定在内存中）</li>
+</ul>
+</li>
+<li><strong>原因</strong>：标志差异导致行为冲突（如共享映射无法与私有映射合并）。</li>
+</ul>
+<hr>
+<h3 id="3-文件映射（File-Backing）不匹配"><a href="#3-文件映射（File-Backing）不匹配" class="headerlink" title="3. 文件映射（File Backing）不匹配"></a><strong>3. 文件映射（File Backing）不匹配</strong></h3><ul>
+<li><strong>场景</strong>：<ul>
+<li>一个VMA映射文件A，相邻VMA映射文件B。</li>
+<li>一个VMA是文件映射，另一个是匿名映射（如<code>malloc</code>分配）。</li>
+<li>文件相同，但<strong>映射偏移不连续</strong>（如<code>mmap</code>偏移未对齐）。</li>
+</ul>
+</li>
+<li><strong>原因</strong>：文件映射的元数据（<code>vm_file</code>, <code>vm_pgoff</code>）无法兼容。</li>
+</ul>
+<hr>
+<h3 id="4-特殊VMA类型"><a href="#4-特殊VMA类型" class="headerlink" title="4. 特殊VMA类型"></a><strong>4. 特殊VMA类型</strong></h3><ul>
+<li><strong>堆（Heap）</strong>：由<code>brk</code>系统调用管理的堆区域通常不与文件映射合并。</li>
+<li><strong>栈（Stack）</strong>：标记为<code>VM_GROWSDOWN</code>的栈VMA可能不与相邻区域合并。</li>
+<li><strong>特殊区域</strong>：如<code>vdso</code>（虚拟动态共享对象）、<code>vsyscall</code>等。</li>
+</ul>
+<hr>
+<h3 id="5-用户空间干预"><a href="#5-用户空间干预" class="headerlink" title="5. 用户空间干预"></a><strong>5. 用户空间干预</strong></h3><ul>
+<li>**<code>madvise(MADV_DONTNEED)</code>**：显式标记为不合并。</li>
+<li><strong><code>mprotect()</code>修改属性</strong>：临时更改权限后，即使恢复原权限也可能阻止合并。</li>
+</ul>
+<hr>
+<h3 id="6-VMA操作集（vm-ops）不同"><a href="#6-VMA操作集（vm-ops）不同" class="headerlink" title="6. VMA操作集（vm_ops）不同"></a><strong>6. VMA操作集（<code>vm_ops</code>）不同</strong></h3><ul>
+<li><strong>示例</strong>：一个VMA使用标准文件操作（如<code>filemap_fault</code>），另一个使用自定义<code>vm_ops</code>（如共享内存）。</li>
+<li><strong>原因</strong>：缺页异常处理等回调函数无法统一。</li>
+</ul>
+<hr>
+<h3 id="7-非线性映射（Nonlinear-Mappings）"><a href="#7-非线性映射（Nonlinear-Mappings）" class="headerlink" title="7. 非线性映射（Nonlinear Mappings）"></a><strong>7. 非线性映射（Nonlinear Mappings）</strong></h3><ul>
+<li><strong><code>remap_file_pages()</code>创建的映射</strong>：物理页非连续，无法与线性映射合并。</li>
+</ul>
+<hr>
+<h3 id="8-内存策略（NUMA策略）不一致"><a href="#8-内存策略（NUMA策略）不一致" class="headerlink" title="8. 内存策略（NUMA策略）不一致"></a><strong>8. 内存策略（NUMA策略）不一致</strong></h3><ul>
+<li><strong>场景</strong>：两个VMA绑定到不同的NUMA节点。</li>
+<li><strong>原因</strong>：内存局部性策略冲突。</li>
+</ul>
+<hr>
+<h3 id="9-锁或并发问题"><a href="#9-锁或并发问题" class="headerlink" title="9. 锁或并发问题"></a><strong>9. 锁或并发问题</strong></h3><ul>
+<li><strong>临时状态</strong>：合并过程中持有锁失败，或并发操作（如<code>fork</code>）导致合并中止（短暂不可合并）。</li>
+</ul>
+<hr>
+<h3 id="内核代码关键逻辑"><a href="#内核代码关键逻辑" class="headerlink" title="内核代码关键逻辑"></a><strong>内核代码关键逻辑</strong></h3><p>在<code>vma_merge()</code>函数（<code>mm/mmap.c</code>）中，合并条件通过以下检查：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!can_vma_merge_prev(vma, vm_flags, anon_vma, file, pgoff, vm_userfaultfd_ctx) ||</span><br><span class="line">    !can_vma_merge_next(vma, vm_flags, anon_vma, file, pgoff, vm_userfaultfd_ctx))</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>; <span class="comment">// 无法合并</span></span><br></pre></td></tr></table></figure>
+<p>具体包括权限、标志、文件、偏移量等的一致性校验。</p>
+<hr>
+<h3 id="影响"><a href="#影响" class="headerlink" title="影响"></a><strong>影响</strong></h3><ul>
+<li><strong>碎片化</strong>：过多不可合并的VMA会增加<code>mm_struct</code>的管理开销。</li>
+<li><strong>性能下降</strong>：进程的<code>/proc/&lt;pid&gt;/maps</code>条目增多，缺页异常处理更频繁。</li>
+</ul>
+<hr>
+<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a><strong>最佳实践</strong></h3><ul>
+<li>**避免频繁<code>mmap</code>&#x2F;<code>munmap</code>**：重用已映射区域。</li>
+<li><strong>统一权限</strong>：确保相邻区域权限一致。</li>
+<li><strong>减少特殊标志</strong>：非必要不使用<code>VM_LOCKED</code>等标志。</li>
+</ul>
+<p>通过理解这些场景，可优化应用设计以减少VMA碎片，提升内存管理效率。</p>
+<p>MAP_POPULATE标记的用法</p>
+<h3 id="MAP-POPULATE-标记详解"><a href="#MAP-POPULATE-标记详解" class="headerlink" title="MAP_POPULATE 标记详解"></a><strong><code>MAP_POPULATE</code> 标记详解</strong></h3><p><strong><code>MAP_POPULATE</code></strong> 是 Linux 中 <code>mmap()</code> 系统调用的一个标志（定义在 <code>&lt;sys/mman.h&gt;</code>），用于<strong>在映射建立时立即预加载文件内容到物理内存</strong>（预填充页表）。它通过主动触发缺页中断（Page Fault）来提前完成内存映射，避免后续访问时的延迟。</p>
+<hr>
+<h3 id="核心作用"><a href="#核心作用" class="headerlink" title="核心作用"></a><strong>核心作用</strong></h3><ol>
+<li><strong>预读文件内容</strong><br>在 <code>mmap()</code> 返回前，内核会<strong>同步</strong>将文件数据从磁盘读取到物理内存，并建立完整的页表映射。</li>
+<li><strong>消除后续访问的缺页中断</strong><br>后续访问该内存区域时不再触发缺页中断，减少延迟。</li>
+</ol>
+<hr>
+<h3 id="典型使用场景"><a href="#典型使用场景" class="headerlink" title="典型使用场景"></a><strong>典型使用场景</strong></h3><h4 id="1-实时性要求高的应用"><a href="#1-实时性要求高的应用" class="headerlink" title="1. 实时性要求高的应用"></a>1. <strong>实时性要求高的应用</strong></h4><ul>
+<li><strong>示例</strong>：实时音视频处理、高频交易系统。</li>
+<li><strong>原因</strong>：避免运行时因缺页中断导致的不可预测延迟。</li>
+</ul>
+<h4 id="2-需要锁定内存的场景"><a href="#2-需要锁定内存的场景" class="headerlink" title="2. 需要锁定内存的场景"></a>2. <strong>需要锁定内存的场景</strong></h4><ul>
+<li>与 <code>mlock()</code> 结合使用，确保关键数据常驻内存：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *addr = mmap(<span class="literal">NULL</span>, size, PROT_READ, MAP_SHARED | MAP_POPULATE, fd, <span class="number">0</span>);</span><br><span class="line">mlock(addr, size); <span class="comment">// 防止被换出</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-大文件随机访问优化"><a href="#3-大文件随机访问优化" class="headerlink" title="3. 大文件随机访问优化"></a>3. <strong>大文件随机访问优化</strong></h4><ul>
+<li><strong>示例</strong>：数据库索引文件。</li>
+<li><strong>效果</strong>：首次访问即加载全部数据，避免后续随机访问时的磁盘I&#x2F;O延迟。</li>
+</ul>
+<h4 id="4-嵌入式设备启动优化"><a href="#4-嵌入式设备启动优化" class="headerlink" title="4. 嵌入式设备启动优化"></a>4. <strong>嵌入式设备启动优化</strong></h4><ul>
+<li><strong>场景</strong>：系统启动时预加载关键配置文件（如 <code>/etc</code> 下的文件）。</li>
+<li><strong>代码示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;/etc/config.bin&quot;</span>, O_RDONLY);</span><br><span class="line"><span class="type">void</span> *cfg = mmap(<span class="literal">NULL</span>, file_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, <span class="number">0</span>);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a><strong>使用方式</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;data.bin&quot;</span>, O_RDONLY);</span><br><span class="line"><span class="type">size_t</span> file_size = lseek(fd, <span class="number">0</span>, SEEK_END);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 MAP_POPULATE 映射</span></span><br><span class="line"><span class="type">void</span> *addr = mmap(</span><br><span class="line">    <span class="literal">NULL</span>,                   <span class="comment">// 由内核选择地址</span></span><br><span class="line">    file_size,              <span class="comment">// 映射长度</span></span><br><span class="line">    PROT_READ,              <span class="comment">// 只读权限</span></span><br><span class="line">    MAP_PRIVATE | MAP_POPULATE, <span class="comment">// 关键标志</span></span><br><span class="line">    fd,                     <span class="comment">// 文件描述符</span></span><br><span class="line">    <span class="number">0</span>                       <span class="comment">// 文件偏移量</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (addr == MAP_FAILED) &#123;</span><br><span class="line">    perror(<span class="string">&quot;mmap failed&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="底层机制"><a href="#底层机制" class="headerlink" title="底层机制"></a><strong>底层机制</strong></h3><ol>
+<li><p><strong>内核行为</strong>：</p>
+<ul>
+<li>在 <code>mmap()</code> 返回前，内核遍历映射的每一页。</li>
+<li>对每一页触发<strong>次要缺页中断</strong>（Minor Page Fault），从磁盘读取数据到物理内存。</li>
+<li>建立虚拟地址到物理页的完整映射。</li>
+</ul>
+</li>
+<li><p><strong>同步阻塞</strong>：</p>
+<ul>
+<li><code>mmap()</code> 调用会<strong>阻塞</strong>直到所有数据加载完成。</li>
+<li>大文件可能导致显著延迟（需权衡初始化时间）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><p><strong>内存开销</strong>  </p>
+<ul>
+<li>立即占用与文件大小相等的物理内存（即使后续未访问）。</li>
+<li>可能引发 OOM（内存耗尽）或挤占其他进程资源。</li>
+</ul>
+</li>
+<li><p><strong>不适用匿名映射</strong>  </p>
+<ul>
+<li>对 <code>MAP_ANONYMOUS</code> 映射无效（如 <code>malloc</code> 底层分配）。</li>
+</ul>
+</li>
+<li><p><strong>与 <code>mlock()</code> 的区别</strong>  </p>
+<table>
+<thead>
+<tr>
+<th><strong>机制</strong></th>
+<th><code>MAP_POPULATE</code></th>
+<th><code>mlock()</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>作用阶段</strong></td>
+<td>映射建立时</td>
+<td>映射建立后</td>
+</tr>
+<tr>
+<td><strong>数据加载</strong></td>
+<td>主动加载文件内容</td>
+<td>不加载数据，仅锁定现有页面</td>
+</tr>
+<tr>
+<td><strong>匿名映射</strong></td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>性能权衡</strong>  </p>
+<ul>
+<li><strong>优势</strong>：消除运行时缺页中断。</li>
+<li><strong>劣势</strong>：延长 <code>mmap()</code> 调用时间，可能预加载无用数据。</li>
+</ul>
+</li>
+<li><p><strong>替代方案</strong>  </p>
+<ul>
+<li>**<code>madvise(MADV_WILLNEED)</code>**：<br>异步预读建议，不阻塞当前进程：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mmap(..., MAP_SHARED, fd, <span class="number">0</span>); <span class="comment">// 无 MAP_POPULATE</span></span><br><span class="line">madvise(addr, size, MADV_WILLNEED); <span class="comment">// 后台预读</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="适用文件系统"><a href="#适用文件系统" class="headerlink" title="适用文件系统"></a><strong>适用文件系统</strong></h3><ol>
+<li><p><strong>常规文件系统</strong>（ext4, XFS, Btrfs）  </p>
+<ul>
+<li>完全支持，直接触发磁盘读取。</li>
+</ul>
+</li>
+<li><p><strong>虚拟文件系统</strong>（如 <code>/proc</code>, <code>sysfs</code>）  </p>
+<ul>
+<li>行为未定义，可能被忽略。</li>
+</ul>
+</li>
+<li><p><strong>DAX 文件系统</strong>（PMEM 持久内存）  </p>
+<ul>
+<li>无实际 I&#x2F;O 操作，但会建立页表映射。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="内核实现"><a href="#内核实现" class="headerlink" title="内核实现"></a><strong>内核实现</strong></h3><p>在 Linux 源码中，<code>MAP_POPULATE</code> 的处理位于：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mm/mmap.c</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> <span class="title function_">mmap_region</span><span class="params">(...)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (file &amp;&amp; (flags &amp; MAP_POPULATE)) &#123;</span><br><span class="line">        mm_populate(addr, len); <span class="comment">// 主动填充页表</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>mm_populate()</code> 函数遍历虚拟地址范围，人为触发缺页中断以加载数据。</p>
+<hr>
+<h3 id="最佳实践-1"><a href="#最佳实践-1" class="headerlink" title="最佳实践"></a><strong>最佳实践</strong></h3><ol>
+<li><strong>小文件</strong>：优先使用 <code>MAP_POPULATE</code>（初始化开销小）。</li>
+<li><strong>大文件</strong>：<ul>
+<li>若需全部访问 → 使用 <code>MAP_POPULATE</code>。</li>
+<li>若仅访问局部 → 改用 <code>madvise(MADV_WILLNEED)</code> 按需预读。</li>
+</ul>
+</li>
+<li><strong>实时系统</strong>：结合 <code>mlock()</code> 确保数据常驻内存：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mmap(..., MAP_POPULATE);</span><br><span class="line">mlock(addr, size);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<blockquote>
+<p><strong>关键总结</strong>：<code>MAP_POPULATE</code> 以<strong>初始化延迟为代价</strong>，换取<strong>运行时确定性的内存访问性能</strong>。在实时系统、关键数据加载场景中效果显著，但需谨慎评估内存开销。</p>
+</blockquote>
+<p>mmap同样的大小的内存，同一个接口，为啥vm_flags不一样</p>
+<p>在 Linux 中，即使使用相同的 <code>mmap()</code> 接口映射相同大小的内存区域，产生的 VMA（虚拟内存区域）的 <code>vm_flags</code> 也可能不同。这主要由以下原因导致：</p>
+<h3 id="1-映射位置（地址空间上下文）不同"><a href="#1-映射位置（地址空间上下文）不同" class="headerlink" title="1. 映射位置（地址空间上下文）不同"></a><strong>1. 映射位置（地址空间上下文）不同</strong></h3><ul>
+<li><strong>相邻 VMA 的影响</strong>：<ul>
+<li>内核在创建新 VMA 时会尝试与相邻的 VMA 合并</li>
+<li>如果相邻 VMA 的 <code>vm_flags</code> 不同（如权限&#x2F;文件映射不同），新 VMA 无法合并，保留原始标志</li>
+<li>示例：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第一次映射 (0x1000-0x2000)：PROT_READ</span></span><br><span class="line">mmap(<span class="number">0x1000</span>, <span class="number">4096</span>, PROT_READ, MAP_ANONYMOUS|MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第二次相同映射 (0x2000-0x3000)：PROT_READ|PROT_WRITE</span></span><br><span class="line">mmap(<span class="number">0x2000</span>, <span class="number">4096</span>, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+第二个 VMA 的 <code>vm_flags</code> 会包含 <code>VM_WRITE</code>，因为无法与只读的前一个 VMA 合并</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-内核内部优化机制"><a href="#2-内核内部优化机制" class="headerlink" title="2. 内核内部优化机制"></a><strong>2. 内核内部优化机制</strong></h3><ul>
+<li><strong>VMA 合并的惰性处理</strong>：<ul>
+<li>内核不会立即尝试合并所有可能的 VMA</li>
+<li>在内存压力或特定操作（如 <code>munmap</code>）时才会主动扫描合并</li>
+<li>临时状态可能导致相同映射有不同的 <code>vm_flags</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="3-地址空间布局随机化（ASLR）"><a href="#3-地址空间布局随机化（ASLR）" class="headerlink" title="3. 地址空间布局随机化（ASLR）"></a><strong>3. 地址空间布局随机化（ASLR）</strong></h3><ul>
+<li><strong>随机化导致的上下文差异</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 两次相同调用，但基地址不同</span></span><br><span class="line"><span class="type">void</span>* addr1 = mmap(<span class="literal">NULL</span>, size, PROT_READ, MAP_PRIVATE|MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line"><span class="type">void</span>* addr2 = mmap(<span class="literal">NULL</span>, size, PROT_READ, MAP_PRIVATE|MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>addr1</code> 和 <code>addr2</code> 位于不同地址区域</li>
+<li>周围已有的 VMA 不同，导致合并行为不同</li>
+<li>结果：两个 VMA 可能有不同的 <code>vm_flags</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="4-特殊标志的继承"><a href="#4-特殊标志的继承" class="headerlink" title="4. 特殊标志的继承"></a><strong>4. 特殊标志的继承</strong></h3><ul>
+<li><strong>从相邻 VMA 继承标志</strong>：<ul>
+<li><code>VM_GROWSDOWN</code>（栈扩展标志）</li>
+<li><code>VM_IO</code>（I&#x2F;O 映射区域）</li>
+<li><code>VM_DONTEXPAND</code>（禁止扩展）</li>
+<li>若新映射紧邻这些特殊区域，可能继承部分标志</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-内核版本与配置差异"><a href="#5-内核版本与配置差异" class="headerlink" title="5. 内核版本与配置差异"></a><strong>5. 内核版本与配置差异</strong></h3><ul>
+<li><strong>不同内核版本行为变化</strong>：<table>
+<thead>
+<tr>
+<th>内核版本</th>
+<th>变化点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&lt; 4.0</td>
+<td>合并策略较保守</td>
+</tr>
+<tr>
+<td>&gt;&#x3D; 5.10</td>
+<td>主动合并优化增强</td>
+</tr>
+</tbody></table>
+</li>
+<li><strong>编译配置影响</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CONFIG_COMPACTION  # 内存压缩支持</span><br><span class="line">CONFIG_KSM         # 内核同页合并</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="6-用户空间操作的副作用"><a href="#6-用户空间操作的副作用" class="headerlink" title="6. 用户空间操作的副作用"></a><strong>6. 用户空间操作的副作用</strong></h3><ul>
+<li><strong><code>madvise()</code> 改变标志</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mmap(addr, size, PROT_READ, ...); <span class="comment">// 初始 vm_flags</span></span><br><span class="line">madvise(addr, size, MADV_DONTDUMP); <span class="comment">// 添加 VM_DONTDUMP 标志</span></span><br></pre></td></tr></table></figure></li>
+<li><strong><code>mprotect()</code> 修改权限</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mprotect(addr, size, PROT_READ|PROT_WRITE); <span class="comment">// 添加 VM_WRITE 标志</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="7-文件映射的特殊性"><a href="#7-文件映射的特殊性" class="headerlink" title="7. 文件映射的特殊性"></a><strong>7. 文件映射的特殊性</strong></h3><ul>
+<li><strong>文件系统元数据影响</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mmap(<span class="literal">NULL</span>, size, PROT_READ, MAP_SHARED, fd1, <span class="number">0</span>); <span class="comment">// 来自 ext4 文件</span></span><br><span class="line">mmap(<span class="literal">NULL</span>, size, PROT_READ, MAP_SHARED, fd2, <span class="number">0</span>); <span class="comment">// 来自 tmpfs</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>不同文件系统可能添加特殊标志（如 <code>VM_NORESERVE</code>）</li>
+</ul>
+</li>
+</ul>
+<h3 id="8-NUMA-内存策略"><a href="#8-NUMA-内存策略" class="headerlink" title="8. NUMA 内存策略"></a><strong>8. NUMA 内存策略</strong></h3><ul>
+<li><strong>策略差异导致标志不同</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set_mempolicy(MPOL_BIND, nodemask); <span class="comment">// 绑定到特定 NUMA 节点</span></span><br><span class="line">mmap(..., size, ...); <span class="comment">// 生成带 VM_POLICY 标志的 VMA</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="诊断方法"><a href="#诊断方法" class="headerlink" title="诊断方法"></a><strong>诊断方法</strong></h3><ol>
+<li><p>**检查 <code>/proc/[pid]/maps</code>**：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /proc/self/maps</span><br></pre></td></tr></table></figure>
+<p>比较两个 VMA 的权限字段（如 <code>r--p</code> vs <code>rw-p</code>）</p>
+</li>
+<li><p><strong>使用 <code>pmap</code> 命令</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pmap -XX [pid] | grep -A1 [address]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>内核追踪</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 追踪 vma_merge() 函数</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;p:vma_merge $arg1-&gt;vm_flags&#x27;</span> &gt; /sys/kernel/debug/tracing/kprobe_events</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="示例代码演示差异"><a href="#示例代码演示差异" class="headerlink" title="示例代码演示差异"></a><strong>示例代码演示差异</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">size_t</span> size = <span class="number">4096</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 第一次映射</span></span><br><span class="line">    <span class="type">void</span>* addr1 = mmap(<span class="literal">NULL</span>, size, PROT_READ, </span><br><span class="line">                      MAP_ANONYMOUS|MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 第二次相同调用</span></span><br><span class="line">    <span class="type">void</span>* addr2 = mmap(<span class="literal">NULL</span>, size, PROT_READ, </span><br><span class="line">                      MAP_ANONYMOUS|MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;映射1: %p\n映射2: %p\n&quot;</span>, addr1, addr2);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;检查 /proc/%d/maps 查看差异\n&quot;</span>, getpid());</span><br><span class="line">    </span><br><span class="line">    pause(); <span class="comment">// 保持进程运行以便检查</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行后观察 <code>/proc/[pid]/maps</code>，两个相同映射的权限标志可能显示为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">00400000-00401000 r--p ...   # addr1</span><br><span class="line">7f8e40000000-7f8e40001000 rw-p ...   # addr2 (自动添加了VM_WRITE?)</span><br></pre></td></tr></table></figure>
+
+<h3 id="根本原因总结"><a href="#根本原因总结" class="headerlink" title="根本原因总结"></a><strong>根本原因总结</strong></h3><table>
+<thead>
+<tr>
+<th>差异来源</th>
+<th>影响机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>地址空间上下文</strong></td>
+<td>相邻 VMA 决定是否合并</td>
+</tr>
+<tr>
+<td><strong>内核优化策略</strong></td>
+<td>惰性合并导致临时差异</td>
+</tr>
+<tr>
+<td><strong>ASLR</strong></td>
+<td>随机地址导致不同合并机会</td>
+</tr>
+<tr>
+<td><strong>后续操作</strong></td>
+<td><code>mprotect</code>&#x2F;<code>madvise</code> 修改标志</td>
+</tr>
+<tr>
+<td><strong>文件系统特性</strong></td>
+<td>不同文件源添加特殊标志</td>
+</tr>
+</tbody></table>
+<p>即使参数相同的 <code>mmap()</code> 调用也可能产生不同 <code>vm_flags</code> 的 VMA，这反映了 Linux 内存管理系统根据运行时上下文动态优化内存布局的能力。这种灵活性是 Linux 高效管理复杂内存场景的基础特性。</p>
+<p>for循环调用mmap，为啥maps表显示不合并</p>
+<p>在 <code>for</code> 循环中重复调用 <code>mmap</code> 分配相同大小的内存区域，但在 <code>/proc/[pid]/maps</code> 中显示为多个独立条目（未合并）的原因，主要涉及 Linux 内核的 VMA（虚拟内存区域）管理机制。以下是详细分析：</p>
+<hr>
+<h3 id="根本原因：VMA-合并的严格条件"><a href="#根本原因：VMA-合并的严格条件" class="headerlink" title="根本原因：VMA 合并的严格条件"></a><strong>根本原因：VMA 合并的严格条件</strong></h3><p>Linux 内核仅在满足<strong>所有条件</strong>时才合并相邻 VMA：</p>
+<ol>
+<li><strong>地址连续</strong>：物理相邻且无间隙</li>
+<li><strong>权限相同</strong>：<code>prot</code> 标志（<code>PROT_READ</code>&#x2F;<code>PROT_WRITE</code> 等）完全一致</li>
+<li><strong>标志相同</strong>：<code>flags</code> 标志（<code>MAP_ANONYMOUS</code>, <code>MAP_PRIVATE</code> 等）完全匹配</li>
+<li><strong>文件映射一致</strong>：相同文件（或同为匿名映射）、相同文件偏移</li>
+<li><strong>无特殊操作干预</strong>：未被 <code>madvise()</code> 等操作标记为不可合并</li>
+</ol>
+<p><strong>循环中的 <code>mmap</code> 调用可能违反上述条件</strong>，导致无法合并。</p>
+<hr>
+<h3 id="具体原因分析"><a href="#具体原因分析" class="headerlink" title="具体原因分析"></a><strong>具体原因分析</strong></h3><h4 id="1-地址不连续（最常见原因）"><a href="#1-地址不连续（最常见原因）" class="headerlink" title="1. 地址不连续（最常见原因）"></a>1. <strong>地址不连续（最常见原因）</strong></h4><ul>
+<li><strong>ASLR 导致随机间隙</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++) &#123;</span><br><span class="line">    <span class="type">void</span> *addr = mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, PROT_READ|PROT_WRITE, </span><br><span class="line">                    MAP_ANONYMOUS|MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="comment">// 内核可能插入随机间隙（安全加固）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>输出示例（<code>/proc/pid/maps</code>）：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">7f8e10000000-7f8e10001000 rw-p ...  # 映射1</span><br><span class="line">7f8e10200000-7f8e10201000 rw-p ...  # 映射2 (有0x1FF000间隙)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h4 id="2-权限-标志的细微差异"><a href="#2-权限-标志的细微差异" class="headerlink" title="2. 权限&#x2F;标志的细微差异"></a>2. <strong>权限&#x2F;标志的细微差异</strong></h4><ul>
+<li><strong>内核内部标志差异</strong>：<ul>
+<li>第一个 VMA 可能继承 <code>VM_GROWSUP</code>（堆区域）</li>
+<li>后续 VMA 可能标记为 <code>VM_DONTEXPAND</code></li>
+</ul>
+</li>
+<li><strong>调试工具干扰</strong>：<ul>
+<li>使用 <code>LD_PRELOAD</code> 或 <code>ptrace</code> 调试时，内核添加 <code>VM_IO</code> 等保护标志</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-合并的惰性策略"><a href="#3-合并的惰性策略" class="headerlink" title="3. 合并的惰性策略"></a>3. <strong>合并的惰性策略</strong></h4><ul>
+<li><strong>内核不主动扫描合并</strong>：<ul>
+<li>仅在以下时机尝试合并：<ul>
+<li><code>munmap</code> 释放中间区域时</li>
+<li><code>mremap</code> 扩展&#x2F;移动 VMA 时</li>
+<li>内存压力触发碎片整理时</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>循环中连续 <code>mmap</code> 无合并触发点</strong></li>
+</ul>
+<h4 id="4-多线程并发分配"><a href="#4-多线程并发分配" class="headerlink" title="4. 多线程并发分配"></a>4. <strong>多线程并发分配</strong></h4>   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 线程1：            线程2：</span></span><br><span class="line">mmap(..., size);     mmap(..., size);</span><br><span class="line">mmap(..., size);     mmap(..., size);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>线程交叉分配导致地址空间交错</li>
+<li>不同线程的 VMA 即使参数相同也不合并</li>
+</ul>
+<h4 id="5-页对齐与保护页"><a href="#5-页对齐与保护页" class="headerlink" title="5. 页对齐与保护页"></a>5. <strong>页对齐与保护页</strong></h4><ul>
+<li><strong>超页（Hugepage）对齐</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, ..., MAP_HUGETLB); <span class="comment">// 强制2MB对齐</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>每次分配按2MB边界对齐，产生巨大间隙</li>
+</ul>
+</li>
+<li><strong>栈保护页（Stack Guard）</strong>：<ul>
+<li>内核自动在栈区域附近插入不可访问页（<code>---p</code>）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="实验验证"><a href="#实验验证" class="headerlink" title="实验验证"></a><strong>实验验证</strong></h3><h4 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> size = <span class="number">4096</span>;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> count = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;count; i++) &#123;</span><br><span class="line">        <span class="type">void</span> *addr = mmap(<span class="literal">NULL</span>, size, PROT_READ|PROT_WRITE, </span><br><span class="line">                         MAP_ANONYMOUS|MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;映射 %d: %p\n&quot;</span>, i, addr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;检查 /proc/%d/maps\n&quot;</span>, getpid());</span><br><span class="line">    pause(); <span class="comment">// 暂停观察</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="典型输出（未合并）"><a href="#典型输出（未合并）" class="headerlink" title="典型输出（未合并）"></a>典型输出（未合并）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cat /proc/`pidof test`/maps</span><br><span class="line">7f7a9a000000-7f7a9a001000 rw-p 00000000 00:00 0  # 映射0</span><br><span class="line">7f7a9a800000-7f7a9a801000 rw-p 00000000 00:00 0  # 映射1 (有间隙)</span><br><span class="line">7f7a9b000000-7f7a9b001000 rw-p 00000000 00:00 0  # 映射2</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="为什么设计如此？"><a href="#为什么设计如此？" class="headerlink" title="为什么设计如此？"></a><strong>为什么设计如此？</strong></h3><ol>
+<li><p><strong>安全考虑</strong>：</p>
+<ul>
+<li>地址随机化（ASLR）故意制造间隙防止内存攻击</li>
+<li>保护页隔离关键区域（如栈、LD_PRELOAD 库）</li>
+</ul>
+</li>
+<li><p><strong>性能权衡</strong>：</p>
+<ul>
+<li>合并 VMA 需遍历红黑树（<code>mm_struct-&gt;mm_rb</code>），小规模时不值得</li>
+<li>保持独立 VMA 可快速定位内存属性</li>
+</ul>
+</li>
+<li><p><strong>诊断友好</strong>：</p>
+<ul>
+<li>独立条目方便调试工具（如 <code>pmap</code>&#x2F;<code>valgrind</code>）分析内存布局</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="强制合并的方法"><a href="#强制合并的方法" class="headerlink" title="强制合并的方法"></a><strong>强制合并的方法</strong></h3><h4 id="1-预分配连续区域后分割"><a href="#1-预分配连续区域后分割" class="headerlink" title="1. 预分配连续区域后分割"></a>1. 预分配连续区域后分割</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一次性分配大区域</span></span><br><span class="line"><span class="type">void</span> *base = mmap(<span class="literal">NULL</span>, <span class="number">5</span>*<span class="number">4096</span>, PROT_READ|PROT_WRITE, </span><br><span class="line">                 MAP_ANONYMOUS|MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手动分割使用</span></span><br><span class="line"><span class="type">void</span> *block1 = base;</span><br><span class="line"><span class="type">void</span> *block2 = base + <span class="number">4096</span>;</span><br><span class="line"><span class="comment">// ...但仍属同一VMA</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-禁用-ASLR"><a href="#2-禁用-ASLR" class="headerlink" title="2. 禁用 ASLR"></a>2. 禁用 ASLR</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 0 &gt; /proc/sys/kernel/randomize_va_space</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>风险</strong>：降低系统安全性</li>
+</ul>
+<h4 id="3-使用-mremap-手动合并"><a href="#3-使用-mremap-手动合并" class="headerlink" title="3. 使用 mremap 手动合并"></a>3. 使用 <code>mremap</code> 手动合并</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *addr1 = mmap(<span class="literal">NULL</span>, size, ...);</span><br><span class="line"><span class="type">void</span> *addr2 = mmap(addr1+size, size, ...); <span class="comment">// 尝试紧邻分配</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 强制合并</span></span><br><span class="line"><span class="type">void</span> *new_addr = mremap(addr1, size, <span class="number">2</span>*size, MREMAP_MAYMOVE);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>限制</strong>：需地址连续且标志相同</li>
+</ul>
+<hr>
+<h3 id="内核代码关键逻辑-1"><a href="#内核代码关键逻辑-1" class="headerlink" title="内核代码关键逻辑"></a><strong>内核代码关键逻辑</strong></h3><p>在 <code>mm/mmap.c</code> 的 <code>vma_merge()</code> 函数中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">can_vma_merge_prev</span><span class="params">(<span class="keyword">struct</span> vm_area_struct *vma, ...)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (vma-&gt;vm_start != prev-&gt;vm_end)      <span class="comment">// 地址不连续</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (vma-&gt;vm_flags != prev-&gt;vm_flags)    <span class="comment">// 标志不同</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (vma-&gt;vm_file != prev-&gt;vm_file)      <span class="comment">// 文件不同</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>循环中的 <code>mmap</code> 调用常因 <strong>地址不连续</strong> 或 <strong>内部标志差异</strong> 导致此函数返回 <code>false</code>。</p>
+<hr>
+<h3 id="最佳实践建议"><a href="#最佳实践建议" class="headerlink" title="最佳实践建议"></a><strong>最佳实践建议</strong></h3><ol>
+<li><strong>批量分配</strong>：单次 <code>mmap</code> 大块内存后自行管理</li>
+<li><strong>统一标志</strong>：确保所有区域权限&#x2F;标志完全一致</li>
+<li><strong>避免碎片</strong>：优先使用 <code>posix_memalign</code> 管理小对象</li>
+<li><strong>诊断工具</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看VMA合并详情</span></span><br><span class="line"><span class="built_in">echo</span> 1 &gt; /proc/sys/vm/vm_debug &amp;&amp; <span class="built_in">cat</span> /proc/[pid]/maps</span><br></pre></td></tr></table></figure></li>
+</ol>
+<blockquote>
+<p><strong>总结</strong>：循环中的 <code>mmap</code> 不合并是 Linux 内存管理的<strong>预期行为</strong>，由地址随机化、安全策略和性能优化共同导致。理解此机制有助于优化高并发&#x2F;实时系统的内存布局。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/b5d63bc.html">http://helloeuler.cn/posts/b5d63bc.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/2830cd57.html" title="查找使用动态库的进程方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">查找使用动态库的进程方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/74a46fca.html" title="Linux物理地址区分用户态内核态方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux物理地址区分用户态内核态方法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9D%83%E9%99%90%EF%BC%88Protection-Flags%EF%BC%89%E4%B8%8D%E5%90%8C"><span class="toc-text">1. 权限（Protection Flags）不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A0%87%E5%BF%97%EF%BC%88Flags%EF%BC%89%E4%B8%8D%E5%90%8C"><span class="toc-text">2. 标志（Flags）不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%96%87%E4%BB%B6%E6%98%A0%E5%B0%84%EF%BC%88File-Backing%EF%BC%89%E4%B8%8D%E5%8C%B9%E9%85%8D"><span class="toc-text">3. 文件映射（File Backing）不匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%89%B9%E6%AE%8AVMA%E7%B1%BB%E5%9E%8B"><span class="toc-text">4. 特殊VMA类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E5%B9%B2%E9%A2%84"><span class="toc-text">5. 用户空间干预</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-VMA%E6%93%8D%E4%BD%9C%E9%9B%86%EF%BC%88vm-ops%EF%BC%89%E4%B8%8D%E5%90%8C"><span class="toc-text">6. VMA操作集（vm_ops）不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E9%9D%9E%E7%BA%BF%E6%80%A7%E6%98%A0%E5%B0%84%EF%BC%88Nonlinear-Mappings%EF%BC%89"><span class="toc-text">7. 非线性映射（Nonlinear Mappings）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%86%85%E5%AD%98%E7%AD%96%E7%95%A5%EF%BC%88NUMA%E7%AD%96%E7%95%A5%EF%BC%89%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-text">8. 内存策略（NUMA策略）不一致</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E9%94%81%E6%88%96%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98"><span class="toc-text">9. 锁或并发问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81%E5%85%B3%E9%94%AE%E9%80%BB%E8%BE%91"><span class="toc-text">内核代码关键逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D"><span class="toc-text">影响</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-text">最佳实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MAP-POPULATE-%E6%A0%87%E8%AE%B0%E8%AF%A6%E8%A7%A3"><span class="toc-text">MAP_POPULATE 标记详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E4%BD%9C%E7%94%A8"><span class="toc-text">核心作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">典型使用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9E%E6%97%B6%E6%80%A7%E8%A6%81%E6%B1%82%E9%AB%98%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">1. 实时性要求高的应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%9C%80%E8%A6%81%E9%94%81%E5%AE%9A%E5%86%85%E5%AD%98%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="toc-text">2. 需要锁定内存的场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%A4%A7%E6%96%87%E4%BB%B6%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E4%BC%98%E5%8C%96"><span class="toc-text">3. 大文件随机访问优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%AE%BE%E5%A4%87%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96"><span class="toc-text">4. 嵌入式设备启动优化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">使用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%95%E5%B1%82%E6%9C%BA%E5%88%B6"><span class="toc-text">底层机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-text">适用文件系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E5%AE%9E%E7%8E%B0"><span class="toc-text">内核实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5-1"><span class="toc-text">最佳实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%98%A0%E5%B0%84%E4%BD%8D%E7%BD%AE%EF%BC%88%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%89%E4%B8%8D%E5%90%8C"><span class="toc-text">1. 映射位置（地址空间上下文）不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%86%85%E6%A0%B8%E5%86%85%E9%83%A8%E4%BC%98%E5%8C%96%E6%9C%BA%E5%88%B6"><span class="toc-text">2. 内核内部优化机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E5%B8%83%E5%B1%80%E9%9A%8F%E6%9C%BA%E5%8C%96%EF%BC%88ASLR%EF%BC%89"><span class="toc-text">3. 地址空间布局随机化（ASLR）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%89%B9%E6%AE%8A%E6%A0%87%E5%BF%97%E7%9A%84%E7%BB%A7%E6%89%BF"><span class="toc-text">4. 特殊标志的继承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC%E4%B8%8E%E9%85%8D%E7%BD%AE%E5%B7%AE%E5%BC%82"><span class="toc-text">5. 内核版本与配置差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9C%E7%9A%84%E5%89%AF%E4%BD%9C%E7%94%A8"><span class="toc-text">6. 用户空间操作的副作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%96%87%E4%BB%B6%E6%98%A0%E5%B0%84%E7%9A%84%E7%89%B9%E6%AE%8A%E6%80%A7"><span class="toc-text">7. 文件映射的特殊性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-NUMA-%E5%86%85%E5%AD%98%E7%AD%96%E7%95%A5"><span class="toc-text">8. NUMA 内存策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%8A%E6%96%AD%E6%96%B9%E6%B3%95"><span class="toc-text">诊断方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%E6%BC%94%E7%A4%BA%E5%B7%AE%E5%BC%82"><span class="toc-text">示例代码演示差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%9C%AC%E5%8E%9F%E5%9B%A0%E6%80%BB%E7%BB%93"><span class="toc-text">根本原因总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%9C%AC%E5%8E%9F%E5%9B%A0%EF%BC%9AVMA-%E5%90%88%E5%B9%B6%E7%9A%84%E4%B8%A5%E6%A0%BC%E6%9D%A1%E4%BB%B6"><span class="toc-text">根本原因：VMA 合并的严格条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90"><span class="toc-text">具体原因分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%9C%B0%E5%9D%80%E4%B8%8D%E8%BF%9E%E7%BB%AD%EF%BC%88%E6%9C%80%E5%B8%B8%E8%A7%81%E5%8E%9F%E5%9B%A0%EF%BC%89"><span class="toc-text">1. 地址不连续（最常见原因）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%9D%83%E9%99%90-%E6%A0%87%E5%BF%97%E7%9A%84%E7%BB%86%E5%BE%AE%E5%B7%AE%E5%BC%82"><span class="toc-text">2. 权限&#x2F;标志的细微差异</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%90%88%E5%B9%B6%E7%9A%84%E6%83%B0%E6%80%A7%E7%AD%96%E7%95%A5"><span class="toc-text">3. 合并的惰性策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%E5%88%86%E9%85%8D"><span class="toc-text">4. 多线程并发分配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E9%A1%B5%E5%AF%B9%E9%BD%90%E4%B8%8E%E4%BF%9D%E6%8A%A4%E9%A1%B5"><span class="toc-text">5. 页对齐与保护页</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E9%AA%8C%E8%AF%81"><span class="toc-text">实验验证</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="toc-text">代码示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E8%BE%93%E5%87%BA%EF%BC%88%E6%9C%AA%E5%90%88%E5%B9%B6%EF%BC%89"><span class="toc-text">典型输出（未合并）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AE%BE%E8%AE%A1%E5%A6%82%E6%AD%A4%EF%BC%9F"><span class="toc-text">为什么设计如此？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%BA%E5%88%B6%E5%90%88%E5%B9%B6%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-text">强制合并的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%A2%84%E5%88%86%E9%85%8D%E8%BF%9E%E7%BB%AD%E5%8C%BA%E5%9F%9F%E5%90%8E%E5%88%86%E5%89%B2"><span class="toc-text">1. 预分配连续区域后分割</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%A6%81%E7%94%A8-ASLR"><span class="toc-text">2. 禁用 ASLR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BD%BF%E7%94%A8-mremap-%E6%89%8B%E5%8A%A8%E5%90%88%E5%B9%B6"><span class="toc-text">3. 使用 mremap 手动合并</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81%E5%85%B3%E9%94%AE%E9%80%BB%E8%BE%91-1"><span class="toc-text">内核代码关键逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="toc-text">最佳实践建议</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

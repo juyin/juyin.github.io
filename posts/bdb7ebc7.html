@@ -1,0 +1,434 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核AES加密算法使用指南 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核AES加密算法用法 在 Linux 内核中使用 AES 加密算法主要通过 内核加密 API 实现。这个 API 提供了一个抽象层，允许内核模块（如文件系统加密 dm-crypt&#x2F;LUKS、IPSec、磁盘加密等）使用各种加密算法，包括 AES，而无需关心底层具体的实现（是软件实现还是硬件加速）。 以下是使用内核 AES 加密的基本步骤和要点： 核心组件：  struct c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核AES加密算法使用指南">
+<meta property="og:url" content="http://helloeuler.cn/posts/bdb7ebc7.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核AES加密算法用法 在 Linux 内核中使用 AES 加密算法主要通过 内核加密 API 实现。这个 API 提供了一个抽象层，允许内核模块（如文件系统加密 dm-crypt&#x2F;LUKS、IPSec、磁盘加密等）使用各种加密算法，包括 AES，而无需关心底层具体的实现（是软件实现还是硬件加速）。 以下是使用内核 AES 加密的基本步骤和要点： 核心组件：  struct c">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-06-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.745Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/bdb7ebc7.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核AES加密算法使用指南',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核AES加密算法使用指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-06-20T16:00:00.000Z" title="发表于 2025-06-21 00:00:00">2025-06-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核AES加密算法使用指南"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核AES加密算法用法</p>
+<p>在 Linux 内核中使用 AES 加密算法主要通过 <strong>内核加密 API</strong> 实现。这个 API 提供了一个抽象层，允许内核模块（如文件系统加密 dm-crypt&#x2F;LUKS、IPSec、磁盘加密等）使用各种加密算法，包括 AES，而无需关心底层具体的实现（是软件实现还是硬件加速）。</p>
+<p>以下是使用内核 AES 加密的基本步骤和要点：</p>
+<p><strong>核心组件：</strong></p>
+<ol>
+<li><strong><code>struct crypto_skcipher</code></strong>: 这是表示对称密钥加密（如 AES）上下文的句柄。它封装了算法、密钥、操作模式（如 CBC, XTS, CTR, GCM 等）等信息。</li>
+<li><strong><code>struct skcipher_request</code></strong>: 这是用于封装单次加密或解密操作请求的结构。它包含输入&#x2F;输出数据的散列表（<code>struct scatterlist</code>）、初始化向量（IV）、异步操作完成后的回调函数等信息。</li>
+<li><strong><code>struct scatterlist</code></strong>: 用于描述分散&#x2F;聚集 I&#x2F;O 的数据缓冲区。内核加密 API 通常操作的是 <code>scatterlist</code> 而不是直接的线性内存地址，以高效处理可能分散在物理内存中的数据。</li>
+</ol>
+<p><strong>基本使用流程：</strong></p>
+<ol>
+<li><p><strong>分配算法句柄 (<code>crypto_alloc_skcipher</code>)</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">crypto_skcipher</span> *<span class="title">tfm</span>;</span></span><br><span class="line">tfm = crypto_alloc_skcipher(<span class="string">&quot;aes-&lt;mode&gt;-&lt;keylength&gt;&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>&quot;aes-&lt;mode&gt;-&lt;keylength&gt;&quot;</code></strong>: 指定算法名称字符串。常见组合：<ul>
+<li><code>&quot;ecb(aes)&quot;</code>: AES ECB 模式 (通常不推荐用于安全加密)。</li>
+<li><code>&quot;cbc(aes)&quot;</code>: AES CBC 模式。</li>
+<li><code>&quot;ctr(aes)&quot;</code>: AES CTR 模式。</li>
+<li><code>&quot;xts(aes)&quot;</code>: AES XTS 模式 (常用于磁盘加密)。</li>
+<li><code>&quot;gcm(aes)&quot;</code>: AES GCM 模式 (带认证的加密)。</li>
+<li><code>&quot;pcbc(aes)&quot;</code>, <code>&quot;lrw(aes)&quot;</code>, <code>&quot;ofb(aes)&quot;</code>, <code>&quot;cfb(aes)&quot;</code> 等。</li>
+<li>密钥长度：通常在模式名后隐含指定（如 <code>cbc(aes)</code> 需要调用 <code>setkey</code> 时指定长度），但有些名字明确包含长度（如 <code>&quot;aes-xts-plain64&quot;</code> 常用于 dm-crypt，但实际密钥长度由 <code>setkey</code> 决定）。<strong>最重要的是 <code>setkey</code> 调用时传递的密钥长度必须与所选算法变体期望的长度一致（128, 192, 256 位）。</strong></li>
+</ul>
+</li>
+<li><strong><code>0, 0</code></strong>: 通常表示使用默认实现（优先硬件加速）。可以指定 <code>CRYPTO_ALG_ASYNC</code> 标志启用异步操作（利用硬件加速时常用）。</li>
+</ul>
+</li>
+<li><p><strong>设置密钥 (<code>crypto_skcipher_setkey</code>)</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> err;</span><br><span class="line"><span class="type">const</span> u8 *key = ...; <span class="comment">// 指向你的密钥数据的指针</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> keylen = ...; <span class="comment">// 密钥长度（字节数）：16 (128-bit), 24 (192-bit), 32 (256-bit)</span></span><br><span class="line">err = crypto_skcipher_setkey(tfm, key, keylen);</span><br><span class="line"><span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="comment">// 处理错误：无效密钥长度或不支持等</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>关键点</strong>：<code>keylen</code> <strong>必须</strong> 与你选择的算法变体（在 <code>crypto_alloc_skcipher</code> 时指定）所要求的长度完全匹配。否则会返回 <code>-EINVAL</code>。</li>
+</ul>
+</li>
+<li><p><strong>准备请求 (<code>skcipher_request_alloc</code> + 初始化)</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">skcipher_request</span> *<span class="title">req</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">scatterlist</span> <span class="title">sg_in</span>, <span class="title">sg_out</span>;</span></span><br><span class="line">DECLARE_CRYPTO_WAIT(wait); <span class="comment">// 用于同步等待的辅助结构</span></span><br><span class="line">req = skcipher_request_alloc(tfm, GFP_KERNEL);</span><br><span class="line"><span class="keyword">if</span> (!req) &#123;</span><br><span class="line">    <span class="comment">// 处理内存分配失败</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 初始化输入和输出的 scatterlist (假设源数据在 src, 目标在 dst, 长度 len)</span></span><br><span class="line">sg_init_one(&amp;sg_in, src, len);</span><br><span class="line">sg_init_one(&amp;sg_out, dst, len);</span><br><span class="line"><span class="comment">// 将请求关联到 tfm</span></span><br><span class="line">skcipher_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG |</span><br><span class="line">                                CRYPTO_TFM_REQ_MAY_SLEEP,</span><br><span class="line">                                crypto_req_done, &amp;wait);</span><br><span class="line">skcipher_request_set_crypt(req, &amp;sg_in, &amp;sg_out, len, iv);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>skcipher_request_alloc</code>: 分配一个请求结构并将其与 <code>tfm</code> 关联。</li>
+<li><code>sg_init_one</code>: 初始化一个 <code>scatterlist</code> 表示单个线性缓冲区（<code>src</code> 和 <code>dst</code> 是内核虚拟地址）。如果数据分散，使用 <code>sg_init_table</code> 等更复杂的操作。</li>
+<li><code>skcipher_request_set_callback</code>: 设置异步操作完成后的回调函数 (<code>crypto_req_done</code>) 和一个上下文 (<code>&amp;wait</code>)。<code>CRYPTO_TFM_REQ_MAY_BACKLOG</code> 允许请求在硬件队列满时排队，<code>CRYPTO_TFM_REQ_MAY_SLEEP</code> 允许在内存分配时休眠。</li>
+<li><code>skcipher_request_set_crypt</code>: 这是<strong>核心配置</strong>函数：<ul>
+<li><code>req</code>: 请求指针。</li>
+<li><code>&amp;sg_in</code>: 输入数据（明文或密文）的散列表头指针。</li>
+<li><code>&amp;sg_out</code>: 输出数据（密文或明文）的散列表头指针。</li>
+<li><code>len</code>: 要处理的数据长度（字节）。</li>
+<li><code>iv</code>: 指向初始化向量 (IV) 缓冲区的指针。<strong>IV 的长度和生成方式取决于所选的操作模式（如 CBC 需要 16 字节 IV）。</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>执行操作 (加密&#x2F;解密)</strong></p>
+<ul>
+<li><strong>加密:</strong><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">err = crypto_skcipher_encrypt(req);</span><br><span class="line"><span class="keyword">if</span> (err == -EINPROGRESS || err == -EBUSY) &#123;</span><br><span class="line">    <span class="comment">// 对于异步操作，等待完成</span></span><br><span class="line">    err = crypto_wait_req(err, &amp;wait);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="comment">// 处理加密错误</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>解密:</strong><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">err = crypto_skcipher_decrypt(req);</span><br><span class="line"><span class="keyword">if</span> (err == -EINPROGRESS || err == -EBUSY) &#123;</span><br><span class="line">    err = crypto_wait_req(err, &amp;wait);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="comment">// 处理解密错误（可能意味着认证失败 -GCM， 或数据损坏/密钥错误）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><code>crypto_skcipher_encrypt</code> &#x2F; <code>crypto_skcipher_decrypt</code>: 提交请求。如果返回 <code>-EINPROGRESS</code> 或 <code>-EBUSY</code>，表示操作是异步的并在后台执行。</li>
+<li><code>crypto_wait_req</code>: 一个辅助函数，用于同步等待异步请求完成。它会阻塞当前线程直到操作完成或出错。<code>crypto_req_done</code> 回调会唤醒这个等待。</li>
+</ul>
+</li>
+<li><p><strong>清理资源</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">skcipher_request_free(req); <span class="comment">// 释放请求结构</span></span><br><span class="line">crypto_free_skcipher(tfm); <span class="comment">// 释放算法句柄</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>务必释放分配的资源以避免内存泄漏。</li>
+</ul>
+</li>
+</ol>
+<p><strong>重要注意事项：</strong></p>
+<ol>
+<li><strong>模式选择：</strong> AES 是一个分组密码。<strong>必须选择一个合适的操作模式</strong> (CBC, XTS, CTR, GCM 等) 来加密超过一个块的数据。选择模式取决于安全需求（保密性、认证）、性能、并行化能力和具体应用场景（文件加密、网络协议等）。例如：<ul>
+<li><strong>全盘加密 (dm-crypt&#x2F;LUKS)：</strong> 常用 XTS 模式。</li>
+<li><strong>IPSec ESP：</strong> 常用 CBC 或 GCM 模式。</li>
+<li><strong>需要认证：</strong> 使用 GCM 或 CCM 等 AEAD 模式（通过 <code>crypto_aead</code> API）。</li>
+</ul>
+</li>
+<li><strong>密钥管理：</strong> 安全地生成、存储和销毁密钥是至关重要的。内核模块通常需要从用户空间（通过 <code>netlink</code>, <code>ioctl</code> 等）或其他安全来源（如 TPM）获取密钥。<strong>切勿将密钥硬编码在内核中！</strong></li>
+<li><strong>IV 管理：</strong> 对于大多数模式（CBC, CTR, XTS 等），IV 必须是<strong>唯一的</strong>（对于给定的密钥）。重复使用 IV 会严重破坏安全性。IV 通常不需要保密，但 GCM 的 nonce 有其特殊要求。IV 的生成和传递方式由协议或应用规范决定（例如，在文件加密中，IV 可能存储在文件头或由扇区号派生）。</li>
+<li><strong>数据对齐：</strong> 虽然现代内核实现通常能处理非对齐访问，但为了最佳性能，输入&#x2F;输出缓冲区和 IV 缓冲区最好按算法块大小（AES 是 16 字节）对齐。</li>
+<li><strong>异步操作：</strong> 当使用硬件加速引擎时，加密&#x2F;解密操作通常是异步的。使用回调函数和等待机制（如 <code>crypto_wait_req</code>）是处理异步操作的标准方式。</li>
+<li><strong>错误处理：</strong> 仔细检查所有函数调用的返回值（<code>crypto_alloc_skcipher</code>, <code>crypto_skcipher_setkey</code>, <code>crypto_skcipher_encrypt/decrypt</code>）。<code>crypto_skcipher_setkey</code> 失败最常见的原因是密钥长度不匹配。</li>
+<li><strong>AEAD (Authenticated Encryption with Associated Data)：</strong> 如果需要同时提供保密性、完整性和认证（如 GCM 模式），应该使用 <code>crypto_aead</code> API 而不是 <code>crypto_skcipher</code> API。它的使用方式类似但增加了关联数据 (AAD) 的设置。</li>
+</ol>
+<p><strong>示例片段 (简化概念)：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/crypto.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;crypto/skcipher.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">do_aes_cbc_encrypt</span><span class="params">(<span class="type">const</span> u8 *key, <span class="type">unsigned</span> <span class="type">int</span> keylen,</span></span><br><span class="line"><span class="params">                        <span class="type">const</span> u8 *iv, <span class="type">const</span> u8 *plaintext,</span></span><br><span class="line"><span class="params">                        u8 *ciphertext, <span class="type">size_t</span> len)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">crypto_skcipher</span> *<span class="title">tfm</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">skcipher_request</span> *<span class="title">req</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">scatterlist</span> <span class="title">sg_in</span>, <span class="title">sg_out</span>;</span></span><br><span class="line">    DECLARE_CRYPTO_WAIT(wait);</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 分配算法句柄 (CBC 模式)</span></span><br><span class="line">    tfm = crypto_alloc_skcipher(<span class="string">&quot;cbc(aes)&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(tfm)) &#123;</span><br><span class="line">        err = PTR_ERR(tfm);</span><br><span class="line">        <span class="keyword">goto</span> out;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 设置密钥</span></span><br><span class="line">    err = crypto_skcipher_setkey(tfm, key, keylen);</span><br><span class="line">    <span class="keyword">if</span> (err) <span class="keyword">goto</span> out_free_tfm;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 分配并初始化请求</span></span><br><span class="line">    req = skcipher_request_alloc(tfm, GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> (!req) &#123;</span><br><span class="line">        err = -ENOMEM;</span><br><span class="line">        <span class="keyword">goto</span> out_free_tfm;</span><br><span class="line">    &#125;</span><br><span class="line">    sg_init_one(&amp;sg_in, plaintext, len);</span><br><span class="line">    sg_init_one(&amp;sg_out, ciphertext, len);</span><br><span class="line">    skcipher_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG |</span><br><span class="line">                                  CRYPTO_TFM_REQ_MAY_SLEEP,</span><br><span class="line">                                  crypto_req_done, &amp;wait);</span><br><span class="line">    skcipher_request_set_crypt(req, &amp;sg_in, &amp;sg_out, len, iv);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4. 执行加密 (同步等待)</span></span><br><span class="line">    err = crypto_skcipher_encrypt(req);</span><br><span class="line">    <span class="keyword">if</span> (err == -EINPROGRESS || err == -EBUSY) &#123;</span><br><span class="line">        err = crypto_wait_req(err, &amp;wait);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (err) <span class="keyword">goto</span> out_free_req;</span><br><span class="line"></span><br><span class="line">out_free_req:</span><br><span class="line">    skcipher_request_free(req);</span><br><span class="line">out_free_tfm:</span><br><span class="line">    crypto_free_skcipher(tfm);</span><br><span class="line">out:</span><br><span class="line">    <span class="keyword">if</span> (err) pr_err(<span class="string">&quot;AES CBC encryption failed: %d\n&quot;</span>, err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结：</strong></p>
+<p>在内核中使用 AES 加密涉及使用 <code>crypto_skcipher</code> API（或 <code>crypto_aead</code> 用于认证加密）。关键步骤包括：选择合适的算法&#x2F;模式字符串分配句柄 (<code>crypto_alloc_skcipher</code>)、正确设置密钥 (<code>crypto_skcipher_setkey</code>)、使用 <code>scatterlist</code> 准备输入&#x2F;输出数据、分配并配置请求 (<code>skcipher_request_alloc</code>, <code>skcipher_request_set_crypt</code>)、设置 IV、执行操作 (<code>crypto_skcipher_encrypt</code>&#x2F;<code>decrypt</code>) 并处理可能的异步等待、最后释放资源。务必谨慎处理密钥、IV 和错误代码。实际应用应参考内核源码树中的示例（如 <code>drivers/crypto/</code>, <code>crypto/tcrypt.c</code>, <code>dm-crypt</code> 驱动等）。</p>
+<p>给一个示例</p>
+<p>以下是一个完整的 Linux 内核模块示例，演示如何使用 AES-CBC 算法进行加密和解密操作。该模块在加载时执行加密和解密，并通过内核日志输出结果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/crypto.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;crypto/skcipher.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/scatterlist.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> AES_KEY_SIZE 16   <span class="comment">// 128-bit AES</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> AES_BLOCK_SIZE 16 <span class="comment">// AES 块大小</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DATA_SIZE 64      <span class="comment">// 测试数据大小（必须是块大小的倍数）</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">crypto_skcipher</span> *<span class="title">tfm</span>;</span></span><br><span class="line"><span class="type">static</span> u8 key[AES_KEY_SIZE];</span><br><span class="line"><span class="type">static</span> u8 iv[AES_BLOCK_SIZE];</span><br><span class="line"><span class="type">static</span> u8 plaintext[DATA_SIZE];</span><br><span class="line"><span class="type">static</span> u8 ciphertext[DATA_SIZE];</span><br><span class="line"><span class="type">static</span> u8 decrypted[DATA_SIZE];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行 AES 加密/解密操作</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">test_aes_operation</span><span class="params">(<span class="type">int</span> encrypt)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">skcipher_request</span> *<span class="title">req</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">scatterlist</span> <span class="title">sg_in</span>, <span class="title">sg_out</span>;</span></span><br><span class="line">    DECLARE_CRYPTO_WAIT(wait);</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 分配请求对象</span></span><br><span class="line">    req = skcipher_request_alloc(tfm, GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> (!req) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Failed to allocate skcipher request\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置输入输出散列表</span></span><br><span class="line">    sg_init_one(&amp;sg_in, encrypt ? plaintext : ciphertext, DATA_SIZE);</span><br><span class="line">    sg_init_one(&amp;sg_out, encrypt ? ciphertext : decrypted, DATA_SIZE);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置请求回调</span></span><br><span class="line">    skcipher_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG | </span><br><span class="line">                                 CRYPTO_TFM_REQ_MAY_SLEEP,</span><br><span class="line">                                 crypto_req_done, &amp;wait);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置加密参数（使用相同的 IV）</span></span><br><span class="line">    skcipher_request_set_crypt(req, &amp;sg_in, &amp;sg_out, DATA_SIZE, iv);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 执行加密或解密</span></span><br><span class="line">    <span class="keyword">if</span> (encrypt)</span><br><span class="line">        err = crypto_skcipher_encrypt(req);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        err = crypto_skcipher_decrypt(req);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 处理异步操作</span></span><br><span class="line">    <span class="keyword">if</span> (err == -EINPROGRESS || err == -EBUSY) &#123;</span><br><span class="line">        err = crypto_wait_req(err, &amp;wait);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    skcipher_request_free(req);</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印数据（调试用）</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">print_data</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *label, <span class="type">const</span> u8 *data, <span class="type">size_t</span> size)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> *buf;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    </span><br><span class="line">    buf = kzalloc(size * <span class="number">3</span> + <span class="number">1</span>, GFP_KERNEL); <span class="comment">// 每个字节2字符+空格+null</span></span><br><span class="line">    <span class="keyword">if</span> (!buf) <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; size; i++)</span><br><span class="line">        <span class="built_in">sprintf</span>(buf + i * <span class="number">3</span>, <span class="string">&quot;%02x &quot;</span>, data[i]);</span><br><span class="line">    </span><br><span class="line">    pr_info(<span class="string">&quot;%s: %s\n&quot;</span>, label, buf);</span><br><span class="line">    kfree(buf);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">aes_example_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    </span><br><span class="line">    pr_info(<span class="string">&quot;AES Example Module Loaded\n&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 初始化测试数据</span></span><br><span class="line">    <span class="built_in">memset</span>(key, <span class="number">0xAA</span>, AES_KEY_SIZE);          <span class="comment">// 简单测试密钥</span></span><br><span class="line">    <span class="built_in">memset</span>(iv, <span class="number">0x55</span>, AES_BLOCK_SIZE);         <span class="comment">// 初始化向量</span></span><br><span class="line">    <span class="built_in">memset</span>(plaintext, <span class="number">0x41</span>, DATA_SIZE);       <span class="comment">// 填充 &#x27;A&#x27;</span></span><br><span class="line">    plaintext[DATA_SIZE - <span class="number">1</span>] = <span class="number">0</span>;             <span class="comment">// 空终止符（仅用于打印）</span></span><br><span class="line">    </span><br><span class="line">    print_data(<span class="string">&quot;Key     &quot;</span>, key, AES_KEY_SIZE);</span><br><span class="line">    print_data(<span class="string">&quot;IV      &quot;</span>, iv, AES_BLOCK_SIZE);</span><br><span class="line">    print_data(<span class="string">&quot;Plaintext&quot;</span>, plaintext, <span class="type">min_t</span>(<span class="type">size_t</span>, <span class="number">32</span>, DATA_SIZE));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 分配加密上下文</span></span><br><span class="line">    tfm = crypto_alloc_skcipher(<span class="string">&quot;cbc(aes)&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(tfm)) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Error allocating AES-CBC transform: %ld\n&quot;</span>, PTR_ERR(tfm));</span><br><span class="line">        <span class="keyword">return</span> PTR_ERR(tfm);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 设置密钥</span></span><br><span class="line">    err = crypto_skcipher_setkey(tfm, key, AES_KEY_SIZE);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Error setting key: %d\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">goto</span> free_tfm;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 4. 执行加密</span></span><br><span class="line">    err = test_aes_operation(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Encryption failed: %d\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">goto</span> free_tfm;</span><br><span class="line">    &#125;</span><br><span class="line">    print_data(<span class="string">&quot;Ciphertext&quot;</span>, ciphertext, <span class="type">min_t</span>(<span class="type">size_t</span>, <span class="number">32</span>, DATA_SIZE));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 5. 执行解密</span></span><br><span class="line">    err = test_aes_operation(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Decryption failed: %d\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">goto</span> free_tfm;</span><br><span class="line">    &#125;</span><br><span class="line">    print_data(<span class="string">&quot;Decrypted&quot;</span>, decrypted, <span class="type">min_t</span>(<span class="type">size_t</span>, <span class="number">32</span>, DATA_SIZE));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 6. 验证结果</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">memcmp</span>(plaintext, decrypted, DATA_SIZE) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Decryption result doesn&#x27;t match original!\n&quot;</span>);</span><br><span class="line">        err = -EINVAL;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        pr_info(<span class="string">&quot;Success! Decrypted text matches original\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">free_tfm:</span><br><span class="line">    crypto_free_skcipher(tfm);</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit aes_example_exit(<span class="type">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    pr_info(<span class="string">&quot;AES Example Module Unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(aes_example_init);</span><br><span class="line">module_exit(aes_example_exit);</span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;Linux Kernel AES Encryption Example&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用说明："><a href="#使用说明：" class="headerlink" title="使用说明："></a>使用说明：</h3><ol>
+<li><p><strong>编译模块</strong>：<br>保存为 <code>aes_example.c</code>，使用以下 Makefile：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">obj-m += aes_example.o</span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>加载模块</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> insmod aes_example.ko</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>查看结果</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dmesg | <span class="built_in">tail</span> -n 30</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="预期输出："><a href="#预期输出：" class="headerlink" title="预期输出："></a>预期输出：</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Key     : aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa </span><br><span class="line">IV      : 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 55 </span><br><span class="line">Plaintext: 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 ...</span><br><span class="line">Ciphertext: 1d 8c 46 46 0c 1c 40 4b fb 87 0f 3d 7d 3b 1d 8c ... (随机)</span><br><span class="line">Decrypted: 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 ...</span><br><span class="line">Success! Decrypted text matches original</span><br></pre></td></tr></table></figure>
+
+<h3 id="关键点说明："><a href="#关键点说明：" class="headerlink" title="关键点说明："></a>关键点说明：</h3><ol>
+<li><strong>算法选择</strong>：使用 <code>&quot;cbc(aes)&quot;</code> 指定 AES-CBC 模式</li>
+<li><strong>密钥管理</strong>：<ul>
+<li>128-bit 密钥 (16字节)</li>
+<li>通过 <code>crypto_skcipher_setkey()</code> 设置</li>
+</ul>
+</li>
+<li><strong>IV 处理</strong>：<ul>
+<li>固定大小 (16字节)</li>
+<li>每次操作前重置（实际应用中必须唯一）</li>
+</ul>
+</li>
+<li><strong>数据准备</strong>：<ul>
+<li>使用 <code>scatterlist</code> 处理缓冲区</li>
+<li>数据长度必须是块大小(16字节)的倍数</li>
+</ul>
+</li>
+<li><strong>异步操作</strong>：<ul>
+<li>使用 <code>crypto_wait_req()</code> 处理异步完成</li>
+</ul>
+</li>
+<li><strong>资源管理</strong>：<ul>
+<li>正确释放请求和算法上下文</li>
+<li>错误检查所有步骤</li>
+</ul>
+</li>
+</ol>
+<h3 id="实际应用注意事项："><a href="#实际应用注意事项：" class="headerlink" title="实际应用注意事项："></a>实际应用注意事项：</h3><ol>
+<li><strong>密钥安全</strong>：不要硬编码密钥，应从安全来源获取</li>
+<li><strong>IV 生成</strong>：使用随机 IV（如 <code>get_random_bytes()</code>），保证唯一性</li>
+<li><strong>数据填充</strong>：非对齐数据需要添加填充（如 PKCS#7）</li>
+<li><strong>性能优化</strong>：对于大数据，使用多个 scatterlist 条目</li>
+<li><strong>认证模式</strong>：如需完整性保护，改用 <code>crypto_aead</code> API (GCM&#x2F;CCM)</li>
+</ol>
+<p>此示例演示了内核中 AES 加密的基本流程，实际使用时需根据具体场景调整安全参数和数据处理逻辑。</p>
+<p>Linux内核crypto_cipher_encrypt_one接口用法及示例</p>
+<h1 id="Linux-内核-crypto-cipher-encrypt-one-接口用法及示例"><a href="#Linux-内核-crypto-cipher-encrypt-one-接口用法及示例" class="headerlink" title="Linux 内核 crypto_cipher_encrypt_one 接口用法及示例"></a>Linux 内核 <code>crypto_cipher_encrypt_one</code> 接口用法及示例</h1><p><code>crypto_cipher_encrypt_one</code> 是 Linux 内核中用于<strong>单块加密</strong>的低级 API，它提供了一种简单直接的方式来执行块加密算法的单次加密操作。这个接口通常用于 ECB（电子密码本）模式，或作为构建更复杂加密模式的基础。</p>
+<h2 id="接口特点"><a href="#接口特点" class="headerlink" title="接口特点"></a>接口特点</h2><ol>
+<li><strong>简单性</strong>：直接的单块加密操作</li>
+<li><strong>同步操作</strong>：立即返回结果，无需异步处理</li>
+<li><strong>底层接口</strong>：适合构建更高级的加密模式或特定硬件操作</li>
+<li><strong>单块处理</strong>：每次只处理一个加密块（如 AES 的 16 字节）</li>
+</ol>
+<h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">crypto_cipher_encrypt_one</span><span class="params">(<span class="keyword">struct</span> crypto_cipher *tfm, u8 *dst, <span class="type">const</span> u8 *src)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">crypto_cipher_decrypt_one</span><span class="params">(<span class="keyword">struct</span> crypto_cipher *tfm, u8 *dst, <span class="type">const</span> u8 *src)</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用步骤"><a href="#使用步骤" class="headerlink" title="使用步骤"></a>使用步骤</h2><ol>
+<li><strong>分配密码对象</strong>：<code>crypto_alloc_cipher()</code></li>
+<li><strong>设置密钥</strong>：<code>crypto_cipher_setkey()</code></li>
+<li><strong>执行加密&#x2F;解密</strong>：<code>crypto_cipher_encrypt_one()</code>&#x2F;<code>crypto_cipher_decrypt_one()</code></li>
+<li><strong>释放密码对象</strong>：<code>crypto_free_cipher()</code></li>
+</ol>
+<h2 id="完整示例代码"><a href="#完整示例代码" class="headerlink" title="完整示例代码"></a>完整示例代码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/crypto.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> AES_KEY_SIZE 16   <span class="comment">// 128-bit AES</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> AES_BLOCK_SIZE 16 <span class="comment">// AES 块大小</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">crypto_cipher</span> *<span class="title">tfm</span>;</span></span><br><span class="line"><span class="type">static</span> u8 key[AES_KEY_SIZE];</span><br><span class="line"><span class="type">static</span> u8 plaintext[AES_BLOCK_SIZE];</span><br><span class="line"><span class="type">static</span> u8 ciphertext[AES_BLOCK_SIZE];</span><br><span class="line"><span class="type">static</span> u8 decrypted[AES_BLOCK_SIZE];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印数据（调试用）</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">print_data</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *label, <span class="type">const</span> u8 *data, <span class="type">size_t</span> size)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> buf[<span class="number">64</span>]; <span class="comment">// 用于存储十六进制表示</span></span><br><span class="line">    <span class="type">char</span> *pos = buf;</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="type">min_t</span>(<span class="type">size_t</span>, size, <span class="number">16</span>); i++) &#123;</span><br><span class="line">        pos += <span class="built_in">sprintf</span>(pos, <span class="string">&quot;%02x &quot;</span>, data[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (size &gt; <span class="number">16</span>) &#123;</span><br><span class="line">        <span class="built_in">sprintf</span>(pos, <span class="string">&quot;...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    pr_info(<span class="string">&quot;%s: %s\n&quot;</span>, label, buf);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">cipher_example_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    </span><br><span class="line">    pr_info(<span class="string">&quot;Crypto Cipher Example Module Loaded\n&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 初始化测试数据</span></span><br><span class="line">    <span class="built_in">memset</span>(key, <span class="number">0xAA</span>, AES_KEY_SIZE);          <span class="comment">// 简单测试密钥</span></span><br><span class="line">    <span class="built_in">memset</span>(plaintext, <span class="number">0x41</span>, AES_BLOCK_SIZE);  <span class="comment">// 填充 &#x27;A&#x27;</span></span><br><span class="line">    </span><br><span class="line">    print_data(<span class="string">&quot;Key      &quot;</span>, key, AES_KEY_SIZE);</span><br><span class="line">    print_data(<span class="string">&quot;Plaintext&quot;</span>, plaintext, AES_BLOCK_SIZE);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 分配密码对象</span></span><br><span class="line">    tfm = crypto_alloc_cipher(<span class="string">&quot;aes&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (IS_ERR(tfm)) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Error allocating AES cipher: %ld\n&quot;</span>, PTR_ERR(tfm));</span><br><span class="line">        <span class="keyword">return</span> PTR_ERR(tfm);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 设置密钥</span></span><br><span class="line">    err = crypto_cipher_setkey(tfm, key, AES_KEY_SIZE);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Error setting key: %d\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">goto</span> free_tfm;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 4. 执行加密</span></span><br><span class="line">    crypto_cipher_encrypt_one(tfm, ciphertext, plaintext);</span><br><span class="line">    print_data(<span class="string">&quot;Ciphertext&quot;</span>, ciphertext, AES_BLOCK_SIZE);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 5. 执行解密</span></span><br><span class="line">    crypto_cipher_decrypt_one(tfm, decrypted, ciphertext);</span><br><span class="line">    print_data(<span class="string">&quot;Decrypted &quot;</span>, decrypted, AES_BLOCK_SIZE);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 6. 验证结果</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">memcmp</span>(plaintext, decrypted, AES_BLOCK_SIZE)) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;Decryption result doesn&#x27;t match original!\n&quot;</span>);</span><br><span class="line">        err = -EINVAL;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        pr_info(<span class="string">&quot;Success! Decrypted text matches original\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">free_tfm:</span><br><span class="line">    crypto_free_cipher(tfm);</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">cipher_example_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    pr_info(<span class="string">&quot;Crypto Cipher Example Module Unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(cipher_example_init);</span><br><span class="line">module_exit(cipher_example_exit);</span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;Your Name&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;Linux Kernel crypto_cipher Example&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译和使用"><a href="#编译和使用" class="headerlink" title="编译和使用"></a>编译和使用</h2><ol>
+<li><p><strong>保存文件</strong>：将代码保存为 <code>cipher_example.c</code></p>
+</li>
+<li><p><strong>创建 Makefile</strong>：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">obj-m += cipher_example.o</span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>编译模块</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>加载模块</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> insmod cipher_example.ko</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>查看结果</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dmesg | <span class="built_in">tail</span> -n 20</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="预期输出"><a href="#预期输出" class="headerlink" title="预期输出"></a>预期输出</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Key      : aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa </span><br><span class="line">Plaintext: 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 </span><br><span class="line">Ciphertext: 7e 87 6f 3c 0d c3 4d 5d 7d e2 6b 3d 26 5d 0c 3f </span><br><span class="line">Decrypted : 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 </span><br><span class="line">Success! Decrypted text matches original</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键点说明"><a href="#关键点说明" class="headerlink" title="关键点说明"></a>关键点说明</h2><ol>
+<li><p><strong>算法名称</strong>：</p>
+<ul>
+<li>使用 <code>&quot;aes&quot;</code> 而不是 <code>&quot;cbc(aes)&quot;</code> 或 <code>&quot;ecb(aes)&quot;</code></li>
+<li><code>crypto_cipher</code> API 默认使用 ECB 模式</li>
+</ul>
+</li>
+<li><p><strong>单块操作</strong>：</p>
+<ul>
+<li>每次只处理一个加密块（AES 为 16 字节）</li>
+<li>不适合直接处理大数据流</li>
+</ul>
+</li>
+<li><p><strong>同步操作</strong>：</p>
+<ul>
+<li>函数立即执行并返回</li>
+<li>不需要异步处理或回调机制</li>
+</ul>
+</li>
+<li><p><strong>密钥设置</strong>：</p>
+<ul>
+<li>密钥长度必须与算法要求一致</li>
+<li>AES 支持 16 (128-bit), 24 (192-bit), 32 (256-bit) 字节密钥</li>
+</ul>
+</li>
+</ol>
+<h2 id="实际应用场景"><a href="#实际应用场景" class="headerlink" title="实际应用场景"></a>实际应用场景</h2><ol>
+<li><strong>硬件加速实现</strong>：在自定义硬件加密驱动中作为基础操作</li>
+<li><strong>构建加密原语</strong>：用于实现更高级的加密模式</li>
+<li><strong>密码学实验</strong>：测试和验证加密算法的基本功能</li>
+<li><strong>密钥派生操作</strong>：在某些密钥派生函数中使用</li>
+</ol>
+<h2 id="安全注意事项"><a href="#安全注意事项" class="headerlink" title="安全注意事项"></a>安全注意事项</h2><ol>
+<li><p><strong>ECB 模式限制</strong>：</p>
+<ul>
+<li>ECB 模式不提供语义安全性</li>
+<li>相同明文块总是产生相同密文块</li>
+<li><strong>不适合直接用于加密敏感数据</strong></li>
+</ul>
+</li>
+<li><p><strong>仅限单块操作</strong>：</p>
+<ul>
+<li>对于多块数据，需要实现链式操作（如 CBC、CTR）</li>
+<li>实际应用中应使用更高级的 API（如 <code>crypto_skcipher</code>）</li>
+</ul>
+</li>
+<li><p><strong>密钥管理</strong>：</p>
+<ul>
+<li>示例中硬编码密钥仅用于演示</li>
+<li>实际应用中应从安全来源获取密钥</li>
+</ul>
+</li>
+</ol>
+<h2 id="与-crypto-skcipher-的区别"><a href="#与-crypto-skcipher-的区别" class="headerlink" title="与 crypto_skcipher 的区别"></a>与 <code>crypto_skcipher</code> 的区别</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th><code>crypto_cipher</code></th>
+<th><code>crypto_skcipher</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>操作模式</strong></td>
+<td>基本 ECB 模式</td>
+<td>支持多种模式 (CBC, CTR, XTS 等)</td>
+</tr>
+<tr>
+<td><strong>数据处理</strong></td>
+<td>单块 (16 字节)</td>
+<td>任意长度数据</td>
+</tr>
+<tr>
+<td><strong>操作类型</strong></td>
+<td>同步</td>
+<td>支持异步操作</td>
+</tr>
+<tr>
+<td><strong>IV 支持</strong></td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td><strong>使用场景</strong></td>
+<td>底层操作、硬件驱动</td>
+<td>通用加密需求</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>更轻量级</td>
+<td>功能更全面但稍重</td>
+</tr>
+</tbody></table>
+<h2 id="何时使用-crypto-cipher"><a href="#何时使用-crypto-cipher" class="headerlink" title="何时使用 crypto_cipher"></a>何时使用 <code>crypto_cipher</code></h2><ol>
+<li>实现自定义加密模式或协议</li>
+<li>编写硬件加密驱动程序</li>
+<li>需要直接访问底层块加密操作</li>
+<li>性能敏感且只需 ECB 模式的场景</li>
+</ol>
+<p>对于大多数内核加密需求，推荐使用更高级的 <code>crypto_skcipher</code> API，它提供了更完整的加密解决方案和更好的安全性。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/bdb7ebc7.html">http://helloeuler.cn/posts/bdb7ebc7.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/b7a2f9da.html" title="普通用户无法通过su切换到root"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">普通用户无法通过su切换到root</div></div></a></div><div class="next-post pull-right"><a href="/posts/86e58a2e.html" title="Linux init_module与finit_module区别"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux init_module与finit_module区别</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-text">使用说明：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%84%E6%9C%9F%E8%BE%93%E5%87%BA%EF%BC%9A"><span class="toc-text">预期输出：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%82%B9%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-text">关键点说明：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%9A"><span class="toc-text">实际应用注意事项：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux-%E5%86%85%E6%A0%B8-crypto-cipher-encrypt-one-%E6%8E%A5%E5%8F%A3%E7%94%A8%E6%B3%95%E5%8F%8A%E7%A4%BA%E4%BE%8B"><span class="toc-text">Linux 内核 crypto_cipher_encrypt_one 接口用法及示例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E7%89%B9%E7%82%B9"><span class="toc-text">接口特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-text">函数原型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4"><span class="toc-text">使用步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">完整示例代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%92%8C%E4%BD%BF%E7%94%A8"><span class="toc-text">编译和使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%84%E6%9C%9F%E8%BE%93%E5%87%BA"><span class="toc-text">预期输出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%82%B9%E8%AF%B4%E6%98%8E"><span class="toc-text">关键点说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">实际应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">安全注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8E-crypto-skcipher-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">与 crypto_skcipher 的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8-crypto-cipher"><span class="toc-text">何时使用 crypto_cipher</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>pthread_detach函数用法及注意事项 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="pthread_detach函数的用法及注意事项 pthread_detach 是 POSIX 线程库中用于设置线程为“分离状态”的函数，确保线程终止后系统自动回收其资源，无需其他线程调用 pthread_join。以下是其用法及注意事项：  函数原型12#include &lt;pthread.h&gt;int pthread_detach(pthread_t thread);  参数：thre">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pthread_detach函数用法及注意事项">
+<meta property="og:url" content="http://helloeuler.cn/posts/1ed1b903.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="pthread_detach函数的用法及注意事项 pthread_detach 是 POSIX 线程库中用于设置线程为“分离状态”的函数，确保线程终止后系统自动回收其资源，无需其他线程调用 pthread_join。以下是其用法及注意事项：  函数原型12#include &lt;pthread.h&gt;int pthread_detach(pthread_t thread);  参数：thre">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.729Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/1ed1b903.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'pthread_detach函数用法及注意事项',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">pthread_detach函数用法及注意事项</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-13T16:00:00.000Z" title="发表于 2025-05-14 00:00:00">2025-05-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="pthread_detach函数用法及注意事项"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>pthread_detach函数的用法及注意事项</p>
+<p><code>pthread_detach</code> 是 POSIX 线程库中用于设置线程为“分离状态”的函数，确保线程终止后系统自动回收其资源，无需其他线程调用 <code>pthread_join</code>。以下是其用法及注意事项：</p>
+<hr>
+<h3 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a><strong>函数原型</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">pthread_detach</span><span class="params">(<span class="type">pthread_t</span> thread)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数</strong>：<code>thread</code> 是要设置为分离状态的线程 ID。</li>
+<li><strong>返回值</strong>：成功返回 0，失败返回错误码（非零值）。</li>
+</ul>
+<hr>
+<h3 id="核心作用"><a href="#核心作用" class="headerlink" title="核心作用"></a><strong>核心作用</strong></h3><ul>
+<li>默认情况下，线程是 <strong>可连接的（joinable）</strong>，需通过 <code>pthread_join</code> 等待其结束并回收资源。</li>
+<li>调用 <code>pthread_detach</code> 后，线程变为 <strong>分离状态（detached）</strong>，终止时系统自动回收资源，不可再调用 <code>pthread_join</code>。</li>
+</ul>
+<hr>
+<h3 id="典型用法"><a href="#典型用法" class="headerlink" title="典型用法"></a><strong>典型用法</strong></h3><h4 id="1-主线程分离子线程"><a href="#1-主线程分离子线程" class="headerlink" title="1. 主线程分离子线程"></a>1. 主线程分离子线程</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_t</span> tid;</span><br><span class="line">pthread_create(&amp;tid, <span class="literal">NULL</span>, thread_func, <span class="literal">NULL</span>);</span><br><span class="line">pthread_detach(tid); <span class="comment">// 分离子线程</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-线程自行分离"><a href="#2-线程自行分离" class="headerlink" title="2. 线程自行分离"></a>2. 线程自行分离</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span>* <span class="title function_">thread_func</span><span class="params">(<span class="type">void</span>* arg)</span> &#123;</span><br><span class="line">    pthread_detach(pthread_self()); <span class="comment">// 分离自身</span></span><br><span class="line">    <span class="comment">// ... 线程逻辑 ...</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><p><strong>不可对分离线程调用 <code>pthread_join</code></strong><br>分离线程终止后资源自动回收，调用 <code>pthread_join</code> 会返回 <code>EINVAL</code> 错误。</p>
+</li>
+<li><p><strong>避免重复分离</strong><br>对同一线程多次调用 <code>pthread_detach</code> 会导致未定义行为（可能返回 <code>EINVAL</code>）。</p>
+</li>
+<li><p><strong>确保线程 ID 有效</strong><br>若传入无效的线程 ID（如已终止的线程），函数返回 <code>ESRCH</code> 错误。</p>
+</li>
+<li><p><strong>分离时机</strong>  </p>
+<ul>
+<li>若在子线程结束前未分离且未调用 <code>pthread_join</code>，会导致资源泄漏。</li>
+<li>可在创建线程后立即分离，或在子线程逻辑中自行分离。</li>
+</ul>
+</li>
+<li><p><strong>与线程属性的关系</strong><br>创建线程时可通过属性直接设置分离状态，避免显式调用 <code>pthread_detach</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_attr_t</span> attr;</span><br><span class="line">pthread_attr_init(&amp;attr);</span><br><span class="line">pthread_attr_setdetachstate(&amp;attr, PTHREAD_CREATE_DETACHED);</span><br><span class="line">pthread_create(&amp;tid, &amp;attr, thread_func, <span class="literal">NULL</span>);</span><br><span class="line">pthread_attr_destroy(&amp;attr);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>资源回收的异步性</strong><br>分离线程的资源回收由系统在后台完成，无法确定具体时机。</p>
+</li>
+</ol>
+<hr>
+<h3 id="错误处理示例"><a href="#错误处理示例" class="headerlink" title="错误处理示例"></a><strong>错误处理示例</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> ret = pthread_detach(tid);</span><br><span class="line"><span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">switch</span>(ret) &#123;</span><br><span class="line">        <span class="keyword">case</span> EINVAL:</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;线程已处于分离状态或 ID 无效\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> ESRCH:</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;未找到对应线程 ID\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;未知错误\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><ul>
+<li><strong>适用场景</strong>：无需等待线程结束或获取其返回值时，使用 <code>pthread_detach</code> 简化资源管理。</li>
+<li><strong>替代方案</strong>：通过线程属性 <code>PTHREAD_CREATE_DETACHED</code> 直接创建分离线程。</li>
+<li><strong>关键原则</strong>：确保每个线程要么被分离，要么被连接，避免资源泄漏。</li>
+</ul>
+<p>给一个pthread_detach的示例</p>
+<p>以下是一个使用 <code>pthread_detach</code> 的完整示例，演示如何创建线程并分离它，避免资源泄漏：</p>
+<hr>
+<h3 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a><strong>示例代码</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 线程函数</span></span><br><span class="line"><span class="type">void</span>* <span class="title function_">thread_func</span><span class="params">(<span class="type">void</span>* arg)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;子线程开始执行\n&quot;</span>);</span><br><span class="line">    sleep(<span class="number">2</span>); <span class="comment">// 模拟耗时操作</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;子线程结束\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">pthread_t</span> tid;</span><br><span class="line">    <span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建子线程</span></span><br><span class="line">    ret = pthread_create(&amp;tid, <span class="literal">NULL</span>, thread_func, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;pthread_create 失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分离子线程（主线程中调用）</span></span><br><span class="line">    ret = pthread_detach(tid);</span><br><span class="line">    <span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (ret == EINVAL) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;线程已处于分离状态或 ID 无效\n&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ret == ESRCH) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;未找到对应线程 ID\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 主线程继续执行其他任务</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;主线程继续执行...\n&quot;</span>);</span><br><span class="line">    sleep(<span class="number">3</span>); <span class="comment">// 确保子线程有足够时间执行完毕</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 尝试对已分离的线程调用 pthread_join（会失败）</span></span><br><span class="line">    ret = pthread_join(tid, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret == EINVAL) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;无法对分离线程调用 pthread_join\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="代码说明"><a href="#代码说明" class="headerlink" title="代码说明"></a><strong>代码说明</strong></h3><ol>
+<li><p><strong>线程创建与分离</strong>  </p>
+<ul>
+<li>主线程通过 <code>pthread_create</code> 创建子线程。</li>
+<li>调用 <code>pthread_detach(tid)</code> 将子线程设置为分离状态，确保其结束后资源自动回收。</li>
+</ul>
+</li>
+<li><p><strong>错误处理</strong>  </p>
+<ul>
+<li>检查 <code>pthread_create</code> 和 <code>pthread_detach</code> 的返回值，处理可能的错误（如 <code>EINVAL</code> 或 <code>ESRCH</code>）。</li>
+</ul>
+</li>
+<li><p><strong>验证分离状态</strong>  </p>
+<ul>
+<li>在最后故意调用 <code>pthread_join</code>，验证对分离线程调用会失败（返回 <code>EINVAL</code>）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a><strong>运行结果</strong></h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">主线程继续执行...</span><br><span class="line">子线程开始执行</span><br><span class="line">子线程结束</span><br><span class="line">无法对分离线程调用 pthread_join</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键点"><a href="#关键点" class="headerlink" title="关键点"></a><strong>关键点</strong></h3><ol>
+<li><p><strong>分离后的线程不可连接</strong><br>示例中调用 <code>pthread_join</code> 会明确失败，证明线程已被分离。</p>
+</li>
+<li><p><strong>资源自动回收</strong><br>即使主线程不等待子线程，子线程结束后资源也会被系统自动回收，避免内存泄漏。</p>
+</li>
+<li><p><strong>灵活用法</strong><br>也可以在线程函数内调用 <code>pthread_detach(pthread_self())</code> 自行分离：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span>* <span class="title function_">thread_func</span><span class="params">(<span class="type">void</span>* arg)</span> &#123;</span><br><span class="line">    pthread_detach(pthread_self()); <span class="comment">// 自行分离</span></span><br><span class="line">    <span class="comment">// ... 逻辑 ...</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h3 id="编译命令"><a href="#编译命令" class="headerlink" title="编译命令"></a><strong>编译命令</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -o detach_example detach_example.c -lpthread</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a><strong>总结</strong></h3><ul>
+<li><strong>何时使用</strong>：当不需要等待线程结束或获取其返回值时，优先分离线程。</li>
+<li><strong>替代方案</strong>：使用线程属性 <code>PTHREAD_CREATE_DETACHED</code> 直接创建分离线程（更安全，避免竞态条件）。</li>
+<li><strong>核心目标</strong>：确保所有线程资源被正确回收，避免僵尸线程。</li>
+</ul>
+<p>使用pthread_detach后，是否可以使用pthread_cancel取消对应的线程</p>
+<hr>
+<p>在使用 <code>pthread_detach</code> 将线程设置为分离状态后，<strong>仍然可以使用 <code>pthread_cancel</code> 取消该线程</strong>。二者的功能是正交的：</p>
+<ol>
+<li><p>**<code>pthread_detach</code>**：  </p>
+<ul>
+<li>仅控制线程终止后的资源回收方式（自动回收，无需 <code>pthread_join</code>）。</li>
+<li>不影响线程的执行逻辑或生命周期。</li>
+</ul>
+</li>
+<li><p>**<code>pthread_cancel</code>**：  </p>
+<ul>
+<li>用于向线程发送取消请求，尝试终止其执行。</li>
+<li>线程能否被取消取决于其自身的取消状态（是否启用取消）和取消类型（延迟取消或异步取消）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="关键注意事项"><a href="#关键注意事项" class="headerlink" title="关键注意事项"></a><strong>关键注意事项</strong></h3><h4 id="1-线程必须仍存在"><a href="#1-线程必须仍存在" class="headerlink" title="1. 线程必须仍存在"></a>1. <strong>线程必须仍存在</strong></h4><ul>
+<li>如果目标线程已终止（即使未被分离），调用 <code>pthread_cancel</code> 会返回 <code>ESRCH</code> 错误。</li>
+<li>如果线程已分离但仍在运行，<code>pthread_cancel</code> 可以成功发送取消请求。</li>
+</ul>
+<h4 id="2-线程的取消设置必须允许取消"><a href="#2-线程的取消设置必须允许取消" class="headerlink" title="2. 线程的取消设置必须允许取消"></a>2. <strong>线程的取消设置必须允许取消</strong></h4><ul>
+<li>默认情况下，线程的取消状态为 <strong>启用</strong>（<code>PTHREAD_CANCEL_ENABLE</code>），取消类型为 <strong>延迟取消</strong>（<code>PTHREAD_CANCEL_DEFERRED</code>）。</li>
+<li>如果线程禁用取消（<code>pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, ...)</code>），则取消请求会被挂起，直到重新启用取消。</li>
+<li>如果线程设置为异步取消（<code>pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, ...)</code>），可能立即终止，但需谨慎使用（易引发资源泄漏）。</li>
+</ul>
+<h4 id="3-分离线程的取消需谨慎"><a href="#3-分离线程的取消需谨慎" class="headerlink" title="3. 分离线程的取消需谨慎"></a>3. <strong>分离线程的取消需谨慎</strong></h4><ul>
+<li>分离线程的资源回收由系统自动完成，但线程若在取消时未释放手动申请的资源（如堆内存、文件句柄等），会导致泄漏。</li>
+<li>建议通过清理函数（<code>pthread_cleanup_push</code>&#x2F;<code>pthread_cleanup_pop</code>）确保资源安全。</li>
+</ul>
+<hr>
+<h3 id="示例代码-1"><a href="#示例代码-1" class="headerlink" title="示例代码"></a><strong>示例代码</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 线程函数</span></span><br><span class="line"><span class="type">void</span>* <span class="title function_">thread_func</span><span class="params">(<span class="type">void</span>* arg)</span> &#123;</span><br><span class="line">    <span class="comment">// 设置为延迟取消（默认）</span></span><br><span class="line">    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, <span class="literal">NULL</span>);</span><br><span class="line">    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;子线程开始执行\n&quot;</span>);</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        sleep(<span class="number">1</span>); <span class="comment">// 取消点（sleep是取消点）</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;子线程运行中...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">pthread_t</span> tid;</span><br><span class="line">    <span class="type">int</span> ret;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建子线程</span></span><br><span class="line">    ret = pthread_create(&amp;tid, <span class="literal">NULL</span>, thread_func, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;pthread_create 失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 分离子线程</span></span><br><span class="line">    ret = pthread_detach(tid);</span><br><span class="line">    <span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;pthread_detach 失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 主线程等待片刻后尝试取消子线程</span></span><br><span class="line">    sleep(<span class="number">3</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;主线程发送取消请求\n&quot;</span>);</span><br><span class="line">    ret = pthread_cancel(tid);</span><br><span class="line">    <span class="keyword">if</span> (ret != <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;pthread_cancel 失败&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 主线程继续执行</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;主线程等待子线程终止\n&quot;</span>);</span><br><span class="line">    sleep(<span class="number">2</span>); <span class="comment">// 等待子线程被取消</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="输出结果"><a href="#输出结果" class="headerlink" title="输出结果"></a><strong>输出结果</strong></h4><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">子线程开始执行</span><br><span class="line">子线程运行中...</span><br><span class="line">子线程运行中...</span><br><span class="line">主线程发送取消请求</span><br><span class="line">主线程等待子线程终止</span><br><span class="line">（子线程在 sleep 取消点被终止）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a><strong>总结</strong></h3><ul>
+<li><strong>可以取消分离线程</strong>：<code>pthread_detach</code> 不阻止 <code>pthread_cancel</code>。</li>
+<li><strong>需满足条件</strong>：目标线程必须存在且未禁用取消。</li>
+<li><strong>资源安全</strong>：确保线程被取消时能正确释放资源（如使用清理函数）。</li>
+<li><strong>竞态条件</strong>：分离后若线程已终止，调用 <code>pthread_cancel</code> 会失败（<code>ESRCH</code>），需处理错误。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/1ed1b903.html">http://helloeuler.cn/posts/1ed1b903.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/5f2a8b35.html" title="pthread_cancel触发coredump问题分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">pthread_cancel触发coredump问题分析</div></div></a></div><div class="next-post pull-right"><a href="/posts/621e8735.html" title="pthread_sigmask用法及示例详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">pthread_sigmask用法及示例详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-text">函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E4%BD%9C%E7%94%A8"><span class="toc-text">核心作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E7%94%A8%E6%B3%95"><span class="toc-text">典型用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%BB%E7%BA%BF%E7%A8%8B%E5%88%86%E7%A6%BB%E5%AD%90%E7%BA%BF%E7%A8%8B"><span class="toc-text">1. 主线程分离子线程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%BA%BF%E7%A8%8B%E8%87%AA%E8%A1%8C%E5%88%86%E7%A6%BB"><span class="toc-text">2. 线程自行分离</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E7%A4%BA%E4%BE%8B"><span class="toc-text">错误处理示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E8%AF%B4%E6%98%8E"><span class="toc-text">代码说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="toc-text">运行结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%82%B9"><span class="toc-text">关键点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%91%BD%E4%BB%A4"><span class="toc-text">编译命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">关键注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%BA%BF%E7%A8%8B%E5%BF%85%E9%A1%BB%E4%BB%8D%E5%AD%98%E5%9C%A8"><span class="toc-text">1. 线程必须仍存在</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8F%96%E6%B6%88%E8%AE%BE%E7%BD%AE%E5%BF%85%E9%A1%BB%E5%85%81%E8%AE%B8%E5%8F%96%E6%B6%88"><span class="toc-text">2. 线程的取消设置必须允许取消</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%88%86%E7%A6%BB%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8F%96%E6%B6%88%E9%9C%80%E8%B0%A8%E6%85%8E"><span class="toc-text">3. 分离线程的取消需谨慎</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81-1"><span class="toc-text">示例代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C"><span class="toc-text">输出结果</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

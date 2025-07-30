@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux modprobe驱动性能优化方法 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux modprobe插入驱动性能优化方法 在 Linux 系统中，使用 modprobe 插入驱动模块时的性能优化可以从多个层面入手，包括内核模块参数调整、并行加载策略、依赖关系优化等。以下是详细的优化方法：  1. 模块参数调优内核模块在加载时可以通过参数调整其行为，优化性能或减少初始化延迟：  查看可用参数：使用 modinfo &lt;模块名&gt; 查看模块支持的参数。 配置参数：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux modprobe驱动性能优化方法">
+<meta property="og:url" content="http://helloeuler.cn/posts/5fa98094.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux modprobe插入驱动性能优化方法 在 Linux 系统中，使用 modprobe 插入驱动模块时的性能优化可以从多个层面入手，包括内核模块参数调整、并行加载策略、依赖关系优化等。以下是详细的优化方法：  1. 模块参数调优内核模块在加载时可以通过参数调整其行为，优化性能或减少初始化延迟：  查看可用参数：使用 modinfo &lt;模块名&gt; 查看模块支持的参数。 配置参数：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.732Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/5fa98094.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux modprobe驱动性能优化方法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux modprobe驱动性能优化方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-21T16:00:00.000Z" title="发表于 2025-05-22 00:00:00">2025-05-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux modprobe驱动性能优化方法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux modprobe插入驱动性能优化方法</p>
+<p>在 Linux 系统中，使用 <code>modprobe</code> 插入驱动模块时的性能优化可以从多个层面入手，包括内核模块参数调整、并行加载策略、依赖关系优化等。以下是详细的优化方法：</p>
+<hr>
+<h3 id="1-模块参数调优"><a href="#1-模块参数调优" class="headerlink" title="1. 模块参数调优"></a><strong>1. 模块参数调优</strong></h3><p>内核模块在加载时可以通过参数调整其行为，优化性能或减少初始化延迟：</p>
+<ul>
+<li><strong>查看可用参数</strong>：使用 <code>modinfo &lt;模块名&gt;</code> 查看模块支持的参数。</li>
+<li><strong>配置参数</strong>：在 <code>/etc/modprobe.d/</code> 目录下创建 <code>.conf</code> 文件（如 <code>tuning.conf</code>），设置模块参数：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 示例：调整网络驱动 rx/tx 队列长度</span></span><br><span class="line">options ixgbe RSS=4,4 LRO=1</span><br><span class="line"><span class="comment"># 示例：关闭调试日志</span></span><br><span class="line">options usb_storage debug=0</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="2-并行加载模块"><a href="#2-并行加载模块" class="headerlink" title="2. 并行加载模块"></a><strong>2. 并行加载模块</strong></h3><p>默认情况下，模块按顺序加载依赖项。对于无依赖关系的模块，可启用并行加载：</p>
+<ul>
+<li><strong>异步加载（async）</strong>：在 <code>/etc/modprobe.d/async.conf</code> 中配置：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">options &lt;模块名&gt; async_probe=1</span><br></pre></td></tr></table></figure></li>
+<li><strong>利用 systemd 并行</strong>：通过 <code>systemd-modules-load.service</code> 并行加载模块，需确保模块间无依赖冲突。</li>
+</ul>
+<hr>
+<h3 id="3-依赖关系优化"><a href="#3-依赖关系优化" class="headerlink" title="3. 依赖关系优化"></a><strong>3. 依赖关系优化</strong></h3><p>缩短模块加载路径，减少冗余依赖：</p>
+<ul>
+<li><strong>软依赖（softdep）</strong>：在 <code>/etc/modprobe.d/softdep.conf</code> 中设置次要模块的异步加载：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">softdep &lt;主模块&gt; pre: &lt;依赖模块1&gt; post: &lt;依赖模块2&gt;</span><br></pre></td></tr></table></figure></li>
+<li><strong>调整模块别名</strong>：使用 <code>alias</code> 简化模块名称匹配，加速查找：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">alias</span> pci:v00008086* svc_name_driver</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="4-Initramfs-优化"><a href="#4-Initramfs-优化" class="headerlink" title="4. Initramfs 优化"></a><strong>4. Initramfs 优化</strong></h3><p>系统启动时加载的模块通常打包在 <code>initramfs</code> 中，优化其内容可加快启动速度：</p>
+<ul>
+<li><strong>剔除无用模块</strong>：编辑 <code>/etc/initramfs-tools/modules</code> 或使用 <code>dracut --omit-drivers</code> 移除不需要的模块。</li>
+<li><strong>重新生成 initramfs</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-initramfs -u  <span class="comment"># Debian/Ubuntu</span></span><br><span class="line"><span class="built_in">sudo</span> dracut -f           <span class="comment"># RHEL/CentOS</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="5-模块黑名单"><a href="#5-模块黑名单" class="headerlink" title="5. 模块黑名单"></a><strong>5. 模块黑名单</strong></h3><p>阻止无关或冲突模块的加载：</p>
+<ul>
+<li>在 <code>/etc/modprobe.d/blacklist.conf</code> 中添加：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">blacklist &lt;冗余模块名&gt;</span><br><span class="line">blacklist &lt;冲突模块名&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="6-内核参数调优"><a href="#6-内核参数调优" class="headerlink" title="6. 内核参数调优"></a><strong>6. 内核参数调优</strong></h3><p>调整内核行为以加速模块加载：</p>
+<ul>
+<li><strong>增加并发线程数</strong>（谨慎使用）：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 8 &gt; /proc/sys/kernel/modprobe_threads</span><br></pre></td></tr></table></figure></li>
+<li><strong>文件系统优化</strong>：使用 <code>async</code> 挂载选项或调整 I&#x2F;O 调度器（如 <code>deadline</code>&#x2F;<code>none</code>）。</li>
+</ul>
+<hr>
+<h3 id="7-预加载与延迟加载"><a href="#7-预加载与延迟加载" class="headerlink" title="7. 预加载与延迟加载"></a><strong>7. 预加载与延迟加载</strong></h3><ul>
+<li><strong>预加载关键模块</strong>：在启动脚本（如 <code>/etc/rc.local</code>）中添加：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modprobe --all --verbose &lt;模块1&gt; &lt;模块2&gt;</span><br></pre></td></tr></table></figure></li>
+<li><strong>延迟加载非关键模块</strong>：使用 <code>systemd</code> 的延迟加载服务：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 /etc/systemd/system/delayed-modules.service</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=Delayed Module Loading</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=oneshot</span><br><span class="line">ExecStart=/sbin/modprobe &lt;非关键模块&gt;</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="8-模块编译优化"><a href="#8-模块编译优化" class="headerlink" title="8. 模块编译优化"></a><strong>8. 模块编译优化</strong></h3><p>若自行编译内核模块，启用编译器优化：</p>
+<ul>
+<li>在 Makefile 中添加优化标志：<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS += -O2 -march=native -flto</span><br></pre></td></tr></table></figure></li>
+<li><strong>剥离调试符号</strong>：使用 <code>strip --strip-debug &lt;模块&gt;.ko</code> 减小模块体积。</li>
+</ul>
+<hr>
+<h3 id="9-硬件与存储优化"><a href="#9-硬件与存储优化" class="headerlink" title="9. 硬件与存储优化"></a><strong>9. 硬件与存储优化</strong></h3><ul>
+<li><strong>使用 SSD</strong>：加速模块文件读取。</li>
+<li><strong>启用文件系统缓存</strong>：如 <code>vmtouch</code> 工具预热缓存。</li>
+</ul>
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ul>
+<li><strong>测试环境验证</strong>：修改前在非生产环境验证稳定性。</li>
+<li><strong>版本兼容性</strong>：不同内核版本模块参数可能变化，参考官方文档。</li>
+<li><strong>监控工具</strong>：使用 <code>dmesg</code>、<code>strace -f modprobe &lt;模块&gt;</code> 或 <code>systemd-analyze blame</code> 分析加载耗时。</li>
+</ul>
+<hr>
+<p>通过结合上述方法，可显著减少模块加载时间并优化运行时性能。建议根据具体硬件和驱动特性选择最合适的策略。</p>
+<p>Linux modprobe并发加载</p>
+<p>在 Linux 中，<code>modprobe</code> 默认是 <strong>串行加载模块</strong>（按顺序加载依赖项），但在某些场景下可以通过优化实现 <strong>并发加载</strong>，从而缩短模块加载时间（例如系统启动时）。以下是实现并发加载的关键方法和注意事项：</p>
+<hr>
+<h3 id="1-内核异步探测（Async-Probe）"><a href="#1-内核异步探测（Async-Probe）" class="headerlink" title="1. 内核异步探测（Async Probe）"></a><strong>1. 内核异步探测（Async Probe）</strong></h3><p>内核支持异步探测模块，允许模块在后台初始化，而无需阻塞后续模块的加载：</p>
+<ul>
+<li><strong>启用全局异步探测</strong>：在内核启动参数中添加 <code>module_async_probe=*</code>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑 /etc/default/grub 或引导加载器配置</span></span><br><span class="line">GRUB_CMDLINE_LINUX_DEFAULT=<span class="string">&quot;... module_async_probe=*&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> update-grub</span><br></pre></td></tr></table></figure></li>
+<li><strong>针对特定模块启用</strong>：在 <code>/etc/modprobe.d/async.conf</code> 中配置：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">options &lt;模块名&gt; async_probe=1</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="2-systemd-并行加载"><a href="#2-systemd-并行加载" class="headerlink" title="2. systemd 并行加载"></a><strong>2. systemd 并行加载</strong></h3><p><code>systemd</code> 的 <code>systemd-modules-load.service</code> 支持并行加载模块，前提是模块间无强依赖关系：</p>
+<ul>
+<li><strong>配置并行策略</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑 systemd 服务配置文件</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl edit systemd-modules-load.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加以下内容，限制最大并行任务数（如 4）</span></span><br><span class="line">[Service]</span><br><span class="line">Type=oneshot</span><br><span class="line">ExecStart=/bin/sh -c <span class="string">&quot;/usr/lib/systemd/systemd-modules-load&quot;</span></span><br><span class="line">Environment=SYSTEMD_MODULES_LOAD_MAX_PARALLEL=4</span><br></pre></td></tr></table></figure></li>
+<li><strong>验证效果</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemd-analyze blame | grep modules-load</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="3-内核并发线程数调整"><a href="#3-内核并发线程数调整" class="headerlink" title="3. 内核并发线程数调整"></a><strong>3. 内核并发线程数调整</strong></h3><p>内核参数 <code>kernel.modprobe_threads</code> 控制 <code>modprobe</code> 并发线程数（需内核支持）：</p>
+<ul>
+<li><strong>临时调整</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 4 &gt; /proc/sys/kernel/modprobe_threads</span><br></pre></td></tr></table></figure></li>
+<li><strong>永久生效</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 /etc/sysctl.conf 或 /etc/sysctl.d/ 中添加</span></span><br><span class="line">kernel.modprobe_threads = 4</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="4-依赖关系优化"><a href="#4-依赖关系优化" class="headerlink" title="4. 依赖关系优化"></a><strong>4. 依赖关系优化</strong></h3><p>若模块间存在依赖，直接并发会导致失败，需通过软依赖（<code>softdep</code>）或调整加载顺序：</p>
+<ul>
+<li><strong>使用 <code>softdep</code> 声明弱依赖</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 /etc/modprobe.d/softdep.conf 中配置</span></span><br><span class="line">softdep &lt;主模块&gt; pre: &lt;依赖模块1&gt; post: &lt;依赖模块2&gt;</span><br></pre></td></tr></table></figure>
+例如：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">softdep nvidia pre: drm post: i2c_core</span><br></pre></td></tr></table></figure></li>
+<li><strong>黑名单无关模块</strong>：减少冗余模块加载干扰：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 /etc/modprobe.d/blacklist.conf 中</span></span><br><span class="line">blacklist &lt;无用模块名&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="5-模块加载脚本并行化"><a href="#5-模块加载脚本并行化" class="headerlink" title="5. 模块加载脚本并行化"></a><strong>5. 模块加载脚本并行化</strong></h3><p>对于手动批量加载模块的场景，可以通过 Shell 脚本实现并发：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 并行加载无依赖的模块（使用 &amp; 后台执行）</span></span><br><span class="line">modprobe module1 &amp;</span><br><span class="line">modprobe module2 &amp;</span><br><span class="line">modprobe module3 &amp;</span><br><span class="line"><span class="built_in">wait</span>  <span class="comment"># 等待所有后台任务完成</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="6-Initramfs-并发加载优化"><a href="#6-Initramfs-并发加载优化" class="headerlink" title="6. Initramfs 并发加载优化"></a><strong>6. Initramfs 并发加载优化</strong></h3><p>系统启动时的 <code>initramfs</code> 中的模块加载可优化并发：</p>
+<ul>
+<li><strong>工具支持</strong>：使用 <code>dracut</code>（RHEL&#x2F;CentOS）或 <code>mkinitramfs</code>（Debian&#x2F;Ubuntu）时，确保其配置支持并行。</li>
+<li><strong>示例（dracut）</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dracut --force --parallel $(<span class="built_in">nproc</span>)  <span class="comment"># 根据 CPU 核心数生成并行加载的 initramfs</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="7-性能验证工具"><a href="#7-性能验证工具" class="headerlink" title="7. 性能验证工具"></a><strong>7. 性能验证工具</strong></h3><ul>
+<li><strong>分析模块加载时间</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 time 命令测量单模块加载耗时</span></span><br><span class="line"><span class="keyword">time</span> modprobe &lt;模块名&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 跟踪模块加载过程</span></span><br><span class="line">strace -f modprobe &lt;模块名&gt;</span><br></pre></td></tr></table></figure></li>
+<li><strong>系统启动分析</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemd-analyze blame          <span class="comment"># 查看各服务的启动耗时</span></span><br><span class="line">systemd-analyze critical-chain systemd-modules-load.service</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><strong>依赖关系冲突</strong>：并发加载时，若模块 A 依赖模块 B，需确保 B 在 A 之前加载完成。</li>
+<li><strong>内核版本兼容性</strong>：部分特性（如 <code>async_probe</code>）需较新内核支持（≥5.0）。</li>
+<li><strong>稳定性测试</strong>：并发加载可能导致竞争条件，需在测试环境中验证后再投入生产环境。</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>通过 <strong>异步探测、systemd 并行配置、内核线程数调整</strong> 和 <strong>依赖关系优化</strong>，可以显著提升 <code>modprobe</code> 的并发加载效率。建议结合具体硬件和模块特性选择合适的策略，并通过性能分析工具验证优化效果。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/5fa98094.html">http://helloeuler.cn/posts/5fa98094.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/6fd5e133.html" title="Shell命令执行时长分析工具总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Shell命令执行时长分析工具总结</div></div></a></div><div class="next-post pull-right"><a href="/posts/fce6540f.html" title="Linux内核检查nokaslr启动参数方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核检查nokaslr启动参数方法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A8%A1%E5%9D%97%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98"><span class="toc-text">1. 模块参数调优</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%B9%B6%E8%A1%8C%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9D%97"><span class="toc-text">2. 并行加载模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB%E4%BC%98%E5%8C%96"><span class="toc-text">3. 依赖关系优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Initramfs-%E4%BC%98%E5%8C%96"><span class="toc-text">4. Initramfs 优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%A8%A1%E5%9D%97%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-text">5. 模块黑名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98"><span class="toc-text">6. 内核参数调优</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E9%A2%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD"><span class="toc-text">7. 预加载与延迟加载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E6%A8%A1%E5%9D%97%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96"><span class="toc-text">8. 模块编译优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E7%A1%AC%E4%BB%B6%E4%B8%8E%E5%AD%98%E5%82%A8%E4%BC%98%E5%8C%96"><span class="toc-text">9. 硬件与存储优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%85%E6%A0%B8%E5%BC%82%E6%AD%A5%E6%8E%A2%E6%B5%8B%EF%BC%88Async-Probe%EF%BC%89"><span class="toc-text">1. 内核异步探测（Async Probe）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-systemd-%E5%B9%B6%E8%A1%8C%E5%8A%A0%E8%BD%BD"><span class="toc-text">2. systemd 并行加载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%86%85%E6%A0%B8%E5%B9%B6%E5%8F%91%E7%BA%BF%E7%A8%8B%E6%95%B0%E8%B0%83%E6%95%B4"><span class="toc-text">3. 内核并发线程数调整</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB%E4%BC%98%E5%8C%96"><span class="toc-text">4. 依赖关系优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E8%84%9A%E6%9C%AC%E5%B9%B6%E8%A1%8C%E5%8C%96"><span class="toc-text">5. 模块加载脚本并行化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-Initramfs-%E5%B9%B6%E5%8F%91%E5%8A%A0%E8%BD%BD%E4%BC%98%E5%8C%96"><span class="toc-text">6. Initramfs 并发加载优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%80%A7%E8%83%BD%E9%AA%8C%E8%AF%81%E5%B7%A5%E5%85%B7"><span class="toc-text">7. 性能验证工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

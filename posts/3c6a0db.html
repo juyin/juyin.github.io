@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核remap_pfn_range用法详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核接口remap_pfn_range的用法及示例 Linux内核中的remap_pfn_range函数用于将物理内存映射到用户空间，常用于驱动程序的mmap实现。以下是其用法及示例的详细说明：  函数原型1234567int remap_pfn_range(    struct vm_area_struct *vma,  &#x2F;&#x2F; 用户空间的虚拟内存区域描述    unsigned lon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核remap_pfn_range用法详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/3c6a0db.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核接口remap_pfn_range的用法及示例 Linux内核中的remap_pfn_range函数用于将物理内存映射到用户空间，常用于驱动程序的mmap实现。以下是其用法及示例的详细说明：  函数原型1234567int remap_pfn_range(    struct vm_area_struct *vma,  &#x2F;&#x2F; 用户空间的虚拟内存区域描述    unsigned lon">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-05-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.727Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/3c6a0db.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核remap_pfn_range用法详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核remap_pfn_range用法详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-05-09T16:00:00.000Z" title="发表于 2025-05-10 00:00:00">2025-05-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核remap_pfn_range用法详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核接口remap_pfn_range的用法及示例</p>
+<p>Linux内核中的<code>remap_pfn_range</code>函数用于将物理内存映射到用户空间，常用于驱动程序的<code>mmap</code>实现。以下是其用法及示例的详细说明：</p>
+<hr>
+<h3 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a><strong>函数原型</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">remap_pfn_range</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="keyword">struct</span> vm_area_struct *vma,  <span class="comment">// 用户空间的虚拟内存区域描述</span></span></span><br><span class="line"><span class="params">    <span class="type">unsigned</span> <span class="type">long</span> addr,          <span class="comment">// 映射的起始虚拟地址（通常为vma-&gt;vm_start）</span></span></span><br><span class="line"><span class="params">    <span class="type">unsigned</span> <span class="type">long</span> pfn,           <span class="comment">// 物理页帧号（Physical Frame Number）</span></span></span><br><span class="line"><span class="params">    <span class="type">unsigned</span> <span class="type">long</span> size,          <span class="comment">// 映射区域的大小</span></span></span><br><span class="line"><span class="params">    <span class="type">pgprot_t</span> prot                <span class="comment">// 保护标志（如读写权限）</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="核心步骤"><a href="#核心步骤" class="headerlink" title="核心步骤"></a><strong>核心步骤</strong></h3><ol>
+<li><p><strong>实现驱动的<code>mmap</code>方法</strong><br>在字符设备驱动的<code>file_operations</code>结构中定义<code>mmap</code>回调函数。</p>
+</li>
+<li><p><strong>计算物理页帧号（PFN）</strong><br>将物理地址转换为PFN：<code>pfn = (phys_addr &gt;&gt; PAGE_SHIFT)</code>。</p>
+</li>
+<li><p><strong>调整内存保护标志</strong><br>根据硬件需求设置<code>prot</code>，如禁用缓存（<code>pgprot_noncached</code>）。</p>
+</li>
+<li><p><strong>调用<code>remap_pfn_range</code></strong><br>建立用户空间虚拟地址到物理内存的映射。</p>
+</li>
+</ol>
+<hr>
+<h3 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a><strong>示例代码</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/mm.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEVICE_SIZE (4 * 1024)  <span class="comment">// 设备内存大小（4KB）</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">phys_addr_t</span> my_dev_phys_addr;  <span class="comment">// 设备物理地址</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> *my_dev_virt_addr;        <span class="comment">// 设备虚拟地址（内核空间）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// mmap实现</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">my_mmap</span><span class="params">(<span class="keyword">struct</span> file *filp, <span class="keyword">struct</span> vm_area_struct *vma)</span> &#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> offset = vma-&gt;vm_pgoff &lt;&lt; PAGE_SHIFT;  <span class="comment">// 字节偏移量</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> size = vma-&gt;vm_end - vma-&gt;vm_start;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查偏移量是否越界</span></span><br><span class="line">    <span class="keyword">if</span> (offset + size &gt; DEVICE_SIZE) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 计算PFN</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pfn = (my_dev_phys_addr + offset) &gt;&gt; PAGE_SHIFT;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调整保护标志（禁用缓存）</span></span><br><span class="line">    vma-&gt;vm_page_prot = pgprot_noncached(vma-&gt;vm_page_prot);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 建立映射</span></span><br><span class="line">    <span class="keyword">if</span> (remap_pfn_range(vma, vma-&gt;vm_start, pfn, size, vma-&gt;vm_page_prot)) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EAGAIN;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 文件操作结构体</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">my_fops</span> =</span> &#123;</span><br><span class="line">    .owner = THIS_MODULE,</span><br><span class="line">    .mmap = my_mmap,</span><br><span class="line">    <span class="comment">// 其他操作（如open/release等）</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块初始化</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">my_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="comment">// 分配物理连续内存（示例使用dma_alloc_coherent）</span></span><br><span class="line">    my_dev_virt_addr = dma_alloc_coherent(<span class="literal">NULL</span>, DEVICE_SIZE, &amp;my_dev_phys_addr, GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> (!my_dev_virt_addr) &#123;</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册字符设备（具体步骤略）</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块退出</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">my_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    dma_free_coherent(<span class="literal">NULL</span>, DEVICE_SIZE, my_dev_virt_addr, my_dev_phys_addr);</span><br><span class="line">    <span class="comment">// 注销设备</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(my_init);</span><br><span class="line">module_exit(my_exit);</span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键说明"><a href="#关键说明" class="headerlink" title="关键说明"></a><strong>关键说明</strong></h3><ol>
+<li><p><strong>物理地址获取</strong>  </p>
+<ul>
+<li>示例中使用<code>dma_alloc_coherent</code>分配物理连续内存，适用于DMA操作。</li>
+<li>实际硬件驱动可能通过设备树或PCI BAR获取物理地址。</li>
+</ul>
+</li>
+<li><p><strong>偏移量处理</strong><br>用户空间的<code>offset</code>参数对应<code>vma-&gt;vm_pgoff</code>（页帧偏移），需转换为字节偏移量后再计算PFN。</p>
+</li>
+<li><p><strong>保护标志调整</strong>  </p>
+<ul>
+<li>使用<code>pgprot_noncached</code>禁用缓存，确保直接访问硬件内存。</li>
+<li>写合并（<code>pgprot_writecombine</code>）可优化某些设备的写入性能。</li>
+</ul>
+</li>
+<li><p><strong>错误处理</strong>  </p>
+<ul>
+<li>检查映射范围是否越界（<code>DEVICE_SIZE</code>）。</li>
+<li>若<code>remap_pfn_range</code>失败，返回<code>-EAGAIN</code>或<code>-EFAULT</code>。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="用户空间调用示例"><a href="#用户空间调用示例" class="headerlink" title="用户空间调用示例"></a><strong>用户空间调用示例</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用户程序通过mmap访问设备内存</span></span><br><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;/dev/mydev&quot;</span>, O_RDWR);</span><br><span class="line"><span class="type">void</span> *addr = mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, PROT_READ | PROT_WRITE, MAP_SHARED, fd, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读写操作</span></span><br><span class="line">*(<span class="type">uint32_t</span>*)addr = <span class="number">0x1234</span>;  <span class="comment">// 写入设备内存</span></span><br><span class="line"><span class="type">uint32_t</span> val = *(<span class="type">uint32_t</span>*)addr;  <span class="comment">// 读取设备内存</span></span><br><span class="line"></span><br><span class="line">munmap(addr, <span class="number">4096</span>);</span><br><span class="line">close(fd);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ul>
+<li><strong>对齐要求</strong>：<code>addr</code>和<code>size</code>必须是页对齐的（<code>PAGE_SIZE</code>的整数倍）。</li>
+<li><strong>安全性</strong>：仅映射允许用户空间访问的物理内存，避免泄露内核数据。</li>
+<li><strong>缓存一致性</strong>：若设备内存被CPU和外部硬件共享，需正确配置缓存策略。</li>
+</ul>
+<p>通过合理使用<code>remap_pfn_range</code>，驱动程序可高效实现用户空间与内核&#x2F;硬件内存的交互。</p>
+<p>上述示例不适用dma的接口</p>
+<p>上述示例不使用dma的接口</p>
+<hr>
+<h3 id="不依赖DMA接口的remap-pfn-range示例"><a href="#不依赖DMA接口的remap-pfn-range示例" class="headerlink" title="不依赖DMA接口的remap_pfn_range示例"></a><strong>不依赖DMA接口的<code>remap_pfn_range</code>示例</strong></h3><p>以下是使用内核通用接口分配物理连续内存的示例，替代<code>dma_alloc_coherent</code>，适用于不需要DMA的场景：</p>
+<hr>
+<h3 id="修改后的代码"><a href="#修改后的代码" class="headerlink" title="修改后的代码"></a><strong>修改后的代码</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/mm.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/slab.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/gfp.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEVICE_ORDER  0  <span class="comment">// 分配2^0 = 1页（4KB）</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEVICE_SIZE   (PAGE_SIZE * (1 &lt;&lt; DEVICE_ORDER))  <span class="comment">// 4KB</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">my_dev_page</span> =</span> <span class="literal">NULL</span>;  <span class="comment">// 分配的物理页</span></span><br><span class="line"><span class="type">static</span> <span class="type">phys_addr_t</span> my_dev_phys_addr;     <span class="comment">// 物理地址</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> *my_dev_virt_addr;           <span class="comment">// 内核虚拟地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// mmap实现</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">my_mmap</span><span class="params">(<span class="keyword">struct</span> file *filp, <span class="keyword">struct</span> vm_area_struct *vma)</span> &#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> offset = vma-&gt;vm_pgoff &lt;&lt; PAGE_SHIFT;  <span class="comment">// 字节偏移量</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> size = vma-&gt;vm_end - vma-&gt;vm_start;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查映射范围</span></span><br><span class="line">    <span class="keyword">if</span> (offset + size &gt; DEVICE_SIZE) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 计算PFN（物理页帧号 = 物理地址 / PAGE_SIZE）</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> pfn = (my_dev_phys_addr + offset) &gt;&gt; PAGE_SHIFT;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调整保护标志（示例禁用缓存）</span></span><br><span class="line">    vma-&gt;vm_page_prot = pgprot_noncached(vma-&gt;vm_page_prot);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 建立映射</span></span><br><span class="line">    <span class="keyword">if</span> (remap_pfn_range(vma, vma-&gt;vm_start, pfn, size, vma-&gt;vm_page_prot)) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EAGAIN;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 文件操作结构体</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">my_fops</span> =</span> &#123;</span><br><span class="line">    .owner = THIS_MODULE,</span><br><span class="line">    .mmap = my_mmap,</span><br><span class="line">    <span class="comment">// 其他操作（如open/release需自行实现）</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块初始化</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">my_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="comment">// 分配物理连续的内存页（1页，4KB）</span></span><br><span class="line">    my_dev_page = alloc_pages(GFP_KERNEL, DEVICE_ORDER);</span><br><span class="line">    <span class="keyword">if</span> (!my_dev_page) &#123;</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取物理地址和内核虚拟地址</span></span><br><span class="line">    my_dev_phys_addr = page_to_phys(my_dev_page);  <span class="comment">// 物理地址</span></span><br><span class="line">    my_dev_virt_addr = page_address(my_dev_page);  <span class="comment">// 内核虚拟地址</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化内存（可选）</span></span><br><span class="line">    <span class="built_in">memset</span>(my_dev_virt_addr, <span class="number">0</span>, DEVICE_SIZE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册字符设备（需自行实现）</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块退出</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">my_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (my_dev_page) &#123;</span><br><span class="line">        __free_pages(my_dev_page, DEVICE_ORDER);  <span class="comment">// 释放内存</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 注销设备</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(my_init);</span><br><span class="line">module_exit(my_exit);</span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键修改说明"><a href="#关键修改说明" class="headerlink" title="关键修改说明"></a><strong>关键修改说明</strong></h3><ol>
+<li><p><strong>物理内存分配方式</strong>  </p>
+<ul>
+<li>使用<code>alloc_pages</code>代替<code>dma_alloc_coherent</code>，直接分配物理连续的页。</li>
+<li><code>DEVICE_ORDER</code>指定分配页数为<code>2^ORDER</code>，此处为<code>ORDER=0</code>（即1页，4KB）。</li>
+</ul>
+</li>
+<li><p><strong>物理地址获取</strong>  </p>
+<ul>
+<li>通过<code>page_to_phys(my_dev_page)</code>将<code>struct page</code>转换为物理地址。</li>
+<li>内核虚拟地址通过<code>page_address(my_dev_page)</code>获取。</li>
+</ul>
+</li>
+<li><p><strong>内存释放</strong>  </p>
+<ul>
+<li>使用<code>__free_pages</code>释放分配的物理页，需匹配<code>alloc_pages</code>的<code>order</code>参数。</li>
+</ul>
+</li>
+<li><p><strong>缓存策略</strong>  </p>
+<ul>
+<li>通过<code>pgprot_noncached</code>禁用缓存，确保直接访问物理内存（适用于硬件寄存器或非缓存内存）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="用户空间调用（不变）"><a href="#用户空间调用（不变）" class="headerlink" title="用户空间调用（不变）"></a><strong>用户空间调用（不变）</strong></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用户程序通过mmap访问设备内存</span></span><br><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;/dev/mydev&quot;</span>, O_RDWR);</span><br><span class="line"><span class="type">void</span> *addr = mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, PROT_READ | PROT_WRITE, MAP_SHARED, fd, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读写操作</span></span><br><span class="line">*(<span class="type">uint32_t</span>*)addr = <span class="number">0x1234</span>;  <span class="comment">// 写入设备内存</span></span><br><span class="line"><span class="type">uint32_t</span> val = *(<span class="type">uint32_t</span>*)addr;  <span class="comment">// 读取设备内存</span></span><br><span class="line"></span><br><span class="line">munmap(addr, <span class="number">4096</span>);</span><br><span class="line">close(fd);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a><strong>注意事项</strong></h3><ol>
+<li><p><strong>物理连续性保证</strong>  </p>
+<ul>
+<li><code>alloc_pages</code>分配的内存是物理连续的，但若系统内存碎片化，可能分配失败（需处理<code>-ENOMEM</code>）。</li>
+</ul>
+</li>
+<li><p><strong>页对齐要求</strong>  </p>
+<ul>
+<li><code>remap_pfn_range</code>要求<code>addr</code>和<code>size</code>按页对齐（<code>PAGE_SIZE</code>的整数倍）。</li>
+</ul>
+</li>
+<li><p><strong>安全性与权限</strong>  </p>
+<ul>
+<li>确保用户空间程序只能访问允许的内存范围（通过<code>offset + size &gt; DEVICE_SIZE</code>检查）。</li>
+<li>根据硬件需求设置<code>vm_page_prot</code>（如<code>PROT_READ</code>&#x2F;<code>PROT_WRITE</code>权限）。</li>
+</ul>
+</li>
+<li><p><strong>替代接口选择</strong>  </p>
+<ul>
+<li>若需要分配多个非连续物理页，可改用<code>vmalloc</code>（虚拟连续但物理不连续），但需配合<code>vmalloc_to_pfn</code>转换物理地址。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a><strong>适用场景</strong></h3><ul>
+<li><strong>硬件寄存器映射</strong>：直接访问设备寄存器。</li>
+<li><strong>自定义共享内存</strong>：用户空间与内核共享物理连续缓冲区。</li>
+<li><strong>性能敏感操作</strong>：通过禁用缓存提升访问速度。</li>
+</ul>
+<p>通过此方案，开发者无需依赖DMA接口即可实现物理内存到用户空间的映射，适用于大多数非DMA场景。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/3c6a0db.html">http://helloeuler.cn/posts/3c6a0db.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/2b2d71b1.html" title="Linux内存管理：热插拔与原始内存对比"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内存管理：热插拔与原始内存对比</div></div></a></div><div class="next-post pull-right"><a href="/posts/f2fd3cbd.html" title="Linux内核稀疏内存虚拟地址转页接口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核稀疏内存虚拟地址转页接口</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-text">函数原型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%AD%A5%E9%AA%A4"><span class="toc-text">核心步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">示例代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%AF%B4%E6%98%8E"><span class="toc-text">关键说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E8%B0%83%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="toc-text">用户空间调用示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E4%BE%9D%E8%B5%96DMA%E6%8E%A5%E5%8F%A3%E7%9A%84remap-pfn-range%E7%A4%BA%E4%BE%8B"><span class="toc-text">不依赖DMA接口的remap_pfn_range示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%90%8E%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="toc-text">修改后的代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E4%BF%AE%E6%94%B9%E8%AF%B4%E6%98%8E"><span class="toc-text">关键修改说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%8D%E5%8F%98%EF%BC%89"><span class="toc-text">用户空间调用（不变）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">适用场景</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

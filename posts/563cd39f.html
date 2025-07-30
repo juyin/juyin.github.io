@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux内核copy_string_kernel接口作用解析 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Linux内核copy_string_kernel接口的作用 copy_string_kernel 是 Linux 内核中一个核心但非公开导出的函数（未包含在头文件中供模块使用），主要在 execve 系统调用的实现路径 (fs&#x2F;exec.c) 中扮演关键角色。它的核心作用如下： 核心作用： 安全、高效地将用户空间提供的字符串参数（argv）和环境变量（envp）复制到内核空间新分配的内存中，并正">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核copy_string_kernel接口作用解析">
+<meta property="og:url" content="http://helloeuler.cn/posts/563cd39f.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="Linux内核copy_string_kernel接口的作用 copy_string_kernel 是 Linux 内核中一个核心但非公开导出的函数（未包含在头文件中供模块使用），主要在 execve 系统调用的实现路径 (fs&#x2F;exec.c) 中扮演关键角色。它的核心作用如下： 核心作用： 安全、高效地将用户空间提供的字符串参数（argv）和环境变量（envp）复制到内核空间新分配的内存中，并正">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.764Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/563cd39f.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux内核copy_string_kernel接口作用解析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux内核copy_string_kernel接口作用解析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-28T16:00:00.000Z" title="发表于 2025-07-29 00:00:00">2025-07-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux内核copy_string_kernel接口作用解析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>Linux内核copy_string_kernel接口的作用</p>
+<p><code>copy_string_kernel</code> 是 Linux 内核中一个<strong>核心但非公开导出</strong>的函数（未包含在头文件中供模块使用），主要在 <code>execve</code> 系统调用的实现路径 (<code>fs/exec.c</code>) 中扮演关键角色。它的核心作用如下：</p>
+<p><strong>核心作用：</strong></p>
+<p><strong>安全、高效地将用户空间提供的字符串参数（<code>argv</code>）和环境变量（<code>envp</code>）复制到内核空间新分配的内存中，并正确地组织它们，为后续执行新的程序镜像做好准备。</strong></p>
+<p><strong>详细解析其职责和过程：</strong></p>
+<ol>
+<li><p><strong>处理用户空间输入：</strong></p>
+<ul>
+<li>当用户程序调用 <code>execve(pathname, argv, envp)</code> 时，<code>argv</code>（命令行参数数组）和 <code>envp</code>（环境变量数组）是用户空间提供的指针数组。</li>
+<li>这些指针指向用户空间内存中的字符串（以 <code>&#39;\0&#39;</code> 结尾）。</li>
+</ul>
+</li>
+<li><p><strong>内核空间的安全复制：</strong></p>
+<ul>
+<li>内核代码<strong>不能直接解引用用户空间指针</strong>。必须先将用户空间的数据复制到内核空间，以避免：<ul>
+<li><strong>页错误导致内核崩溃：</strong> 用户指针可能无效或指向未映射的内存。</li>
+<li><strong>恶意用户空间程序篡改内核：</strong> 在解引用过程中用户空间数据被改变。</li>
+<li><strong>时间差攻击 (TOCTOU)：</strong> 在检查和使用的间隙数据被改变。</li>
+</ul>
+</li>
+<li><code>copy_string_kernel</code> 负责执行这个关键的复制操作。</li>
+</ul>
+</li>
+<li><p><strong>针对 <code>execve</code> 的特殊组织：</strong></p>
+<ul>
+<li><code>execve</code> 需要将 <code>argv</code> 和 <code>envp</code> 中的所有字符串打包成一个<strong>连续的内核内存块</strong>。这个内存块的布局通常是：<ul>
+<li>所有字符串 (<code>argv[0]</code>, <code>argv[1]</code>, …, <code>envp[0]</code>, <code>envp[1]</code>, …) 按顺序、以 <code>&#39;\0&#39;</code> 结尾紧密排列。</li>
+<li>在这个字符串块的<strong>末尾</strong>，紧接着存储一个指向每个字符串起始地址的 <strong>指针数组</strong> (<code>char *</code> 数组)。</li>
+<li>这个指针数组的最后一项是 <code>NULL</code>。</li>
+<li>这个布局使得新进程的用户空间栈在初始化时，可以高效地设置 <code>argv</code> 和 <code>envp</code> 指针。</li>
+</ul>
+</li>
+<li><code>copy_string_kernel</code> 不仅仅简单地复制单个字符串，它在复制每个字符串时，会：<ul>
+<li><strong>分配内核内存：</strong> 为新字符串分配内核空间的内存。</li>
+<li><strong>复制内容：</strong> 使用类似 <code>copy_from_user()</code> 的机制（内部可能调用 <code>strncpy_from_user</code>），安全地将用户空间字符串内容复制到这块内核内存。</li>
+<li><strong>记录指针：</strong> 将新分配的内核内存地址（即新字符串在内核空间的起始地址）记录到 <code>struct linux_binprm</code> 结构 (<code>bprm</code>) 的 <code>p</code> 成员指向的位置。</li>
+<li><strong>更新位置指针：</strong> 递增 <code>bprm-&gt;p</code>，使其指向内存块中下一个字符串应该存放的位置（考虑对齐），同时也会在指针数组中为下一个指针预留位置。</li>
+<li><strong>错误处理：</strong> 严格检查用户指针有效性、字符串长度（防止超长参数攻击）、内存分配是否成功等。遇到错误立即返回错误码。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>与 <code>struct linux_binprm</code> (<code>bprm</code>) 的交互：</strong></p>
+<ul>
+<li><code>bprm</code> 结构体 (<code>include/linux/binfmts.h</code>) 贯穿整个 <code>execve</code> 执行过程，包含了加载新程序所需的所有信息。</li>
+<li><code>bprm</code> 的关键成员 <code>bprm-&gt;p</code> 是一个<strong>游标指针</strong>：<ul>
+<li>初始时指向一块预先分配好的内核内存 (<code>bprm-&gt;buf</code> 或后续扩展的内存) 的<strong>末尾</strong>。</li>
+<li><code>copy_string_kernel</code> 从 <code>bprm-&gt;p</code> <strong>开始向前</strong>（递减地址）写入字符串内容和构建指针数组。</li>
+<li>每复制一个字符串或添加一个指针，<code>bprm-&gt;p</code> 就向前移动相应距离（考虑对齐）。</li>
+</ul>
+</li>
+<li>这种<strong>从后向前填充</strong>的方式是为了高效构建最终的 <code>argv</code>&#x2F;<code>envp</code> 内存布局。最终，<code>bprm-&gt;p</code> 会指向整个打包块（指针数组 + 字符串）的<strong>起始地址</strong>。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结流程（简化）：</strong></p>
+<ol>
+<li>在 <code>do_execveat_common</code> -&gt; <code>prepare_binprm</code> -&gt; <code>copy_strings_kernel</code> (该函数会循环调用 <code>copy_string_kernel</code>) 的路径中调用。</li>
+<li>对于用户空间 <code>argv</code>&#x2F;<code>envp</code> 数组中的<strong>每一个字符串</strong>：<ul>
+<li>检查用户空间指针有效性。</li>
+<li>计算字符串长度（包含结尾 <code>&#39;\0&#39;</code>）。</li>
+<li>在内核内存块（由 <code>bprm-&gt;p</code> 指示当前末尾）中分配空间。</li>
+<li>安全地从用户空间复制字符串内容到分配的内核空间。</li>
+<li>将新字符串的内核地址记录在 <code>bprm-&gt;p</code> 指向的位置（这是指针数组的一部分）。</li>
+<li>向前移动 <code>bprm-&gt;p</code>（减去字符串长度和可能的对齐填充），使其指向下一个可用位置（用于存放下一个字符串内容）。</li>
+<li>同时向前移动 <code>bprm-&gt;p</code>（减去一个指针的大小），使其指向指针数组的下一个槽位（用于存放下一个字符串的指针）。</li>
+</ul>
+</li>
+<li>当所有字符串复制完成后：<ul>
+<li>在指针数组的最后一个槽位（此时 <code>bprm-&gt;p</code> 指向的位置）存入 <code>NULL</code>。</li>
+<li><code>bprm-&gt;p</code> 最终指向了整个打包好的参数&#x2F;环境块（包含指针数组和所有字符串）在内核内存中的<strong>起始地址</strong>。</li>
+</ul>
+</li>
+<li>这个打包好的内核内存块稍后会被复制到新进程的用户空间栈上，成为新程序的 <code>argv</code> 和 <code>envp</code>。</li>
+</ol>
+<p><strong>为什么需要它？为什么不直接用 <code>strndup_user</code>？</strong></p>
+<ul>
+<li><strong>特殊的内存布局要求：</strong> <code>execve</code> 要求参数和环境变量以特定的连续方式组织（字符串块 + 指针数组），<code>copy_string_kernel</code> 直接负责构建这种布局。</li>
+<li><strong>与 <code>bprm</code> 状态管理集成：</strong> 它紧密地与 <code>bprm</code> 结构及其游标指针 <code>bprm-&gt;p</code> 协同工作，管理内存分配和布局的进度。</li>
+<li><strong>性能与效率：</strong> 在 <code>execve</code> 这个高频且关键的操作路径上，需要高度优化的代码来处理大量字符串。<code>copy_string_kernel</code> 被设计为满足这个特定场景的高效和安全需求。</li>
+</ul>
+<p><strong>简单来说，<code>copy_string_kernel</code> 是 <code>execve</code> 系统调用内部的一个关键助手，负责安全、高效地将用户命令行参数和环境变量“搬运”并“打包”到内核空间，为启动新进程奠定基础。它是连接用户空间意图和内核执行新程序的桥梁中至关重要的一环。</strong></p>
+<p>Linux内核中从bprm-&gt;p中获取进程的参数和环境变量</p>
+<p>在 Linux 内核中，<code>struct linux_binprm</code>（简称 <code>bprm</code>）结构体用于管理 <code>execve</code> 系统调用加载新程序的过程。<code>bprm-&gt;p</code> 是一个关键成员，它指向内核空间中<strong>打包好的参数和环境变量块</strong>的起始位置。下面是其工作原理和获取参数的详细说明：</p>
+<hr>
+<h3 id="1-bprm-p-指向的内容"><a href="#1-bprm-p-指向的内容" class="headerlink" title="1. bprm-&gt;p 指向的内容"></a><strong>1. <code>bprm-&gt;p</code> 指向的内容</strong></h3><p>在 <code>execve</code> 执行过程中，<code>copy_string_kernel</code>（通过 <code>copy_strings_kernel</code> 调用）会将用户空间的 <code>argv</code> 和 <code>envp</code> 打包成一个连续的内核内存块，其结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">低地址 (起始位置)                                     高地址</span><br><span class="line">+----------------------+----------------------+----------------------+</span><br><span class="line">| 指针数组 (char*[])   | 字符串数据区          | (未使用空间)          |</span><br><span class="line">+----------------------+----------------------+----------------------+</span><br><span class="line">↑                      ↑                      ↑</span><br><span class="line">bprm-&gt;p               指针数组结束位置        字符串结束位置</span><br></pre></td></tr></table></figure>
+
+<p>具体包含两部分：</p>
+<ul>
+<li><strong>指针数组</strong>：存储所有参数字符串的<strong>内核地址</strong>。<ul>
+<li>格式：<code>[argv[0], argv[1], ..., argv[n], NULL, envp[0], envp[1], ..., envp[m], NULL]</code></li>
+<li>以两个 <code>NULL</code> 结尾（分隔 <code>argv</code> 和 <code>envp</code>）。</li>
+</ul>
+</li>
+<li><strong>字符串数据区</strong>：紧跟在指针数组后，存储所有参数字符串的实际内容（以 <code>\0</code> 结尾）。</li>
+</ul>
+<hr>
+<h3 id="2-如何从-bprm-p-获取参数"><a href="#2-如何从-bprm-p-获取参数" class="headerlink" title="2. 如何从 bprm-&gt;p 获取参数"></a><strong>2. 如何从 <code>bprm-&gt;p</code> 获取参数</strong></h3><h4 id="步骤示例（伪代码逻辑）"><a href="#步骤示例（伪代码逻辑）" class="headerlink" title="步骤示例（伪代码逻辑）"></a><strong>步骤示例（伪代码逻辑）</strong></h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 获取指针数组的起始地址</span></span><br><span class="line"><span class="type">char</span> **kargv = (<span class="type">char</span> **)bprm-&gt;p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 遍历 argv</span></span><br><span class="line"><span class="type">int</span> argc = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">while</span> (kargv[argc] != <span class="literal">NULL</span>) &#123; <span class="comment">// 遇到第一个 NULL 结束 argv</span></span><br><span class="line">    printk(<span class="string">&quot;argv[%d] = %s\n&quot;</span>, argc, kargv[argc]);</span><br><span class="line">    argc++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 跳过 argv 的 NULL 分隔符</span></span><br><span class="line"><span class="type">char</span> **kenvp = &amp;kargv[argc + <span class="number">1</span>]; <span class="comment">// 指向 envp 开始</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 遍历 envp</span></span><br><span class="line"><span class="type">int</span> envc = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">while</span> (kenvp[envc] != <span class="literal">NULL</span>) &#123; <span class="comment">// 遇到第二个 NULL 结束 envp</span></span><br><span class="line">    printk(<span class="string">&quot;envp[%d] = %s\n&quot;</span>, envc, kenvp[envc]);</span><br><span class="line">    envc++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-关键实现位置"><a href="#3-关键实现位置" class="headerlink" title="3. 关键实现位置"></a><strong>3. 关键实现位置</strong></h3><p>该逻辑主要在内核的 <code>execve</code> 路径中实现，尤其是在以下函数中：</p>
+<ul>
+<li><strong><code>create_elf_tables()</code></strong> (位于 <code>fs/binfmt_elf.c</code>)<br>将 <code>bprm-&gt;p</code> 指向的内核参数块复制到<strong>新进程的用户空间栈</strong>，并设置用户态的 <code>argc/argv/envp</code> 指针。</li>
+<li><strong><code>setup_arg_pages()</code></strong> (位于 <code>fs/exec.c</code>)<br>准备新进程的栈内存，为复制参数块提供空间。</li>
+</ul>
+<hr>
+<h3 id="4-用户空间视角"><a href="#4-用户空间视角" class="headerlink" title="4. 用户空间视角"></a><strong>4. 用户空间视角</strong></h3><p>最终，当新程序启动时，其用户空间栈布局如下（以 x86_64 为例）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">高地址</span><br><span class="line">+-----------------+</span><br><span class="line">| ...             |</span><br><span class="line">| envp[0] (用户地址) | ← 用户空间的 envp 指针指向这里</span><br><span class="line">| ...             |</span><br><span class="line">| argv[0] (用户地址) | ← 用户空间的 argv 指针指向这里</span><br><span class="line">| argc            |</span><br><span class="line">+-----------------+</span><br><span class="line">| 辅助向量 (auxv)  |</span><br><span class="line">+-----------------+</span><br><span class="line">| NULL (envp 结束)  |</span><br><span class="line">| envp[m]         |</span><br><span class="line">| ...             |</span><br><span class="line">| envp[0]         |</span><br><span class="line">| NULL (argv 结束)  | ← bprm-&gt;p 中的指针数组复制到这里</span><br><span class="line">| argv[n]         |</span><br><span class="line">| ...             |</span><br><span class="line">| argv[0]         |</span><br><span class="line">+-----------------+</span><br><span class="line">| &quot;value&quot; (环境变量)|</span><br><span class="line">| &quot;PATH=...&quot;      |</span><br><span class="line">| &quot;program_name&quot;  | ← 字符串数据区复制到这里</span><br><span class="line">+-----------------+</span><br><span class="line">低地址</span><br></pre></td></tr></table></figure>
+<p>用户进程通过 <code>main(int argc, char **argv, char **envp)</code> 访问这些参数。</p>
+<hr>
+<h3 id="5-注意事项"><a href="#5-注意事项" class="headerlink" title="5. 注意事项"></a><strong>5. 注意事项</strong></h3><ol>
+<li><strong>内核专用</strong>：<br><code>bprm-&gt;p</code> 仅在 <code>execve</code> 上下文（内核态）有效，<strong>不能</strong>直接暴露给用户空间。</li>
+<li><strong>安全性</strong>：<br>所有字符串均经过安全复制（如 <code>copy_from_user</code>），防止用户空间恶意指针。</li>
+<li><strong>架构差异</strong>：<br>栈布局（如参数顺序、对齐）因架构（x86&#x2F;ARM&#x2F;RISC-V）而异，由 <code>create_elf_tables()</code> 处理。</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><p><code>bprm-&gt;p</code> 是内核在 <code>execve</code> 中打包参数&#x2F;环境变量的<strong>临时内核地址</strong>：  </p>
+<ul>
+<li><strong>内容</strong> &#x3D; 指针数组 + 字符串数据。  </li>
+<li><strong>作用</strong>：为复制到用户空间栈提供源数据。  </li>
+<li><strong>生命周期</strong>：在 <code>execve</code> 执行期间有效，新程序启动后释放。</li>
+</ul>
+<p>通过遍历 <code>bprm-&gt;p</code> 的指针数组，内核可以安全访问所有参数和环境变量，最终将其传递给新进程的用户空间栈。</p>
+<p>arm64架构 Linux内核中从bprm-&gt;p中获取进程的参数和环境变量</p>
+<p>arm64架构 Linux内核中从bprm-&gt;exec中获取进程的参数和环境变量</p>
+<p>在 ARM64 架构的 Linux 内核中，从 <code>bprm-&gt;exec</code> <strong>直接获取参数和环境变量是错误的理解</strong>。<code>bprm-&gt;exec</code> 实际上是一个<strong>函数指针</strong>，而非存储参数的位置。正确获取参数的方式是通过 <code>struct linux_binprm</code> 的其他成员和机制，以下是详细说明：</p>
+<hr>
+<h3 id="1-关键概念澄清"><a href="#1-关键概念澄清" class="headerlink" title="1. 关键概念澄清"></a><strong>1. 关键概念澄清</strong></h3><ul>
+<li><p><strong><code>bprm-&gt;exec</code> 的作用</strong>：<br>这是 <code>struct linux_binprm</code> 中的一个成员，类型为 <code>int (*exec)(struct linux_binprm *)</code>。<br>它指向<strong>二进制格式的加载函数</strong>（如 ELF 格式的 <code>load_elf_binary</code>），负责解析可执行文件并设置新进程的上下文。<br><strong>它不存储参数或环境变量！</strong></p>
+</li>
+<li><p><strong>参数&#x2F;环境变量的实际存储位置</strong>：<br>参数和环境变量存储在 <code>bprm-&gt;p</code> 指向的内核内存块中（与 x86 等架构相同），其结构为：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">低地址</span><br><span class="line">+------------------------+</span><br><span class="line">| 指针数组 (char*[])     | ← bprm-&gt;p 指向这里</span><br><span class="line">|   [argv0_ptr, ..., NULL, </span><br><span class="line">|    envp0_ptr, ..., NULL] </span><br><span class="line">+------------------------+</span><br><span class="line">| 字符串数据区           |</span><br><span class="line">|   &quot;program\0arg1\0...   |</span><br><span class="line">|   PATH=...\0HOME=...\0&quot; |</span><br><span class="line">+------------------------+</span><br><span class="line">高地址</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="2-ARM64-架构下获取参数的流程"><a href="#2-ARM64-架构下获取参数的流程" class="headerlink" title="2. ARM64 架构下获取参数的流程"></a><strong>2. ARM64 架构下获取参数的流程</strong></h3><p>参数访问发生在二进制加载函数（如 ELF 的 <code>load_elf_binary</code>）中，核心步骤如下：</p>
+<h4 id="1-在-load-elf-binary-中访问参数"><a href="#1-在-load-elf-binary-中访问参数" class="headerlink" title="(1) 在 load_elf_binary 中访问参数"></a><strong>(1) 在 <code>load_elf_binary</code> 中访问参数</strong></h4><p>文件位置：<code>fs/binfmt_elf.c</code>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">load_elf_binary</span><span class="params">(<span class="keyword">struct</span> linux_binprm *bprm)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 获取参数指针数组</span></span><br><span class="line">    <span class="type">char</span> **kargv = (<span class="type">char</span> **)bprm-&gt;p;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 遍历 argv</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; kargv[i] != <span class="literal">NULL</span>; i++) &#123;</span><br><span class="line">        printk(<span class="string">&quot;argv[%d] = %s\n&quot;</span>, i, kargv[i]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 跳过 NULL 分隔符获取 envp</span></span><br><span class="line">    <span class="type">char</span> **kenvp = kargv;</span><br><span class="line">    <span class="keyword">while</span> (*kenvp++ != <span class="literal">NULL</span>); <span class="comment">// 找到 envp 起始位置</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4. 遍历 envp</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; kenvp[j] != <span class="literal">NULL</span>; j++) &#123;</span><br><span class="line">        printk(<span class="string">&quot;envp[%d] = %s\n&quot;</span>, j, kenvp[j]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5. 将参数复制到用户空间栈 (ARM64 特定)</span></span><br><span class="line">    retval = create_elf_tables(bprm, ...);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-ARM64-用户空间栈设置-create-elf-tables"><a href="#2-ARM64-用户空间栈设置-create-elf-tables" class="headerlink" title="(2) ARM64 用户空间栈设置 (create_elf_tables)"></a><strong>(2) ARM64 用户空间栈设置 (<code>create_elf_tables</code>)</strong></h4><p>文件位置：<code>fs/binfmt_elf.c</code><br>这是将内核参数复制到 <strong>ARM64 用户空间栈</strong>的关键函数：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">create_elf_tables</span><span class="params">(<span class="keyword">struct</span> linux_binprm *bprm, ...)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 计算参数块总大小</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> sp = STACK_TOP; <span class="comment">// ARM64 栈起始地址 (0x8000000000)</span></span><br><span class="line">    sp -= <span class="keyword">sizeof</span>(<span class="type">unsigned</span> <span class="type">long</span>);  <span class="comment">// 对齐预留</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 bprm-&gt;p 指向的参数块复制到用户栈</span></span><br><span class="line">    ret = copy_to_user((<span class="type">void</span> __user *)sp, (<span class="type">void</span> *)bprm-&gt;p, total_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置用户空间寄存器:</span></span><br><span class="line">    <span class="comment">//   x0 = argc</span></span><br><span class="line">    <span class="comment">//   x1 = argv 用户地址</span></span><br><span class="line">    <span class="comment">//   x2 = envp 用户地址</span></span><br><span class="line">    start_thread(regs, elf_entry, sp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-ARM64-用户空间栈布局"><a href="#3-ARM64-用户空间栈布局" class="headerlink" title="3. ARM64 用户空间栈布局"></a><strong>3. ARM64 用户空间栈布局</strong></h3><p>当新进程启动时，其用户空间栈布局如下（符合 ARM64 ABI）：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">高地址 (0x7ffffffff000)</span><br><span class="line">+---------------------+</span><br><span class="line">| 环境变量字符串       | </span><br><span class="line">|   &quot;HOME=/user\0&quot;    |</span><br><span class="line">|   &quot;PATH=...\0&quot;      |</span><br><span class="line">+---------------------+</span><br><span class="line">| 参数字符串          |</span><br><span class="line">|   &quot;program\0&quot;       |</span><br><span class="line">|   &quot;arg1\0&quot;          |</span><br><span class="line">+---------------------+</span><br><span class="line">| 辅助向量 (auxv)     | </span><br><span class="line">|   [AT_NULL, 0]      |</span><br><span class="line">|   [AT_PAGESZ, 4096] |</span><br><span class="line">+---------------------+</span><br><span class="line">| NULL (envp 结束)    |  // envp[envc] = NULL</span><br><span class="line">| 0x00007ffffee000    |  → 指向 &quot;PATH=...&quot;</span><br><span class="line">| 0x00007fffff0000    |  → 指向 &quot;HOME=/user&quot;</span><br><span class="line">+---------------------+</span><br><span class="line">| NULL (argv 结束)    |  // argv[argc] = NULL</span><br><span class="line">| 0x00007ffffe0000    |  → 指向 &quot;arg1&quot;</span><br><span class="line">| 0x00007ffffd0000    |  → 指向 &quot;program&quot;</span><br><span class="line">+---------------------+</span><br><span class="line">| argc = 2            |  // 参数个数</span><br><span class="line">+---------------------+</span><br><span class="line">| 栈底 (sp 寄存器指向这里) </span><br><span class="line">低地址 (sp)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>寄存器初始化</strong>：  <ul>
+<li><code>x0 (argc)</code>: 参数个数  </li>
+<li><code>x1 (argv)</code>: 指向 <code>argv[0]</code> 的地址（上图中 <code>0x00007ffffd0000</code>）  </li>
+<li><code>x2 (envp)</code>: 指向 <code>envp[0]</code> 的地址（上图中 <code>0x00007fffff0000</code>）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="4-从内核模块访问参数的注意事项"><a href="#4-从内核模块访问参数的注意事项" class="headerlink" title="4. 从内核模块访问参数的注意事项"></a><strong>4. 从内核模块访问参数的注意事项</strong></h3><p>若需要在自定义内核代码（如 LSM 模块）中访问参数：  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在 security_bprm_check 钩子中</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">my_bprm_check</span><span class="params">(<span class="keyword">struct</span> linux_binprm *bprm)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> **argv = (<span class="type">char</span> **)bprm-&gt;p;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历 argv</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; argv[i] != <span class="literal">NULL</span>; i++) &#123;</span><br><span class="line">        pr_info(<span class="string">&quot;argv[%d]: %s\n&quot;</span>, i, argv[i]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取 envp (跳过 argv 的 NULL 分隔符)</span></span><br><span class="line">    <span class="type">char</span> **envp = argv;</span><br><span class="line">    <span class="keyword">while</span> (*envp++ != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历 envp</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; envp[j] != <span class="literal">NULL</span>; j++) &#123;</span><br><span class="line">        pr_info(<span class="string">&quot;envp[%d]: %s\n&quot;</span>, j, envp[j]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>重要限制</strong>：  </p>
+<ol>
+<li>仅能在 <code>execve</code> 执行路径的钩子（如 <code>security_bprm_check</code>）中访问  </li>
+<li><code>bprm-&gt;p</code> 只在当前 <code>execve</code> 上下文有效  </li>
+<li>直接访问用户空间指针需用 <code>copy_from_user</code>（但此处已是内核副本）</li>
+</ol>
+<hr>
+<h3 id="总结：ARM64-的参数处理流程"><a href="#总结：ARM64-的参数处理流程" class="headerlink" title="总结：ARM64 的参数处理流程"></a><strong>总结：ARM64 的参数处理流程</strong></h3><ol>
+<li><p><strong>存储位置</strong>：<br>参数&#x2F;环境变量存储在 <code>bprm-&gt;p</code> 指向的内核内存块中（**非 <code>bprm-&gt;exec</code>**）。</p>
+</li>
+<li><p><strong>访问方式</strong>：  </p>
+<ul>
+<li>在内核中：通过 <code>(char **)bprm-&gt;p</code> 遍历指针数组  </li>
+<li>在用户空间：通过寄存器 <code>x0</code>(argc), <code>x1</code>(argv), <code>x2</code>(envp) 访问</li>
+</ul>
+</li>
+<li><p><strong>ARM64 特定处理</strong>：  </p>
+<ul>
+<li><code>create_elf_tables</code> 负责构建符合 ARM64 ABI 的栈布局  </li>
+<li>栈起始地址 <code>sp = 0x8000000000</code>（用户空间高地址）  </li>
+<li>参数通过寄存器 <code>x0</code>-<code>x2</code> 传递</li>
+</ul>
+</li>
+<li><p><strong>关键函数</strong>：  </p>
+<ul>
+<li><code>load_elf_binary</code> → 解析 ELF 文件时访问参数  </li>
+<li><code>create_elf_tables</code> → 设置 ARM64 用户栈和寄存器</li>
+</ul>
+</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/563cd39f.html">http://helloeuler.cn/posts/563cd39f.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/2a6f680f.html" title="Linux RCU机制详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux RCU机制详解</div></div></a></div><div class="next-post pull-right"><a href="/posts/a076b5a3.html" title="Linux内核put_user函数用法详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux内核put_user函数用法详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-bprm-p-%E6%8C%87%E5%90%91%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-text">1. bprm-&gt;p 指向的内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%A6%82%E4%BD%95%E4%BB%8E-bprm-p-%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0"><span class="toc-text">2. 如何从 bprm-&gt;p 获取参数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4%E7%A4%BA%E4%BE%8B%EF%BC%88%E4%BC%AA%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91%EF%BC%89"><span class="toc-text">步骤示例（伪代码逻辑）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%B3%E9%94%AE%E5%AE%9E%E7%8E%B0%E4%BD%8D%E7%BD%AE"><span class="toc-text">3. 关键实现位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E8%A7%86%E8%A7%92"><span class="toc-text">4. 用户空间视角</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">5. 注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%85%B3%E9%94%AE%E6%A6%82%E5%BF%B5%E6%BE%84%E6%B8%85"><span class="toc-text">1. 关键概念澄清</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-ARM64-%E6%9E%B6%E6%9E%84%E4%B8%8B%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="toc-text">2. ARM64 架构下获取参数的流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%9C%A8-load-elf-binary-%E4%B8%AD%E8%AE%BF%E9%97%AE%E5%8F%82%E6%95%B0"><span class="toc-text">(1) 在 load_elf_binary 中访问参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-ARM64-%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E6%A0%88%E8%AE%BE%E7%BD%AE-create-elf-tables"><span class="toc-text">(2) ARM64 用户空间栈设置 (create_elf_tables)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-ARM64-%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E6%A0%88%E5%B8%83%E5%B1%80"><span class="toc-text">3. ARM64 用户空间栈布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BB%8E%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E8%AE%BF%E9%97%AE%E5%8F%82%E6%95%B0%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">4. 从内核模块访问参数的注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9AARM64-%E7%9A%84%E5%8F%82%E6%95%B0%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-text">总结：ARM64 的参数处理流程</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

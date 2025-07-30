@@ -1,0 +1,307 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux rmap接口用法及示例详解 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="linux rmap接口用法及示例 Linux 中的 rmap（Reverse Mapping）是一种内核机制，用于跟踪物理内存页到虚拟内存地址的映射关系。它的核心作用是高效地管理内存页的引用关系，例如在内存回收（如 kswapd）、页面迁移、NUMA 优化等场景中快速找到所有映射到某个物理页的虚拟地址。以下是其接口的用法及示例说明：  一、核心概念 反向映射：传统的页表是进程虚拟地址到物理页的映">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux rmap接口用法及示例详解">
+<meta property="og:url" content="http://helloeuler.cn/posts/eef423f.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="linux rmap接口用法及示例 Linux 中的 rmap（Reverse Mapping）是一种内核机制，用于跟踪物理内存页到虚拟内存地址的映射关系。它的核心作用是高效地管理内存页的引用关系，例如在内存回收（如 kswapd）、页面迁移、NUMA 优化等场景中快速找到所有映射到某个物理页的虚拟地址。以下是其接口的用法及示例说明：  一、核心概念 反向映射：传统的页表是进程虚拟地址到物理页的映">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.711Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/eef423f.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux rmap接口用法及示例详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Linux rmap接口用法及示例详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-03-12T16:00:00.000Z" title="发表于 2025-03-13 00:00:00">2025-03-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux rmap接口用法及示例详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>linux rmap接口用法及示例</p>
+<p>Linux 中的 <strong>rmap</strong>（Reverse Mapping）是一种内核机制，用于跟踪物理内存页到虚拟内存地址的映射关系。它的核心作用是高效地管理内存页的引用关系，例如在内存回收（如 <code>kswapd</code>）、页面迁移、NUMA 优化等场景中快速找到所有映射到某个物理页的虚拟地址。以下是其接口的用法及示例说明：</p>
+<hr>
+<h3 id="一、核心概念"><a href="#一、核心概念" class="headerlink" title="一、核心概念"></a>一、核心概念</h3><ul>
+<li><strong>反向映射</strong>：传统的页表是进程虚拟地址到物理页的映射，而反向映射（rmap）记录了物理页到所有映射它的虚拟地址的逆向关系。</li>
+<li><strong>数据结构</strong>：内核通过 <code>struct page</code>、<code>struct anon_vma</code>、<code>struct anon_vma_chain</code> 等结构实现反向映射。</li>
+</ul>
+<hr>
+<h3 id="二、关键接口与函数"><a href="#二、关键接口与函数" class="headerlink" title="二、关键接口与函数"></a>二、关键接口与函数</h3><p>以下是 Linux 内核中与 rmap 相关的关键接口：</p>
+<h4 id="1-page-referenced"><a href="#1-page-referenced" class="headerlink" title="1. page_referenced()"></a>1. <code>page_referenced()</code></h4><ul>
+<li><strong>作用</strong>：统计一个物理页被访问（referenced）的次数，用于页面回收算法（LRU）。</li>
+<li><strong>参数</strong>：<ul>
+<li><code>struct page *page</code>：目标物理页。</li>
+<li><code>int is_locked</code>：页面是否已加锁。</li>
+<li><code>struct mem_cgroup *memcg</code>：内存控制组。</li>
+<li><code>unsigned long *vm_flags</code>：返回关联的 VMA 标志。</li>
+</ul>
+</li>
+<li><strong>返回值</strong>：被访问次数。</li>
+<li><strong>示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> referenced;</span><br><span class="line">referenced = page_referenced(page, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="2-try-to-unmap"><a href="#2-try-to-unmap" class="headerlink" title="2. try_to_unmap()"></a>2. <code>try_to_unmap()</code></h4><ul>
+<li><strong>作用</strong>：解除物理页的所有映射（用于页面回收或迁移）。</li>
+<li><strong>参数</strong>：<ul>
+<li><code>struct page *page</code>：目标物理页。</li>
+<li><code>enum ttu_flags flags</code>：操作标志（如 <code>TTU_IGNORE_MLOCK</code> 忽略 mlock 的页）。</li>
+</ul>
+</li>
+<li><strong>返回值</strong>：成功返回 <code>SWAP_SUCCESS</code>，失败返回错误码。</li>
+<li><strong>示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> ret = try_to_unmap(page, TTU_IGNORE_MLOCK);</span><br><span class="line"><span class="keyword">if</span> (ret == SWAP_SUCCESS)</span><br><span class="line">    printk(<span class="string">&quot;Page unmapped successfully\n&quot;</span>);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-rmap-walk"><a href="#3-rmap-walk" class="headerlink" title="3. rmap_walk()"></a>3. <code>rmap_walk()</code></h4><ul>
+<li><strong>作用</strong>：遍历所有映射到某个物理页的虚拟地址，并对每个映射执行回调函数。</li>
+<li><strong>参数</strong>：<ul>
+<li><code>struct page *page</code>：目标物理页。</li>
+<li><code>struct rmap_walk_control *rwc</code>：控制回调函数的结构体。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rmap_walk_control</span> <span class="title">rwc</span> =</span> &#123;</span><br><span class="line">    .rmap_one = my_rmap_callback,</span><br><span class="line">    .arg = my_arg,</span><br><span class="line">&#125;;</span><br><span class="line">rmap_walk(page, &amp;rwc);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<h3 id="三、使用场景与示例"><a href="#三、使用场景与示例" class="headerlink" title="三、使用场景与示例"></a>三、使用场景与示例</h3><h4 id="场景-1：统计页面访问次数"><a href="#场景-1：统计页面访问次数" class="headerlink" title="场景 1：统计页面访问次数"></a>场景 1：统计页面访问次数</h4><p>在内存回收时，内核需要判断哪些页面是“活跃”的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span> =</span> ...; <span class="comment">// 获取目标物理页</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">long</span> referenced;</span><br><span class="line">referenced = page_referenced(page, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"><span class="keyword">if</span> (referenced &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// 页面近期被访问过，避免回收</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景-2：解除所有映射（页面迁移）"><a href="#场景-2：解除所有映射（页面迁移）" class="headerlink" title="场景 2：解除所有映射（页面迁移）"></a>场景 2：解除所有映射（页面迁移）</h4><p>在迁移物理页时，需要先解除所有旧的映射：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span> =</span> ...; <span class="comment">// 目标页</span></span><br><span class="line"><span class="type">int</span> ret = try_to_unmap(page, TTU_MIGRATION);</span><br><span class="line"><span class="keyword">if</span> (ret == SWAP_SUCCESS) &#123;</span><br><span class="line">    <span class="comment">// 解除映射成功，可以迁移页面</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="场景-3：自定义反向映射遍历"><a href="#场景-3：自定义反向映射遍历" class="headerlink" title="场景 3：自定义反向映射遍历"></a>场景 3：自定义反向映射遍历</h4><p>遍历所有映射到某页的虚拟地址，并打印信息：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">my_rmap_callback</span><span class="params">(<span class="keyword">struct</span> page *page, <span class="keyword">struct</span> vm_area_struct *vma,</span></span><br><span class="line"><span class="params">                          <span class="type">unsigned</span> <span class="type">long</span> addr, <span class="type">void</span> *arg)</span> &#123;</span><br><span class="line">    printk(<span class="string">&quot;Page is mapped at virtual address 0x%lx in PID %d\n&quot;</span>,</span><br><span class="line">           addr, vma-&gt;vm_mm-&gt;pid);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 继续遍历</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">analyze_page_mappings</span><span class="params">(<span class="keyword">struct</span> page *page)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rmap_walk_control</span> <span class="title">rwc</span> =</span> &#123;</span><br><span class="line">        .rmap_one = my_rmap_callback,</span><br><span class="line">        .arg = <span class="literal">NULL</span>,</span><br><span class="line">    &#125;;</span><br><span class="line">    rmap_walk(page, &amp;rwc);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a>四、注意事项</h3><ol>
+<li><strong>锁机制</strong>：操作 rmap 时需要确保页面和 VMA 的锁（如 <code>page_lock</code>、<code>mmap_lock</code>）已被正确获取。</li>
+<li><strong>性能</strong>：频繁操作反向映射可能影响性能，需谨慎使用。</li>
+<li><strong>内核版本差异</strong>：不同内核版本的 rmap 接口可能略有变化，需参考对应版本的源码（如 <code>mm/rmap.c</code>）。</li>
+</ol>
+<hr>
+<h3 id="五、参考资料"><a href="#五、参考资料" class="headerlink" title="五、参考资料"></a>五、参考资料</h3><ol>
+<li>Linux 内核源码：<code>mm/rmap.c</code>、<code>include/linux/rmap.h</code></li>
+<li>《Understanding the Linux Kernel》（第 3 版）</li>
+<li><a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/admin-guide/mm/reverse-mapping.html">Kernel Documentation: Reverse Mapping</a></li>
+</ol>
+<p>通过上述接口和示例，可以更灵活地操作 Linux 内存管理中的反向映射机制。</p>
+<p>Linux内核中根据vma获取pid代码示例</p>
+<p>在 Linux 内核中，要从一个虚拟内存区域（VMA，<code>struct vm_area_struct</code>）获取关联进程的 PID，可以通过访问 VMA 所属的内存描述符（<code>struct mm_struct</code>），再从中获取关联的进程（<code>struct task_struct</code>）。以下是代码示例及详细说明：</p>
+<hr>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/sched.h&gt;</span>   <span class="comment">// 包含 task_struct 定义</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/mm.h&gt;</span>      <span class="comment">// 包含 vm_area_struct 定义</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 根据 VMA 获取进程的 PID（tgid，即线程组 ID，通常等同于用户态的进程 ID）</span></span><br><span class="line"><span class="comment"> * @vma: 目标虚拟内存区域</span></span><br><span class="line"><span class="comment"> * 返回值: 关联进程的 PID，若失败则返回 -1</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">pid_t</span> <span class="title function_">get_pid_from_vma</span><span class="params">(<span class="keyword">struct</span> vm_area_struct *vma)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">mm_struct</span> *<span class="title">mm</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">task</span>;</span></span><br><span class="line">    <span class="type">pid_t</span> pid = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!vma) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;VMA is NULL\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取 VMA 关联的 mm_struct</span></span><br><span class="line">    mm = vma-&gt;vm_mm;</span><br><span class="line">    <span class="keyword">if</span> (!mm) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;mm_struct is NULL\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 安全增加 mm_users 计数，防止 mm 被释放</span></span><br><span class="line">    <span class="keyword">if</span> (!mmget_not_zero(mm)) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;mm_users is zero\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取 mm_struct 的 owner（关联的 task_struct）</span></span><br><span class="line">    task = mm-&gt;owner;</span><br><span class="line">    <span class="keyword">if</span> (!task) &#123;</span><br><span class="line">        pr_err(<span class="string">&quot;task_struct is NULL\n&quot;</span>);</span><br><span class="line">        <span class="keyword">goto</span> out_put_mm;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取进程的 PID（tgid 是线程组 ID，通常等于用户态的进程 ID）</span></span><br><span class="line">    pid = task-&gt;tgid;</span><br><span class="line"></span><br><span class="line">out_put_mm:</span><br><span class="line">    mmput(mm); <span class="comment">// 释放 mm_users 计数</span></span><br><span class="line">    <span class="keyword">return</span> pid;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="关键步骤说明"><a href="#关键步骤说明" class="headerlink" title="关键步骤说明"></a>关键步骤说明</h3><ol>
+<li><p><strong>有效性检查</strong>：</p>
+<ul>
+<li>检查 <code>vma</code> 是否为 <code>NULL</code>（例如在非法上下文中调用）。</li>
+<li>检查 <code>vma-&gt;vm_mm</code> 是否为 <code>NULL</code>（某些特殊 VMA 可能没有关联的 <code>mm_struct</code>）。</li>
+</ul>
+</li>
+<li><p>**安全引用 <code>mm_struct</code>**：</p>
+<ul>
+<li>使用 <code>mmget_not_zero(mm)</code> 增加 <code>mm-&gt;mm_users</code> 计数，防止访问过程中 <code>mm_struct</code> 被释放。</li>
+<li>如果 <code>mm_users</code> 已为 0（例如进程已退出），直接返回错误。</li>
+</ul>
+</li>
+<li><p>**获取 <code>task_struct</code>**：</p>
+<ul>
+<li>通过 <code>mm-&gt;owner</code> 获取关联的进程描述符 <code>task_struct</code>。</li>
+<li>检查 <code>task</code> 是否为 <code>NULL</code>（理论上不应发生，但需防御性编程）。</li>
+</ul>
+</li>
+<li><p><strong>提取 PID</strong>：</p>
+<ul>
+<li>使用 <code>task-&gt;tgid</code> 获取进程的线程组 ID（即用户态可见的 PID）。</li>
+<li>若需获取线程的 PID（轻量级进程 ID），可改用 <code>task-&gt;pid</code>。</li>
+</ul>
+</li>
+<li><p><strong>释放资源</strong>：</p>
+<ul>
+<li>使用 <code>mmput(mm)</code> 减少 <code>mm_users</code> 计数，确保引用计数平衡。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="使用场景示例"><a href="#使用场景示例" class="headerlink" title="使用场景示例"></a>使用场景示例</h3><p>在内核模块中遍历进程的 VMA 并打印 PID：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">iterate_vmas_and_print_pid</span><span class="params">(<span class="keyword">struct</span> mm_struct *mm)</span> &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">vm_area_struct</span> *<span class="title">vma</span>;</span></span><br><span class="line">    <span class="type">pid_t</span> pid;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历所有 VMA</span></span><br><span class="line">    <span class="keyword">for</span> (vma = mm-&gt;mmap; vma; vma = vma-&gt;vm_next) &#123;</span><br><span class="line">        pid = get_pid_from_vma(vma);</span><br><span class="line">        <span class="keyword">if</span> (pid != <span class="number">-1</span>) &#123;</span><br><span class="line">            pr_info(<span class="string">&quot;VMA [0x%lx-0x%lx] is mapped by PID %d\n&quot;</span>,</span><br><span class="line">                    vma-&gt;vm_start, vma-&gt;vm_end, pid);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ol>
+<li><p><strong>并发安全</strong>：</p>
+<ul>
+<li>操作 <code>mm_struct</code> 和 <code>task_struct</code> 时需确保上下文安全（例如持有 <code>mmap_lock</code> 或使用 RCU）。</li>
+<li>若在中断上下文或非进程上下文中调用，需额外验证可行性。</li>
+</ul>
+</li>
+<li><p><strong>内核版本差异</strong>：</p>
+<ul>
+<li><code>mm-&gt;owner</code> 的可用性：在较旧内核（如 2.6.32 之前）中可能不存在，需确认目标内核版本。</li>
+<li>新版本内核中可能引入更精细的锁机制（如 <code>mmap_read_lock()</code>）。</li>
+</ul>
+</li>
+<li><p><strong>线程与进程</strong>：</p>
+<ul>
+<li><code>task-&gt;tgid</code> 表示线程组 ID（即用户态 PID），<code>task-&gt;pid</code> 表示线程的轻量级 PID。</li>
+<li>若需获取创建 VMA 的具体线程 PID，可使用 <code>task-&gt;pid</code>。</li>
+</ul>
+</li>
+<li><p><strong>调试信息</strong>：</p>
+<ul>
+<li>可通过 <code>pr_info(&quot;Process name: %s\n&quot;, task-&gt;comm)</code> 打印进程名。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ol>
+<li>Linux 内核源码：<ul>
+<li><code>include/linux/mm_types.h</code>（<code>vm_area_struct</code> 定义）</li>
+<li><code>include/linux/sched.h</code>（<code>task_struct</code> 定义）</li>
+<li><code>kernel/fork.c</code>（<code>mmget_not_zero</code> 和 <code>mmput</code> 实现）</li>
+</ul>
+</li>
+<li>《Linux Kernel Development》（Robert Love 著）</li>
+<li><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/">Linux Cross Reference</a>（在线源码检索）</li>
+</ol>
+<p>通过上述代码和说明，可以安全地在 Linux 内核中根据 VMA 获取关联进程的 PID。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/eef423f.html">http://helloeuler.cn/posts/eef423f.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/7c4de9aa.html" title="Linux内核模块查找进程示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux内核模块查找进程示例</div></div></a></div><div class="next-post pull-right"><a href="/posts/996632d0.html" title="共享内存数据一致性解决方案"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">共享内存数据一致性解决方案</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-text">一、核心概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%85%B3%E9%94%AE%E6%8E%A5%E5%8F%A3%E4%B8%8E%E5%87%BD%E6%95%B0"><span class="toc-text">二、关键接口与函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-page-referenced"><span class="toc-text">1. page_referenced()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-try-to-unmap"><span class="toc-text">2. try_to_unmap()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-rmap-walk"><span class="toc-text">3. rmap_walk()</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B8%8E%E7%A4%BA%E4%BE%8B"><span class="toc-text">三、使用场景与示例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-1%EF%BC%9A%E7%BB%9F%E8%AE%A1%E9%A1%B5%E9%9D%A2%E8%AE%BF%E9%97%AE%E6%AC%A1%E6%95%B0"><span class="toc-text">场景 1：统计页面访问次数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-2%EF%BC%9A%E8%A7%A3%E9%99%A4%E6%89%80%E6%9C%89%E6%98%A0%E5%B0%84%EF%BC%88%E9%A1%B5%E9%9D%A2%E8%BF%81%E7%A7%BB%EF%BC%89"><span class="toc-text">场景 2：解除所有映射（页面迁移）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF-3%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%8D%E5%90%91%E6%98%A0%E5%B0%84%E9%81%8D%E5%8E%86"><span class="toc-text">场景 3：自定义反向映射遍历</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">四、注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">五、参考资料</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="toc-text">代码示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%AD%A5%E9%AA%A4%E8%AF%B4%E6%98%8E"><span class="toc-text">关键步骤说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%E7%A4%BA%E4%BE%8B"><span class="toc-text">使用场景示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

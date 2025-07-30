@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>卡诺图使用注意事项总结 | Helloeuler</title><meta name="author" content="juyin"><meta name="copyright" content="juyin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="kmap使用注意事项 卡诺图（Karnaugh Map，简称 Kmap）是简化布尔代数表达式的强大工具，但要有效且正确地使用它，需要注意以下关键事项：  变量顺序至关重要：  行和列的变量顺序必须固定，并且使用格雷码（Gray Code） 排列。格雷码的特点是相邻的码组之间只有一位不同，这保证了卡诺图上物理相邻的单元在逻辑上也是相邻的（即只有一个变量发生变化）。 错误示例： 对于两个变量 A, B">
+<meta property="og:type" content="article">
+<meta property="og:title" content="卡诺图使用注意事项总结">
+<meta property="og:url" content="http://helloeuler.cn/posts/a9dd2cbd.html">
+<meta property="og:site_name" content="Helloeuler">
+<meta property="og:description" content="kmap使用注意事项 卡诺图（Karnaugh Map，简称 Kmap）是简化布尔代数表达式的强大工具，但要有效且正确地使用它，需要注意以下关键事项：  变量顺序至关重要：  行和列的变量顺序必须固定，并且使用格雷码（Gray Code） 排列。格雷码的特点是相邻的码组之间只有一位不同，这保证了卡诺图上物理相邻的单元在逻辑上也是相邻的（即只有一个变量发生变化）。 错误示例： 对于两个变量 A, B">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helloeuler.cn/images/logo.png">
+<meta property="article:published_time" content="2025-07-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-30T15:22:22.754Z">
+<meta property="article:author" content="juyin">
+<meta property="article:tag" content="deepseek">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helloeuler.cn/images/logo.png"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="http://helloeuler.cn/posts/a9dd2cbd.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: juyin","link":"链接: ","source":"来源: Helloeuler","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '卡诺图使用注意事项总结',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-07-30 23:22:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://helloeuler.cn/images/logo.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Helloeuler"><span class="site-name">Helloeuler</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">卡诺图使用注意事项总结</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2025-07-13T16:00:00.000Z" title="发表于 2025-07-14 00:00:00">2025-07-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/deepseek/">deepseek</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="卡诺图使用注意事项总结"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>kmap使用注意事项</p>
+<p>卡诺图（Karnaugh Map，简称 Kmap）是简化布尔代数表达式的强大工具，但要有效且正确地使用它，需要注意以下关键事项：</p>
+<ol>
+<li><p><strong>变量顺序至关重要：</strong></p>
+<ul>
+<li>行和列的变量顺序必须固定，并且<strong>使用格雷码（Gray Code）</strong> 排列。格雷码的特点是相邻的码组之间只有一位不同，这保证了卡诺图上物理相邻的单元在逻辑上也是相邻的（即只有一个变量发生变化）。</li>
+<li><strong>错误示例：</strong> 对于两个变量 A, B，如果行用 <code>A: 0, 1</code>，列用 <code>B: 0, 1</code>（二进制顺序），那么 <code>A=0,B=1</code> 和 <code>A=1,B=0</code> 这两个单元在二进制上相邻，但在逻辑上它们有两个变量不同（A 和 B 都变了），它们在卡诺图上并不相邻（是对角线位置）！</li>
+<li><strong>正确做法：</strong> 行用 <code>A: 0, 1</code>，列用 <code>B: 0, 1</code>（格雷码顺序，相邻单元只差一位）。对于更多变量，同样需要严格按照格雷码顺序排列行和列的值。</li>
+</ul>
+</li>
+<li><p><strong>正确填入真值表：</strong></p>
+<ul>
+<li>仔细根据逻辑函数、真值表或最小项&#x2F;最大项列表，将对应的 <code>1</code>（对于 SOP）、<code>0</code>（对于 POS）或 <code>X</code>（无关项）准确地填入 Kmap 的每个单元格中。一个填错就会导致最终结果错误。</li>
+</ul>
+</li>
+<li><p><strong>画圈（分组）规则（针对 SOP 简化）：</strong></p>
+<ul>
+<li><strong>圈 <code>1</code>：</strong> 目标是覆盖 Kmap 上所有的 <code>1</code>。</li>
+<li><strong>矩形形状：</strong> 圈必须是<strong>矩形或正方形</strong>。不能是 L 形、对角线形或其他不规则形状。</li>
+<li><strong>大小：</strong> 圈的大小必须是 <strong>2^n</strong> 个单元（1, 2, 4, 8, 16…）。圈越大，消去的变量越多，乘积项越简单。</li>
+<li><strong>最大化：</strong> 尽可能画<strong>最大的圈</strong>（包含尽可能多的 <code>1</code>）。大圈优先。</li>
+<li><strong>覆盖所有 <code>1</code>：</strong> 确保每个 <code>1</code> 至少被一个圈覆盖。允许圈与圈之间有重叠（一个 <code>1</code> 可以被多个圈覆盖）。</li>
+<li><strong>避免冗余：</strong> 每个圈必须包含<strong>至少一个</strong>未被其他圈覆盖的 <code>1</code>（即这个圈是必要的）。如果一个圈里的所有 <code>1</code> 都已经被其他圈完全覆盖了，那么这个圈就是冗余的，应该去掉。</li>
+<li><strong>邻接性：</strong> Kmap 是<strong>循环的</strong>！最左边一列和最右边一列是相邻的；最上面一行和最下面一行是相邻的；四个角也是相邻的。画圈时要充分利用这种拓扑结构。</li>
+<li><strong>无关项 (<code>X</code>)：</strong> 可以自由选择将无关项当作 <code>1</code> 或 <code>0</code> 来使用，目的是帮助形成<strong>更大、更少</strong>的圈（从而得到更简化的表达式）。不能将只包含 <code>X</code> 的单元单独画圈。目的是利用 <code>X</code> 来优化覆盖 <code>1</code> 的圈。</li>
+</ul>
+</li>
+<li><p><strong>处理无关项 (<code>X</code>)：</strong></p>
+<ul>
+<li><strong>核心原则：</strong> 无关项不是必须覆盖的。它们的存在是为了提供灵活性。</li>
+<li><strong>策略：</strong><ul>
+<li>如果一个 <code>X</code> 能帮助你把一个圈<strong>变大</strong>（比如从 2 个单元变成 4 个单元），或者帮助你<strong>减少圈的总数</strong>，那么把它当作 <code>1</code> 圈进来。</li>
+<li>如果一个 <code>X</code> 对形成更大的圈或减少圈数没有帮助，或者甚至会迫使你画一个只包含 <code>X</code> 的无效圈，那么把它当作 <code>0</code>（忽略它）。</li>
+</ul>
+</li>
+<li><strong>权衡：</strong> 有时一个 <code>X</code> 在这个圈里被当作 <code>1</code>，但在另一个可能的圈里可能被当作 <code>0</code>。选择能带来<strong>最简整体表达式</strong>的方式。</li>
+</ul>
+</li>
+<li><p><strong>读圈（提取乘积项）：</strong></p>
+<ul>
+<li>观察圈所覆盖的行和列的范围。</li>
+<li>对于圈内<strong>保持不变</strong>的变量：<ul>
+<li>如果该变量在其范围内<strong>始终为 <code>0</code><strong>，则在乘积项中写入该变量的</strong>反变量（补）</strong>。</li>
+<li>如果该变量在其范围内<strong>始终为 <code>1</code><strong>，则在乘积项中写入该变量的</strong>原变量</strong>。</li>
+<li>如果该变量在圈内<strong>既有 <code>0</code> 也有 <code>1</code><strong>（即该变量在圈跨越的范围内发生了变化），则该变量会被消去，</strong>不出现在</strong>最终的乘积项中。</li>
+</ul>
+</li>
+<li>将所有圈对应的乘积项用 <strong>OR (+)</strong> 连接起来，即得到最简的 SOP 表达式。</li>
+</ul>
+</li>
+<li><p><strong>检查最简性：</strong></p>
+<ul>
+<li>在初步画完圈后，检查一下：<ul>
+<li>是否所有的 <code>1</code> 都被覆盖了？</li>
+<li>是否还有可能画出更大的圈来替代现有的小圈？</li>
+<li>是否所有的圈都是必要的（每个圈都有自己独有的 <code>1</code>）？</li>
+<li>是否充分利用了无关项来简化？</li>
+</ul>
+</li>
+<li>有时可能存在多种等效的最简圈法，得到的表达式形式不同但复杂度相同。</li>
+</ul>
+</li>
+<li><p><strong>多输出函数优化：</strong></p>
+<ul>
+<li>如果需要同时简化多个相关的输出函数，不要孤立地优化每个函数。</li>
+<li>寻找可以<strong>共享</strong>的乘积项（Prime Implicants）。一个乘积项如果能被多个输出函数使用，那么整体电路可能更简单（共享的门电路）。</li>
+<li>这比单输出优化更复杂，通常需要更系统的方法（如列表法）或仔细分析多个 Kmap 的重叠部分。</li>
+</ul>
+</li>
+<li><p><strong>维数限制：</strong></p>
+<ul>
+<li>Kmap 最适合 <strong>2 到 5 或 6 个变量</strong>。超过 6 个变量时，图形变得非常复杂且难以可视化（需要 3D 或更高维表示），此时使用<strong>奎因-麦克拉斯基算法（Quine-McCluskey Algorithm）</strong> 等列表方法更可行。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结关键步骤：</strong></p>
+<ol>
+<li><strong>确定变量，按格雷码顺序排列 Kmap。</strong></li>
+<li><strong>根据函数填入 <code>1</code>, <code>0</code>, <code>X</code>。</strong></li>
+<li><strong>画圈覆盖所有 <code>1</code>：大圈优先、矩形、2^n 大小、利用邻接、避免冗余、善用 <code>X</code>。</strong></li>
+<li><strong>读圈：变量不变则保留（原&#x2F;反），变化则消去。</strong></li>
+<li><strong>OR 连接所有圈的乘积项（SOP）。</strong></li>
+<li><strong>检查：覆盖性、大小、必要性、<code>X</code>利用。</strong></li>
+</ol>
+<p>牢记这些注意事项并多加练习，你将能更准确、高效地运用卡诺图来化简逻辑表达式。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://helloeuler.cn">juyin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://helloeuler.cn/posts/a9dd2cbd.html">http://helloeuler.cn/posts/a9dd2cbd.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://helloeuler.cn" target="_blank">Helloeuler</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deepseek/">deepseek</a></div><div class="post_share"><div class="social-share" data-image="https://helloeuler.cn/images/logo.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/234cdb8.html" title="内核系统调用流程判断方法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">内核系统调用流程判断方法</div></div></a></div><div class="next-post pull-right"><a href="/posts/b2235aa0.html" title="黄金奈李与翡翠奈李选择指南"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">黄金奈李与翡翠奈李选择指南</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux 5.10内核__vfs_getxattr函数用法</div></div></a></div><div><a href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux __vfs_getxattr函数用法及示例，要求不能</div></div></a></div><div><a href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核vfs_getxattr接口不使用睡眠函数的实现</div></div></a></div><div><a href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux内核接口__vfs_getxattr的用法及示例</div></div></a></div><div><a href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">Linux读取文件扩展属性方法总结</div></div></a></div><div><a href="/posts/d87361b5.html" title="读取文件扩展属性的命令"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-30</div><div class="title">读取文件扩展属性的命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://helloeuler.cn/images/logo.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">juyin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">324</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/39f420df.html" title="Linux 5.10内核__vfs_getxattr函数用法">Linux 5.10内核__vfs_getxattr函数用法</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/3bcbf9a2.html" title="Linux __vfs_getxattr函数用法及示例，要求不能">Linux __vfs_getxattr函数用法及示例，要求不能</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/d315b35c.html" title="Linux内核vfs_getxattr接口不使用睡眠函数的实现">Linux内核vfs_getxattr接口不使用睡眠函数的实现</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/24f5f723.html" title="Linux内核接口__vfs_getxattr的用法及示例">Linux内核接口__vfs_getxattr的用法及示例</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/2aea0fde.html" title="Linux读取文件扩展属性方法总结">Linux读取文件扩展属性方法总结</a><time datetime="2025-07-29T16:00:00.000Z" title="发表于 2025-07-30 00:00:00">2025-07-30</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">Copyrigh &copy;2016 - 2025 By juyin</div><div class="framework-info"><a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"> Theme(Butterfly)</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
